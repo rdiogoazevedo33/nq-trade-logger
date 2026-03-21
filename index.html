@@ -361,6 +361,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 <div id="acct-screen">
   <div class="as-brand"><div class="as-icon">NQ</div><div class="as-title">Trade Logger</div></div>
   <div class="as-sub">Seleciona a conta para começar</div>
+  <div id="sb-auth-bar" style="margin-bottom:20px"></div>
   <div class="acct-grid" id="acct-grid"></div>
   <div style="margin-top:12px"><button class="btn btn-ghost" onclick="addAcct()">+ Nova conta</button></div>
 </div>
@@ -373,6 +374,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
       <div><div class="brand-name">Trade Logger</div><div class="brand-acct" id="nav-acct"></div></div>
     </div>
     <div style="display:flex;gap:8px;align-items:center">
+      <div id="sb-auth-bar"></div>
       <span style="font-size:10px;font-family:var(--mono);color:var(--hint)" id="save-lbl"></span>
       <button class="btn btn-ghost btn-sm" onclick="goAccts()">← contas</button>
       <button class="btn btn-ghost btn-sm" onclick="exportAllData()" title="Exportar todos os dados para backup">↓ Backup</button>
@@ -805,7 +807,89 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 </div>
 
 <div class="toast" id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+// ═══════════════════════════════════════════
+// SUPABASE
+// ═══════════════════════════════════════════
+const SB_URL  = "https://zjwpfldjpcjigywbrxtw.supabase.co";
+const SB_KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpqd3BmbGRqcGNqaWd5d2JyeHR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDcxODcsImV4cCI6MjA4OTY4MzE4N30.5DEsybnafgRSoDlqSkaL2HUu2w5sAkC7LrVVheTadms";
+const sb = supabase.createClient(SB_URL, SB_KEY);
+let sbUser = null;
+
+async function sbInit() {
+  const { data: { session } } = await sb.auth.getSession();
+  sbUser = session?.user || null;
+  if (sbUser) { await sbPullData(); showSbStatus(); }
+  else showSbLogin();
+  sb.auth.onAuthStateChange(async (event, session) => {
+    sbUser = session?.user || null;
+    if (event === "SIGNED_IN") { await sbPullData(); showSbStatus(); }
+    if (event === "SIGNED_OUT") showSbLogin();
+  });
+}
+
+async function sbPullData() {
+  if (!sbUser) return;
+  const { data, error } = await sb.from("user_data").select("key,value").eq("user_id", sbUser.id);
+  if (error) { console.error("sbPullData:", error); return; }
+  data.forEach(row => {
+    if (row.key === "nq10_a") { try { accounts = row.value; } catch(e){} }
+    if (row.key === "nq10_t") { try { allT = row.value; } catch(e){} }
+    if (row.key === "nq10_ps") { try { psData = row.value; } catch(e){} }
+  });
+  localStorage.setItem("nq10_a", JSON.stringify(accounts));
+  localStorage.setItem("nq10_t", JSON.stringify(allT));
+  localStorage.setItem("nq10_ps", JSON.stringify(psData));
+  renderAccts();
+}
+
+async function sbPushKey(key, value) {
+  if (!sbUser) return;
+  await sb.from("user_data").upsert({ user_id: sbUser.id, key, value, updated_at: new Date().toISOString() }, { onConflict: "user_id,key" });
+}
+
+function showSbLogin() {
+  const el = document.getElementById("sb-auth-bar"); if (!el) return;
+  el.innerHTML = '<div style="display:flex;align-items:center;gap:8px">' +
+    '<input type="email" id="sb-email" placeholder="email" style="font-family:var(--mono);font-size:11px;background:var(--s3);border:1px solid var(--b1);border-radius:6px;color:var(--text);padding:4px 9px;outline:none;width:160px">' +
+    '<input type="password" id="sb-pass" placeholder="password" style="font-family:var(--mono);font-size:11px;background:var(--s3);border:1px solid var(--b1);border-radius:6px;color:var(--text);padding:4px 9px;outline:none;width:110px">' +
+    '<button class="btn btn-accent btn-sm" onclick="sbLogin()">Entrar</button>' +
+    '<button class="btn btn-ghost btn-sm" onclick="sbSignUp()">Registar</button>' +
+    '</div>';
+}
+
+function showSbStatus() {
+  const el = document.getElementById("sb-auth-bar"); if (!el) return;
+  el.innerHTML = '<div style="display:flex;align-items:center;gap:8px">' +
+    '<span style="font-family:var(--mono);font-size:10px;color:var(--green)">● ' + sbUser.email + '</span>' +
+    '<button class="btn btn-ghost btn-sm" onclick="sbLogout()">Sair</button>' +
+    '</div>';
+}
+
+async function sbLogin() {
+  const email = document.getElementById("sb-email")?.value?.trim();
+  const pass  = document.getElementById("sb-pass")?.value?.trim();
+  if (!email || !pass) return toast("Preenche email e password", "err");
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (error) toast("Erro: " + error.message, "err");
+  else toast("Sessão iniciada ✓", "ok");
+}
+
+async function sbSignUp() {
+  const email = document.getElementById("sb-email")?.value?.trim();
+  const pass  = document.getElementById("sb-pass")?.value?.trim();
+  if (!email || !pass) return toast("Preenche email e password", "err");
+  if (pass.length < 6) return toast("Password mínimo 6 caracteres", "err");
+  const { error } = await sb.auth.signUp({ email, password: pass });
+  if (error) toast("Erro: " + error.message, "err");
+  else toast("Conta criada — verifica o email ✓", "ok");
+}
+
+async function sbLogout() {
+  await sb.auth.signOut();
+  toast("Sessão terminada", "ok");
+}
 // ═══════════════════════════════════════════
 // STORAGE
 // ═══════════════════════════════════════════
@@ -832,9 +916,14 @@ function persist() {
   localStorage.setItem(SK_T, JSON.stringify(allT));
   const el = document.getElementById("save-lbl");
   if (el) el.textContent = "guardado " + new Date().toLocaleTimeString("pt", { hour: "2-digit", minute: "2-digit" });
+  sbPushKey("nq10_a", accounts);
+  sbPushKey("nq10_t", allT);
 }
 
-function savePSData() { localStorage.setItem(SK_PS, JSON.stringify(psData)); }
+function savePSData() {
+  localStorage.setItem(SK_PS, JSON.stringify(psData));
+  sbPushKey("nq10_ps", psData);
+}
 
 function dayTrades(iso) { return (allT[curAcct.id] || []).filter(t => t.date === iso); }
 function acctTrades() { return allT[curAcct.id] || []; }
@@ -842,6 +931,7 @@ function setAcctTrades(arr) { allT[curAcct.id] = arr; persist(); }
 function todayISO() { return new Date().toISOString().split("T")[0]; }
 
 loadData();
+sbInit();
 
 // ═══════════════════════════════════════════
 // CONFLUENCES
