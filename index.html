@@ -833,6 +833,14 @@ async function sbPullData() {
   if (!sbUser) return;
   const { data, error } = await sb.from("user_data").select("key,value").eq("user_id", sbUser.id);
   if (error) { console.error("sbPullData:", error); return; }
+  if (data.length === 0) {
+    // Supabase vazio — faz upload dos dados locais para a cloud
+    await sbPushKey("nq10_a", accounts);
+    await sbPushKey("nq10_t", allT);
+    await sbPushKey("nq10_ps", psData);
+    showToast("Dados enviados para a cloud!");
+    return;
+  }
   data.forEach(row => {
     if (row.key === "nq10_a") { try { accounts = row.value; } catch(e){} }
     if (row.key === "nq10_t") { try { allT = row.value; } catch(e){} }
