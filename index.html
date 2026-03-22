@@ -353,6 +353,57 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .toast.ok{background:var(--green);color:#041a0f}
 .toast.err{background:var(--red);color:#fff}
 .toast.info{background:var(--accent);color:#fff}
+
+/* DASHBOARD */
+.dash-metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:14px}
+@media(max-width:900px){.dash-metrics{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.dash-metrics{grid-template-columns:repeat(2,1fr)}}
+.dash-mcard{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:14px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px}
+.dash-mval{font-size:22px;font-weight:700;font-family:var(--mono);line-height:1}
+.dash-mlbl{font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em}
+.dash-charts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+@media(max-width:700px){.dash-charts{grid-template-columns:1fr}}
+.dash-bottom{display:grid;grid-template-columns:1fr 340px;gap:10px;margin-bottom:14px}
+@media(max-width:800px){.dash-bottom{grid-template-columns:1fr}}
+
+/* NQ SCALE BAR */
+.nqscale-wrap{padding:4px 0 6px}
+.nqscale-bar{position:relative;height:8px;border-radius:4px;background:linear-gradient(to right,var(--red) 0%,var(--red) 33%,var(--amber) 33%,var(--amber) 66%,var(--green) 66%,var(--green) 100%);margin:4px 0 2px}
+.nqscale-marker{position:absolute;top:-3px;width:14px;height:14px;border-radius:50%;background:var(--text);border:2px solid var(--bg);transform:translateX(-50%);transition:left .3s}
+.nqscale-labels{display:flex;justify-content:space-between;font-size:9px;font-family:var(--mono);color:var(--hint)}
+
+/* MISTAKE CHIPS */
+.mistake-grid{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.mistake-chip{font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:5px;border:1px solid var(--b1);background:var(--s2);color:var(--hint);cursor:pointer;transition:all .12s}
+.mistake-chip.on{background:#1f0707;border-color:var(--red);color:var(--red)}
+
+/* JOURNAL */
+.journal-day{background:var(--s1);border:1px solid var(--b1);border-radius:14px;margin-bottom:10px;overflow:hidden}
+.journal-day-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;transition:background .12s;gap:10px;flex-wrap:wrap}
+.journal-day-hdr:hover{background:var(--s2)}
+.journal-day-body{display:none;border-top:1px solid var(--b1)}
+.journal-day.open .journal-day-body{display:block}
+.journal-day-stats{display:flex;gap:14px;flex-wrap:wrap;padding:10px 16px;background:var(--s2);border-bottom:1px solid var(--b1);align-items:center}
+.journal-day-stat{text-align:center}
+.journal-day-stat-val{font-family:var(--mono);font-size:13px;font-weight:600}
+.journal-day-stat-lbl{font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.05em}
+.journal-trade-row{display:grid;grid-template-columns:64px 52px 48px 120px 1fr 72px 70px;align-items:center;gap:6px;padding:8px 16px;border-bottom:1px solid var(--b1);font-family:var(--mono);font-size:11px;cursor:pointer;transition:background .1s}
+.journal-trade-row:hover{background:var(--s2)}
+.journal-trade-row:last-child{border-bottom:none}
+
+/* REPORTS */
+.report-inner-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px}
+.rit-btn{font-family:var(--mono);font-size:11px;padding:5px 12px;border-radius:7px;border:1px solid var(--b1);background:transparent;color:var(--hint);cursor:pointer;transition:all .13s}
+.rit-btn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.stat-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px}
+.stat-table td{padding:7px 10px;border-bottom:1px solid var(--b1)}
+.stat-table td:first-child{color:var(--sub)}
+.stat-table td:last-child{font-weight:600;text-align:right}
+.stat-table tr:last-child td{border-bottom:none}
+.stat-table thead th{padding:7px 10px;text-align:left;font-size:10px;color:var(--hint);text-transform:uppercase;background:var(--s2);border-bottom:1px solid var(--b1)}
+.stat-table thead th:not(:first-child){text-align:right}
+.stat-two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px}
+@media(max-width:700px){.stat-two-col{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -377,22 +428,63 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
       <div id="sb-auth-bar"></div>
       <span style="font-size:10px;font-family:var(--mono);color:var(--hint)" id="save-lbl"></span>
       <button class="btn btn-ghost btn-sm" onclick="goAccts()">← contas</button>
+      <span style="font-size:10px;font-family:var(--mono);color:var(--hint)" id="backup-lbl"></span>
       <button class="btn btn-ghost btn-sm" onclick="exportAllData()" title="Exportar todos os dados para backup">↓ Backup</button>
       <label class="btn btn-ghost btn-sm" style="cursor:pointer" title="Importar backup">↑ Restaurar<input type="file" accept=".json" style="display:none" onchange="importAllData(event)"></label>
-      <button class="btn btn-green btn-sm" onclick="exportCSV()">↓ CSV</button>
+      <button class="btn btn-ghost btn-sm" onclick="exportAllCSV()" title="Exportar todas as trades em CSV">↓ CSV Completo</button>
+      <button class="btn btn-green btn-sm" onclick="exportCSV()">↓ CSV Dia</button>
     </div>
   </div>
   <div class="tabs">
-    <button class="tab on"  onclick="showTab('trades',this)">Trades</button>
+    <button class="tab on"  onclick="showTab('dashboard',this)">Dashboard</button>
+    <button class="tab"     onclick="showTab('journal',this)">Diário</button>
+    <button class="tab"     onclick="showTab('trades',this)">Trades</button>
     <button class="tab"     onclick="showTab('import',this)">+ CSV</button>
     <button class="tab"     onclick="showTab('presessao',this)">📰 Pré-sessão</button>
+    <button class="tab"     onclick="showTab('reports',this)">Reports</button>
     <button class="tab"     onclick="showTab('quant',this)">Quant</button>
     <button class="tab"     onclick="showTab('cal',this)">Calendário</button>
   </div>
   <div class="content">
 
+    <!-- DASHBOARD -->
+    <div class="view on" id="view-dashboard">
+      <div id="dashboard-body"><div style="text-align:center;padding:60px;color:var(--hint);font-family:var(--mono);font-size:12px">Importa trades para ver o dashboard</div></div>
+    </div>
+
+    <!-- JOURNAL -->
+    <div class="view" id="view-journal">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <span style="font-size:13px;font-weight:600">Diário de Trades</span>
+        <span style="font-size:11px;font-family:var(--mono);color:var(--hint)" id="journal-lbl"></span>
+      </div>
+      <div id="journal-body"><div style="text-align:center;padding:60px;color:var(--hint);font-family:var(--mono);font-size:12px">Importa trades para ver o diário</div></div>
+    </div>
+
+    <!-- REPORTS -->
+    <div class="view" id="view-reports">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+        <div class="report-inner-tabs" style="margin-bottom:0">
+          <button class="rit-btn on" onclick="setReportTab('overview',this)">Overview</button>
+          <button class="rit-btn" onclick="setReportTab('detailed',this)">Detailed</button>
+          <button class="rit-btn" onclick="setReportTab('winsloss',this)">Wins vs Losses</button>
+          <button class="rit-btn" onclick="setReportTab('calendar',this)">Calendário</button>
+        </div>
+        <div id="report-scope-row" style="display:flex;gap:5px;flex-wrap:wrap"></div>
+        <button class="btn btn-ghost btn-sm" style="color:var(--purple);margin-left:auto" onclick="analyzeEdgeWithClaude()">✦ Edge Finder</button>
+      </div>
+      <div id="claude-edge-panel" style="display:none;margin-bottom:12px;background:var(--s1);border:1px solid var(--purple);border-radius:14px;overflow:hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--b1)">
+          <span style="font-size:10px;font-family:var(--mono);color:var(--purple);text-transform:uppercase;letter-spacing:.08em">✦ Claude — Edge Finder</span>
+          <button onclick="document.getElementById('claude-edge-panel').style.display='none'" style="background:transparent;border:none;color:var(--hint);cursor:pointer;font-size:14px">✕</button>
+        </div>
+        <div id="claude-edge-body" style="padding:16px;font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap;font-family:var(--sans)"></div>
+      </div>
+      <div id="reports-body"></div>
+    </div>
+
     <!-- TRADES -->
-    <div class="view on" id="view-trades">
+    <div class="view" id="view-trades">
       <div class="sess-bar">
         <span style="font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.08em">Sessão</span>
         <input type="date" class="date-in" id="sess-date" onchange="onDateChange()">
@@ -751,6 +843,15 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
           <div class="rv-rbar-track"><div id="rv-rr-real-bar" class="rv-rbar-fill" style="width:0%;background:var(--green)"></div></div>
         </div>
       </div>
+      <!-- NQ Scale -->
+      <div style="padding:10px 14px;border-bottom:1px solid var(--b1)">
+        <div style="font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">NQ Scale</div>
+        <div class="nqscale-wrap">
+          <div class="nqscale-bar"><div class="nqscale-marker" id="rv-nqscale-marker" style="left:0%"></div></div>
+          <div class="nqscale-labels"><span>Fraca</span><span>OK</span><span>Boa</span><span>Perfeita</span></div>
+        </div>
+        <div id="rv-nqscale-lbl" style="font-size:10px;font-family:var(--mono);color:var(--sub);text-align:center;margin-top:2px">—</div>
+      </div>
       <div id="rv-ctx-banner" style="display:none;padding:11px 14px;border-bottom:1px solid var(--b1);font-size:11px"></div>
       <div class="rv-running">
         <div class="rv-run-lbl">Running P&L do dia</div>
@@ -762,6 +863,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
         <button class="rv-tab on" onclick="rvTab('notes',this)">📝 Notas</button>
         <button class="rv-tab" onclick="rvTab('prints',this)">📸 Prints</button>
         <button class="rv-tab" onclick="rvTab('confs',this)">🔗 Confluências</button>
+        <button class="rv-tab" onclick="rvTab('mistakes',this)">⚠ Erros</button>
       </div>
       <div class="rv-tab-body">
         <div id="rvt-notes">
@@ -800,6 +902,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
         <div id="rvt-confs" style="display:none">
           <div style="font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Confluências desta trade</div>
           <div id="rv-conf-list"></div>
+        </div>
+        <div id="rvt-mistakes" style="display:none">
+          <div style="font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Tags de erros — seleciona os que se aplicam</div>
+          <div class="mistake-grid" id="rv-mistakes"></div>
         </div>
       </div>
     </div>
@@ -1076,7 +1182,8 @@ function selectAcct(id) {
   document.getElementById("sess-date").value = curDate;
   buildConfs("m-confs", "[]", "cchip", "sr-btn", "sr-btn", "toggleConf", "setSR");
   renderSessBar(); renderList(); renderCalendar();
-  showTab("trades", document.querySelectorAll(".tab")[0]);
+  updateBackupLbl();
+  showTab("dashboard", document.querySelectorAll(".tab")[0]);
 }
 function goAccts() {
   document.getElementById("app").style.display = "none";
@@ -1183,8 +1290,11 @@ function parseCSV(text, fname) {
     const exit = parseFloat(g(ci.exit)) || null;
     const pnl = parseFloat(g(ci.pnl)) || 0;
     const dir = qty < 0 ? "Short" : (exit && entry ? (exit > entry ? "Long" : "Short") : "Long");
-    const dt = (g(ci.dt) || todayISO()).split("T")[0];
-    return { id: Date.now() + idx + Math.random(), date: dt, symbol: (g(ci.sym) || "NQ").toUpperCase(), direction: dir, entry, exit, pnl, risk: null, stop: null, tp: null, rr: null, r: 0, confluences: "[]", score: 0, notes: "", notesHTML: "", screenshots: [], rating: 0 };
+    const dtRaw = g(ci.dt) || todayISO();
+    const dtParts = dtRaw.replace("T"," ").split(" ");
+    const dt = dtParts[0].split("T")[0];
+    const time = dtParts[1] ? dtParts[1].slice(0,8) : null;
+    return { id: Date.now() + idx + Math.random(), date: dt, time: time, symbol: (g(ci.sym) || "NQ").toUpperCase(), direction: dir, entry, exit, pnl, risk: null, stop: null, tp: null, rr: null, r: 0, confluences: "[]", score: 0, notes: "", notesHTML: "", screenshots: [], rating: 0 };
   }).filter(t => !isNaN(t.pnl));
   if (!parsed.length) { toast("Sem trades válidas", "err"); return; }
   const byDay = {}; parsed.forEach(t => { if (!byDay[t.date]) byDay[t.date] = []; byDay[t.date].push(t); });
@@ -1295,6 +1405,9 @@ function showTab(id, btn) {
   if (id === "quant") { buildScope(); renderQuant(); }
   if (id === "cal") renderCalendar();
   if (id === "presessao") initPS();
+  if (id === "dashboard") renderDashboard();
+  if (id === "journal") renderJournal();
+  if (id === "reports") renderReports();
 }
 
 // ═══════════════════════════════════════════
@@ -1906,7 +2019,7 @@ function renderReview() {
   document.getElementById("rv-stop").value = t.stop || "";
   document.getElementById("rv-tp").value = t.tp || "";
   document.getElementById("rv-risk").value = t.risk || "";
-  rvCalcRR(); rvRenderStars(t.rating || 0); rvRenderProcessScore(t);
+  rvCalcRR(); rvRenderStars(t.rating || 0); rvRenderProcessScore(t); rvRenderNQScale(t); rvRenderMistakes();
   // Day context banner in review left panel (show above running pnl)
   const ctxBanner = document.getElementById("rv-ctx-banner");
   if (ctxBanner && ctx) {
@@ -2040,7 +2153,7 @@ function rvSetRating(v) {
   rvRenderStars(v);
 }
 function rvRenderStars(v) { document.querySelectorAll(".rv-star").forEach((s, i) => { s.textContent = i < v ? "★" : "☆"; s.style.color = i < v ? "var(--amber)" : "var(--hint)"; }); }
-function rvTab(id, btn) { ["notes","prints","confs"].forEach(t => { document.getElementById("rvt-" + t).style.display = t === id ? "block" : "none"; }); document.querySelectorAll(".rv-tab").forEach(b => b.classList.remove("on")); btn.classList.add("on"); }
+function rvTab(id, btn) { ["notes","prints","confs","mistakes"].forEach(t => { document.getElementById("rvt-" + t).style.display = t === id ? "block" : "none"; }); document.querySelectorAll(".rv-tab").forEach(b => b.classList.remove("on")); btn.classList.add("on"); }
 function rvfmt(cmd) { document.getElementById("rv-editor").focus(); document.execCommand(cmd); }
 function rvAddPrints(e) {
   const files = [...e.target.files]; if (!files.length) return;
@@ -2504,40 +2617,38 @@ function buildClaudePromptDay(date) {
     const ps = t.ps || {};
     const kellyOk = calcKellyCheck(t);
     const psScore = PS_CHECKS.filter(c => c.auto ? (kellyOk===true) : !!ps[c.key]).length;
-    return `  Trade #${i+1}: ${t.direction} @${t.entry||"?"}→${t.exit||"?"} | P&L: $${t.pnl.toFixed(2)}${t.r?" | R: "+t.r.toFixed(2):""} | Process: ${psScore}/4 | Confluências: ${confs}${t.notes?" | Notas: "+t.notes.slice(0,80):""}`;
+    const rVal = t.risk && t.risk > 0 ? (t.pnl / t.risk).toFixed(2) : (t.r ? t.r.toFixed(2) : null);
+    const mistakes = (t.mistakes || []).join(", ");
+    return `  Trade #${i+1}: ${t.direction} ${t.time||""} @${t.entry||"?"}→${t.exit||"?"} | P&L: $${t.pnl.toFixed(2)}${rVal?" | R: "+rVal:""} | Process: ${psScore}/4 | Confluências: ${confs}${mistakes?" | Erros: "+mistakes:""}${t.notes?" | Notas: "+t.notes.slice(0,80):""}`;
   }).join("\n");
 
   const macroLines = (ctx.macroEvents||[]).map(e => `  ${e.time||""} ${e.name}: ${e.impact||"pendente"}`).join("\n");
 
   const histCtx = s ? `Histórico geral (${s.n} trades): WR ${Math.round(s.wr*100)}%, EV $${s.ev.toFixed(2)}, PF ${s.pf.toFixed(2)}, Sharpe ${s.sharpe.toFixed(2)}` : "Histórico insuficiente.";
 
-  return `És um analista de trading de futuros NQ/MNQ. Analisa o dia de trading abaixo com base nos dados reais.
+  return `És um coach de trading especializado em futuros NQ com orderflow. Analisa este dia de trading e responde em português europeu.
 
-DATA: ${date}
-CONTA: ${curAcct?.name || "—"}
-
-CONTEXTO DE MERCADO:
-  VIX: ${ctx.vix != null ? ctx.vix + " (" + (ctx.vixRegime||"—") + ")" : "—"}
-  SPX Δ%: ${ctx.spxDelta != null ? (ctx.spxDelta>0?"+":"") + ctx.spxDelta.toFixed(2) + "%" : "—"}
-  DXY: ${ctx.dxy != null ? ctx.dxy.toFixed(2) : "—"}
-  Bias do dia: ${ctx.bias || "—"} | Fed: ${ctx.fed || "—"}
-  Opening Drive: ${ctx.openDrive || "—"} | VA Position: ${ctx.vaPos || "—"}
-  Market Sentiment Score: ${ctx.score != null ? ctx.score + "/100" : "—"}
-${macroLines ? "  Eventos macro:\n" + macroLines : ""}${ctx.justification ? "\n  Justificação do bias: " + ctx.justification.slice(0,150) : ""}
+CONTEXTO DO DIA:
+  Data: ${date} | Conta: ${curAcct?.name || "—"}
+  Bias: ${ctx.bias || "—"} | Fed Sentiment: ${ctx.fed || "—"}
+  MRKT Score: ${ctx.score != null ? ctx.score + "/100" : "—"}
+  VIX: ${ctx.vix != null ? ctx.vix + " (" + (ctx.vixRegime||"—") + ")" : "—"} | SPX Δ%: ${ctx.spxDelta != null ? (ctx.spxDelta>0?"+":"") + ctx.spxDelta.toFixed(2) + "%" : "—"} | DXY: ${ctx.dxy != null ? ctx.dxy.toFixed(2) : "—"}
+  Opening Drive: ${ctx.openDrive || "—"} | VA: ${ctx.vaPos || "—"}
+${macroLines ? "  Eventos macro:\n" + macroLines : ""}${ctx.justification ? "\n  Fundamentação: " + ctx.justification.slice(0,150) : ""}${ctx.headlines ? "\n  Manchetes: " + ctx.headlines.slice(0,150) : ""}
 
 TRADES DO DIA (${trades.length} trades, P&L total: $${dayPnl.toFixed(2)}):
 ${tradeLines || "  Nenhuma trade."}
 
 ${histCtx}
 
-Analisa este dia de trading. Sê directo, específico e usa os dados. Responde em português.
-Estrutura a resposta assim:
-**O que funcionou:** (máx 2 frases, específico às confluências/condições)
-**O que falhou:** (máx 2 frases, padrão nos erros se houver)
-**Observação principal:** (1 insight baseado nos dados — VIX regime, process score, etc.)
-**Para amanhã:** (1 acção concreta)
+Fornece:
+1. RESUMO (2-3 linhas do que aconteceu)
+2. O QUE CORREU BEM (máx 3 pontos, específico às confluências/dados)
+3. O QUE MELHORAR (máx 3 pontos, baseado nos erros registados)
+4. PADRÃO IDENTIFICADO (algum edge ou fraqueza visível nos dados?)
+5. FOCO PARA AMANHÃ (1 coisa concreta)
 
-Máximo 200 palavras. Não sejas genérico — usa os números e confluências reais.`;
+Sê directo e específico. Sem generalidades. Usa os números reais. Máximo 280 palavras.`;
 }
 
 function buildClaudePromptWeek() {
@@ -2620,7 +2731,35 @@ function exportAllData() {
   a.href = URL.createObjectURL(new Blob([json], { type: "application/json" }));
   a.download = "nq_backup_" + new Date().toISOString().split("T")[0].replace(/-/g,"") + ".json";
   a.click();
+  const ts = new Date().toLocaleString("pt", { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" });
+  localStorage.setItem("nq_last_backup", ts);
+  updateBackupLbl();
   toast("Backup exportado ✓", "ok");
+}
+
+function updateBackupLbl() {
+  const el = document.getElementById("backup-lbl");
+  if (!el) return;
+  const ts = localStorage.getItem("nq_last_backup");
+  el.textContent = ts ? "backup " + ts : "";
+}
+
+function exportAllCSV() {
+  const all = acctTrades();
+  if (!all.length) return toast("Sem trades", "err");
+  const header = "Date;Time;Symbol;Direction;Entry;Exit;Stop;TP;Risk;PnL;RR;R;Confluences;Fed;Bias;Mistakes";
+  const rows = all.map(x => {
+    const ctx = psData[x.date] || {};
+    const confsStr = parseConfs(x.confluences).map(c => confLabel(c.id, c.sr)).join("|");
+    const mistakesStr = (x.mistakes || []).join("|");
+    return [x.date, x.time||"", x.symbol, x.direction, x.entry||"", x.exit||"", x.stop||"", x.tp||"", x.risk||"", x.pnl, x.rr||"", x.r||"", confsStr, ctx.fed||"", ctx.bias||"", mistakesStr].join(";");
+  });
+  const csv = [header, ...rows].join("\r\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+  a.download = (curAcct?.name||"trades")+"_all_"+new Date().toISOString().split("T")[0].replace(/-/g,"")+".csv";
+  a.click();
+  toast(all.length + " trades exportadas", "ok");
 }
 
 function importAllData(e) {
