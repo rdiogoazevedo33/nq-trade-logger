@@ -440,6 +440,18 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .ctx-val{font-size:12px;font-family:var(--mono);color:var(--text)}
 @media(max-width:640px){.jday-hdr{gap:8px}.jday-metrics{gap:8px}.jtrade-hdr,.jtrade-row{grid-template-columns:44px 40px 36px 100px 1fr 50px 80px 24px;font-size:10px}}
 
+/* FASE 4 — Review enhancements */
+.rv-mistake-cat{font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;padding:8px 0 5px;border-bottom:1px solid var(--b1);margin-bottom:6px;margin-top:4px}
+.rv-mchips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.rv-mchip{font-family:var(--mono);font-size:10px;padding:4px 9px;border-radius:6px;border:1px solid var(--b1);background:var(--s2);color:var(--sub);cursor:pointer;transition:all .13s;user-select:none}
+.rv-mchip:hover{border-color:var(--b2);color:var(--text)}
+.rv-mchip.on{background:#1f0707;border-color:var(--red);color:var(--red)}
+.rv-ps4-dots{display:flex;gap:8px;margin-top:4px;align-items:center}
+.rv-ps4-dot{width:13px;height:13px;border-radius:50%;border:1.5px solid var(--b2);cursor:help;transition:all .15s;flex-shrink:0}
+.rv-ps4-dot.ok{background:var(--green);border-color:var(--green)}
+.rv-ps4-dot.fail{background:var(--s3);border-color:var(--red)}
+.rv-hold-row{padding:6px 14px;border-bottom:1px solid var(--b1);display:flex;justify-content:space-between;align-items:center}
+
 /* REPORTS */
 .report-inner-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px}
 .rit-btn{font-family:var(--mono);font-size:11px;padding:5px 12px;border-radius:7px;border:1px solid var(--b1);background:transparent;color:var(--hint);cursor:pointer;transition:all .13s}
@@ -887,6 +899,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
         <div class="rv-trade-lbl">Trade actual</div>
         <div class="rv-trade-pnl" id="rv-trade-pnl">—</div>
         <div class="rv-trade-meta" id="rv-trade-meta">—</div>
+        <div id="rv-hold-time" style="font-size:10px;font-family:var(--mono);color:var(--hint);margin-top:4px" title="Importa trades com timestamp para calcular o hold time">Hold Time: —</div>
       </div>
       <div class="rv-fields">
         <div class="rv-row"><span class="rv-rlbl">Entry</span><input type="number" class="rv-inp" id="rv-entry" step="0.25" placeholder="—" oninput="rvCalcRR()"></div>
@@ -983,8 +996,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
           <div id="rv-conf-list"></div>
         </div>
         <div id="rvt-mistakes" style="display:none">
-          <div style="font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Tags de erros — seleciona os que se aplicam</div>
-          <div class="mistake-grid" id="rv-mistakes"></div>
+          <div id="rv-mistakes"></div>
+          <div id="rv-mistakes-good" style="display:none;color:var(--green);font-family:var(--mono);font-size:11px;padding:8px 0">Sem erros registados — boa execução ✓</div>
+          <div style="margin-top:10px">
+            <div style="font-size:10px;font-family:var(--mono);color:var(--hint);margin-bottom:4px">Nota adicional</div>
+            <textarea class="ps-ta" id="rv-mistakes-note" placeholder="Nota adicional sobre esta trade..." maxlength="200" style="min-height:48px" oninput="this.nextElementSibling.textContent=this.value.length+'/200'"></textarea>
+            <div style="text-align:right;font-size:9px;color:var(--hint);font-family:var(--mono);margin-top:2px">0/200</div>
+          </div>
         </div>
       </div>
     </div>
@@ -1142,6 +1160,41 @@ const CONFS = [
   { id: "delta",   label: "Delta Anomaly",              color: "#a78bfa", sr: false, group: "Outros" },
 ];
 const CMAP = {}; CONFS.forEach(c => CMAP[c.id] = c);
+
+// FASE 4 — Mistakes categories
+const MISTAKE_CATS = [
+  { cat: "Execução / Timing", items: ["Entrei cedo demais","Entrei tarde demais","Saí cedo demais","Saí tarde demais","Stop muito apertado","Stop muito largo","Tamanho de posição errado"] },
+  { cat: "Setup / Plano", items: ["Sem confluência suficiente","Entrei contra o bias do dia","Ignorei a regra do ORB","Entrei em zona de baixo volume","Overtraded (demasiadas trades no dia)"] }
+];
+function calcHoldTime(t) {
+  if (t.hold_time_seconds != null && t.hold_time_seconds > 0) {
+    const s = t.hold_time_seconds;
+    if (s < 60) return s + "s";
+    if (s < 3600) return Math.floor(s/60) + "min " + (s%60) + "s";
+    return Math.floor(s/3600) + "h " + Math.floor((s%3600)/60) + "min";
+  }
+  if (t.time && t.exit_time) {
+    const toS = str => { const p=str.split(":").map(Number); return (p[0]||0)*3600+(p[1]||0)*60+(p[2]||0); };
+    const diff = toS(t.exit_time) - toS(t.time);
+    if (diff > 0) {
+      if (diff < 60) return diff + "s";
+      if (diff < 3600) return Math.floor(diff/60) + "min " + (diff%60) + "s";
+      return Math.floor(diff/3600) + "h " + Math.floor((diff%3600)/60) + "min";
+    }
+  }
+  return null;
+}
+function calcProcessScore4(t) {
+  let score = 0;
+  const confs = parseConfs(t.confluences);
+  if (confs.length >= 2) score++;
+  const ctx = psData[t.date] || {};
+  const bias = ctx.bias;
+  if (bias && t.direction && ((bias==="Bullish"&&t.direction==="Long")||(bias==="Bearish"&&t.direction==="Short"))) score++;
+  if (!t.mistakes || t.mistakes.length === 0) score++;
+  if (t.rr != null && t.rr > 0) score++;
+  return score;
+}
 
 function parseConfs(raw) {
   if (!raw) return [];
@@ -1574,10 +1627,19 @@ function renderJournal() {
     const pf = gL > 0 ? (gW/gL).toFixed(2) : (gW > 0 ? '∞' : '—');
     const rs = trades.filter(t => t.risk && t.risk > 0).map(t => t.pnl/t.risk);
     const avgR = rs.length ? rs.reduce((s,r)=>s+r,0)/rs.length : null;
+    // Process Score average + Mistakes count
+    const psScores = trades.map(t => t.process_score != null ? t.process_score : calcProcessScore4(t));
+    const avgPS = (psScores.reduce((a,v)=>a+v,0)/psScores.length).toFixed(1);
+    const totalMistakes = trades.reduce((s,t)=>s+(t.mistakes?.length||0),0);
+    const mistakeTrads = trades.filter(t=>t.mistakes?.length>0).length;
 
     let badges = '';
     if (ctx.bias) { const c=BIAS_C[ctx.bias]||'#8892aa'; badges+='<span class="jbadge" style="background:'+c+'18;color:'+c+';border:1px solid '+c+'44">'+ctx.bias+'</span>'; }
     if (ctx.fed)  { const c=FED_C[ctx.fed]||'#8892aa';   badges+='<span class="jbadge" style="background:'+c+'18;color:'+c+';border:1px solid '+c+'44">'+ctx.fed+'</span>'; }
+    if (totalMistakes > 0) {
+      const allErrs = trades.flatMap(t=>t.mistakes||[]).join("\n");
+      badges+='<span class="jbadge" style="background:#1f070718;color:var(--red);border:1px solid #f04f4f44;cursor:help" title="'+allErrs+'">⚠ '+totalMistakes+' erro'+(totalMistakes>1?'s':'')+'</span>';
+    }
 
     return '<div class="jday-card" id="jdc-'+date+'">' +
       '<div class="jday-hdr">' +
@@ -1589,6 +1651,7 @@ function renderJournal() {
           '<div class="jday-metric"><div class="jday-metric-val">'+trades.length+'</div><div class="jday-metric-lbl">Trades</div></div>' +
           '<div class="jday-metric"><div class="jday-metric-val">'+pf+'</div><div class="jday-metric-lbl">Prof Factor</div></div>' +
           '<div class="jday-metric"><div class="jday-metric-val">'+(avgR!=null?avgR.toFixed(2)+'R':'—')+'</div><div class="jday-metric-lbl">Avg R</div></div>' +
+          '<div class="jday-metric"><div class="jday-metric-val" style="color:'+(parseFloat(avgPS)>=3?'var(--green)':parseFloat(avgPS)>=2?'var(--amber)':'var(--hint)')+'">'+avgPS+'/4</div><div class="jday-metric-lbl">Process</div></div>' +
         '</div>' +
       '</div>' +
       '<div style="padding:6px 16px 10px;background:var(--s2);border-top:1px solid var(--b1)">' +
@@ -1621,6 +1684,8 @@ function renderJDayBody(date, trades) {
       ? confs.slice(0,3).map(({id}) => { const c=CMAP[id]; return c ? '<span class="cbadge" style="background:'+c.color+'18;color:'+c.color+';border:1px solid '+c.color+'44">'+c.label.split(' ')[0]+'</span>' : ''; }).join('')+(confs.length>3?'<span class="cbadge" style="background:var(--s3);color:var(--hint)">+'+( confs.length-3)+'</span>':'')
       : '<span style="color:var(--hint)">—</span>';
     const dirC = t.direction === 'Long' ? 'var(--green)' : 'var(--red)';
+    const mCount = t.mistakes?.length || 0;
+    const mBadge = mCount > 0 ? '<span style="font-family:var(--mono);font-size:9px;font-weight:600;background:#1f0707;color:var(--red);border:1px solid #f04f4f44;border-radius:4px;padding:1px 5px;cursor:help" title="'+t.mistakes.join(', ')+'">⚠'+mCount+'</span>' : '';
     return '<div class="jtrade-row" onclick="openReviewFromList(\''+date+'\','+idx+')">' +
       '<span style="color:var(--sub)">'+(t.time?t.time.slice(0,5):'—')+'</span>' +
       '<span style="background:var(--s3);padding:1px 5px;border-radius:4px;border:1px solid var(--b1)">'+(t.symbol||'NQ')+'</span>' +
@@ -1628,7 +1693,7 @@ function renderJDayBody(date, trades) {
       '<span style="color:var(--sub)">@'+(t.entry||'—')+'→'+(t.exit||'—')+'</span>' +
       '<span style="color:'+pc+';font-weight:600">'+((t.pnl>=0?'+':'')+'$'+t.pnl.toFixed(2))+'</span>' +
       '<span style="color:'+rColor+'">'+rStr+'</span>' +
-      '<span>'+nqScale(rc2,true)+'</span>' +
+      '<span>'+nqScale(rc2,true)+mBadge+'</span>' +
       '<span style="cursor:pointer;color:var(--hint);text-align:center" onclick="event.stopPropagation();openReviewFromList(\''+date+'\','+idx+')">↗</span>' +
     '</div>';
   }).join('');
@@ -2312,6 +2377,9 @@ function renderReview() {
   document.getElementById("rv-trade-pnl").textContent = (t.pnl >= 0 ? "+" : "") + "$" + t.pnl.toFixed(2);
   document.getElementById("rv-trade-pnl").style.color = tc;
   document.getElementById("rv-trade-meta").textContent = (t.symbol || "NQ") + " · " + (t.direction || "—") + " · #" + (rvIdx + 1);
+  const ht = calcHoldTime(t);
+  const htEl = document.getElementById("rv-hold-time");
+  if (htEl) { htEl.textContent = "Hold Time: " + (ht || "—"); htEl.title = ht ? "" : "Importa trades com timestamp para calcular o hold time"; }
   document.getElementById("rv-entry").value = t.entry || "";
   document.getElementById("rv-stop").value = t.stop || "";
   document.getElementById("rv-tp").value = t.tp || "";
@@ -2365,6 +2433,53 @@ function renderReview() {
   buildConfs("rv-conf-list", t.confluences || "[]", "rconf-chip", "rsr-btn", "rsr-btn", "rvToggleConf", "rvSetSR");
   rvRenderGallery(t.screenshots || []);
 }
+function rvRenderNQScale(t) {
+  const marker = document.getElementById("rv-nqscale-marker");
+  const lbl    = document.getElementById("rv-nqscale-lbl");
+  if (!marker || !lbl) return;
+  const risk = parseFloat(document.getElementById("rv-risk").value) || (t && t.risk) || 0;
+  if (!risk || risk <= 0) {
+    marker.style.left = "0%"; marker.style.opacity = "0.3";
+    lbl.textContent = "Define o risco para calcular"; lbl.style.color = "var(--hint)"; return;
+  }
+  marker.style.opacity = "1";
+  const r = t.pnl / risk;
+  const pct = Math.max(0, Math.min(100, r < 0 ? Math.max(0, 25+r*25) : r < 1 ? 25+r*25 : r < 2 ? 50+(r-1)*25 : Math.min(100, 75+(r-2)*12.5)));
+  marker.style.left = pct + "%";
+  lbl.textContent = r < 0 ? "Fraca" : r < 1 ? "OK" : r < 2 ? "Boa" : "Perfeita";
+  lbl.style.color  = r < 0 ? "var(--red)" : r < 1 ? "var(--amber)" : "var(--green)";
+}
+
+function rvRenderMistakes() {
+  const el = document.getElementById("rv-mistakes"); if (!el) return;
+  const t = dayTrades(rvDate)[rvIdx];
+  const selected = t?.mistakes || [];
+  el.innerHTML = MISTAKE_CATS.map(cat =>
+    '<div class="rv-mistake-cat">'+cat.cat+'</div>' +
+    '<div class="rv-mchips">' +
+    cat.items.map(item => '<div class="rv-mchip'+(selected.includes(item)?" on":"")+'" onclick="rvToggleMistake(this,\''+item.replace(/'/g,"\\'")+'\')">'+item+'</div>').join("") +
+    '</div>'
+  ).join("");
+  const goodEl = document.getElementById("rv-mistakes-good");
+  if (goodEl) goodEl.style.display = selected.length === 0 ? "block" : "none";
+  const ta = document.getElementById("rv-mistakes-note");
+  if (ta) { ta.value = t?.mistakes_note || ""; ta.nextElementSibling.textContent = ta.value.length+"/200"; }
+}
+
+function rvToggleMistake(btn, label) {
+  const trds = dayTrades(rvDate); const t = trds[rvIdx]; if (!t) return;
+  const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id); if (idx === -1) return;
+  if (!all[idx].mistakes) all[idx].mistakes = [];
+  const i = all[idx].mistakes.indexOf(label);
+  if (i >= 0) all[idx].mistakes.splice(i, 1); else all[idx].mistakes.push(label);
+  all[idx].process_score = calcProcessScore4(all[idx]);
+  setAcctTrades(all);
+  btn.classList.toggle("on", all[idx].mistakes.includes(label));
+  const goodEl = document.getElementById("rv-mistakes-good");
+  if (goodEl) goodEl.style.display = all[idx].mistakes.length === 0 ? "block" : "none";
+  rvRenderProcessScore(all[idx]);
+}
+
 function rvCalcRR() {
   const e = parseFloat(document.getElementById("rv-entry").value) || 0;
   const s = parseFloat(document.getElementById("rv-stop").value) || 0;
@@ -2383,44 +2498,36 @@ function rvCalcRR() {
   document.getElementById("rv-rr-real").style.color = rc;
   document.getElementById("rv-rr-real-bar").style.background = rc;
   document.getElementById("rv-rr-real-bar").style.width = real !== null ? Math.min(100, Math.abs(real) / mx * 100) + "%" : "0%";
+  if (t) rvRenderNQScale(t);
 }
 // ═══════════════════════════════════════════
-// PROCESS SCORE
+// PROCESS SCORE v2 (Fase 4 — 4 critérios automáticos)
 // ═══════════════════════════════════════════
-const PS_CHECKS = [
-  { key: "vp",    label: "VP Framing alinhado (POC/HVN/LVN/VAH/VAL)", auto: false },
-  { key: "vix",   label: "Targets/SL adaptados ao regime VIX",          auto: false },
-  { key: "kelly", label: "Risco respeitou o ½ Kelly",                   auto: true  },
-  { key: "exit",  label: "Saída no plano (não emocional)",              auto: false },
-];
 function rvRenderProcessScore(t) {
-  const ps = t.ps || {};
-  const kellyCheck = calcKellyCheck(t);
   const el = document.getElementById("rv-ps-checks"); if (!el) return;
-  el.innerHTML = PS_CHECKS.map(c => {
-    let cls = "", icon = "";
-    if (c.auto) {
-      if (kellyCheck === null) { cls = ""; icon = "?"; }
-      else if (kellyCheck) { cls = "auto-ok on"; icon = "✓"; }
-      else { cls = "auto-warn"; icon = "!"; }
-    } else {
-      cls = ps[c.key] ? "on" : "";
-      icon = ps[c.key] ? "✓" : "";
-    }
-    const clickFn = c.auto ? "" : ' onclick="rvToggleProcess(\'' + c.key + '\')"';
-    const title = c.auto ? (kellyCheck === null ? "Sem histórico suficiente" : kellyCheck ? "Dentro do ½ Kelly" : "Acima do ½ Kelly recomendado") : "";
-    return '<div class="ps-check ' + cls + '"' + clickFn + ' title="' + title + '" style="' + (c.auto ? 'cursor:default' : '') + '">' +
-      '<div class="psc-box">' + icon + '</div>' +
-      '<span class="ps-lbl">' + c.label + '</span>' +
-    '</div>';
-  }).join("");
-  const total = PS_CHECKS.filter(c => {
-    if (c.auto) return kellyCheck === true;
-    return !!ps[c.key];
-  }).length;
-  const totEl = document.getElementById("rv-ps-total"); if (!totEl) return;
-  totEl.textContent = total + "/4";
-  totEl.style.color = total === 4 ? "var(--green)" : total >= 3 ? "var(--amber)" : total >= 2 ? "var(--sub)" : "var(--hint)";
+  const totEl = document.getElementById("rv-ps-total");
+  const ctx = psData[t.date] || {};
+  const confs = parseConfs(t.confluences);
+  const confOk = confs.length >= 2;
+  const bias = ctx.bias;
+  let biasOk = false, biasTip = "Sem bias definido na pré-sessão";
+  if (bias && t.direction) {
+    biasOk = (bias==="Bullish"&&t.direction==="Long")||(bias==="Bearish"&&t.direction==="Short");
+    biasTip = biasOk ? "✓ Seguiu o bias "+bias : "✗ "+t.direction+" em dia "+bias;
+  }
+  const noMistakes = !t.mistakes || t.mistakes.length === 0;
+  const rrOk = t.rr != null && t.rr > 0;
+  const checks = [
+    { ok: confOk,      tip: confOk ? "✓ "+confs.length+" confluências" : "✗ Menos de 2 confluências" },
+    { ok: biasOk,      tip: biasTip },
+    { ok: noMistakes,  tip: noMistakes ? "✓ Sem erros registados" : "✗ "+(t.mistakes?.length||0)+" erros de execução" },
+    { ok: rrOk,        tip: rrOk ? "✓ RR planeado definido" : "✗ Sem RR definido antes da trade" }
+  ];
+  const total = checks.filter(c=>c.ok).length;
+  el.innerHTML =
+    '<div class="rv-ps4-dots">'+checks.map(c=>'<div class="rv-ps4-dot'+(c.ok?" ok":" fail")+'" title="'+c.tip+'"></div>').join("")+'</div>'+
+    '<div style="margin-top:5px">'+checks.map(c=>'<div style="font-size:9px;font-family:var(--mono);color:'+(c.ok?"var(--green)":"var(--hint)")+';padding:1px 0">'+c.tip+'</div>').join("")+'</div>';
+  if (totEl) { totEl.textContent=total+"/4"; totEl.style.color=total===4?"var(--green)":total>=3?"var(--amber)":total>=2?"var(--sub)":"var(--hint)"; }
 }
 function calcKellyCheck(t) {
   if (!t.risk || t.risk <= 0) return null;
@@ -2553,7 +2660,10 @@ function saveReview(silent = false) {
   if (tp && risk && risk > 0) rr = parseFloat((tp / risk).toFixed(2));
   else if (entry && stop && tp) rr = parseFloat((Math.abs(tp - entry) / Math.abs(entry - stop)).toFixed(2));
   const r = risk && risk > 0 ? parseFloat((all[idx].pnl / risk).toFixed(3)) : 0;
-  all[idx] = { ...all[idx], entry, stop, tp, risk, rr, r, confluences: serConfs(confs), score: confs.length, notesHTML: document.getElementById("rv-editor").innerHTML, notes: document.getElementById("rv-editor").innerText };
+  const mistakesNote = document.getElementById("rv-mistakes-note")?.value ?? (all[idx].mistakes_note || "");
+  const updated = { ...all[idx], entry, stop, tp, risk, rr, r, confluences: serConfs(confs), score: confs.length, notesHTML: document.getElementById("rv-editor").innerHTML, notes: document.getElementById("rv-editor").innerText, mistakes_note: mistakesNote };
+  updated.process_score = calcProcessScore4(updated);
+  all[idx] = updated;
   setAcctTrades(all);
   if (!silent) toast("Trade guardada ✓", "ok");
 }
