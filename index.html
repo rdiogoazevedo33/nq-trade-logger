@@ -354,17 +354,47 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .toast.err{background:var(--red);color:#fff}
 .toast.info{background:var(--accent);color:#fff}
 
-/* DASHBOARD */
-.dash-metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:14px}
-@media(max-width:900px){.dash-metrics{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:600px){.dash-metrics{grid-template-columns:repeat(2,1fr)}}
-.dash-mcard{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:14px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px}
+/* DASHBOARD v3 */
+.dash-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:14px}
+@media(max-width:900px){.dash-metrics{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.dash-metrics{grid-template-columns:1fr}}
+.dash-mcard{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:6px}
 .dash-mval{font-size:22px;font-weight:700;font-family:var(--mono);line-height:1}
 .dash-mlbl{font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em}
+.dash-card-lbl{font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em}
+.dash-card-val{font-size:28px;font-weight:700;font-family:var(--mono);line-height:1}
+.dash-card-sub{font-size:11px;font-family:var(--mono);color:var(--sub)}
+.dash-score-num{font-size:44px;font-weight:700;font-family:var(--mono);line-height:1}
+.dash-score-label{font-size:12px;font-family:var(--mono);color:var(--sub);margin-top:4px}
+.dash-period-bar{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px;padding:9px 13px;background:var(--s1);border:1px solid var(--b1);border-radius:12px}
+.dash-pbtn{font-family:var(--mono);font-size:10px;padding:3px 10px;border-radius:6px;border:1px solid var(--b1);background:transparent;color:var(--hint);cursor:pointer;transition:all .12s;white-space:nowrap}
+.dash-pbtn:hover{color:var(--text);border-color:var(--b2)}
+.dash-pbtn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
 .dash-charts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 @media(max-width:700px){.dash-charts{grid-template-columns:1fr}}
-.dash-bottom{display:grid;grid-template-columns:1fr 340px;gap:10px;margin-bottom:14px}
+.dash-chart-card{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:14px}
+.dash-chart-title{font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.dash-bottom{display:grid;grid-template-columns:1fr 360px;gap:10px;margin-bottom:14px}
 @media(max-width:800px){.dash-bottom{grid-template-columns:1fr}}
+.dash-cal-card{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:14px}
+.dash-cal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.dash-cal-title{font-size:12px;font-weight:600}
+.dash-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.dash-cal-dh{font-size:9px;font-family:var(--mono);color:var(--hint);text-align:center;padding:4px 0}
+.dash-cal-day{border-radius:6px;padding:4px 2px;min-height:40px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;font-family:var(--mono);font-size:9px;border:1px solid transparent;transition:all .12s;cursor:default;position:relative}
+.dash-cal-day.has-trades{cursor:pointer}
+.dash-cal-day.has-trades:hover{transform:scale(1.06);z-index:1}
+.dash-cal-day.win-d{background:#071f0f;border-color:#0a2e18}
+.dash-cal-day.loss-d{background:#1f0707;border-color:#2e0a0a}
+.dash-cal-day.be-d{background:var(--s2)}
+.dash-cal-day.today-d{border-color:var(--accent)!important}
+.dash-cal-dn{font-size:9px;color:var(--hint);margin-bottom:2px;line-height:1}
+.dash-cal-pnl{font-size:9px;font-weight:600;line-height:1.2;text-align:center;word-break:break-all}
+.dash-recent-card{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:14px}
+.dash-recent-title{font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.dash-rt-row{display:grid;grid-template-columns:80px 44px 48px 1fr 68px;gap:6px;align-items:center;padding:8px 6px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .1s;border-radius:6px}
+.dash-rt-row:last-child{border-bottom:none}
+.dash-rt-row:hover{background:var(--s2)}
 
 /* NQ SCALE BAR */
 .nqscale-wrap{padding:4px 0 6px}
@@ -1058,7 +1088,7 @@ async function sbLogout() {
 // ═══════════════════════════════════════════
 const SK_A = "nq10_a", SK_T = "nq10_t", SK_PS = "nq10_ps";
 let accounts = [], curAcct = null, allT = {}, psData = {};
-let curDate = "", scope = "all", calY = 0, calM = 0;
+let curDate = "", scope = "all", calY = 0, calM = 0, dashPeriod = "month";
 let modalId = null, modalDayIds = [];
 let rvDate = "", rvIdx = 0;
 let psBias = "", psScore = 50;
@@ -2526,6 +2556,310 @@ function saveReview(silent = false) {
   all[idx] = { ...all[idx], entry, stop, tp, risk, rr, r, confluences: serConfs(confs), score: confs.length, notesHTML: document.getElementById("rv-editor").innerHTML, notes: document.getElementById("rv-editor").innerText };
   setAcctTrades(all);
   if (!silent) toast("Trade guardada ✓", "ok");
+}
+
+// ═══════════════════════════════════════════
+// DASHBOARD v3
+// ═══════════════════════════════════════════
+function dashScopedT() {
+  const now = new Date(), all = acctTrades();
+  if (dashPeriod === "today") { const d = todayISO(); return all.filter(t => t.date === d); }
+  if (dashPeriod === "week") {
+    const dow = now.getDay(), off = dow === 0 ? 6 : dow - 1;
+    const mon = new Date(now); mon.setDate(now.getDate() - off);
+    const d = mon.toISOString().split("T")[0];
+    return all.filter(t => t.date >= d);
+  }
+  if (dashPeriod === "month") {
+    const d = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
+    return all.filter(t => t.date >= d);
+  }
+  if (dashPeriod === "30d") { const d = new Date(now - 30*864e5).toISOString().split("T")[0]; return all.filter(t => t.date >= d); }
+  if (dashPeriod === "90d") { const d = new Date(now - 90*864e5).toISOString().split("T")[0]; return all.filter(t => t.date >= d); }
+  return all;
+}
+
+function setDashPeriod(p, btn) {
+  dashPeriod = p;
+  document.querySelectorAll(".dash-pbtn").forEach(b => b.classList.remove("on"));
+  btn.classList.add("on");
+  renderDashboard();
+}
+
+function calcNQScore(s, n) {
+  if (!s) return { score: 0, label: "Sem dados", winScore: 0, pfScore: 0, sharpeScore: 0 };
+  const winScore = Math.max(0, Math.min(100, s.wr * 100));
+  const pfScore  = Math.max(0, Math.min(100, s.pf / 3 * 100));
+  const sharpeScore = Math.max(0, Math.min(100, (s.sharpe / 2) * 100));
+  const score = Math.max(0, Math.min(100, winScore * 0.35 + pfScore * 0.35 + sharpeScore * 0.30));
+  let label;
+  if (n < 10) label = "Amostra pequena ⚠";
+  else if (n <= 30) label = "A desenvolver";
+  else if (score > 75) label = "Robusto";
+  else label = "Estável";
+  return { score, label, winScore, pfScore, sharpeScore };
+}
+
+function svgRadar(w, pf, sh) {
+  const cx = 62, cy = 62, r = 46;
+  const toRad = d => d * Math.PI / 180;
+  const angles = [270, 30, 150];
+  const vals = [w/100, sh/100, pf/100];
+  const pt = (angle, val) => [cx + val * r * Math.cos(toRad(angle)), cy + val * r * Math.sin(toRad(angle))];
+  const bgPoly = angles.map(a => pt(a,1).map(v=>v.toFixed(1)).join(",")).join(" ");
+  const vPts = angles.map((a,i) => pt(a, vals[i]).map(v=>v.toFixed(1)).join(","));
+  const vPoly = vPts.join(" ");
+  const grid33 = angles.map(a => pt(a,0.33).map(v=>v.toFixed(1)).join(",")).join(" ");
+  const grid66 = angles.map(a => pt(a,0.66).map(v=>v.toFixed(1)).join(",")).join(" ");
+  const axLines = angles.map(a => { const [x,y]=pt(a,1); return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--b2)" stroke-width="0.8"/>`; }).join("");
+  const lbls = [
+    {a:270,lbl:"Win%",ta:"middle",dy:-6},
+    {a:30,lbl:"Sharpe",ta:"start",dy:0},
+    {a:150,lbl:"PF",ta:"end",dy:0}
+  ].map(l => { const [x,y]=pt(l.a,1.28); return `<text x="${x.toFixed(1)}" y="${(y+l.dy).toFixed(1)}" text-anchor="${l.ta}" font-size="8" font-family="IBM Plex Mono,monospace" fill="var(--sub)">${l.lbl}</text>`; }).join("");
+  const dots = vPts.map(p => `<circle cx="${p.split(",")[0]}" cy="${p.split(",")[1]}" r="2.5" fill="var(--accent)"/>`).join("");
+  return `<svg viewBox="0 0 124 124" width="96" height="96" style="display:block;flex-shrink:0">
+    <defs><linearGradient id="rg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--accent)" stop-opacity=".35"/><stop offset="100%" stop-color="var(--accent)" stop-opacity=".08"/></linearGradient></defs>
+    <polygon points="${bgPoly}" fill="none" stroke="var(--b2)" stroke-width="1"/>
+    <polygon points="${grid33}" fill="none" stroke="var(--b1)" stroke-width="0.7"/>
+    <polygon points="${grid66}" fill="none" stroke="var(--b1)" stroke-width="0.7"/>
+    ${axLines}
+    <polygon points="${vPoly}" fill="url(#rg)" stroke="var(--accent)" stroke-width="1.5">
+      <animate attributeName="points" from="${[cx+","+cy,cx+","+cy,cx+","+cy].join(" ")}" to="${vPoly}" dur="0.6s" fill="freeze"/>
+    </polygon>
+    ${dots}
+    ${lbls}
+  </svg>`;
+}
+
+function svgGauge(pct, color, size) {
+  size = size || 56;
+  const r = size * 0.36, cx = size/2, cy = size/2, sw = size * 0.1;
+  const circ = 2 * Math.PI * r, arc = circ * 0.75;
+  const filled = Math.max(0, Math.min(pct/100, 1)) * arc;
+  return `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" style="display:block;transform:rotate(135deg)">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--s3)" stroke-width="${sw}" stroke-linecap="round" stroke-dasharray="${arc} ${circ-arc}"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round" stroke-dasharray="${filled} ${circ-filled}">
+      <animate attributeName="stroke-dasharray" from="0 ${circ}" to="${filled} ${circ-filled}" dur="0.7s" fill="freeze"/>
+    </circle>
+  </svg>`;
+}
+
+function svgBarPnl(dm, W, H) {
+  W = W || 400; H = H || 120;
+  const entries = Object.entries(dm).sort((a,b)=>a[0].localeCompare(b[0]));
+  if (!entries.length) return "";
+  const pad = {t:12,b:28,l:8,r:8};
+  const cw = (W-pad.l-pad.r)/entries.length;
+  const bw = Math.max(2, cw*0.65);
+  const vals = entries.map(e=>e[1]);
+  const maxA = Math.max(Math.abs(Math.min(...vals)), Math.abs(Math.max(...vals))) || 1;
+  const midY = pad.t + (H-pad.t-pad.b)/2;
+  const bh = v => Math.abs(v)/maxA*(H-pad.t-pad.b)/2;
+  const showLbls = entries.length <= 20;
+  const bars = entries.map(([d,v],i)=>{
+    const bH = Math.max(1, bh(v)), x = pad.l+i*cw+(cw-bw)/2, y = v>=0?midY-bH:midY;
+    const col = v>0?"var(--green)":v<0?"var(--red)":"var(--hint)";
+    const lbl = showLbls ? `<text x="${(x+bw/2).toFixed(1)}" y="${H-5}" text-anchor="middle" font-size="7" font-family="IBM Plex Mono,monospace" fill="var(--hint)">${d.slice(5)}</text>` : "";
+    return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${bH.toFixed(1)}" fill="${col}" rx="1.5">
+      <animate attributeName="height" from="0" to="${bH.toFixed(1)}" dur="0.5s" fill="freeze"/>
+      <animate attributeName="y" from="${midY}" to="${y.toFixed(1)}" dur="0.5s" fill="freeze"/>
+      <title>${d}: ${v>=0?"+":""}$${v.toFixed(2)}</title>
+    </rect>${lbl}`;
+  }).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;display:block">
+    <line x1="${pad.l}" y1="${midY.toFixed(1)}" x2="${W-pad.r}" y2="${midY.toFixed(1)}" stroke="var(--b2)" stroke-width="1" stroke-dasharray="3,3"/>
+    ${bars}
+  </svg>`;
+}
+
+function svgCumLine(trades, W, H) {
+  W = W || 400; H = H || 120;
+  if (!trades.length) return "";
+  const sorted = [...trades].sort((a,b)=>a.date.localeCompare(b.date));
+  let cum = 0;
+  const pts = [0, ...sorted.map(t=>{ cum+=t.pnl; return cum; })];
+  if (pts.length < 2) return "";
+  const pad = {t:16,b:12,l:8,r:8};
+  const mn = Math.min(...pts), mx = Math.max(...pts), rng = mx-mn||1;
+  const px = i => pad.l+(i/(pts.length-1))*(W-pad.l-pad.r);
+  const py = v => H-pad.b-((v-mn)/rng)*(H-pad.t-pad.b);
+  const d = pts.map((v,i)=>(i===0?"M":"L")+px(i).toFixed(1)+","+py(v).toFixed(1)).join(" ");
+  const lastV = pts[pts.length-1];
+  const lc = lastV >= 0 ? "var(--green)" : "var(--red)";
+  const y0 = py(0).toFixed(1);
+  const lx = px(pts.length-1).toFixed(1), ly = py(lastV).toFixed(1);
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;display:block">
+    <defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${lc}" stop-opacity=".2"/><stop offset="100%" stop-color="${lc}" stop-opacity=".01"/></linearGradient></defs>
+    <path d="${d} L${lx},${H} L${px(0).toFixed(1)},${H} Z" fill="url(#cg)"/>
+    <line x1="${pad.l}" y1="${y0}" x2="${W-pad.r}" y2="${y0}" stroke="var(--b2)" stroke-width="1" stroke-dasharray="3,3"/>
+    <path d="${d}" fill="none" stroke="${lc}" stroke-width="1.5"/>
+    <circle cx="${lx}" cy="${ly}" r="3" fill="${lc}"/>
+    <text x="${lx}" y="${(parseFloat(ly)-8).toFixed(1)}" text-anchor="end" font-size="9" font-family="IBM Plex Mono,monospace" fill="${lc}">${lastV>=0?"+":""}$${lastV.toFixed(0)}</text>
+  </svg>`;
+}
+
+function renderDashboard() {
+  const body = document.getElementById("dashboard-body");
+  if (!body) return;
+  const allTrades = acctTrades();
+
+  // Período selector HTML (sempre visível)
+  const periods = [["today","Hoje"],["week","Esta semana"],["month","Este mês"],["30d","30d"],["90d","90d"],["all","Todo o histórico"]];
+  const periodBar = `<div class="dash-period-bar">${periods.map(([p,l])=>`<button class="dash-pbtn${dashPeriod===p?" on":""}" onclick="setDashPeriod('${p}',this)">${l}</button>`).join("")}</div>`;
+
+  if (!allTrades.length) {
+    body.innerHTML = periodBar + '<div class="empty-state" style="margin-top:30px"><div class="empty-icon">📊</div><div class="empty-text">Sem trades neste período. Importa um CSV para começar.</div><div style="margin-top:14px"><button class="btn btn-accent btn-sm" onclick="showTab(\'import\',document.querySelectorAll(\'.tab\')[3])">Importar CSV</button></div></div>';
+    return;
+  }
+
+  const trades = dashScopedT();
+  if (!trades.length) {
+    body.innerHTML = periodBar + '<div class="empty-state" style="margin-top:30px"><div class="empty-icon">🔍</div><div class="empty-text">Sem trades neste período.</div></div>';
+    return;
+  }
+
+  const s = calcStats(trades), n = trades.length;
+  const nq = calcNQScore(s, n);
+
+  // ─── 6 CARDS ─────────────────────────────
+  const scoreColor = nq.score >= 75 ? "var(--green)" : nq.score >= 50 ? "var(--amber)" : "var(--red)";
+  const nqCard = `<div class="dash-mcard">
+    <div class="dash-card-lbl">NQ Score</div>
+    <div style="display:flex;align-items:center;gap:10px;flex:1">
+      <div style="flex:1">
+        <div class="dash-score-num" style="color:${scoreColor}">${nq.score.toFixed(1)}</div>
+        <div class="dash-score-label">${nq.label}</div>
+        <div style="font-size:10px;font-family:var(--mono);color:var(--hint);margin-top:2px">${n} trades</div>
+      </div>
+      ${svgRadar(nq.winScore, nq.pfScore, nq.sharpeScore)}
+    </div>
+  </div>`;
+
+  const netPnl = s.net;
+  const pnlColor = netPnl > 0 ? "var(--green)" : netPnl < 0 ? "var(--red)" : "var(--sub)";
+  const pnlCard = `<div class="dash-mcard">
+    <div class="dash-card-lbl">Net P&amp;L</div>
+    <div class="dash-card-val" style="color:${pnlColor}">${netPnl>=0?"+":""}$${netPnl.toFixed(2)}</div>
+    <div class="dash-card-sub">${n} trades · ${s.wins}W ${s.losses}L</div>
+  </div>`;
+
+  const wrPct = Math.round(s.wr * 100);
+  const wrColor = s.wr > 0.5 ? "var(--green)" : "var(--red)";
+  const wrCard = `<div class="dash-mcard">
+    <div class="dash-card-lbl">Win Rate</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      ${svgGauge(wrPct, wrColor, 54)}
+      <div>
+        <div class="dash-card-val" style="color:${wrColor}">${wrPct}%</div>
+        <div class="dash-card-sub">${s.wins}/${n}</div>
+      </div>
+    </div>
+  </div>`;
+
+  const pfNum = s.pf > 99 ? 99 : s.pf;
+  const pfDisp = s.pf > 99 ? "∞" : s.pf.toFixed(2);
+  const pfColor = s.pf >= 1.5 ? "var(--green)" : s.pf >= 1 ? "var(--amber)" : "var(--red)";
+  const pfPct = Math.min(pfNum / 3 * 100, 100);
+  const pfCard = `<div class="dash-mcard">
+    <div class="dash-card-lbl">Profit Factor</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      ${svgGauge(pfPct, pfColor, 54)}
+      <div>
+        <div class="dash-card-val" style="color:${pfColor}">${pfDisp}</div>
+        <div class="dash-card-sub">PF do período</div>
+      </div>
+    </div>
+  </div>`;
+
+  const expVal = s.ev;
+  const evColor = expVal > 0 ? "var(--green)" : expVal < 0 ? "var(--red)" : "var(--sub)";
+  const evCard = `<div class="dash-mcard">
+    <div class="dash-card-lbl">Expectância</div>
+    <div class="dash-card-val" style="color:${evColor}">${expVal>=0?"+":""}$${expVal.toFixed(2)}</div>
+    <div class="dash-card-sub">por trade em média</div>
+  </div>`;
+
+  const ddPct = netPnl !== 0 ? (s.maxDD / (Math.abs(netPnl) || 1) * 100).toFixed(1) : "—";
+  const ddCard = `<div class="dash-mcard">
+    <div class="dash-card-lbl" title="Maior queda do pico até ao vale no período seleccionado" style="cursor:help">Max Drawdown ⓘ</div>
+    <div class="dash-card-val" style="color:var(--red)">-$${s.maxDD.toFixed(2)}</div>
+    <div class="dash-card-sub">${ddPct !== "—" ? ddPct + "% do pico" : "—"}</div>
+  </div>`;
+
+  const metricsHTML = `<div class="dash-metrics">${nqCard}${pnlCard}${wrCard}${pfCard}${evCard}${ddCard}</div>`;
+
+  // ─── GRÁFICOS ────────────────────────────
+  const dm = {};
+  trades.forEach(t=>{ if(!dm[t.date]) dm[t.date]=0; dm[t.date]+=t.pnl; });
+  const chartsHTML = `<div class="dash-charts">
+    <div class="dash-chart-card">
+      <div class="dash-chart-title">Equity Acumulada (P&amp;L)</div>
+      ${svgCumLine(trades)}
+    </div>
+    <div class="dash-chart-card">
+      <div class="dash-chart-title">P&amp;L Diário</div>
+      ${svgBarPnl(dm)}
+    </div>
+  </div>`;
+
+  // ─── CALENDÁRIO INLINE ───────────────────
+  const now = new Date();
+  const calDays = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  const firstDow = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+  const firstOff = (firstDow + 6) % 7;
+  const todayStr = todayISO();
+  const dmAll = {};
+  acctTrades().forEach(t=>{ if(!dmAll[t.date]) dmAll[t.date]=0; dmAll[t.date]+=t.pnl; });
+  let calHTML = ["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"].map(d=>`<div class="dash-cal-dh">${d}</div>`).join("");
+  calHTML += Array(firstOff).fill("<div></div>").join("");
+  for (let d=1; d<=calDays; d++) {
+    const iso = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const pnl = dmAll[iso];
+    const hasTrades = pnl !== undefined;
+    const dayTrds = acctTrades().filter(t=>t.date===iso);
+    const opacity = hasTrades && dayTrds.length <= 2 ? 0.65 : 1;
+    let cls = "dash-cal-day";
+    if (hasTrades) cls += pnl>0?" win-d has-trades":pnl<0?" loss-d has-trades":" be-d has-trades";
+    if (iso === todayStr) cls += " today-d";
+    const pnlDisp = hasTrades ? `<div class="dash-cal-pnl" style="color:${pnl>0?"var(--green)":pnl<0?"var(--red)":"var(--sub)"}">${pnl>=0?"+":""}$${Math.abs(pnl)<1000?pnl.toFixed(0):Math.round(pnl/1000)+"k"}</div>` : "";
+    const click = hasTrades ? `onclick="showTab('journal',document.querySelectorAll('.tab')[1])"` : "";
+    const tip = hasTrades ? `title="${iso}: ${pnl>=0?"+":""}$${pnl.toFixed(2)} · ${dayTrds.length} trade${dayTrds.length>1?"s":""}"` : "";
+    calHTML += `<div class="${cls}" style="opacity:${opacity}" ${click} ${tip}><div class="dash-cal-dn">${d}</div>${pnlDisp}</div>`;
+  }
+  const calCard = `<div class="dash-cal-card">
+    <div class="dash-cal-hdr"><div class="dash-cal-title">${now.toLocaleDateString("pt-PT",{month:"long",year:"numeric"})}</div></div>
+    <div class="dash-cal-grid">${calHTML}</div>
+  </div>`;
+
+  // ─── TRADES RECENTES ─────────────────────
+  const recent5 = [...acctTrades()].sort((a,b)=>{
+    const da=(a.date+(a.time||"")), db=(b.date+(b.time||"")); return db.localeCompare(da);
+  }).slice(0,5);
+  const rtRows = recent5.map(t=>{
+    const dayTrds = acctTrades().filter(x=>x.date===t.date);
+    const dayIdx = dayTrds.indexOf(t);
+    const pnlCol = t.pnl>0?"var(--green)":t.pnl<0?"var(--red)":"var(--sub)";
+    const dirBg = t.direction==="Long"?"#071f0f":"#1f0707";
+    const dirCol = t.direction==="Long"?"var(--green)":"var(--red)";
+    const confs = parseConfs(t.confluences);
+    const badges = confs.slice(0,2).map(c=>{ const cm=CMAP[c.id]; return cm?`<span style="background:${cm.color}22;color:${cm.color};border:1px solid ${cm.color}44;padding:1px 5px;border-radius:4px;font-size:9px;font-family:var(--mono)">${cm.label.split(" ")[0]}</span>`:""; }).join("");
+    const more = confs.length>2?`<span style="font-size:9px;color:var(--hint);font-family:var(--mono)">+${confs.length-2}</span>`:"";
+    return `<div class="dash-rt-row" onclick="openReviewFromList('${t.date}',${dayIdx})">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--sub)">${t.time?t.time.slice(0,5):"—"} ${t.date.slice(5)}</div>
+      <div style="font-family:var(--mono);font-size:10px;background:var(--s3);border:1px solid var(--b1);border-radius:4px;padding:1px 5px;text-align:center">${t.symbol||"NQ"}</div>
+      <div style="font-family:var(--mono);font-size:10px;font-weight:600;background:${dirBg};color:${dirCol};border-radius:4px;padding:1px 5px;text-align:center">${t.direction||"—"}</div>
+      <div style="display:flex;gap:3px;flex-wrap:wrap;align-items:center;min-width:0">${badges}${more}</div>
+      <div style="font-family:var(--mono);font-size:11px;font-weight:600;color:${pnlCol};text-align:right">${t.pnl>=0?"+":""}$${t.pnl.toFixed(2)}</div>
+    </div>`;
+  }).join("");
+  const recentCard = `<div class="dash-recent-card">
+    <div class="dash-recent-title">Trades Recentes</div>
+    ${recent5.length?rtRows:'<div style="color:var(--hint);font-size:12px;font-family:var(--mono)">Sem trades recentes</div>'}
+  </div>`;
+
+  body.innerHTML = periodBar + metricsHTML + chartsHTML +
+    `<div class="dash-bottom">${calCard}${recentCard}</div>`;
 }
 
 // ═══════════════════════════════════════════
