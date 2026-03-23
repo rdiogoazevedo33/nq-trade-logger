@@ -2796,6 +2796,258 @@ function exportCSV() {
   toast(t.length + " exportadas", "ok");
 }
 function toast(msg, type="ok") { const t = document.getElementById("toast"); t.textContent = msg; t.className = "toast " + type + " on"; setTimeout(() => t.classList.remove("on"), 2400); }
+
+// ═══════════════════════════════════════════
+// REPORTS
+// ═══════════════════════════════════════════
+let activeReportTab = 'overview';
+let rScope = 'all';
+
+function setReportTab(tab, btn) {
+  activeReportTab = tab;
+  document.querySelectorAll('.rit-btn').forEach(b => b.classList.remove('on'));
+  if (btn) btn.classList.add('on');
+  renderReports();
+}
+
+function buildReportScope() {
+  const dates = [...new Set(acctTrades().map(t => t.date))].sort().reverse();
+  const items = [['all','Todas'],['month','30d'],['week','7d'],...dates.slice(0,4).map(d=>[d,d])];
+  document.getElementById('report-scope-row').innerHTML = items.map(([v,l]) =>
+    '<button class="scope-btn' + (rScope===v?' on':'') + '" onclick="setRScope(\'' + v + '\',this)">' + l + '</button>'
+  ).join('');
+}
+
+function setRScope(v, btn) {
+  rScope = v;
+  document.querySelectorAll('#report-scope-row .scope-btn').forEach(b => b.classList.remove('on'));
+  if (btn) btn.classList.add('on');
+  renderReports();
+}
+
+function reportScopedT() {
+  const now = new Date(), t = acctTrades();
+  if (rScope==='all') return t;
+  if (rScope==='week') { const d=new Date(now-7*864e5).toISOString().split('T')[0]; return t.filter(x=>x.date>=d); }
+  if (rScope==='month') { const d=new Date(now-30*864e5).toISOString().split('T')[0]; return t.filter(x=>x.date>=d); }
+  return t.filter(x=>x.date===rScope);
+}
+
+function renderReports() {
+  if (!curAcct) return;
+  buildReportScope();
+  const t = reportScopedT();
+  const el = document.getElementById('reports-body');
+  if (!t.length) { el.innerHTML = '<div style="text-align:center;padding:60px;color:var(--hint);font-family:var(--mono);font-size:12px">Sem trades neste período</div>'; return; }
+  if (activeReportTab==='overview') el.innerHTML = rptOverview(t);
+  else if (activeReportTab==='detailed') el.innerHTML = rptDetailed(t);
+  else if (activeReportTab==='winsloss') el.innerHTML = rptWinsLoss(t);
+  else if (activeReportTab==='calendar') el.innerHTML = rptCalendar(t);
+}
+
+// ─── helpers ────────────────────────────────────────────────
+function rptStatRow(label, arr) {
+  if (!arr.length) return '';
+  const wins = arr.filter(x=>x.pnl>0), losses = arr.filter(x=>x.pnl<0);
+  const wr = wins.length/arr.length, net = arr.reduce((s,x)=>s+x.pnl,0);
+  const avgW = wins.length ? wins.reduce((s,x)=>s+x.pnl,0)/wins.length : 0;
+  const avgL = losses.length ? Math.abs(losses.reduce((s,x)=>s+x.pnl,0))/losses.length : 0;
+  const ev = wr*avgW-(1-wr)*avgL;
+  const wrPct = Math.round(wr*100);
+  const wColor = wr>=.5?'var(--green)':'var(--red)';
+  return '<tr style="border-bottom:1px solid var(--b1);font-family:var(--mono);font-size:11px">' +
+    '<td style="padding:7px 8px;color:var(--text)">' + label + '</td>' +
+    '<td style="padding:7px 8px;color:var(--hint);text-align:right">' + arr.length + '</td>' +
+    '<td style="padding:7px 8px;text-align:right"><div style="display:flex;align-items:center;gap:5px;justify-content:flex-end"><div style="width:40px;background:var(--s3);border-radius:3px;height:4px;overflow:hidden"><div style="width:'+wrPct+'%;height:100%;background:'+wColor+';border-radius:3px"></div></div><span style="color:'+wColor+'">'+wrPct+'%</span></div></td>' +
+    '<td style="padding:7px 8px;color:var(--green);text-align:right">+$' + avgW.toFixed(0) + '</td>' +
+    '<td style="padding:7px 8px;color:var(--red);text-align:right">-$' + avgL.toFixed(0) + '</td>' +
+    '<td style="padding:7px 8px;text-align:right;color:' + (ev>0?'var(--green)':'var(--red)') + '">' + (ev>0?'+':'') + '$' + ev.toFixed(1) + '</td>' +
+    '<td style="padding:7px 8px;text-align:right;color:' + (net>0?'var(--green)':'var(--red)') + '">' + (net>0?'+':'') + '$' + net.toFixed(0) + '</td>' +
+    '</tr>';
+}
+
+function rptTableHeader() {
+  return '<thead><tr style="font-family:var(--mono);font-size:10px;color:var(--hint);text-transform:uppercase;letter-spacing:.06em">' +
+    '<th style="padding:5px 8px;font-weight:600;text-align:left">Grupo</th>' +
+    '<th style="padding:5px 8px;font-weight:600;text-align:right">N</th>' +
+    '<th style="padding:5px 8px;font-weight:600;text-align:right">WR%</th>' +
+    '<th style="padding:5px 8px;font-weight:600;text-align:right">Avg W</th>' +
+    '<th style="padding:5px 8px;font-weight:600;text-align:right">Avg L</th>' +
+    '<th style="padding:5px 8px;font-weight:600;text-align:right">EV</th>' +
+    '<th style="padding:5px 8px;font-weight:600;text-align:right">Net P&amp;L</th>' +
+    '</tr></thead>';
+}
+
+// ─── OVERVIEW ───────────────────────────────────────────────
+function rptOverview(t) {
+  const s = calcStats(t);
+  const dm = {}; t.forEach(x => { if(!dm[x.date])dm[x.date]=0; dm[x.date]+=x.pnl; });
+  const days = Object.entries(dm).sort((a,b)=>a[0].localeCompare(b[0]));
+  const bestDay = days.reduce((b,d)=>d[1]>b[1]?d:b, ['—',0]);
+  const worstDay = days.reduce((b,d)=>d[1]<b[1]?d:b, ['—',0]);
+  const avgDay = days.length ? days.reduce((sv,d)=>sv+d[1],0)/days.length : 0;
+
+  const cards = [
+    ['Net P&L', (s.net>=0?'+':'')+'$'+s.net.toFixed(2), s.net>=0?'var(--green)':'var(--red)'],
+    ['Win Rate', Math.round(s.wr*100)+'%', s.wr>=.5?'var(--green)':'var(--red)'],
+    ['Profit Factor', s.pf===999?'∞':s.pf.toFixed(2), s.pf>=1.5?'var(--green)':s.pf>=1?'var(--amber)':'var(--red)'],
+    ['Expected Value', (s.ev>=0?'+':'')+'$'+s.ev.toFixed(2), s.ev>0?'var(--green)':'var(--red)'],
+    ['Melhor dia', (bestDay[1]>=0?'+':'')+'$'+bestDay[1].toFixed(0)+'<br><span style="font-size:9px;color:var(--hint)">'+bestDay[0]+'</span>', 'var(--green)'],
+    ['Pior dia', (worstDay[1]>=0?'+':'')+'$'+worstDay[1].toFixed(0)+'<br><span style="font-size:9px;color:var(--hint)">'+worstDay[0]+'</span>', 'var(--red)'],
+    ['Avg/dia', (avgDay>=0?'+':'')+'$'+avgDay.toFixed(0), avgDay>=0?'var(--green)':'var(--red)'],
+    ['Total trades', s.n+'', 'var(--text)'],
+  ];
+  let cardsHTML = '<div class="metric-grid" style="margin-bottom:16px">';
+  cards.forEach(([lbl,val,color]) => {
+    cardsHTML += '<div class="mcard"><div class="mval" style="color:'+color+'">'+val+'</div><div class="mlbl">'+lbl+'</div></div>';
+  });
+  cardsHTML += '</div>';
+
+  const DOW = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const byDow = {}; t.forEach(x => { const d=new Date(x.date+'T12:00').getDay(); if(!byDow[d])byDow[d]=[]; byDow[d].push(x); });
+  let dowRows = [1,2,3,4,5].map(d => byDow[d]?.length ? rptStatRow(DOW[d], byDow[d]) : '').join('');
+
+  const TBUCKETS = [['08h','08:00','09:00'],['09h','09:00','10:00'],['10h','10:00','11:00'],['11h','11:00','12:00'],['12h','12:00','13:00'],['13h','13:00','14:00'],['14h+','14:00','23:59']];
+  const byTime = {}; TBUCKETS.forEach(([lbl])=>byTime[lbl]=[]);
+  t.forEach(x => { if(!x.time)return; const b=TBUCKETS.find(([,s,e])=>x.time>=s&&x.time<e); if(b)byTime[b[0]].push(x); });
+  let timeRows = TBUCKETS.map(([lbl])=>byTime[lbl].length?rptStatRow(lbl,byTime[lbl]):'').join('');
+
+  const TS = 'width:100%;border-collapse:collapse';
+  let html = cardsHTML + '<div class="two-col">';
+  html += '<div class="sec"><div class="sec-title">Por dia da semana</div><table style="'+TS+'">'+rptTableHeader()+'<tbody>'+dowRows+'</tbody></table></div>';
+  html += '<div class="sec"><div class="sec-title">Por hora de entrada</div>'+(timeRows?'<table style="'+TS+'">'+rptTableHeader()+'<tbody>'+timeRows+'</tbody></table>':'<div style="color:var(--hint);font-size:12px;font-family:var(--mono)">Preenche o campo Hora nas trades</div>')+'</div>';
+  html += '</div>';
+  return html;
+}
+
+// ─── DETAILED ───────────────────────────────────────────────
+function rptDetailed(t) {
+  const TS = 'width:100%;border-collapse:collapse';
+  let html = '';
+
+  const dirs = {}; t.forEach(x => { const d=x.direction||'—'; if(!dirs[d])dirs[d]=[]; dirs[d].push(x); });
+  let dirRows = Object.entries(dirs).sort((a,b)=>b[1].length-a[1].length).map(([k,v])=>rptStatRow(k,v)).join('');
+  html += '<div class="sec"><div class="sec-title">Por direção</div><table style="'+TS+'">'+rptTableHeader()+'<tbody>'+dirRows+'</tbody></table></div>';
+
+  const byConf = {}; t.forEach(x => parseConfs(x.confluences).forEach(({id,sr}) => { const lbl=confLabel(id,sr); if(!byConf[lbl])byConf[lbl]=[]; byConf[lbl].push(x); }));
+  let confRows = Object.entries(byConf).sort((a,b)=>b[1].length-a[1].length).map(([k,v])=>rptStatRow(k,v)).join('');
+  html += '<div class="sec"><div class="sec-title">Por confluência</div>'+(confRows?'<table style="'+TS+'">'+rptTableHeader()+'<tbody>'+confRows+'</tbody></table>':'<div style="color:var(--hint);font-size:12px;font-family:var(--mono)">Adiciona confluências às trades para ver este breakdown</div>')+'</div>';
+
+  const FED_LABELS = {hawk:'Hawkish',nhawk:'Neutro-Hawk',neut:'Neutro',ndove:'Neutro-Dove',dove:'Dovish'};
+  const byFed = {}; t.forEach(x => { const fed=psData[x.date]?.fed||null; if(!fed)return; const lbl=FED_LABELS[fed]||fed; if(!byFed[lbl])byFed[lbl]=[]; byFed[lbl].push(x); });
+  const fedOrder = ['Hawkish','Neutro-Hawk','Neutro','Neutro-Dove','Dovish'];
+  let fedRows = fedOrder.filter(k=>byFed[k]?.length).map(k=>rptStatRow(k,byFed[k])).join('');
+  html += '<div class="sec"><div class="sec-title">Por sentimento Fed</div>'+(fedRows?'<table style="'+TS+'">'+rptTableHeader()+'<tbody>'+fedRows+'</tbody></table>':'<div style="color:var(--hint);font-size:12px;font-family:var(--mono)">Define o sentimento Fed na Pré-Sessão para ver este breakdown</div>')+'</div>';
+
+  const byBias = {}; t.forEach(x => { const b=psData[x.date]?.bias||null; if(!b)return; if(!byBias[b])byBias[b]=[]; byBias[b].push(x); });
+  let biasRows = Object.entries(byBias).sort((a,b)=>b[1].length-a[1].length).map(([k,v])=>rptStatRow(k,v)).join('');
+  html += '<div class="sec"><div class="sec-title">Por bias de mercado</div>'+(biasRows?'<table style="'+TS+'">'+rptTableHeader()+'<tbody>'+biasRows+'</tbody></table>':'<div style="color:var(--hint);font-size:12px;font-family:var(--mono)">Define o bias na Pré-Sessão para ver este breakdown</div>')+'</div>';
+
+  return html;
+}
+
+// ─── WINS VS LOSSES ─────────────────────────────────────────
+function rptWinsLoss(t) {
+  const wins = t.filter(x=>x.pnl>0).sort((a,b)=>b.pnl-a.pnl);
+  const losses = t.filter(x=>x.pnl<0).sort((a,b)=>a.pnl-b.pnl);
+  const s = calcStats(t);
+
+  const rs = t.filter(x=>x.risk&&x.risk>0).map(x=>x.pnl/x.risk);
+  let histHTML = '';
+  if (rs.length >= 3) {
+    const BINS = [[-99,-3],[-3,-2],[-2,-1.5],[-1.5,-1],[-1,-0.5],[-0.5,0],[0,0.5],[0.5,1],[1,1.5],[1.5,2],[2,3],[3,99]];
+    const BLBLS = ['<-3','-3','-2','-1.5','-1','-0.5','0','+0.5','+1','+1.5','+2','>3'];
+    const bins = BINS.map(()=>0);
+    rs.forEach(r => { const i=BINS.findIndex(([mn,mx])=>r>=mn&&r<mx); if(i>=0)bins[i]++; });
+    const maxBin = Math.max(...bins,1);
+    histHTML = '<div class="sec"><div class="sec-title">Histograma R-múltiplo</div><div style="display:flex;align-items:flex-end;gap:2px;height:80px;margin-bottom:4px">';
+    bins.forEach((count,i) => {
+      const h = Math.round(count/maxBin*72);
+      const isPos = BINS[i][0]>=0;
+      histHTML += '<div style="display:flex;flex-direction:column;align-items:center;flex:1;gap:2px">' +
+        '<div style="font-size:8px;font-family:var(--mono);color:var(--hint)">'+(count||'')+'</div>' +
+        '<div style="height:'+h+'px;min-height:'+(count?3:0)+'px;width:100%;background:'+(isPos?'var(--green)':'var(--red)')+';border-radius:2px 2px 0 0;opacity:.8"></div>' +
+        '</div>';
+    });
+    histHTML += '</div><div style="display:flex;gap:2px">';
+    BLBLS.forEach(lbl => { histHTML += '<div style="flex:1;font-size:7px;font-family:var(--mono);color:var(--hint);text-align:center;overflow:hidden">'+lbl+'</div>'; });
+    histHTML += '</div></div>';
+  } else {
+    histHTML = '<div class="sec"><div class="sec-title">Histograma R-múltiplo</div><div style="color:var(--hint);font-size:12px;font-family:var(--mono)">Define risco em ≥3 trades para ver o histograma</div></div>';
+  }
+
+  const avgW = wins.length ? wins.reduce((sv,x)=>sv+x.pnl,0)/wins.length : 0;
+  const avgL = losses.length ? Math.abs(losses.reduce((sv,x)=>sv+x.pnl,0))/losses.length : 0;
+  const totalW = wins.reduce((sv,x)=>sv+x.pnl,0), totalL = losses.reduce((sv,x)=>sv+x.pnl,0);
+
+  const statsHTML = '<div class="two-col">' +
+    '<div class="sec"><div class="sec-title" style="color:var(--green)">Wins — '+wins.length+'</div>' +
+    '<div style="font-family:var(--mono);font-size:12px;display:flex;flex-direction:column;gap:8px">' +
+    '<div style="display:flex;justify-content:space-between"><span style="color:var(--hint)">Total</span><span style="color:var(--green)">+$'+totalW.toFixed(2)+'</span></div>' +
+    '<div style="display:flex;justify-content:space-between"><span style="color:var(--hint)">Avg Win</span><span style="color:var(--green)">+$'+avgW.toFixed(2)+'</span></div>' +
+    '<div style="display:flex;justify-content:space-between"><span style="color:var(--hint)">Maior</span><span style="color:var(--green)">'+(wins[0]?'+$'+wins[0].pnl.toFixed(2):'—')+'</span></div>' +
+    '<div style="display:flex;justify-content:space-between"><span style="color:var(--hint)">Melhor streak</span><span style="color:var(--green)">'+s.mxW+'</span></div>' +
+    '</div></div>' +
+    '<div class="sec"><div class="sec-title" style="color:var(--red)">Losses — '+losses.length+'</div>' +
+    '<div style="font-family:var(--mono);font-size:12px;display:flex;flex-direction:column;gap:8px">' +
+    '<div style="display:flex;justify-content:space-between"><span style="color:var(--hint)">Total</span><span style="color:var(--red)">-$'+Math.abs(totalL).toFixed(2)+'</span></div>' +
+    '<div style="display:flex;justify-content:space-between"><span style="color:var(--hint)">Avg Loss</span><span style="color:var(--red)">-$'+avgL.toFixed(2)+'</span></div>' +
+    '<div style="display:flex;justify-content:space-between"><span style="color:var(--hint)">Maior</span><span style="color:var(--red)">'+(losses[0]?'$'+losses[0].pnl.toFixed(2):'—')+'</span></div>' +
+    '<div style="display:flex;justify-content:space-between"><span style="color:var(--hint)">Pior streak</span><span style="color:var(--red)">'+s.mxL+'</span></div>' +
+    '</div></div></div>';
+
+  const topHTML = '<div class="two-col">' +
+    '<div class="sec"><div class="sec-title">Top 5 Wins</div><table style="width:100%;border-collapse:collapse">' +
+    '<thead><tr style="font-family:var(--mono);font-size:10px;color:var(--hint)"><th style="padding:4px 6px;text-align:left">Data</th><th style="padding:4px 6px;text-align:left">Dir</th><th style="padding:4px 6px;text-align:right">P&amp;L</th></tr></thead><tbody>' +
+    wins.slice(0,5).map(x=>'<tr style="font-family:var(--mono);font-size:11px;border-bottom:1px solid var(--b1)"><td style="padding:5px 6px;color:var(--hint)">'+x.date+'</td><td style="padding:5px 6px;color:var(--green)">'+(x.direction||'—')+'</td><td style="padding:5px 6px;text-align:right;color:var(--green)">+$'+x.pnl.toFixed(2)+'</td></tr>').join('') +
+    '</tbody></table></div>' +
+    '<div class="sec"><div class="sec-title">Top 5 Losses</div><table style="width:100%;border-collapse:collapse">' +
+    '<thead><tr style="font-family:var(--mono);font-size:10px;color:var(--hint)"><th style="padding:4px 6px;text-align:left">Data</th><th style="padding:4px 6px;text-align:left">Dir</th><th style="padding:4px 6px;text-align:right">P&amp;L</th></tr></thead><tbody>' +
+    losses.slice(0,5).map(x=>'<tr style="font-family:var(--mono);font-size:11px;border-bottom:1px solid var(--b1)"><td style="padding:5px 6px;color:var(--hint)">'+x.date+'</td><td style="padding:5px 6px;color:var(--red)">'+(x.direction||'—')+'</td><td style="padding:5px 6px;text-align:right;color:var(--red)">$'+x.pnl.toFixed(2)+'</td></tr>').join('') +
+    '</tbody></table></div></div>';
+
+  return histHTML + statsHTML + topHTML;
+}
+
+// ─── CALENDAR (annual) ──────────────────────────────────────
+function rptCalendar(t) {
+  const dm = {}; t.forEach(x => { if(!dm[x.date])dm[x.date]=0; dm[x.date]+=x.pnl; });
+  const dates = Object.keys(dm); if(!dates.length) return '<div style="color:var(--hint);font-family:var(--mono)">Sem dados</div>';
+  const years = [...new Set(dates.map(d=>d.slice(0,4)))].sort().reverse();
+  let html = '';
+  years.forEach(yr => {
+    html += '<div style="margin-bottom:24px"><div style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">'+yr+'</div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">';
+    for (let m = 0; m < 12; m++) {
+      const first = new Date(yr, m, 1).getDay();
+      const daysInMonth = new Date(yr, m+1, 0).getDate();
+      let mPnl = 0; let mTrades = 0;
+      for (let d = 1; d <= daysInMonth; d++) {
+        const iso = yr+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+        if (dm[iso] !== undefined) { mPnl += dm[iso]; mTrades++; }
+      }
+      const mColor = mTrades===0?'var(--hint)':mPnl>0?'var(--green)':'var(--red)';
+      html += '<div style="background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:8px">';
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">';
+      html += '<span style="font-family:var(--mono);font-size:9px;color:var(--hint);text-transform:uppercase;letter-spacing:.06em">'+MONTHS[m]+'</span>';
+      if (mTrades) html += '<span style="font-family:var(--mono);font-size:9px;font-weight:600;color:'+mColor+'">'+(mPnl>=0?'+':'')+'$'+Math.round(mPnl)+'</span>';
+      html += '</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px">';
+      ['D','S','T','Q','Q','S','S'].forEach(d => { html += '<div style="font-family:var(--mono);font-size:7px;color:var(--hint);text-align:center;padding:1px">'+d+'</div>'; });
+      for (let i = 0; i < first; i++) html += '<div></div>';
+      for (let d = 1; d <= daysInMonth; d++) {
+        const iso = yr+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+        const pnl = dm[iso];
+        const bg = pnl===undefined?'transparent':pnl>0?'#071f0f':pnl<0?'#1f0707':'var(--s3)';
+        const cl = pnl===undefined?'var(--hint)':pnl>0?'var(--green)':pnl<0?'var(--red)':'var(--sub)';
+        const tt = pnl!==undefined?iso+': '+(pnl>=0?'+':'')+pnl.toFixed(0):'';
+        html += '<div style="font-family:var(--mono);font-size:8px;text-align:center;padding:2px 1px;border-radius:2px;background:'+bg+';color:'+cl+'"'+(tt?' title="'+tt+'"':'')+'>'+d+'</div>';
+      }
+      html += '</div></div>';
+    }
+    html += '</div></div>';
+  });
+  return '<div class="sec"><div class="sec-title">Calendário anual</div>' + html + '</div>';
+}
 </script>
 </body>
 </html>
