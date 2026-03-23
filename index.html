@@ -377,19 +377,38 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .mistake-chip{font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:5px;border:1px solid var(--b1);background:var(--s2);color:var(--hint);cursor:pointer;transition:all .12s}
 .mistake-chip.on{background:#1f0707;border-color:var(--red);color:var(--red)}
 
-/* JOURNAL */
-.journal-day{background:var(--s1);border:1px solid var(--b1);border-radius:14px;margin-bottom:10px;overflow:hidden}
-.journal-day-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;transition:background .12s;gap:10px;flex-wrap:wrap}
-.journal-day-hdr:hover{background:var(--s2)}
-.journal-day-body{display:none;border-top:1px solid var(--b1)}
-.journal-day.open .journal-day-body{display:block}
-.journal-day-stats{display:flex;gap:14px;flex-wrap:wrap;padding:10px 16px;background:var(--s2);border-bottom:1px solid var(--b1);align-items:center}
-.journal-day-stat{text-align:center}
-.journal-day-stat-val{font-family:var(--mono);font-size:13px;font-weight:600}
-.journal-day-stat-lbl{font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.05em}
-.journal-trade-row{display:grid;grid-template-columns:64px 52px 48px 120px 1fr 72px 70px;align-items:center;gap:6px;padding:8px 16px;border-bottom:1px solid var(--b1);font-family:var(--mono);font-size:11px;cursor:pointer;transition:background .1s}
-.journal-trade-row:hover{background:var(--s2)}
-.journal-trade-row:last-child{border-bottom:none}
+/* JOURNAL v2 */
+.jfilter-bar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:14px;padding:9px 13px;background:var(--s1);border:1px solid var(--b1);border-radius:12px}
+.jfilter-sep{width:1px;height:14px;background:var(--b2);flex-shrink:0;margin:0 2px}
+.jfilter-lbl{font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em}
+.jfilter-btn{font-family:var(--mono);font-size:10px;padding:3px 9px;border-radius:6px;border:1px solid var(--b1);background:transparent;color:var(--hint);cursor:pointer;transition:all .12s;white-space:nowrap}
+.jfilter-btn:hover{color:var(--text);border-color:var(--b2)}
+.jfilter-btn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.jday-card{background:var(--s1);border:1px solid var(--b1);border-radius:14px;margin-bottom:10px;overflow:hidden;transition:border-color .15s}
+.jday-card.open{border-color:var(--b2)}
+.jday-hdr{display:flex;align-items:center;padding:13px 16px;gap:12px;flex-wrap:wrap}
+.jday-date-txt{font-size:13px;font-weight:600}
+.jday-pnl{font-family:var(--mono);font-size:15px;font-weight:700;margin-left:4px}
+.jday-badges{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.jbadge{font-family:var(--mono);font-size:9px;font-weight:600;padding:2px 7px;border-radius:5px;letter-spacing:.03em}
+.jday-metrics{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-left:auto}
+.jday-metric-val{font-family:var(--mono);font-size:12px;font-weight:600}
+.jday-metric-lbl{font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase}
+.jday-body{display:none;border-top:1px solid var(--b1)}
+.jday-card.open .jday-body{display:block}
+.jtrade-hdr{display:grid;grid-template-columns:52px 48px 44px 120px 1fr 60px 100px 28px;gap:6px;padding:5px 16px;background:var(--s3);font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.04em}
+.jtrade-row{display:grid;grid-template-columns:52px 48px 44px 120px 1fr 60px 100px 28px;align-items:center;gap:6px;padding:8px 16px;border-bottom:1px solid var(--b1);font-family:var(--mono);font-size:11px;transition:background .1s;cursor:pointer}
+.jtrade-row:hover{background:var(--s2)}
+.jtrade-row:last-child{border-bottom:none}
+/* Context modal */
+.ctx-modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;align-items:center;justify-content:center}
+.ctx-modal-bg.open{display:flex}
+.ctx-modal{background:var(--s1);border:1px solid var(--b1);border-radius:16px;width:min(520px,95vw);max-height:85vh;overflow-y:auto;padding:20px}
+.ctx-modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.ctx-sec{margin-bottom:11px}
+.ctx-lbl{font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.ctx-val{font-size:12px;font-family:var(--mono);color:var(--text)}
+@media(max-width:640px){.jday-hdr{gap:8px}.jday-metrics{gap:8px}.jtrade-hdr,.jtrade-row{grid-template-columns:44px 40px 36px 100px 1fr 50px 80px 24px;font-size:10px}}
 
 /* REPORTS */
 .report-inner-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px}
@@ -458,7 +477,37 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
         <span style="font-size:13px;font-weight:600">Diário de Trades</span>
         <span style="font-size:11px;font-family:var(--mono);color:var(--hint)" id="journal-lbl"></span>
       </div>
-      <div id="journal-body"><div style="text-align:center;padding:60px;color:var(--hint);font-family:var(--mono);font-size:12px">Importa trades para ver o diário</div></div>
+      <div class="jfilter-bar">
+        <span class="jfilter-lbl">Período</span>
+        <button class="jfilter-btn on" onclick="setJFilter('range','7',this)">7d</button>
+        <button class="jfilter-btn" onclick="setJFilter('range','30',this)">30d</button>
+        <button class="jfilter-btn" onclick="setJFilter('range','90',this)">90d</button>
+        <button class="jfilter-btn" onclick="setJFilter('range','all',this)">Tudo</button>
+        <div class="jfilter-sep"></div>
+        <span class="jfilter-lbl">Bias</span>
+        <button class="jfilter-btn on" onclick="setJFilter('bias','all',this)">Todos</button>
+        <button class="jfilter-btn" onclick="setJFilter('bias','Bullish',this)">Bullish</button>
+        <button class="jfilter-btn" onclick="setJFilter('bias','Bearish',this)">Bearish</button>
+        <button class="jfilter-btn" onclick="setJFilter('bias','Neutro',this)">Neutro</button>
+        <button class="jfilter-btn" onclick="setJFilter('bias','Cauteloso',this)">Cauteloso</button>
+        <div class="jfilter-sep"></div>
+        <span class="jfilter-lbl">Resultado</span>
+        <button class="jfilter-btn on" onclick="setJFilter('result','all',this)">Todos</button>
+        <button class="jfilter-btn" onclick="setJFilter('result','win',this)">Dias ganhos</button>
+        <button class="jfilter-btn" onclick="setJFilter('result','loss',this)">Dias perdidos</button>
+      </div>
+      <div id="journal-body"></div>
+    </div>
+
+    <!-- CONTEXT MODAL -->
+    <div class="ctx-modal-bg" id="ctx-modal-bg" onclick="if(event.target===this)closeCtxModal()">
+      <div class="ctx-modal">
+        <div class="ctx-modal-hdr">
+          <span id="ctx-modal-title" style="font-size:14px;font-weight:600"></span>
+          <button onclick="closeCtxModal()" style="background:transparent;border:none;color:var(--hint);font-size:18px;cursor:pointer;line-height:1">✕</button>
+        </div>
+        <div id="ctx-modal-body"></div>
+      </div>
     </div>
 
     <!-- REPORTS -->
@@ -1392,6 +1441,224 @@ function fmt(cmd) { document.getElementById("m-editor").focus(); document.execCo
 function insertImgs(e) {
   [...e.target.files].forEach(f => { const r = new FileReader(); r.onload = ev => { document.getElementById("m-editor").focus(); document.execCommand("insertHTML", false, '<img src="' + ev.target.result + '"/>'); }; r.readAsDataURL(f); });
   e.target.value = "";
+}
+
+// ═══════════════════════════════════════════
+// JOURNAL v2
+// ═══════════════════════════════════════════
+const JF = { range: '7', bias: 'all', result: 'all' };
+
+function setJFilter(key, val, btn) {
+  JF[key] = val;
+  document.querySelectorAll('.jfilter-btn').forEach(b => {
+    if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("setJFilter('" + key + "'")) b.classList.remove('on');
+  });
+  if (btn) btn.classList.add('on');
+  renderJournal();
+}
+
+function getJDays() {
+  const trades = acctTrades();
+  const now = new Date();
+  let filtered = trades;
+  if (JF.range !== 'all') {
+    const cutoff = new Date(now - parseInt(JF.range) * 864e5).toISOString().split('T')[0];
+    filtered = filtered.filter(t => t.date >= cutoff);
+  }
+  const dm = {};
+  filtered.forEach(t => { if (!dm[t.date]) dm[t.date] = []; dm[t.date].push(t); });
+  return Object.keys(dm).sort((a,b) => b.localeCompare(a)).filter(d => {
+    const ctx = psData[d] || {};
+    if (JF.bias !== 'all' && ctx.bias !== JF.bias) return false;
+    if (JF.result !== 'all') {
+      const pnl = dm[d].reduce((s,t) => s + t.pnl, 0);
+      if (JF.result === 'win' && pnl <= 0) return false;
+      if (JF.result === 'loss' && pnl >= 0) return false;
+    }
+    return true;
+  }).map(d => ({ date: d, trades: dm[d] }));
+}
+
+function miniCurve(trades, w, h, pos) {
+  if (trades.length < 2) return '<div style="width:' + w + 'px;height:' + h + 'px"></div>';
+  const sorted = [...trades].sort((a,b) => (a.time||'').localeCompare(b.time||''));
+  const cum = [0]; sorted.forEach(t => cum.push(cum[cum.length-1] + t.pnl));
+  const mn = Math.min(...cum), mx = Math.max(...cum), rng = mx - mn || 1;
+  const pts = cum.map((v,i) => ((i/(cum.length-1))*w).toFixed(1)+','+(h-2-(((v-mn)/rng)*(h-6))).toFixed(1)).join(' ');
+  const fill = cum.map((v,i) => ((i/(cum.length-1))*w).toFixed(1)+','+(h-2-(((v-mn)/rng)*(h-6))).toFixed(1)).join(' ') + ' ' + w+','+(h+1) + ' 0,'+(h+1);
+  const sc = pos ? '#1fd17a' : '#f04f4f';
+  const gid = 'g'+Math.random().toString(36).slice(2,6);
+  return '<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" style="display:block;flex-shrink:0"><defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+sc+'" stop-opacity=".3"/><stop offset="100%" stop-color="'+sc+'" stop-opacity="0"/></linearGradient></defs><polygon points="'+fill+'" fill="url(#'+gid+')" /><polyline points="'+pts+'" fill="none" stroke="'+sc+'" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/></svg>';
+}
+
+function nqScale(r, compact) {
+  if (r == null || isNaN(r)) return '<span style="font-size:9px;font-family:var(--mono);color:var(--hint)">—</span>';
+  const pct = Math.max(0, Math.min(100,
+    r < 0 ? Math.max(0, 25 + r * 25) :
+    r < 1 ? 25 + r * 25 :
+    r < 2 ? 50 + (r-1) * 25 :
+    Math.min(100, 75 + (r-2) * 12.5)
+  ));
+  const label = r < 0 ? 'Fraca' : r < 1 ? 'OK' : r < 2 ? 'Boa' : 'Perfeita';
+  const lc = r < 0 ? 'var(--red)' : r < 1 ? 'var(--amber)' : 'var(--green)';
+  const bh = compact ? '5px' : '7px', ms = compact ? '10px' : '12px', mw = compact ? '70px' : '100px';
+  return '<div style="min-width:'+mw+'">'+
+    '<div style="position:relative;height:'+bh+';border-radius:3px;background:linear-gradient(to right,var(--red) 0 25%,var(--amber) 25% 50%,#4fd878 50% 75%,var(--green) 75%);margin-bottom:2px">'+
+    '<div style="position:absolute;top:50%;left:'+pct+'%;transform:translate(-50%,-50%);width:'+ms+';height:'+ms+';border-radius:50%;background:var(--text);border:2px solid var(--bg)"></div>'+
+    '</div><div style="font-size:8px;font-family:var(--mono);color:'+lc+';text-align:center">'+label+'</div></div>';
+}
+
+const JMONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const JDAYS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+function jFmtDate(iso) {
+  const d = new Date(iso+'T12:00:00');
+  return JDAYS[d.getDay()]+', '+d.getDate()+' '+JMONTHS[d.getMonth()]+' '+d.getFullYear();
+}
+
+function renderJournal() {
+  const body = document.getElementById('journal-body');
+  const days = getJDays();
+  if (!days.length) {
+    const empty = !acctTrades().length;
+    body.innerHTML = '<div class="empty-state" style="margin-top:8px">'+
+      '<div class="empty-icon">'+(empty?'📋':'🔍')+'</div>'+
+      '<div class="empty-text">'+(empty?'Ainda não tens trades importadas.':'Sem dias com os filtros actuais.')+'</div>'+
+      (empty?'<div style="margin-top:12px"><button class="btn btn-accent btn-sm" onclick="showTab(\'import\',document.querySelectorAll(\'.tab\')[3])">Importar CSV</button></div>':'')+'</div>';
+    document.getElementById('journal-lbl').textContent = '';
+    return;
+  }
+  const total = days.reduce((s,d) => s+d.trades.length, 0);
+  document.getElementById('journal-lbl').textContent = days.length+' dias · '+total+' trades';
+
+  const BIAS_C = { Bullish:'#1fd17a', Bearish:'#f04f4f', Neutro:'#8892aa', Cauteloso:'#f0a832' };
+  const FED_C  = { Hawkish:'#f04f4f', Dovish:'#1fd17a', Neutro:'#8892aa' };
+
+  body.innerHTML = days.map(({ date, trades }) => {
+    const ctx = psData[date] || {};
+    const pnl = trades.reduce((s,t) => s+t.pnl, 0);
+    const pos = pnl >= 0;
+    const wins = trades.filter(t => t.pnl > 0).length;
+    const wr = trades.length ? Math.round(wins/trades.length*100) : 0;
+    const gW = trades.filter(t=>t.pnl>0).reduce((s,t)=>s+t.pnl,0);
+    const gL = Math.abs(trades.filter(t=>t.pnl<0).reduce((s,t)=>s+t.pnl,0));
+    const pf = gL > 0 ? (gW/gL).toFixed(2) : (gW > 0 ? '∞' : '—');
+    const rs = trades.filter(t => t.risk && t.risk > 0).map(t => t.pnl/t.risk);
+    const avgR = rs.length ? rs.reduce((s,r)=>s+r,0)/rs.length : null;
+
+    let badges = '';
+    if (ctx.bias) { const c=BIAS_C[ctx.bias]||'#8892aa'; badges+='<span class="jbadge" style="background:'+c+'18;color:'+c+';border:1px solid '+c+'44">'+ctx.bias+'</span>'; }
+    if (ctx.fed)  { const c=FED_C[ctx.fed]||'#8892aa';   badges+='<span class="jbadge" style="background:'+c+'18;color:'+c+';border:1px solid '+c+'44">'+ctx.fed+'</span>'; }
+
+    return '<div class="jday-card" id="jdc-'+date+'">' +
+      '<div class="jday-hdr">' +
+        '<div><div class="jday-date-txt">'+jFmtDate(date)+'</div><div class="jday-badges">'+badges+'</div></div>' +
+        '<div class="jday-pnl" style="color:'+(pos?'var(--green)':'var(--red)')+'">'+((pnl>=0?'+':'')+'$'+pnl.toFixed(2))+'</div>' +
+        '<div>'+miniCurve(trades,120,40,pos)+'</div>' +
+        '<div class="jday-metrics">' +
+          '<div class="jday-metric"><div class="jday-metric-val">'+wr+'%</div><div class="jday-metric-lbl">Win Rate</div></div>' +
+          '<div class="jday-metric"><div class="jday-metric-val">'+trades.length+'</div><div class="jday-metric-lbl">Trades</div></div>' +
+          '<div class="jday-metric"><div class="jday-metric-val">'+pf+'</div><div class="jday-metric-lbl">Prof Factor</div></div>' +
+          '<div class="jday-metric"><div class="jday-metric-val">'+(avgR!=null?avgR.toFixed(2)+'R':'—')+'</div><div class="jday-metric-lbl">Avg R</div></div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="padding:6px 16px 10px;background:var(--s2);border-top:1px solid var(--b1)">' +
+        '<div style="font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;margin-bottom:4px">NQ Scale — R médio</div>' +
+        nqScale(avgR, false) +
+      '</div>' +
+      '<div style="display:flex;gap:7px;padding:9px 16px;border-top:1px solid var(--b1);background:var(--s2)">' +
+        '<button class="btn btn-ghost btn-sm" id="jbtn-'+date+'" onclick="toggleJDay(\''+date+'\')">▸ Ver trades</button>' +
+        '<button class="btn btn-ghost btn-sm" onclick="openCtxModal(\''+date+'\')">📋 Contexto</button>' +
+        '<button class="btn btn-ghost btn-sm" onclick="openReview(\''+date+'\')">↗ Review</button>' +
+      '</div>' +
+      '<div class="jday-body" id="jdb-'+date+'">' + renderJDayBody(date, trades) + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function renderJDayBody(date, trades) {
+  if (!trades.length) return '';
+  const sorted = [...trades].sort((a,b) => (a.time||'99:99').localeCompare(b.time||'99:99'));
+  const hdr = '<div class="jtrade-hdr"><span>Hora</span><span>Símbolo</span><span>Dir</span><span>Entry→Exit</span><span>P&L</span><span>R</span><span>NQ Scale</span><span></span></div>';
+  return hdr + sorted.map(t => {
+    const idx = trades.indexOf(t);
+    const pc = t.pnl > 0 ? 'var(--green)' : t.pnl < 0 ? 'var(--red)' : 'var(--sub)';
+    const rc = t.risk && t.risk > 0 ? t.pnl/t.risk : (t.r && t.r !== 0 ? t.r : null);
+    const rStr = rc != null ? rc.toFixed(2)+'R' : '—';
+    const rc2 = rc != null ? rc : null;
+    const rColor = rc2 == null ? 'var(--hint)' : rc2 >= 1 ? 'var(--green)' : rc2 >= 0 ? 'var(--amber)' : 'var(--red)';
+    const confs = parseConfs(t.confluences);
+    let confHtml = confs.length
+      ? confs.slice(0,3).map(({id}) => { const c=CMAP[id]; return c ? '<span class="cbadge" style="background:'+c.color+'18;color:'+c.color+';border:1px solid '+c.color+'44">'+c.label.split(' ')[0]+'</span>' : ''; }).join('')+(confs.length>3?'<span class="cbadge" style="background:var(--s3);color:var(--hint)">+'+( confs.length-3)+'</span>':'')
+      : '<span style="color:var(--hint)">—</span>';
+    const dirC = t.direction === 'Long' ? 'var(--green)' : 'var(--red)';
+    return '<div class="jtrade-row" onclick="openReviewFromList(\''+date+'\','+idx+')">' +
+      '<span style="color:var(--sub)">'+(t.time?t.time.slice(0,5):'—')+'</span>' +
+      '<span style="background:var(--s3);padding:1px 5px;border-radius:4px;border:1px solid var(--b1)">'+(t.symbol||'NQ')+'</span>' +
+      '<span style="color:'+dirC+';font-weight:600">'+(t.direction||'—')+'</span>' +
+      '<span style="color:var(--sub)">@'+(t.entry||'—')+'→'+(t.exit||'—')+'</span>' +
+      '<span style="color:'+pc+';font-weight:600">'+((t.pnl>=0?'+':'')+'$'+t.pnl.toFixed(2))+'</span>' +
+      '<span style="color:'+rColor+'">'+rStr+'</span>' +
+      '<span>'+nqScale(rc2,true)+'</span>' +
+      '<span style="cursor:pointer;color:var(--hint);text-align:center" onclick="event.stopPropagation();openReviewFromList(\''+date+'\','+idx+')">↗</span>' +
+    '</div>';
+  }).join('');
+}
+
+function toggleJDay(date) {
+  const card = document.getElementById('jdc-'+date);
+  const btn  = document.getElementById('jbtn-'+date);
+  if (!card) return;
+  const open = card.classList.toggle('open');
+  if (btn) btn.textContent = open ? '▾ Fechar' : '▸ Ver trades';
+}
+
+function openCtxModal(date) {
+  const ctx = psData[date] || {};
+  document.getElementById('ctx-modal-title').textContent = jFmtDate(date);
+  const BIAS_C = { Bullish:'#1fd17a', Bearish:'#f04f4f', Neutro:'#8892aa', Cauteloso:'#f0a832' };
+  const FED_C  = { Hawkish:'#f04f4f', Dovish:'#1fd17a', Neutro:'#8892aa' };
+  const body = document.getElementById('ctx-modal-body');
+  if (!Object.keys(ctx).length) {
+    body.innerHTML = '<div style="text-align:center;padding:32px 16px;color:var(--hint);font-family:var(--mono);font-size:12px">Sem contexto registado para este dia.<div style="margin-top:14px"><button class="btn btn-accent btn-sm" onclick="closeCtxModal();showTab(\'presessao\',document.querySelectorAll(\'.tab\')[4])">Adicionar contexto</button></div></div>';
+  } else {
+    let h = '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px">';
+    if (ctx.bias) { const c=BIAS_C[ctx.bias]||'#8892aa'; h+='<span class="jbadge" style="background:'+c+'18;color:'+c+';border:1px solid '+c+'44">'+ctx.bias+'</span>'; }
+    if (ctx.fed)  { const c=FED_C[ctx.fed]||'#8892aa';   h+='<span class="jbadge" style="background:'+c+'18;color:'+c+';border:1px solid '+c+'44">'+ctx.fed+'</span>'; }
+    if (ctx.score != null) {
+      const sl = ctx.score >= 60 ? 'Risk-On' : ctx.score <= 40 ? 'Risk-Off' : 'Neutro';
+      const sc = ctx.score >= 60 ? 'var(--green)' : ctx.score <= 40 ? 'var(--red)' : 'var(--amber)';
+      h+='<span class="jbadge" style="color:'+sc+';background:'+sc+'18;border:1px solid '+sc+'44">Score '+ctx.score+' · '+sl+'</span>';
+    }
+    h += '</div>';
+    if (ctx.vix!=null||ctx.spxDelta!=null||ctx.dxy!=null) {
+      h += '<div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px">';
+      if (ctx.vix!=null)      h+='<div><div class="ctx-lbl">VIX</div><div class="ctx-val">'+ctx.vix+(ctx.vixRegime?' ('+ctx.vixRegime+')':"")+'</div></div>';
+      if (ctx.spxDelta!=null) h+='<div><div class="ctx-lbl">SPX Δ%</div><div class="ctx-val">'+(ctx.spxDelta>0?'+':'')+parseFloat(ctx.spxDelta).toFixed(2)+'%</div></div>';
+      if (ctx.dxy!=null)      h+='<div><div class="ctx-lbl">DXY</div><div class="ctx-val">'+parseFloat(ctx.dxy).toFixed(2)+'</div></div>';
+      h += '</div>';
+    }
+    const txt = (lbl, val) => val ? '<div class="ctx-sec"><div class="ctx-lbl">'+lbl+'</div><div style="font-size:12px;color:var(--sub);white-space:pre-wrap;line-height:1.5">'+val+'</div></div>' : '';
+    h += txt('Fundamentação', ctx.justification);
+    h += txt('Contexto Fed', ctx.fedCtx);
+    h += txt('Manchetes', ctx.headlines);
+    if (ctx.macroEvents?.length) {
+      h += '<div class="ctx-sec"><div class="ctx-lbl" style="margin-bottom:6px">Eventos Macro</div><div style="border:1px solid var(--b1);border-radius:8px;overflow:hidden">';
+      h += '<div style="display:grid;grid-template-columns:50px 1fr 70px 70px;gap:6px;padding:5px 10px;background:var(--s3);font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase"><span>Hora</span><span>Evento</span><span>Actual</span><span>NQ Impact</span></div>';
+      ctx.macroEvents.forEach(e => {
+        const ic = e.impact==='Positivo'?'var(--green)':e.impact==='Negativo'?'var(--red)':'var(--amber)';
+        h += '<div style="display:grid;grid-template-columns:50px 1fr 70px 70px;gap:6px;padding:6px 10px;border-top:1px solid var(--b1);font-size:11px;font-family:var(--mono)"><span style="color:var(--hint)">'+(e.time||'—')+'</span><span>'+(e.name||'')+'</span><span style="color:var(--sub)">'+(e.actual||e.forecast||'—')+'</span><span style="color:'+ic+'">'+(e.impact||'—')+'</span></div>';
+      });
+      h += '</div></div>';
+    }
+    body.innerHTML = h;
+  }
+  document.getElementById('ctx-modal-bg').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCtxModal() {
+  document.getElementById('ctx-modal-bg').classList.remove('open');
+  document.body.style.overflow = '';
 }
 
 // ═══════════════════════════════════════════
