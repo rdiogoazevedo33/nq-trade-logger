@@ -452,6 +452,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .rv-ps4-dot.fail{background:var(--s3);border-color:var(--red)}
 .rv-hold-row{padding:6px 14px;border-bottom:1px solid var(--b1);display:flex;justify-content:space-between;align-items:center}
 
+/* FASE 5 — Session badges */
+.sess-badge{display:inline-flex;align-items:center;font-family:var(--mono);font-size:9px;font-weight:600;padding:1px 6px;border-radius:4px;letter-spacing:.03em;border:1px solid;white-space:nowrap;vertical-align:middle}
+.sess-badge.pre-orb{color:var(--amber);background:#241a0618;border-color:#f0a83244}
+.sess-badge.orb{color:var(--accent);background:#2563eb18;border-color:#2563eb44}
+.sess-badge.post-orb{color:var(--teal);background:#0d948818;border-color:#0d948844}
+.sess-badge.afternoon{color:var(--purple);background:#7c3aed18;border-color:#7c3aed44}
+
 /* REPORTS */
 .report-inner-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px}
 .rit-btn{font-family:var(--mono);font-size:11px;padding:5px 12px;border-radius:7px;border:1px solid var(--b1);background:transparent;color:var(--hint);cursor:pointer;transition:all .13s}
@@ -560,6 +567,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
           <button class="rit-btn" onclick="setReportTab('detailed',this)">Detailed</button>
           <button class="rit-btn" onclick="setReportTab('winsloss',this)">Wins vs Losses</button>
           <button class="rit-btn" onclick="setReportTab('calendar',this)">Calendário</button>
+          <button class="rit-btn" onclick="setReportTab('time',this)">⏱ Tempo</button>
         </div>
         <div id="report-scope-row" style="display:flex;gap:5px;flex-wrap:wrap"></div>
         <button class="btn btn-ghost btn-sm" style="color:var(--purple);margin-left:auto" onclick="analyzeEdgeWithClaude()">✦ Edge Finder</button>
@@ -1161,6 +1169,39 @@ const CONFS = [
 ];
 const CMAP = {}; CONFS.forEach(c => CMAP[c.id] = c);
 
+// FASE 5 — Time slot / session helpers
+const SLOT_ORDER = ['pre-orb','09:30','10:00','10:30','11:00','11:30','12:00+'];
+const SLOT_LABELS = {'pre-orb':'Pré-ORB','09:30':'09:30–10:00','10:00':'10:00–10:30','10:30':'10:30–11:00','11:00':'11:00–11:30','11:30':'11:30–12:00','12:00+':'12:00+'};
+const SESSION_ORDER = ['pre-orb','orb','post-orb','afternoon'];
+const SESSION_LABELS = {'pre-orb':'Pré-ORB','orb':'ORB (9:30–10:30)','post-orb':'Pós-ORB (10:30–12:00)','afternoon':'Tarde (12:00+)'};
+
+function getTimeSlot(timeStr) {
+  if (!timeStr) return null;
+  const parts = timeStr.split(':'); const h = parseInt(parts[0]), m = parseInt(parts[1]||0);
+  const mins = h * 60 + m;
+  if (mins < 9*60+30) return 'pre-orb';
+  if (mins < 10*60)   return '09:30';
+  if (mins < 10*60+30) return '10:00';
+  if (mins < 11*60)   return '10:30';
+  if (mins < 11*60+30) return '11:00';
+  if (mins < 12*60)   return '11:30';
+  return '12:00+';
+}
+function getSession(timeStr) {
+  if (!timeStr) return null;
+  const parts = timeStr.split(':'); const h = parseInt(parts[0]), m = parseInt(parts[1]||0);
+  const mins = h * 60 + m;
+  if (mins < 9*60+30)  return 'pre-orb';
+  if (mins < 10*60+30) return 'orb';
+  if (mins < 12*60)    return 'post-orb';
+  return 'afternoon';
+}
+function sessionBadge(session) {
+  if (!session) return '';
+  const labels = {'pre-orb':'Pré-ORB','orb':'ORB','post-orb':'Pós-ORB','afternoon':'Tarde'};
+  return '<span class="sess-badge ' + session + '">' + (labels[session] || session) + '</span>';
+}
+
 // FASE 4 — Mistakes categories
 const MISTAKE_CATS = [
   { cat: "Execução / Timing", items: ["Entrei cedo demais","Entrei tarde demais","Saí cedo demais","Saí tarde demais","Stop muito apertado","Stop muito largo","Tamanho de posição errado"] },
@@ -1426,7 +1467,9 @@ function parseCSV(text, fname) {
     const dtParts = dtRaw.replace("T"," ").split(" ");
     const dt = dtParts[0].split("T")[0];
     const time = dtParts[1] ? dtParts[1].slice(0,8) : null;
-    return { id: Date.now() + idx + Math.random(), date: dt, time: time, symbol: (g(ci.sym) || "NQ").toUpperCase(), direction: dir, entry, exit, pnl, risk: null, stop: null, tp: null, rr: null, r: 0, confluences: "[]", score: 0, notes: "", notesHTML: "", screenshots: [], rating: 0 };
+    const time_slot = getTimeSlot(time);
+    const session = getSession(time);
+    return { id: Date.now() + idx + Math.random(), date: dt, time: time, time_slot, session, symbol: (g(ci.sym) || "NQ").toUpperCase(), direction: dir, entry, exit, pnl, risk: null, stop: null, tp: null, rr: null, r: 0, confluences: "[]", score: 0, notes: "", notesHTML: "", screenshots: [], rating: 0 };
   }).filter(t => !isNaN(t.pnl));
   if (!parsed.length) { toast("Sem trades válidas", "err"); return; }
   const byDay = {}; parsed.forEach(t => { if (!byDay[t.date]) byDay[t.date] = []; byDay[t.date].push(t); });
@@ -1686,8 +1729,10 @@ function renderJDayBody(date, trades) {
     const dirC = t.direction === 'Long' ? 'var(--green)' : 'var(--red)';
     const mCount = t.mistakes?.length || 0;
     const mBadge = mCount > 0 ? '<span style="font-family:var(--mono);font-size:9px;font-weight:600;background:#1f0707;color:var(--red);border:1px solid #f04f4f44;border-radius:4px;padding:1px 5px;cursor:help" title="'+t.mistakes.join(', ')+'">⚠'+mCount+'</span>' : '';
+    const jSess = getSession(t.time);
+    const jSessBadge = jSess ? sessionBadge(jSess) : '';
     return '<div class="jtrade-row" onclick="openReviewFromList(\''+date+'\','+idx+')">' +
-      '<span style="color:var(--sub)">'+(t.time?t.time.slice(0,5):'—')+'</span>' +
+      '<span style="display:flex;flex-direction:column;gap:2px"><span style="color:var(--sub)">'+(t.time?t.time.slice(0,5):'—')+'</span>'+(jSessBadge?'<span>'+jSessBadge+'</span>':'')+'</span>' +
       '<span style="background:var(--s3);padding:1px 5px;border-radius:4px;border:1px solid var(--b1)">'+(t.symbol||'NQ')+'</span>' +
       '<span style="color:'+dirC+';font-weight:600">'+(t.direction||'—')+'</span>' +
       '<span style="color:var(--sub)">@'+(t.entry||'—')+'→'+(t.exit||'—')+'</span>' +
@@ -2376,7 +2421,8 @@ function renderReview() {
   const tc = t.pnl > 0 ? "var(--green)" : t.pnl < 0 ? "var(--red)" : "var(--sub)";
   document.getElementById("rv-trade-pnl").textContent = (t.pnl >= 0 ? "+" : "") + "$" + t.pnl.toFixed(2);
   document.getElementById("rv-trade-pnl").style.color = tc;
-  document.getElementById("rv-trade-meta").textContent = (t.symbol || "NQ") + " · " + (t.direction || "—") + " · #" + (rvIdx + 1);
+  const rvSess = getSession(t.time);
+  document.getElementById("rv-trade-meta").innerHTML = (t.symbol || "NQ") + " · " + (t.direction || "—") + (t.time ? " · " + t.time.slice(0,5) : "") + (rvSess ? " " + sessionBadge(rvSess) : "") + " · #" + (rvIdx + 1);
   const ht = calcHoldTime(t);
   const htEl = document.getElementById("rv-hold-time");
   if (htEl) { htEl.textContent = "Hold Time: " + (ht || "—"); htEl.title = ht ? "" : "Importa trades com timestamp para calcular o hold time"; }
@@ -3523,6 +3569,7 @@ function toast(msg, type="ok") { const t = document.getElementById("toast"); t.t
 // ═══════════════════════════════════════════
 let activeReportTab = 'overview';
 let rScope = 'all';
+let timeView = 'slot';
 
 function setReportTab(tab, btn) {
   activeReportTab = tab;
@@ -3564,6 +3611,130 @@ function renderReports() {
   else if (activeReportTab==='detailed') el.innerHTML = rptDetailed(t);
   else if (activeReportTab==='winsloss') el.innerHTML = rptWinsLoss(t);
   else if (activeReportTab==='calendar') el.innerHTML = rptCalendar(t);
+  else if (activeReportTab==='time') el.innerHTML = rptTime(t);
+}
+
+function setTimeView(v, btn) {
+  timeView = v;
+  document.querySelectorAll('.tv-btn').forEach(b => b.classList.remove('on'));
+  if (btn) btn.classList.add('on');
+  document.getElementById('reports-body').innerHTML = rptTime(reportScopedT());
+}
+
+function rptTime(trades) {
+  const order = timeView === 'slot' ? SLOT_ORDER : SESSION_ORDER;
+  const labels = timeView === 'slot' ? SLOT_LABELS : SESSION_LABELS;
+  const groups = {};
+  order.forEach(k => { groups[k] = []; });
+  trades.forEach(t => {
+    const key = timeView === 'slot'
+      ? (t.time_slot || getTimeSlot(t.time))
+      : (t.session || getSession(t.time));
+    if (key && groups[key] !== undefined) groups[key].push(t);
+  });
+  const hasData = order.filter(k => groups[k].length > 0);
+  let bestWR = null, bestNet = null;
+  if (hasData.length) {
+    hasData.forEach(k => {
+      const g = groups[k];
+      const wr = g.filter(t => t.pnl > 0).length / g.length;
+      const net = g.reduce((s,t) => s + t.pnl, 0);
+      if (!bestWR || wr > bestWR.wr) bestWR = {k, wr};
+      if (!bestNet || net > bestNet.net) bestNet = {k, net};
+    });
+  }
+  const maxAbsNet = hasData.length ? Math.max(...hasData.map(k => Math.abs(groups[k].reduce((s,t)=>s+t.pnl,0))), 1) : 1;
+
+  function slotSessClass(k) {
+    if (timeView === 'session') return k;
+    if (k === 'pre-orb') return 'pre-orb';
+    if (k === '09:30' || k === '10:00') return 'orb';
+    if (k === '10:30' || k === '11:00' || k === '11:30') return 'post-orb';
+    return 'afternoon';
+  }
+
+  let cards = '';
+  order.forEach(k => {
+    const g = groups[k];
+    const lbl = labels[k] || k;
+    const wins = g.filter(t => t.pnl > 0);
+    const losses = g.filter(t => t.pnl < 0);
+    const net = g.reduce((s,t) => s + t.pnl, 0);
+    const wr = g.length ? wins.length / g.length : 0;
+    const isBestWR = bestWR?.k === k;
+    const isBestNet = bestNet?.k === k;
+    const hlBorder = (isBestWR && isBestNet) ? 'var(--amber)' : isBestWR ? 'var(--green)' : isBestNet ? 'var(--accent)' : 'var(--b1)';
+    const netColor = net > 0 ? 'var(--green)' : net < 0 ? 'var(--red)' : 'var(--sub)';
+    const barW = g.length ? Math.round(Math.abs(net) / maxAbsNet * 100) : 0;
+    const barColor = net >= 0 ? 'var(--green)' : 'var(--red)';
+    const wrPct = Math.round(wr * 100);
+    cards += '<div style="background:var(--s1);border:1px solid ' + hlBorder + ';border-radius:12px;padding:13px;margin-bottom:8px">';
+    cards += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">';
+    cards += '<div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">';
+    cards += '<span class="sess-badge ' + slotSessClass(k) + '">' + lbl + '</span>';
+    if (isBestWR) cards += '<span style="font-family:var(--mono);font-size:8px;color:var(--green);background:#071f0f;border:1px solid #0a2e18;border-radius:4px;padding:1px 5px">↑ WR</span>';
+    if (isBestNet) cards += '<span style="font-family:var(--mono);font-size:8px;color:var(--accent);background:#1e293b;border:1px solid #2563eb44;border-radius:4px;padding:1px 5px">↑ P&L</span>';
+    cards += '</div>';
+    cards += '<div style="font-family:var(--mono);font-size:14px;font-weight:700;color:' + netColor + '">' + (g.length ? (net>=0?'+':'')+'$'+Math.round(net) : '—') + '</div>';
+    cards += '</div>';
+    if (!g.length) {
+      cards += '<div style="font-family:var(--mono);font-size:10px;color:var(--hint)">Sem trades</div>';
+    } else {
+      const avgW = wins.length ? wins.reduce((s,t)=>s+t.pnl,0)/wins.length : 0;
+      const avgL = losses.length ? Math.abs(losses.reduce((s,t)=>s+t.pnl,0))/losses.length : 0;
+      cards += '<div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:8px">';
+      cards += '<span style="font-family:var(--mono);font-size:10px;color:var(--sub)">' + g.length + 'T</span>';
+      cards += '<span style="font-family:var(--mono);font-size:10px;color:' + (wr>=.5?'var(--green)':'var(--red)') + '">' + wrPct + '% WR</span>';
+      if (wins.length) cards += '<span style="font-family:var(--mono);font-size:10px;color:var(--green)">avg +$' + avgW.toFixed(0) + '</span>';
+      if (losses.length) cards += '<span style="font-family:var(--mono);font-size:10px;color:var(--red)">avg -$' + avgL.toFixed(0) + '</span>';
+      cards += '</div>';
+      cards += '<div style="display:flex;gap:6px;align-items:center">';
+      cards += '<div style="flex:1;background:var(--s3);border-radius:3px;height:5px;overflow:hidden"><div style="width:' + barW + '%;height:100%;background:' + barColor + ';border-radius:3px"></div></div>';
+      cards += '<span style="font-family:var(--mono);font-size:9px;color:var(--hint);white-space:nowrap">' + wins.length + 'W / ' + losses.length + 'L</span>';
+      cards += '</div>';
+    }
+    cards += '</div>';
+  });
+
+  let tableRows = '';
+  order.forEach(k => {
+    const g = groups[k]; if (!g.length) return;
+    const lbl = labels[k] || k;
+    const wins = g.filter(t => t.pnl > 0), losses = g.filter(t => t.pnl < 0);
+    const net = g.reduce((s,t)=>s+t.pnl,0);
+    const wr = wins.length / g.length;
+    const avgW = wins.length ? wins.reduce((s,t)=>s+t.pnl,0)/wins.length : 0;
+    const avgL = losses.length ? Math.abs(losses.reduce((s,t)=>s+t.pnl,0))/losses.length : 0;
+    const ev = wr*avgW - (1-wr)*avgL;
+    const netC = net>0?'var(--green)':net<0?'var(--red)':'var(--sub)';
+    const evC = ev>0?'var(--green)':'var(--red)';
+    const wrPct = Math.round(wr*100);
+    const wrC = wr>=.5?'var(--green)':'var(--red)';
+    tableRows += '<tr style="border-bottom:1px solid var(--b1)">';
+    tableRows += '<td style="padding:7px 8px;font-family:var(--mono);font-size:10px;color:var(--text)">' + lbl + '</td>';
+    tableRows += '<td style="padding:7px 8px;font-family:var(--mono);font-size:10px;color:var(--hint);text-align:right">' + g.length + '</td>';
+    tableRows += '<td style="padding:7px 8px;font-family:var(--mono);font-size:10px;color:' + wrC + ';text-align:right">' + wrPct + '%</td>';
+    tableRows += '<td style="padding:7px 8px;font-family:var(--mono);font-size:10px;color:' + netC + ';text-align:right">' + (net>=0?'+':'')+'$'+Math.round(net) + '</td>';
+    tableRows += '<td style="padding:7px 8px;font-family:var(--mono);font-size:10px;color:' + evC + ';text-align:right">' + (ev>=0?'+':'')+'$'+Math.round(ev) + '</td>';
+    tableRows += '</tr>';
+  });
+
+  const viewBtns = '<div style="display:flex;gap:5px;margin-bottom:12px">' +
+    '<button class="tv-btn rit-btn' + (timeView==='slot'?' on':'') + '" onclick="setTimeView(\'slot\',this)">Por slot</button>' +
+    '<button class="tv-btn rit-btn' + (timeView==='session'?' on':'') + '" onclick="setTimeView(\'session\',this)">Por sessão</button>' +
+    '</div>';
+
+  const table = tableRows ? '<div class="sec" style="margin-top:10px"><div class="sec-title">Resumo por ' + (timeView==='slot'?'slot':'sessão') + '</div>' +
+    '<table style="width:100%;border-collapse:collapse"><thead><tr style="background:var(--s2);border-bottom:1px solid var(--b1)">' +
+    '<th style="padding:7px 8px;text-align:left;font-family:var(--mono);font-size:9px;color:var(--hint);text-transform:uppercase">Slot</th>' +
+    '<th style="padding:7px 8px;text-align:right;font-family:var(--mono);font-size:9px;color:var(--hint);text-transform:uppercase">T</th>' +
+    '<th style="padding:7px 8px;text-align:right;font-family:var(--mono);font-size:9px;color:var(--hint);text-transform:uppercase">WR</th>' +
+    '<th style="padding:7px 8px;text-align:right;font-family:var(--mono);font-size:9px;color:var(--hint);text-transform:uppercase">Net</th>' +
+    '<th style="padding:7px 8px;text-align:right;font-family:var(--mono);font-size:9px;color:var(--hint);text-transform:uppercase">EV</th>' +
+    '</tr></thead><tbody>' + tableRows + '</tbody></table></div>' : '';
+
+  if (!trades.length) return '<div style="text-align:center;padding:60px;color:var(--hint);font-family:var(--mono);font-size:12px">Sem trades neste período</div>';
+  return '<div class="sec"><div class="sec-title">Análise temporal</div>' + viewBtns + cards + '</div>' + table;
 }
 
 // ─── helpers ────────────────────────────────────────────────
