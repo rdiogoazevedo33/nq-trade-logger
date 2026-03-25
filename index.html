@@ -271,44 +271,71 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .ps-bias-btn.neut.on{background:var(--s3);border-color:var(--sub);color:var(--text)}
 .ps-bias-btn.caut.on{background:#241a06;border-color:var(--amber);color:var(--amber)}
 
-/* MRKT EDGE */
-.mrkt-banner{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-radius:11px;border:1px solid var(--b1);background:var(--s2);margin-bottom:13px;gap:10px;flex-wrap:wrap}
-.mrkt-banner.ok{border-color:#1fd17a44;background:color-mix(in srgb,var(--green) 6%,var(--s2))}
-.mrkt-banner.err{border-color:#f04f4f44;background:color-mix(in srgb,var(--red) 6%,var(--s2))}
-.mrkt-dot{width:8px;height:8px;border-radius:50%;background:var(--hint);flex-shrink:0}
-.mrkt-dot.on{background:var(--green);box-shadow:0 0 7px #1fd17a88}
-.mrkt-dot.err{background:var(--red)}
-.mrkt-dot.spin{background:var(--accent);animation:spin-pulse 1s infinite}
-@keyframes spin-pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.mrkt-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:9px;margin-bottom:13px}
-.mrkt-card{background:var(--s1);border:1px solid var(--b1);border-radius:11px;padding:13px 14px}
-.mrkt-card-t{font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
-.mrkt-card-v{font-size:20px;font-weight:700;font-family:var(--mono);line-height:1;margin-bottom:4px}
-.mrkt-card-s{font-size:11px;color:var(--sub);margin-top:3px;line-height:1.4}
-.mtag{display:inline-block;font-size:10px;font-family:var(--mono);font-weight:600;padding:2px 8px;border-radius:5px;margin-top:4px}
-.mtag-bull{background:#071f0f;color:var(--green);border:1px solid #0a2e18}
-.mtag-bear{background:#1f0707;color:var(--red);border:1px solid #2e0a0a}
-.mtag-neut{background:var(--s3);color:var(--sub);border:1px solid var(--b1)}
-.mrkt-news{display:flex;flex-direction:column;gap:5px;margin-bottom:13px}
-.mrkt-ni{background:var(--s1);border:1px solid var(--b1);border-radius:9px;padding:10px 12px;display:flex;align-items:flex-start;gap:9px}
-.mrkt-ni-ic{font-size:13px;flex-shrink:0;margin-top:1px}
-.mrkt-ni-t{font-size:12px;font-weight:500;color:var(--text);line-height:1.4;margin-bottom:2px}
-.mrkt-ni-m{font-size:10px;font-family:var(--mono);color:var(--hint);display:flex;align-items:center;gap:5px}
-.mrkt-nq-tag{font-size:10px;font-family:var(--mono);font-weight:600;padding:1px 6px;border-radius:4px}
-.autofill-btn{width:100%;background:linear-gradient(135deg,var(--accent),var(--purple));border:none;color:#fff;font-family:var(--sans);font-size:12px;font-weight:600;padding:10px 18px;border-radius:9px;cursor:pointer;transition:opacity .15s;display:flex;align-items:center;justify-content:center;gap:7px;margin-top:11px}
-.autofill-btn:hover{opacity:.88}
-.autofill-btn:disabled{opacity:.35;cursor:not-allowed}
+/* PS STATUS BADGE */
+.ps-status-badge{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;font-weight:600;padding:3px 10px;border-radius:6px;border:1px solid}
+.ps-status-badge.ready{color:var(--green);background:#071f0f;border-color:#1fd17a44;animation:ps-pulse 2s infinite}
+.ps-status-badge.incomplete{color:var(--amber);background:#241a06;border-color:#f0a83244}
+.ps-status-badge.empty{color:var(--hint);background:var(--s3);border-color:var(--b1)}
+@keyframes ps-pulse{0%,100%{box-shadow:0 0 0 0 #1fd17a00}60%{box-shadow:0 0 0 4px #1fd17a22}}
 
-/* FF CALENDAR */
-.ff-row{display:grid;grid-template-columns:56px 1fr 66px 66px 66px 86px;align-items:center;gap:7px;padding:8px 0;border-bottom:1px solid var(--b1);font-family:var(--mono);font-size:11px}
-.ff-row:last-child{border-bottom:none}
-.ff-head{display:grid;grid-template-columns:56px 1fr 66px 66px 66px 86px;gap:7px;padding:5px 0;border-bottom:1px solid var(--b1);font-size:10px;color:var(--hint);font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em}
-.ff-bull{background:#071f0f;color:var(--green);border:1px solid #0a2e18;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:600}
-.ff-bear{background:#1f0707;color:var(--red);border:1px solid #2e0a0a;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:600}
-.ff-tbd{background:var(--s3);color:var(--hint);border:1px solid var(--b1);border-radius:4px;padding:2px 7px;font-size:10px}
+/* PS PILLARS */
+.ps-pilar{border-radius:14px;padding:16px;margin-bottom:12px}
+.ps-pilar-profile{background:color-mix(in srgb,var(--accent) 4%,var(--s1));border:1px solid color-mix(in srgb,var(--accent) 20%,var(--b1))}
+.ps-pilar-macro{background:color-mix(in srgb,var(--purple) 4%,var(--s1));border:1px solid color-mix(in srgb,var(--purple) 20%,var(--b1))}
+.ps-pilar-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
+.ps-pilar-sub{font-size:10px;font-family:var(--mono);color:var(--hint);margin-bottom:14px}
+.ps-field-lbl{font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.ps-num-input{font-family:var(--mono);font-size:13px;font-weight:600;background:var(--s2);border:1px solid var(--b1);border-radius:8px;color:var(--text);padding:7px 10px;outline:none;width:100%;transition:border-color .15s}
+.ps-num-input:focus{border-color:var(--accent)}
+.ps-num-input::placeholder{color:var(--hint)}
+.ps-poc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+.ps-vah-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+@media(max-width:500px){.ps-poc-grid{grid-template-columns:1fr 1fr}.ps-vah-grid{grid-template-columns:1fr}}
+
+/* DYNAMIC LISTS */
+.ps-dyn-list{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.ps-dyn-item{display:flex;align-items:center;gap:6px;background:var(--s2);border:1px solid var(--b1);border-radius:9px;padding:7px 10px;animation:ps-item-in .18s ease}
+@keyframes ps-item-in{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+.ps-dyn-item input,.ps-dyn-item select{font-family:var(--mono);font-size:11px;background:var(--s3);border:1px solid var(--b1);border-radius:6px;color:var(--text);padding:4px 8px;outline:none}
+.ps-dyn-item input:focus,.ps-dyn-item select:focus{border-color:var(--accent)}
+.ps-dyn-item input.price-in{width:90px}
+.ps-dyn-item input.note-in{flex:1}
+.ps-dyn-item input.from-in,.ps-dyn-item input.to-in{width:80px}
+.ps-dyn-rmv{background:transparent;border:none;color:var(--hint);cursor:pointer;font-size:13px;padding:0 3px;flex-shrink:0;transition:color .13s}
+.ps-dyn-rmv:hover{color:var(--red)}
+.ps-add-btn{font-family:var(--mono);font-size:10px;color:var(--accent);background:transparent;border:1px dashed var(--b2);border-radius:7px;padding:5px 12px;cursor:pointer;transition:all .13s;width:100%}
+.ps-add-btn:hover{background:var(--s2);border-color:var(--accent)}
+
+/* PS SENTIMENT */
+.ps-sent-btn{font-family:var(--mono);font-size:11px;padding:6px 14px;border-radius:7px;border:1px solid var(--b1);background:var(--s2);cursor:pointer;color:var(--sub);transition:all .15s}
+.ps-sent-btn.on-ron{background:#071f0f;border-color:var(--green);color:var(--green)}
+.ps-sent-btn.on-roff{background:#1f0707;border-color:var(--red);color:var(--red)}
+.ps-sent-btn.on-neut{background:var(--s3);border-color:var(--sub);color:var(--text)}
+
+/* PS PREDEFINED EVENTS */
+.ps-predef-event{font-family:var(--mono);font-size:10px;padding:4px 10px;border-radius:6px;border:1px solid var(--b1);background:var(--s2);cursor:pointer;color:var(--sub);transition:all .13s}
+.ps-predef-event:hover{border-color:var(--accent);color:var(--accent)}
 
 /* PS HISTORY */
-.ps-hist{background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:11px 13px;margin-bottom:7px;display:grid;grid-template-columns:76px auto 1fr auto;align-items:start;gap:10px}
+.ps-hist{background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:11px 13px;margin-bottom:7px;display:grid;grid-template-columns:90px auto 1fr auto;align-items:start;gap:10px;cursor:pointer;transition:border-color .13s}
+.ps-hist:hover{border-color:var(--accent)}
+
+/* GAME PLAN */
+.ps-gameplan-wrap{background:var(--s1);border:1px solid var(--b2);border-radius:14px;padding:16px;margin-bottom:12px}
+.ps-gameplan-title{font-size:13px;font-weight:700;margin-bottom:4px}
+.ps-gameplan-sub{font-size:10px;font-family:var(--mono);color:var(--hint);margin-bottom:10px}
+
+/* DOC MODAL */
+.doc-modal-overlay{position:fixed;inset:0;background:#00000099;z-index:1000;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px}
+.doc-modal-inner{background:var(--bg);border:1px solid var(--b1);border-radius:18px;width:100%;max-width:720px;padding:28px;position:relative}
+.doc-modal-close{position:absolute;top:16px;right:16px;background:transparent;border:none;color:var(--hint);cursor:pointer;font-size:18px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:color .13s}
+.doc-modal-close:hover{color:var(--text)}
+.doc-sec-title{font-size:11px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.08em;padding-bottom:6px;border-bottom:1px solid var(--b1);margin-bottom:12px}
+@media print{.doc-modal-close,.no-print{display:none!important}.doc-modal-overlay{position:static;padding:0}.doc-modal-inner{border:none;padding:0}}
+
+/* RV SESSION CONTEXT */
+.rv-sess-ctx-btn{width:100%;background:transparent;border:none;border-bottom:1px solid var(--b1);padding:8px 14px;display:flex;align-items:center;gap:7px;cursor:pointer;font-family:var(--mono);font-size:10px;color:var(--sub);text-align:left;transition:color .13s}
+.rv-sess-ctx-btn:hover{color:var(--text)}
 
 
 /* FED SENTIMENT */
@@ -625,178 +652,161 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 
     <!-- PRÉ-SESSÃO -->
     <div class="view" id="view-presessao">
-      <!-- MRKT Edge Banner -->
-      <div class="mrkt-banner" id="mrkt-banner">
-        <div style="display:flex;align-items:center;gap:9px;flex:1;min-width:0">
-          <div class="mrkt-dot" id="mrkt-dot"></div>
-          <div style="flex:1;min-width:0">
-            <div style="font-size:12px;font-weight:600">MRKT Edge</div>
-            <div style="font-size:11px;font-family:var(--mono);color:var(--sub)" id="mrkt-status">A verificar sessão...</div>
-          </div>
+
+      <!-- HEADER BAR -->
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:11px 14px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Sessão</div>
+          <input type="date" id="ps-date-picker" style="font-family:var(--mono);font-size:13px;font-weight:600;background:transparent;border:none;color:var(--text);outline:none;cursor:pointer" onchange="loadPSDate(this.value)">
         </div>
-        <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
-          <button id="autofill-btn" class="autofill-btn" style="width:auto;padding:7px 15px;margin-top:0;font-size:11px" onclick="mrktAutoFill()" disabled>⚡ Auto-fill</button>
-          <button class="btn btn-ghost btn-sm" onclick="showMrktTokenInput()">🔑 Token</button>
-          <button class="btn btn-ghost btn-sm" onclick="mrktConnect()">↻ Reconectar</button>
-        </div>
-      </div>
-      <!-- Token input -->
-      <div id="mrkt-token-box" style="display:none;background:var(--s2);border:1px solid var(--b1);border-radius:11px;padding:14px;margin-bottom:13px">
-        <div style="font-size:12px;font-weight:600;margin-bottom:6px">Colar token do MRKT Edge</div>
-        <div style="font-size:11px;color:var(--sub);font-family:var(--mono);margin-bottom:10px;line-height:1.6">
-          1. Abre <a href="https://app.mrktedge.ai" target="_blank" style="color:var(--accent)">app.mrktedge.ai</a> → F12 → Console<br>
-          2. Escreve <b>allow pasting</b> + Enter<br>
-          3. Cola e corre:<br>
-          <span style="display:block;background:var(--s3);padding:7px 10px;border-radius:6px;margin-top:5px;font-size:10px;color:var(--teal);cursor:pointer" onclick="navigator.clipboard.writeText(this.textContent).then(()=>toast('Copiado!','ok'))">JSON.parse(localStorage.getItem('@@auth0spajs@@::SiCkGkl4GYjDAZd11oumY2RStWHfM1gv::https://mrkt-server-a240deff7152.herokuapp.com::openid profile email offline_access'))?.body?.access_token</span>
-        </div>
-        <div style="display:flex;gap:8px">
-          <input type="text" id="mrkt-token-in" placeholder="Cole o token (eyJ...)" style="flex:1;font-family:var(--mono);font-size:11px;background:var(--s3);border:1px solid var(--b1);border-radius:7px;color:var(--text);padding:7px 10px;outline:none">
-          <button class="btn btn-accent btn-sm" onclick="mrktConnectWithToken()">Ligar</button>
-          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('mrkt-token-box').style.display='none'">✕</button>
-        </div>
-      </div>
-      <!-- MRKT Cards -->
-      <div id="mrkt-cards" class="mrkt-cards" style="display:none"></div>
-      <!-- MRKT News -->
-      <div class="sec" id="mrkt-news-sec" style="display:none">
-        <div class="sec-title"><span>MRKT Edge — Notícias alto impacto</span><span id="mrkt-news-time" style="color:var(--hint)"></span></div>
-        <div id="mrkt-news-list" class="mrkt-news"></div>
+        <span class="ps-status-badge empty" id="ps-status-badge">○ Não preenchida</span>
+        <button class="btn btn-ghost btn-sm" onclick="openDocModal()" style="gap:5px">📄 Documento</button>
+        <button class="btn btn-accent btn-sm" onclick="savePS()" style="padding:7px 18px;font-size:12px">Guardar sessão</button>
       </div>
 
-      <!-- MAIN GRID: Bias + Fed + Score -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-        <!-- LEFT: Bias + Fed -->
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <!-- Bias -->
-          <div class="sec" style="margin-bottom:0">
-            <div class="sec-title">Day Trading Bias <span id="ps-date-lbl" style="color:var(--sub)"></span></div>
-            <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
-              <button class="ps-bias-btn bull" onclick="setPSBias('Bullish',this)">▲ Bullish</button>
-              <button class="ps-bias-btn bear" onclick="setPSBias('Bearish',this)">▼ Bearish</button>
-              <button class="ps-bias-btn neut" onclick="setPSBias('Neutro',this)">— Neutro</button>
-              <button class="ps-bias-btn caut" onclick="setPSBias('Cauteloso',this)">⚠ Cauteloso</button>
-            </div>
-            <div style="font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Fundamentação</div>
-            <textarea id="ps-just" class="ps-ta" placeholder="Ex: Bearish — Iran war escalation, NQ rejeitou 24750 resistance, tech fraco..."></textarea>
+      <!-- PILAR 1: PROFILE FRAMING -->
+      <div class="ps-pilar ps-pilar-profile">
+        <div class="ps-pilar-title">Pilar 1 — Profile Framing</div>
+        <div class="ps-pilar-sub">Volume Profile RTH · Sessão NY (9:30–16:00 ET)</div>
+
+        <!-- POC grid -->
+        <div class="ps-field-lbl">Pontos de Controlo (POC)</div>
+        <div class="ps-poc-grid">
+          <div>
+            <div style="font-size:9px;font-family:var(--mono);color:var(--hint);margin-bottom:4px">POC Diário</div>
+            <input type="number" class="ps-num-input" id="ps-poc-daily" placeholder="—" step="0.25">
           </div>
-          <!-- Fed Sentiment -->
-          <div class="sec" style="margin-bottom:0">
-            <div class="sec-title">Fed Sentiment</div>
-            <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">
-              <button class="fed-btn hawk" onclick="setFed('Hawkish',this)">🔴 Hawkish</button>
-              <button class="fed-btn nhawk" onclick="setFed('Neutral to Hawkish',this)">🟠 Neutral to Hawkish</button>
-              <button class="fed-btn neut" onclick="setFed('Neutral',this)">⚪ Neutral</button>
-              <button class="fed-btn ndove" onclick="setFed('Neutral to Dovish',this)">🔵 Neutral to Dovish</button>
-              <button class="fed-btn dove" onclick="setFed('Dovish',this)">🟢 Dovish</button>
-            </div>
-            <div style="font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Contexto Fed</div>
-            <textarea id="ps-fed-ctx" class="ps-ta" style="min-height:52px" placeholder="Ex: Boa notícia de emprego mas Fed mantém posição neutral — inflação ainda acima do target..."></textarea>
+          <div>
+            <div style="font-size:9px;font-family:var(--mono);color:var(--hint);margin-bottom:4px">POC Semanal</div>
+            <input type="number" class="ps-num-input" id="ps-poc-weekly" placeholder="—" step="0.25">
+          </div>
+          <div>
+            <div style="font-size:9px;font-family:var(--mono);color:var(--hint);margin-bottom:4px">POC 3M Composto</div>
+            <input type="number" class="ps-num-input" id="ps-poc-3m" placeholder="—" step="0.25">
           </div>
         </div>
-        <!-- RIGHT: Sentiment + News -->
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <!-- MRKT Sentiment -->
-          <div class="sec" style="margin-bottom:0">
-            <div class="sec-title">Market Sentiment Index</div>
-            <div style="text-align:center;margin-bottom:10px">
-              <div style="font-size:48px;font-weight:700;font-family:var(--mono);line-height:1" id="ps-score-disp">—</div>
-              <div style="font-size:11px;color:var(--hint);font-family:var(--mono);margin-top:3px" id="ps-score-lbl">Ajusta o slider</div>
-            </div>
-            <div style="display:flex;align-items:center;gap:9px;margin-bottom:9px">
-              <span style="font-size:10px;color:var(--hint);font-family:var(--mono)">0</span>
-              <input type="range" min="0" max="100" value="50" id="ps-slider" oninput="updateScore(this.value)" style="flex:1">
-              <span style="font-size:10px;color:var(--hint);font-family:var(--mono)">100</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;font-size:10px;font-family:var(--mono);margin-bottom:9px">
-              <span style="color:var(--red)">0–30 Risk-Off</span><span style="color:var(--amber)">30–60 Neutro</span><span style="color:var(--green)">60–100 Risk-On</span>
-            </div>
-            <div id="ps-pos-desc" style="font-size:11px;color:var(--sub);font-family:var(--mono);padding:8px;background:var(--s2);border-radius:8px">Ajusta o slider</div>
+
+        <!-- VAH / VAL -->
+        <div class="ps-field-lbl">Value Area</div>
+        <div class="ps-vah-grid">
+          <div>
+            <div style="font-size:9px;font-family:var(--mono);color:var(--hint);margin-bottom:4px">VAH (Value Area High)</div>
+            <input type="number" class="ps-num-input" id="ps-vah" placeholder="—" step="0.25">
           </div>
-          <!-- Manchetes -->
-          <div class="sec" style="margin-bottom:0;flex:1">
-            <div class="sec-title">Manchetes relevantes</div>
-            <textarea id="ps-news" class="ps-ta" style="min-height:90px" placeholder="Cola manchetes do MRKT Edge que afetam o NQ..."></textarea>
+          <div>
+            <div style="font-size:9px;font-family:var(--mono);color:var(--hint);margin-bottom:4px">VAL (Value Area Low)</div>
+            <input type="number" class="ps-num-input" id="ps-val" placeholder="—" step="0.25">
           </div>
         </div>
+
+        <!-- HVN -->
+        <div class="ps-field-lbl" style="margin-top:10px">HVN — High Volume Nodes</div>
+        <div class="ps-dyn-list" id="ps-hvn-list"></div>
+        <button class="ps-add-btn" onclick="addPSLevel('hvn')">+ Adicionar HVN</button>
+
+        <!-- LVN -->
+        <div class="ps-field-lbl" style="margin-top:12px">LVN — Low Volume Nodes</div>
+        <div class="ps-dyn-list" id="ps-lvn-list"></div>
+        <button class="ps-add-btn" onclick="addPSLevel('lvn')">+ Adicionar LVN</button>
+
+        <!-- Delta Anomalies -->
+        <div class="ps-field-lbl" style="margin-top:12px">Delta Anomalies</div>
+        <div class="ps-dyn-list" id="ps-delta-list"></div>
+        <button class="ps-add-btn" onclick="addPSDelta()">+ Adicionar Delta Anomaly</button>
+
+        <!-- Supply / Demand Zones -->
+        <div class="ps-field-lbl" style="margin-top:12px">Supply / Demand Zones</div>
+        <div class="ps-dyn-list" id="ps-sdzone-list"></div>
+        <button class="ps-add-btn" onclick="addPSSDZone()">+ Adicionar Zona</button>
+
+        <!-- S/R Levels -->
+        <div class="ps-field-lbl" style="margin-top:12px">Níveis de Suporte / Resistência</div>
+        <div class="ps-dyn-list" id="ps-sr-list"></div>
+        <button class="ps-add-btn" onclick="addPSSR()">+ Adicionar Nível S/R</button>
+
+        <!-- Profile Notes -->
+        <div class="ps-field-lbl" style="margin-top:14px">Leitura do Profile</div>
+        <textarea class="ps-ta" id="ps-profile-notes" style="min-height:80px" placeholder="Descreve a leitura geral do volume profile — onde está o value area, que zonas são importantes, se o mercado está em equilíbrio ou desequilíbrio..."></textarea>
       </div>
 
-      <!-- MACRO EVENTS do dia -->
-      <div class="sec">
-        <div class="sec-title">
-          <span>Eventos macro do dia</span>
-          <div style="display:flex;gap:6px;align-items:center">
-            <span id="ff-status" style="font-size:10px;font-family:var(--mono);color:var(--hint)"></span>
-            <button class="cal-btn" onclick="loadFF()">↻ FF</button>
-            <button class="cal-btn" onclick="addMacroEvent()">+ Manual</button>
-          </div>
+      <!-- PILAR 2: MACRO & FUNDAMENTAL -->
+      <div class="ps-pilar ps-pilar-macro">
+        <div class="ps-pilar-title">Pilar 2 — Macro &amp; Fundamental</div>
+        <div class="ps-pilar-sub">Contexto macroeconómico e fundamentais do dia</div>
+
+        <!-- Bias -->
+        <div class="ps-field-lbl">Bias do dia</div>
+        <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
+          <button class="ps-bias-btn bull" onclick="setPSBias('Bullish',this)">▲ Bullish</button>
+          <button class="ps-bias-btn bear" onclick="setPSBias('Bearish',this)">▼ Bearish</button>
+          <button class="ps-bias-btn neut" onclick="setPSBias('Neutro',this)">— Neutro</button>
+          <button class="ps-bias-btn caut" onclick="setPSBias('Cauteloso',this)">⚠ Cauteloso</button>
         </div>
-        <div id="macro-events-list"></div>
-        <div id="ff-body" style="margin-top:8px"></div>
+
+        <!-- Fed Narrative -->
+        <div class="ps-field-lbl">Fed Narrative</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">
+          <button class="fed-btn hawk" onclick="setFed('Hawkish',this)">🔴 Hawkish</button>
+          <button class="fed-btn nhawk" onclick="setFed('Neutral to Hawkish',this)">🟠 Neutral to Hawkish</button>
+          <button class="fed-btn neut" onclick="setFed('Neutral',this)">⚪ Neutral</button>
+          <button class="fed-btn ndove" onclick="setFed('Neutral to Dovish',this)">🔵 Neutral to Dovish</button>
+          <button class="fed-btn dove" onclick="setFed('Dovish',this)">🟢 Dovish</button>
+        </div>
+        <div class="ps-field-lbl">Contexto Fed</div>
+        <textarea class="ps-ta" id="ps-fed-ctx" style="min-height:52px;margin-bottom:14px" placeholder="Ex: Boa notícia de emprego mas Fed mantém posição neutral — inflação ainda acima do target. Mercado a priceiar cut em Junho..."></textarea>
+
+        <!-- Sentiment -->
+        <div class="ps-field-lbl">Sentiment de mercado</div>
+        <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+          <button class="ps-sent-btn" id="sent-ron" onclick="setPSSentiment('Risk-On',this)">✦ Risk-On</button>
+          <button class="ps-sent-btn" id="sent-roff" onclick="setPSSentiment('Risk-Off',this)">✦ Risk-Off</button>
+          <button class="ps-sent-btn" id="sent-neut" onclick="setPSSentiment('Neutro',this)">— Neutro</button>
+        </div>
+        <div class="ps-field-lbl">Narrativa de sentiment / volatilidade</div>
+        <textarea class="ps-ta" id="ps-sentiment-narrative" style="min-height:60px;margin-bottom:14px" placeholder="Ex: VIX abaixo de 20 — regime de baixa volatilidade, espero swings mais pequenos. DXY a enfraquecer suporta NQ. US2Y estável não pressiona tech..."></textarea>
+
+        <!-- Capital Flow -->
+        <div class="ps-field-lbl">Capital Flow</div>
+        <textarea class="ps-ta" id="ps-capital-flow" style="min-height:48px;margin-bottom:14px" placeholder="Ex: USD fraco, bonds estáveis, rotação de defensivos para growth, tech sector líder..."></textarea>
+
+        <!-- DXY/VIX/US2Y narrative -->
+        <div class="ps-field-lbl">DXY · VIX · US2Y — Contexto</div>
+        <textarea class="ps-ta" id="ps-dxy-vix-narrative" style="min-height:48px;margin-bottom:14px" placeholder="Ex: DXY recua abaixo de 103, VIX em 18 (Low Vol), US2Y estável — conjunto favorável para longs no NQ..."></textarea>
+
+        <!-- Macro Events -->
+        <div class="ps-field-lbl" style="margin-bottom:8px">Eventos macro do dia</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">
+          <span style="font-size:9px;font-family:var(--mono);color:var(--hint);align-self:center;margin-right:3px">Adicionar:</span>
+          <button class="ps-predef-event" onclick="addPSEventPredef('FOMC')">FOMC</button>
+          <button class="ps-predef-event" onclick="addPSEventPredef('CPI')">CPI</button>
+          <button class="ps-predef-event" onclick="addPSEventPredef('PPI')">PPI</button>
+          <button class="ps-predef-event" onclick="addPSEventPredef('NFP')">NFP</button>
+          <button class="ps-predef-event" onclick="addPSEventPredef('GDP')">GDP</button>
+          <button class="ps-predef-event" onclick="addPSEventPredef('PMI')">PMI</button>
+          <button class="ps-predef-event" onclick="addPSEventPredef('JOLTS')">JOLTS</button>
+          <button class="ps-predef-event" onclick="addPSEventPredef('Jobless Claims')">Jobless Claims</button>
+          <button class="ps-predef-event" onclick="addPSEventPredef('Fed Speaker')">Fed Speaker</button>
+          <button class="ps-predef-event" onclick="addMacroEvent()">+ Manual</button>
+        </div>
+        <div id="macro-events-list" style="margin-bottom:10px"></div>
+
+        <!-- Geopolitics -->
+        <div class="ps-field-lbl">Geopolítica</div>
+        <textarea class="ps-ta" id="ps-geopolitics" style="min-height:48px" placeholder="Ex: Iran conflict a pressionar oil, risk-off sentiment no Asia session..."></textarea>
       </div>
 
-      <!-- INTRADAY SESSION CONTEXT -->
-      <div class="sec" style="margin-bottom:12px">
-        <div class="sec-title">Sessão Intraday</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-          <div>
-            <div class="mlabel" style="margin-bottom:7px">Opening Drive</div>
-            <div style="display:flex;gap:5px;flex-wrap:wrap">
-              <button class="macro-impact-btn bull" onclick="setOpenDrive('Bullish',this)">▲ Bullish</button>
-              <button class="macro-impact-btn bear" onclick="setOpenDrive('Bearish',this)">▼ Bearish</button>
-              <button class="macro-impact-btn neut" onclick="setOpenDrive('Indeciso',this)">◆ Indeciso</button>
-            </div>
-          </div>
-          <div>
-            <div class="mlabel" style="margin-bottom:7px">Posição no Value Area</div>
-            <div style="display:flex;gap:5px;flex-wrap:wrap">
-              <button class="macro-impact-btn xbull" onclick="setVAPos('Above VA',this)">↑ Above VA</button>
-              <button class="macro-impact-btn neut"  onclick="setVAPos('Inside VA',this)">↔ Inside VA</button>
-              <button class="macro-impact-btn xbear" onclick="setVAPos('Below VA',this)">↓ Below VA</button>
-            </div>
-          </div>
-        </div>
-        <div style="margin-top:10px">
-          <div class="mlabel" style="margin-bottom:5px">Notas de abertura</div>
-          <textarea id="ps-open-notes" class="finput" style="width:100%;min-height:48px;resize:vertical;font-size:11px;padding:7px;background:var(--s2);border:1px solid var(--b1);border-radius:8px;color:var(--text);font-family:var(--mono)" placeholder="Ex: gap up, auction test do range anterior, VWAP como suporte..."></textarea>
-        </div>
+      <!-- GAME PLAN -->
+      <div class="ps-gameplan-wrap">
+        <div class="ps-gameplan-title">Narrativa &amp; Game Plan do dia</div>
+        <div class="ps-gameplan-sub">Resume tudo — o que o profile diz, o que o macro diz, qual o bias e porquê, o que procuras para entrar, o que invalida o setup</div>
+        <textarea class="ps-ta" id="ps-narrative" style="min-height:120px" placeholder="Resume tudo — o que o profile diz, o que o macro diz, qual o bias e porquê, o que procuras para entrar, o que invalida o setup..."></textarea>
       </div>
 
-      <!-- MARKET CONTEXT -->
-      <div class="sec" style="margin-bottom:12px">
-        <div class="sec-title">
-          <span>Market Context <span id="mc-date-lbl" style="color:var(--sub)"></span></span>
-          <button id="mc-autofill-btn" class="btn btn-ghost btn-sm" onclick="fetchMarketData()" style="font-size:10px;padding:4px 10px">⚡ Auto-fill</button>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
-          <div>
-            <div class="mlabel">VIX</div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-              <input type="number" id="mc-vix" class="finput" style="width:80px" placeholder="—" step="0.01" oninput="updateVixBadge()">
-              <span id="mc-vix-badge" class="badge" style="font-size:10px">—</span>
-            </div>
-            <div style="font-size:10px;color:var(--hint);font-family:var(--mono)">Impl. volatilidade SPX</div>
-          </div>
-          <div>
-            <div class="mlabel">SPX Δ%</div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-              <input type="number" id="mc-spx" class="finput" style="width:80px" placeholder="—" step="0.01" oninput="updateSpxBadge()">
-              <span id="mc-spx-badge" class="badge" style="font-size:10px">—</span>
-            </div>
-            <div style="font-size:10px;color:var(--hint);font-family:var(--mono)">Variação S&amp;P 500</div>
-          </div>
-          <div>
-            <div class="mlabel">DXY</div>
-            <input type="number" id="mc-dxy" class="finput" style="width:80px" placeholder="—" step="0.01">
-            <div style="font-size:10px;color:var(--hint);font-family:var(--mono);margin-top:6px">US Dollar Index</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- SAVE -->
-      <button class="btn btn-accent" style="width:100%;font-size:13px;padding:11px" onclick="savePS()">Guardar contexto do dia</button>
+      <!-- SAVE (bottom) -->
+      <button class="btn btn-accent" style="width:100%;font-size:13px;padding:11px;margin-bottom:14px" onclick="savePS()">Guardar sessão</button>
 
       <!-- HISTORY -->
-      <div class="sec" style="margin-top:12px"><div class="sec-title">Histórico</div><div id="ps-hist"></div></div>
+      <div class="sec"><div class="sec-title">Sessões anteriores</div><div id="ps-hist"></div></div>
     </div>
     <!-- QUANT -->
     <div class="view" id="view-quant">
@@ -953,6 +963,15 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
         <div id="rv-nqscale-lbl" style="font-size:10px;font-family:var(--mono);color:var(--sub);text-align:center;margin-top:2px">—</div>
       </div>
       <div id="rv-ctx-banner" style="display:none;padding:11px 14px;border-bottom:1px solid var(--b1);font-size:11px"></div>
+      <!-- Session context (collapsible) -->
+      <div id="rv-sess-ctx-wrap">
+        <button class="rv-sess-ctx-btn" onclick="toggleSessCtx()">
+          <span id="rv-sess-status-dot" style="font-size:9px">○</span>
+          <span style="flex:1">Contexto da Sessão</span>
+          <span id="rv-sess-ctx-arrow" style="font-size:10px">▾</span>
+        </button>
+        <div id="rv-sess-ctx" style="display:none;padding:10px 14px 13px;font-size:11px"></div>
+      </div>
       <div class="rv-running">
         <div class="rv-run-lbl">Running P&L do dia</div>
         <div id="rv-run-list"></div>
@@ -1117,8 +1136,7 @@ let accounts = [], curAcct = null, allT = {}, psData = {};
 let curDate = "", scope = "all", calY = 0, calM = 0, dashPeriod = "month";
 let modalId = null, modalDayIds = [];
 let rvDate = "", rvIdx = 0;
-let psBias = "", psScore = 50;
-let mrktCache = { connected: false, market: null, headlines: [] };
+let psBias = "", psFed = "", psSentiment = "", psDate = "";
 
 function loadData() {
   try { accounts = JSON.parse(localStorage.getItem(SK_A) || "[]"); } catch(e) { accounts = []; }
@@ -1811,7 +1829,7 @@ function showTab(id, btn) {
   if (btn) btn.classList.add("on");
   if (id === "quant") { buildScope(); renderQuant(); }
   if (id === "cal") renderCalendar();
-  if (id === "presessao") initPS();
+  if (id === "presessao") { if (!psDate) psDate = todayISO(); initPS(); }
   if (id === "dashboard") renderDashboard();
   if (id === "journal") renderJournal();
   if (id === "reports") renderReports();
@@ -1820,317 +1838,270 @@ function showTab(id, btn) {
 // ═══════════════════════════════════════════
 // PRÉ-SESSÃO
 // ═══════════════════════════════════════════
-// Fed sentiment state
-let psFed = "";
+
+function psStatus(ctx) {
+  if (!ctx || !ctx.bias) return 'empty';
+  if (ctx.bias && ctx.profile_notes && ctx.narrative) return 'ready';
+  return 'incomplete';
+}
+function psStatusLabel(st) {
+  if (st === 'ready') return '● Pronta';
+  if (st === 'incomplete') return '◑ Incompleta';
+  return '○ Não preenchida';
+}
+function updatePSStatusBadge() {
+  const d = psDate || todayISO();
+  const ctx = psData[d];
+  const st = psStatus(ctx);
+  const el = document.getElementById('ps-status-badge'); if (!el) return;
+  el.className = 'ps-status-badge ' + (st === 'ready' ? 'ready' : st === 'incomplete' ? 'incomplete' : 'empty');
+  el.textContent = psStatusLabel(st);
+}
 
 function initPS() {
-  const today = todayISO();
-  document.getElementById("ps-date-lbl").textContent = today;
-  const ctx = psData[today];
-  if (ctx) {
-    psBias = ctx.bias || ""; psScore = ctx.score || 50; psFed = ctx.fed || "";
-    document.getElementById("ps-just").value = ctx.justification || "";
-    document.getElementById("ps-news").value = ctx.headlines || "";
-    document.getElementById("ps-fed-ctx").value = ctx.fedCtx || "";
-    document.getElementById("ps-slider").value = psScore;
-    updateScore(psScore);
-    document.querySelectorAll(".ps-bias-btn").forEach(b => { b.classList.remove("on"); if (b.textContent.includes(psBias)) b.classList.add("on"); });
-    document.querySelectorAll(".fed-btn").forEach(b => { b.classList.remove("on"); if (b.textContent.includes(psFed)) b.classList.add("on"); });
-    document.getElementById("mc-vix").value = ctx.vix != null ? ctx.vix : "";
-    document.getElementById("mc-spx").value = ctx.spxDelta != null ? ctx.spxDelta : "";
-    document.getElementById("mc-dxy").value = ctx.dxy != null ? ctx.dxy : "";
-    updateVixBadge(); updateSpxBadge();
-    psOpenDrive = ctx.openDrive || ""; psVAPos = ctx.vaPos || "";
-    document.getElementById("ps-open-notes").value = ctx.openNotes || "";
-    document.querySelectorAll("#view-presessao .macro-impact-btn").forEach(b => {
-      if (b.textContent.trim() === psOpenDrive || b.textContent.trim().includes(psOpenDrive) && psOpenDrive) b.classList.add("on");
-      if (b.textContent.trim() === psVAPos || b.textContent.trim().includes(psVAPos) && psVAPos) b.classList.add("on");
-    });
-  } else {
-    psBias = ""; psScore = 50; psFed = "";
-    document.getElementById("ps-just").value = "";
-    document.getElementById("ps-news").value = "";
-    document.getElementById("ps-fed-ctx").value = "";
-    document.getElementById("ps-slider").value = 50;
-    updateScore(50);
-    document.querySelectorAll(".ps-bias-btn").forEach(b => b.classList.remove("on"));
-    document.querySelectorAll(".fed-btn").forEach(b => b.classList.remove("on"));
-    document.getElementById("mc-vix").value = "";
-    document.getElementById("mc-spx").value = "";
-    document.getElementById("mc-dxy").value = "";
-    updateVixBadge(); updateSpxBadge();
-    psOpenDrive = ""; psVAPos = "";
-    document.getElementById("ps-open-notes").value = "";
-  }
-  renderMacroEvents(today);
+  psDate = psDate || todayISO();
+  const picker = document.getElementById('ps-date-picker');
+  if (picker) picker.value = psDate;
+  loadPSDate(psDate);
+}
+function loadPSDate(d) {
+  if (!d) d = todayISO();
+  psDate = d;
+  const picker = document.getElementById('ps-date-picker'); if (picker) picker.value = d;
+  const ctx = psData[d] || {};
+  psBias = ctx.bias || '';
+  psFed = ctx.fed || '';
+  psSentiment = ctx.sentiment || '';
+  // Bias buttons
+  document.querySelectorAll('.ps-bias-btn').forEach(b => { b.classList.remove('on'); if (psBias && b.textContent.includes(psBias)) b.classList.add('on'); });
+  // Fed buttons
+  document.querySelectorAll('.fed-btn').forEach(b => { b.classList.remove('on'); if (psFed && b.textContent.includes(psFed)) b.classList.add('on'); });
+  // Sentiment buttons
+  document.querySelectorAll('.ps-sent-btn').forEach(b => b.classList.remove('on-ron', 'on-roff', 'on-neut'));
+  if (psSentiment === 'Risk-On') { const b = document.getElementById('sent-ron'); if (b) b.classList.add('on-ron'); }
+  else if (psSentiment === 'Risk-Off') { const b = document.getElementById('sent-roff'); if (b) b.classList.add('on-roff'); }
+  else if (psSentiment === 'Neutro') { const b = document.getElementById('sent-neut'); if (b) b.classList.add('on-neut'); }
+  // POC / VAH / VAL
+  const numF = id => { const el = document.getElementById(id); if (el) el.value = ctx[id.replace('ps-','').replace(/-/g,'_')] != null ? ctx[id.replace('ps-','').replace(/-/g,'_')] : ''; };
+  const fmap = {'ps-poc-daily':'poc_daily','ps-poc-weekly':'poc_weekly','ps-poc-3m':'poc_3m','ps-vah':'vah','ps-val':'val'};
+  Object.entries(fmap).forEach(([id, key]) => { const el = document.getElementById(id); if (el) el.value = ctx[key] != null ? ctx[key] : ''; });
+  // Textareas
+  const taMap = {'ps-fed-ctx':'fedCtx','ps-profile-notes':'profile_notes','ps-sentiment-narrative':'sentiment_narrative','ps-capital-flow':'capital_flow','ps-dxy-vix-narrative':'dxy_vix_narrative','ps-geopolitics':'geopolitics','ps-narrative':'narrative'};
+  Object.entries(taMap).forEach(([id, key]) => { const el = document.getElementById(id); if (el) el.value = ctx[key] || ''; });
+  // Dynamic lists
+  renderPSLevelList('hvn', d);
+  renderPSLevelList('lvn', d);
+  renderPSDeltaList(d);
+  renderPSSDZoneList(d);
+  renderPSSRList(d);
+  // Macro events
+  renderMacroEvents(d);
+  updatePSStatusBadge();
   renderPSHist();
-  mrktConnect();
-}
-
-let psOpenDrive = "", psVAPos = "";
-function setOpenDrive(v, btn) {
-  psOpenDrive = v;
-  btn.closest("div").querySelectorAll("button").forEach(b => b.classList.remove("on"));
-  btn.classList.add("on");
-}
-function setVAPos(v, btn) {
-  psVAPos = v;
-  btn.closest("div").querySelectorAll("button").forEach(b => b.classList.remove("on"));
-  btn.classList.add("on");
 }
 
 function setFed(v, btn) {
   psFed = v;
-  document.querySelectorAll(".fed-btn").forEach(b => b.classList.remove("on"));
-  btn.classList.add("on");
+  document.querySelectorAll('.fed-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
 }
-function setPSBias(v, btn) { psBias = v; document.querySelectorAll(".ps-bias-btn").forEach(b => b.classList.remove("on")); btn.classList.add("on"); }
-function updateScore(v) {
-  v = parseInt(v); psScore = v;
-  const el = document.getElementById("ps-score-disp");
-  const desc = document.getElementById("ps-pos-desc");
-  const lbl = document.getElementById("ps-score-lbl");
-  el.textContent = v;
-  if (v <= 30) { el.style.color = "var(--red)"; desc.textContent = "Risk-Off — tech/growth caem. Contexto desfavorável para longs no NQ."; desc.style.color = "var(--red)"; lbl.textContent = "Risk-Off"; }
-  else if (v <= 60) { el.style.color = "var(--amber)"; desc.textContent = "Neutro — aguarda confirmação de direcção."; desc.style.color = "var(--amber)"; lbl.textContent = "Neutro"; }
-  else { el.style.color = "var(--green)"; desc.textContent = "Risk-On — crescimento favorecido. Contexto positivo para longs no NQ."; desc.style.color = "var(--green)"; lbl.textContent = "Risk-On"; }
+function setPSBias(v, btn) {
+  psBias = v;
+  document.querySelectorAll('.ps-bias-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
 }
+function setPSSentiment(v, btn) {
+  psSentiment = v;
+  document.querySelectorAll('.ps-sent-btn').forEach(b => b.classList.remove('on-ron','on-roff','on-neut'));
+  if (v === 'Risk-On') btn.classList.add('on-ron');
+  else if (v === 'Risk-Off') btn.classList.add('on-roff');
+  else btn.classList.add('on-neut');
+}
+
 function savePS() {
-  if (!psBias) return toast("Seleciona o bias do dia", "err");
-  const today = todayISO();
-  // Collect macro events
-  const events = collectMacroEvents();
-  const vixVal = parseFloat(document.getElementById("mc-vix").value);
-  const spxVal = parseFloat(document.getElementById("mc-spx").value);
-  const dxyVal = parseFloat(document.getElementById("mc-dxy").value);
-  psData[today] = {
-    date: today,
+  const d = psDate || todayISO();
+  const existing = psData[d] || {};
+  const n = v => { const f = parseFloat(v); return isNaN(f) ? null : f; };
+  const g = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+  psData[d] = {
+    ...existing,
+    date: d,
     bias: psBias,
-    score: psScore,
     fed: psFed,
-    justification: document.getElementById("ps-just").value.trim(),
-    headlines: document.getElementById("ps-news").value.trim(),
-    fedCtx: document.getElementById("ps-fed-ctx").value.trim(),
-    macroEvents: events,
-    vix: isNaN(vixVal) ? null : vixVal,
-    spxDelta: isNaN(spxVal) ? null : spxVal,
-    dxy: isNaN(dxyVal) ? null : dxyVal,
-    vixRegime: isNaN(vixVal) ? null : vixRegimeInfo(vixVal).label,
-    openDrive: psOpenDrive || null,
-    vaPos: psVAPos || null,
-    openNotes: document.getElementById("ps-open-notes").value.trim() || null
+    fedCtx: g('ps-fed-ctx'),
+    sentiment: psSentiment,
+    sentiment_narrative: g('ps-sentiment-narrative'),
+    capital_flow: g('ps-capital-flow'),
+    dxy_vix_narrative: g('ps-dxy-vix-narrative'),
+    geopolitics: g('ps-geopolitics'),
+    narrative: g('ps-narrative'),
+    poc_daily: n(g('ps-poc-daily')),
+    poc_weekly: n(g('ps-poc-weekly')),
+    poc_3m: n(g('ps-poc-3m')),
+    vah: n(g('ps-vah')),
+    val: n(g('ps-val')),
+    profile_notes: g('ps-profile-notes'),
+    macroEvents: collectMacroEvents(d),
+    // backward compat fields
+    justification: g('ps-profile-notes') || existing.justification || '',
+    score: existing.score || 50
   };
-  savePSData(); renderPSHist(); toast("Contexto guardado ✓", "ok");
+  savePSData();
+  updatePSStatusBadge();
+  renderPSHist();
+  toast('Sessão guardada ✓', 'ok');
 }
+
+// ─── Dynamic Level Lists ─────────────────────
+function ensurePSDate(d) {
+  if (!psData[d]) psData[d] = { date: d, bias: '', fed: '', macroEvents: [] };
+}
+function renderPSLevelList(type, d) {
+  const el = document.getElementById('ps-' + type + '-list'); if (!el) return;
+  const ctx = psData[d] || {};
+  const items = ctx[type + '_levels'] || [];
+  if (!items.length) { el.innerHTML = ''; return; }
+  el.innerHTML = items.map((item, i) =>
+    '<div class="ps-dyn-item">' +
+    '<input type="number" class="price-in" value="' + (item.price||'') + '" placeholder="Preço" step="0.25" oninput="updatePSLevel(\'' + type + '\',\'' + d + '\',' + i + ',\'price\',this.value)">' +
+    '<input type="text" class="note-in" value="' + (item.note||'') + '" placeholder="Nota (opcional)" oninput="updatePSLevel(\'' + type + '\',\'' + d + '\',' + i + ',\'note\',this.value)">' +
+    '<button class="ps-dyn-rmv" onclick="removePSLevel(\'' + type + '\',\'' + d + '\',' + i + ')">✕</button>' +
+    '</div>'
+  ).join('');
+}
+function addPSLevel(type) {
+  const d = psDate || todayISO();
+  ensurePSDate(d);
+  const key = type + '_levels';
+  if (!psData[d][key]) psData[d][key] = [];
+  psData[d][key].push({ price: null, note: '' });
+  renderPSLevelList(type, d);
+}
+function removePSLevel(type, d, i) {
+  const key = type + '_levels';
+  if (!psData[d]?.[key]) return;
+  psData[d][key].splice(i, 1);
+  savePSData(); renderPSLevelList(type, d);
+}
+function updatePSLevel(type, d, i, field, val) {
+  const key = type + '_levels';
+  if (!psData[d]?.[key]?.[i]) return;
+  psData[d][key][i][field] = field === 'price' ? (parseFloat(val)||null) : val;
+}
+
+function renderPSDeltaList(d) {
+  const el = document.getElementById('ps-delta-list'); if (!el) return;
+  const items = (psData[d] || {}).delta_anomalies || [];
+  if (!items.length) { el.innerHTML = ''; return; }
+  el.innerHTML = items.map((item, i) =>
+    '<div class="ps-dyn-item">' +
+    '<input type="number" class="price-in" value="' + (item.price||'') + '" placeholder="Preço" step="0.25" oninput="updatePSDelta(\'' + d + '\',' + i + ',\'price\',this.value)">' +
+    '<select oninput="updatePSDelta(\'' + d + '\',' + i + ',\'type\',this.value)">' +
+    '<option value="buy"' + (item.type==='buy'?' selected':'') + '>Buy (absorção)</option>' +
+    '<option value="sell"' + (item.type==='sell'?' selected':'') + '>Sell (absorção)</option>' +
+    '</select>' +
+    '<input type="text" class="note-in" value="' + (item.note||'') + '" placeholder="Nota" oninput="updatePSDelta(\'' + d + '\',' + i + ',\'note\',this.value)">' +
+    '<button class="ps-dyn-rmv" onclick="removePSDelta(\'' + d + '\',' + i + ')">✕</button>' +
+    '</div>'
+  ).join('');
+}
+function addPSDelta() {
+  const d = psDate || todayISO(); ensurePSDate(d);
+  if (!psData[d].delta_anomalies) psData[d].delta_anomalies = [];
+  psData[d].delta_anomalies.push({ price: null, type: 'buy', note: '' });
+  renderPSDeltaList(d);
+}
+function removePSDelta(d, i) { psData[d].delta_anomalies.splice(i,1); savePSData(); renderPSDeltaList(d); }
+function updatePSDelta(d, i, field, val) { if (!psData[d]?.delta_anomalies?.[i]) return; psData[d].delta_anomalies[i][field] = field==='price'?(parseFloat(val)||null):val; }
+
+function renderPSSDZoneList(d) {
+  const el = document.getElementById('ps-sdzone-list'); if (!el) return;
+  const items = (psData[d] || {}).supply_demand_zones || [];
+  if (!items.length) { el.innerHTML = ''; return; }
+  el.innerHTML = items.map((item, i) =>
+    '<div class="ps-dyn-item">' +
+    '<select oninput="updatePSSDZone(\'' + d + '\',' + i + ',\'type\',this.value)">' +
+    '<option value="supply"' + (item.type==='supply'?' selected':'') + '>Supply</option>' +
+    '<option value="demand"' + (item.type==='demand'?' selected':'') + '>Demand</option>' +
+    '</select>' +
+    '<input type="number" class="from-in" value="' + (item.from||'') + '" placeholder="De" step="0.25" oninput="updatePSSDZone(\'' + d + '\',' + i + ',\'from\',this.value)">' +
+    '<input type="number" class="to-in" value="' + (item.to||'') + '" placeholder="Até" step="0.25" oninput="updatePSSDZone(\'' + d + '\',' + i + ',\'to\',this.value)">' +
+    '<input type="text" class="note-in" value="' + (item.note||'') + '" placeholder="Nota" oninput="updatePSSDZone(\'' + d + '\',' + i + ',\'note\',this.value)">' +
+    '<button class="ps-dyn-rmv" onclick="removePSSDZone(\'' + d + '\',' + i + ')">✕</button>' +
+    '</div>'
+  ).join('');
+}
+function addPSSDZone() {
+  const d = psDate || todayISO(); ensurePSDate(d);
+  if (!psData[d].supply_demand_zones) psData[d].supply_demand_zones = [];
+  psData[d].supply_demand_zones.push({ type: 'supply', from: null, to: null, note: '' });
+  renderPSSDZoneList(d);
+}
+function removePSSDZone(d, i) { psData[d].supply_demand_zones.splice(i,1); savePSData(); renderPSSDZoneList(d); }
+function updatePSSDZone(d, i, field, val) { if (!psData[d]?.supply_demand_zones?.[i]) return; psData[d].supply_demand_zones[i][field] = (field==='from'||field==='to')?(parseFloat(val)||null):val; }
+
+function renderPSSRList(d) {
+  const el = document.getElementById('ps-sr-list'); if (!el) return;
+  const items = (psData[d] || {}).sr_levels || [];
+  if (!items.length) { el.innerHTML = ''; return; }
+  el.innerHTML = items.map((item, i) =>
+    '<div class="ps-dyn-item">' +
+    '<input type="number" class="price-in" value="' + (item.price||'') + '" placeholder="Preço" step="0.25" oninput="updatePSSR(\'' + d + '\',' + i + ',\'price\',this.value)">' +
+    '<select oninput="updatePSSR(\'' + d + '\',' + i + ',\'type\',this.value)">' +
+    '<option value="support"' + (item.type==='support'?' selected':'') + '>Suporte</option>' +
+    '<option value="resistance"' + (item.type==='resistance'?' selected':'') + '>Resistência</option>' +
+    '</select>' +
+    '<select oninput="updatePSSR(\'' + d + '\',' + i + ',\'timeframe\',this.value)">' +
+    '<option value="D"' + (item.timeframe==='D'?' selected':'') + '>Daily</option>' +
+    '<option value="W"' + (item.timeframe==='W'?' selected':'') + '>Weekly</option>' +
+    '<option value="M"' + (item.timeframe==='M'?' selected':'') + '>Monthly</option>' +
+    '</select>' +
+    '<button class="ps-dyn-rmv" onclick="removePSSR(\'' + d + '\',' + i + ')">✕</button>' +
+    '</div>'
+  ).join('');
+}
+function addPSSR() {
+  const d = psDate || todayISO(); ensurePSDate(d);
+  if (!psData[d].sr_levels) psData[d].sr_levels = [];
+  psData[d].sr_levels.push({ price: null, type: 'support', timeframe: 'D' });
+  renderPSSRList(d);
+}
+function removePSSR(d, i) { psData[d].sr_levels.splice(i,1); savePSData(); renderPSSRList(d); }
+function updatePSSR(d, i, field, val) { if (!psData[d]?.sr_levels?.[i]) return; psData[d].sr_levels[i][field] = field==='price'?(parseFloat(val)||null):val; }
+
+// Predefined event shortcuts
+function addPSEventPredef(name) {
+  const d = psDate || todayISO();
+  ensurePSDate(d);
+  if (!psData[d].macroEvents) psData[d].macroEvents = [];
+  const exists = psData[d].macroEvents.some(e => e.name === name);
+  if (!exists) {
+    psData[d].macroEvents.push({ name, time: '', actual: '', forecast: '', impact: '', priority: true });
+    savePSData(); renderMacroEvents(d);
+  } else toast(name + ' já adicionado', 'err');
+}
+
 function renderPSHist() {
-  const el = document.getElementById("ps-hist");
-  const dates = Object.keys(psData).sort().reverse().slice(0, 8);
-  if (!dates.length) { el.innerHTML = '<div style="color:var(--hint);font-size:12px;font-family:var(--mono);text-align:center;padding:14px">Nenhum contexto ainda</div>'; return; }
+  const el = document.getElementById('ps-hist'); if (!el) return;
+  const dates = Object.keys(psData).sort().reverse().slice(0, 10);
+  if (!dates.length) { el.innerHTML = '<div style="color:var(--hint);font-size:12px;font-family:var(--mono);text-align:center;padding:14px">Nenhuma sessão ainda</div>'; return; }
   el.innerHTML = dates.map(d => {
     const ctx = psData[d];
     const dt = curAcct ? dayTrades(d) : [];
     const pnl = dt.reduce((s, t) => s + t.pnl, 0);
-    const bc = ctx.bias === "Bullish" ? "var(--green)" : ctx.bias === "Bearish" ? "var(--red)" : ctx.bias === "Cauteloso" ? "var(--amber)" : "var(--sub)";
-    const bg = ctx.bias === "Bullish" ? "#071f0f" : ctx.bias === "Bearish" ? "#1f0707" : ctx.bias === "Cauteloso" ? "#241a06" : "var(--s3)";
-    const pc = pnl > 0 ? "var(--green)" : pnl < 0 ? "var(--red)" : "var(--sub)";
-    const sc = ctx.score || 50; const scCol = sc <= 30 ? "var(--red)" : sc <= 60 ? "var(--amber)" : "var(--green)";
-    return '<div class="ps-hist">' +
-      '<div><div style="font-family:var(--mono);font-size:11px;color:var(--sub)">' + d + '</div><div style="font-family:var(--mono);font-size:10px;color:' + scCol + ';margin-top:3px">MRKT ' + sc + '</div></div>' +
-      '<span style="font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 8px;border-radius:5px;color:' + bc + ';background:' + bg + ';border:1px solid ' + bc + '">' + ctx.bias + '</span>' +
-      '<div style="font-size:11px;color:var(--sub);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">' + (ctx.justification || ctx.headlines || "—") + '</div>' +
-      '<div style="text-align:right;font-family:var(--mono);font-size:12px;font-weight:600">' + (dt.length ? '<div style="color:' + pc + '">' + (pnl >= 0 ? "+" : "") + "$" + pnl.toFixed(2) + '</div><div style="font-size:10px;color:var(--hint)">' + dt.length + 'T</div>' : '<div style="color:var(--hint);font-size:10px">—</div>') + '</div>' +
+    const bc = ctx.bias === 'Bullish' ? 'var(--green)' : ctx.bias === 'Bearish' ? 'var(--red)' : ctx.bias === 'Cauteloso' ? 'var(--amber)' : 'var(--sub)';
+    const bg = ctx.bias === 'Bullish' ? '#071f0f' : ctx.bias === 'Bearish' ? '#1f0707' : ctx.bias === 'Cauteloso' ? '#241a06' : 'var(--s3)';
+    const pc = pnl > 0 ? 'var(--green)' : pnl < 0 ? 'var(--red)' : 'var(--sub)';
+    const st = psStatus(ctx);
+    const stLbl = st === 'ready' ? '<span style="color:var(--green);font-size:9px;font-family:var(--mono)">✓ Completa</span>' : st === 'incomplete' ? '<span style="color:var(--amber);font-size:9px;font-family:var(--mono)">◑ Incompleta</span>' : '';
+    return '<div class="ps-hist" onclick="loadPSDate(\'' + d + '\')" title="Clica para carregar esta sessão">' +
+      '<div><div style="font-family:var(--mono);font-size:11px;color:var(--sub)">' + d + '</div>' + stLbl + '</div>' +
+      (ctx.bias ? '<span style="font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 8px;border-radius:5px;color:' + bc + ';background:' + bg + ';border:1px solid ' + bc + '">' + ctx.bias + '</span>' : '<span style="color:var(--hint);font-size:10px;font-family:var(--mono)">—</span>') +
+      '<div style="font-size:11px;color:var(--sub);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">' + (ctx.narrative || ctx.profile_notes || ctx.justification || '—') + '</div>' +
+      '<div style="text-align:right;font-family:var(--mono);font-size:12px;font-weight:600">' + (dt.length ? '<div style="color:' + pc + '">' + (pnl >= 0 ? '+' : '') + '$' + pnl.toFixed(2) + '</div><div style="font-size:10px;color:var(--hint)">' + dt.length + 'T</div>' : '<div style="color:var(--hint);font-size:10px">—</div>') + '</div>' +
       '</div>';
-  }).join("");
+  }).join('');
 }
-
-// ═══════════════════════════════════════════
-// MRKT EDGE
-// ═══════════════════════════════════════════
-const MRKT_BASE = "https://mrkt-server-a240deff7152.herokuapp.com";
-const MRKT_KEY = "@@auth0spajs@@::SiCkGkl4GYjDAZd11oumY2RStWHfM1gv::https://mrkt-server-a240deff7152.herokuapp.com::openid profile email offline_access";
-
-function getMrktToken() {
-  try {
-    const raw = localStorage.getItem(MRKT_KEY);
-    if (!raw) {
-      console.log("MRKT: exact key not found, scanning localStorage...");
-      // Scan for any auth0 token
-      for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (k && (k.includes("auth0") || k.includes("mrkt") || k.includes("heroku"))) {
-          console.log("Found related key:", k);
-          try {
-            const val = JSON.parse(localStorage.getItem(k));
-            const t = val?.body?.access_token || val?.access_token || val?.token;
-            if (t) { console.log("Found token in key:", k); return t; }
-          } catch(e) {}
-        }
-      }
-      return null;
-    }
-    const parsed = JSON.parse(raw);
-    return parsed?.body?.access_token || null;
-  } catch(e) { console.error("getMrktToken error:", e); return null; }
-}
-function mrktBanner(state, msg) {
-  const bn = document.getElementById("mrkt-banner"); if (!bn) return;
-  const dot = document.getElementById("mrkt-dot");
-  document.getElementById("mrkt-status").textContent = msg;
-  bn.className = "mrkt-banner" + (state === "ok" ? " ok" : state === "err" ? " err" : "");
-  dot.className = "mrkt-dot" + (state === "ok" ? " on" : state === "err" ? " err" : " spin");
-  const btn = document.getElementById("autofill-btn"); if (btn) btn.disabled = state !== "ok";
-}
-function showMrktTokenInput() {
-  const box = document.getElementById("mrkt-token-box");
-  box.style.display = box.style.display === "none" ? "block" : "none";
-}
-
-async function mrktConnectWithToken() {
-  const inp = document.getElementById("mrkt-token-in");
-  const token = inp?.value?.trim();
-  if (!token) { toast("Cola o token primeiro", "err"); return; }
-  // Save token to localStorage so getMrktToken finds it next time
-  const key = "@@auth0spajs@@::SiCkGkl4GYjDAZd11oumY2RStWHfM1gv::https://mrkt-server-a240deff7152.herokuapp.com::openid profile email offline_access";
-  localStorage.setItem(key, JSON.stringify({ body: { access_token: token } }));
-  document.getElementById("mrkt-token-box").style.display = "none";
-  await mrktConnect();
-}
-
-async function mrktConnect() {
-  mrktBanner("loading", "A verificar token...");
-  
-  // Step 1: check token
-  const token = getMrktToken();
-  console.log("MRKT token found:", !!token, token ? token.slice(0,20)+"..." : "NULL");
-  
-  if (!token) {
-    // Try to find ANY mrkt-related key in localStorage
-    const keys = Object.keys(localStorage).filter(k => k.includes("mrkt") || k.includes("auth0") || k.includes("heroku"));
-    console.log("Related localStorage keys:", keys);
-    if (keys.length) {
-      mrktBanner("err", "Token não encontrado na chave esperada. Abre a consola (F12) para ver as chaves disponíveis.");
-    } else {
-      mrktBanner("err", "Sem sessão MRKT — faz login em mrktedge.ai primeiro (mesmo browser)");
-    }
-    return;
-  }
-  
-  mrktBanner("loading", "Token encontrado — a ligar...");
-  
-  try {
-    console.log("Fetching market summary...");
-    const mRes = await fetch(MRKT_BASE + "/equities/market-summary", {
-      headers: { Authorization: "Bearer " + token }
-    });
-    console.log("Market summary status:", mRes.status);
-    
-    if (mRes.status === 401) {
-      mrktBanner("err", "Token expirado — faz refresh em mrktedge.ai e clica ↻");
-      return;
-    }
-    if (!mRes.ok) throw new Error("HTTP " + mRes.status + " em /equities/market-summary");
-    
-    const mData = await mRes.json();
-    console.log("Market data:", JSON.stringify(mData).slice(0, 200));
-    
-    const nRes = await fetch(MRKT_BASE + "/headlines/high-impact?page=1&limit=8", {
-      headers: { Authorization: "Bearer " + token }
-    });
-    console.log("Headlines status:", nRes.status);
-    const nData = nRes.ok ? await nRes.json() : [];
-    console.log("Headlines data:", JSON.stringify(nData).slice(0, 200));
-    
-    mrktCache.connected = true;
-    mrktCache.market = mData;
-    mrktCache.headlines = Array.isArray(nData) ? nData : (nData.data || nData.headlines || nData.results || []);
-    mrktBanner("ok", "Ligado · " + new Date().toLocaleTimeString("pt", { hour: "2-digit", minute: "2-digit" }));
-    mrktRenderCards(mData);
-    mrktRenderNews(mrktCache.headlines);
-  } catch(e) {
-    console.error("MRKT Edge error:", e);
-    mrktBanner("err", "Erro: " + e.message + " (ver consola F12)");
-  }
-}
-function mrktRenderCards(data) {
-  const el = document.getElementById("mrkt-cards"); if (!el) return;
-  const items = Array.isArray(data) ? data : (data.data || data.equities || data.summary || data.results || []);
-  if (!items.length) { el.style.display = "none"; return; }
-  el.style.display = "grid";
-  el.innerHTML = items.slice(0, 4).map(item => {
-    const name = item.name || item.symbol || item.ticker || "—";
-    const sym = item.symbol || item.ticker || "";
-    const bias = item.bias || item.direction || item.trend || item.dayBias || item.day_bias || "—";
-    const bCls = /bull/i.test(bias) ? "mtag-bull" : /bear/i.test(bias) ? "mtag-bear" : "mtag-neut";
-    const val = item.price || item.last || item.value || "";
-    const chg = item.change || item.changePercent || item.pct || item.change_percent || "";
-    const chgCol = String(chg).startsWith("-") ? "var(--red)" : "var(--green)";
-    const desc = item.description || item.summary || item.note || "";
-    const sentiment = item.sentiment || item.sentimentScore || item.sentiment_score;
-    const sentNum = typeof sentiment === "number" ? Math.round(sentiment) : null;
-    const sentCol = sentNum !== null ? (sentNum <= 30 ? "var(--red)" : sentNum <= 60 ? "var(--amber)" : "var(--green)") : "var(--sub)";
-    return '<div class="mrkt-card">' +
-      '<div class="mrkt-card-t">' + name + (sym && sym !== name ? " · " + sym : "") + '</div>' +
-      (sentNum !== null ? '<div class="mrkt-card-v" style="color:' + sentCol + '">' + sentNum + '</div>' : (val ? '<div class="mrkt-card-v">' + val + '</div>' : '')) +
-      '<span class="mtag ' + bCls + '">' + bias + '</span>' +
-      (chg ? '<div class="mrkt-card-s" style="color:' + chgCol + ';margin-top:5px">' + chg + '</div>' : '') +
-      (desc ? '<div class="mrkt-card-s" style="margin-top:4px;font-size:10px">' + String(desc).slice(0, 90) + '</div>' : '') +
-      '</div>';
-  }).join("");
-}
-function mrktRenderNews(headlines) {
-  const sec = document.getElementById("mrkt-news-sec");
-  const el = document.getElementById("mrkt-news-list"); if (!sec || !el) return;
-  const items = Array.isArray(headlines) ? headlines : [];
-  if (!items.length) { sec.style.display = "none"; return; }
-  sec.style.display = "block";
-  const timeEl = document.getElementById("mrkt-news-time");
-  if (timeEl) timeEl.textContent = new Date().toLocaleTimeString("pt", { hour: "2-digit", minute: "2-digit" });
-  el.innerHTML = items.slice(0, 8).map(item => {
-    const title = item.title || item.headline || item.text || item.content || "";
-    const impact = item.impact || item.severity || item.priority || "";
-    const ic = /high/i.test(impact) ? "🔴" : /med/i.test(impact) ? "🟡" : /low/i.test(impact) ? "🟢" : "⚪";
-    const raw = JSON.stringify(item).toUpperCase();
-    const isNQ = raw.includes("NQ") || raw.includes("NASDAQ");
-    const eff = item.nqEffect || item.nq_effect || item.effect || item.impact_nq || "";
-    const bull = /bull|up|positive|risk.on/i.test(eff);
-    const bear = /bear|down|negative|risk.off/i.test(eff);
-    const nqTag = (isNQ || eff) ? '<span class="mrkt-nq-tag" style="background:' + (bull ? "#071f0f" : bear ? "#1f0707" : "var(--s3)") + ';color:' + (bull ? "var(--green)" : bear ? "var(--red)" : "var(--hint)") + '">' + (bull ? "▲ NQ" : bear ? "▼ NQ" : "◆ NQ") + '</span>' : "";
-    const ts = item.timestamp || item.published_at || item.date || item.time || "";
-    const tsStr = ts ? (" · " + new Date(ts).toLocaleTimeString("pt", { hour: "2-digit", minute: "2-digit" })) : "";
-    return '<div class="mrkt-ni"><span class="mrkt-ni-ic">' + ic + '</span><div><div class="mrkt-ni-t">' + String(title).slice(0, 140) + '</div><div class="mrkt-ni-m">' + tsStr + nqTag + '</div></div></div>';
-  }).join("");
-}
-async function mrktAutoFill() {
-  if (!mrktCache.connected) { toast("Liga ao MRKT Edge primeiro", "err"); return; }
-  const btn = document.getElementById("autofill-btn"); btn.disabled = true; btn.textContent = "A preencher...";
-  try {
-    const items = Array.isArray(mrktCache.market) ? mrktCache.market : (mrktCache.market?.data || mrktCache.market?.equities || mrktCache.market?.summary || mrktCache.market?.results || []);
-    const nq = items.find(e => /NQ|NASDAQ/i.test(e.symbol || e.ticker || e.name || "")) || items[0];
-    let autoBias = "Neutro";
-    let justLines = [];
-    if (nq) {
-      const b = (nq.bias || nq.direction || nq.trend || nq.dayBias || nq.day_bias || "").toLowerCase();
-      if (/bull/i.test(b)) autoBias = "Bullish";
-      else if (/bear/i.test(b)) autoBias = "Bearish";
-      if (nq.description || nq.summary) justLines.push(nq.description || nq.summary);
-    }
-    const sentiment = mrktCache.market?.sentiment || mrktCache.market?.globalSentiment || mrktCache.market?.global_sentiment;
-    const sentScore = typeof sentiment === "number" ? Math.round(sentiment) :
-      (typeof sentiment?.score === "number" ? Math.round(sentiment.score) : typeof sentiment?.value === "number" ? Math.round(sentiment.value) : 50);
-    const newsLines = (mrktCache.headlines || []).slice(0, 3).map(i => { const t = i.title || i.headline || i.text || ""; return t ? "• " + t.slice(0, 100) : ""; }).filter(Boolean);
-    if (newsLines.length) justLines.push(...newsLines);
-    const headlinesFull = (mrktCache.headlines || []).slice(0, 5).map(i => i.title || i.headline || i.text || "").filter(Boolean).join("\n");
-    const biasBtn = [...document.querySelectorAll(".ps-bias-btn")].find(b => b.textContent.toUpperCase().includes(autoBias.toUpperCase()));
-    if (biasBtn) setPSBias(autoBias, biasBtn);
-    document.getElementById("ps-just").value = justLines.join("\n").slice(0, 400);
-    document.getElementById("ps-news").value = headlinesFull.slice(0, 600);
-    document.getElementById("ps-slider").value = sentScore;
-    updateScore(sentScore);
-    toast("Auto-fill completo ✓", "ok");
-  } catch(e) { toast("Erro: " + e.message, "err"); }
-  finally { btn.disabled = false; btn.innerHTML = "⚡ Auto-fill"; }
-}
-
 
 // ═══════════════════════════════════════════
 // MACRO EVENTS
@@ -2145,7 +2116,7 @@ function renderMacroEvents(iso) {
   const el = document.getElementById("macro-events-list"); if (!el) return;
   const ctx = psData[iso];
   const events = ctx?.macroEvents || [];
-  if (!events.length) { el.innerHTML = '<div style="color:var(--hint);font-size:12px;font-family:var(--mono);padding:6px 0">Sem eventos registados — carrega o FF ou adiciona manualmente</div>'; return; }
+  if (!events.length) { el.innerHTML = '<div style="color:var(--hint);font-size:12px;font-family:var(--mono);padding:6px 0">Sem eventos registados — usa os botões rápidos acima ou "+ Manual"</div>'; return; }
   el.innerHTML = events.map((ev, i) => buildMacroEventHTML(ev, i)).join("");
 }
 
@@ -2173,26 +2144,25 @@ function buildMacroEventHTML(ev, i) {
 }
 
 function addMacroEvent() {
-  const today = todayISO();
+  const d = psDate || todayISO();
   const name = prompt("Nome do evento (ex: CPI, NFP, FOMC):"); if (!name?.trim()) return;
-  if (!psData[today]) psData[today] = { date: today, bias: "", score: 50, fed: "", justification: "", headlines: "", fedCtx: "", macroEvents: [] };
-  if (!psData[today].macroEvents) psData[today].macroEvents = [];
-  psData[today].macroEvents.push({ name: name.trim(), time: "", actual: "", forecast: "", impact: "", priority: isPriorityEvent(name) });
-  savePSData(); renderMacroEvents(today);
+  ensurePSDate(d);
+  if (!psData[d].macroEvents) psData[d].macroEvents = [];
+  psData[d].macroEvents.push({ name: name.trim(), time: "", actual: "", forecast: "", impact: "", priority: isPriorityEvent(name) });
+  savePSData(); renderMacroEvents(d);
 }
 
 function removeMacroEvent(i) {
-  const today = todayISO();
-  if (!psData[today]?.macroEvents) return;
-  psData[today].macroEvents.splice(i, 1);
-  savePSData(); renderMacroEvents(today);
+  const d = psDate || todayISO();
+  if (!psData[d]?.macroEvents) return;
+  psData[d].macroEvents.splice(i, 1);
+  savePSData(); renderMacroEvents(d);
 }
 
 function setMacroImpact(i, impact, btn) {
-  const today = todayISO();
-  if (!psData[today]?.macroEvents) return;
-  if (!psData[today].macroEvents[i]) return;
-  psData[today].macroEvents[i].impact = impact;
+  const d = psDate || todayISO();
+  if (!psData[d]?.macroEvents?.[i]) return;
+  psData[d].macroEvents[i].impact = impact;
   savePSData();
   const ev = document.getElementById("mev-" + i);
   if (ev) ev.querySelectorAll(".macro-impact-btn").forEach(b => {
@@ -2202,13 +2172,12 @@ function setMacroImpact(i, impact, btn) {
 }
 
 function updateMacroEvent(i) {
-  const today = todayISO();
-  if (!psData[today]?.macroEvents?.[i]) return;
+  const d = psDate || todayISO();
+  if (!psData[d]?.macroEvents?.[i]) return;
   const actual = document.getElementById("mev-actual-" + i)?.value || "";
   const forecast = document.getElementById("mev-forecast-" + i)?.value || "";
-  psData[today].macroEvents[i].actual = actual;
-  psData[today].macroEvents[i].forecast = forecast;
-  // Auto-detect impact if both present
+  psData[d].macroEvents[i].actual = actual;
+  psData[d].macroEvents[i].forecast = forecast;
   if (actual && forecast) {
     const a = parseFloat(actual.replace(/[^0-9.-]/g,"")), f = parseFloat(forecast.replace(/[^0-9.-]/g,""));
     if (!isNaN(a) && !isNaN(f)) {
@@ -2218,38 +2187,23 @@ function updateMacroEvent(i) {
       else if (diff > 1) auto = "Bullish";
       else if (diff < -5) auto = "Extreme Bearish";
       else if (diff < -1) auto = "Bearish";
-      if (psData[today].macroEvents[i].impact !== auto) {
-        psData[today].macroEvents[i].impact = auto;
-        savePSData();
-        renderMacroEvents(today);
+      if (psData[d].macroEvents[i].impact !== auto) {
+        psData[d].macroEvents[i].impact = auto;
+        savePSData(); renderMacroEvents(d);
       }
     }
   }
   savePSData();
 }
 
-function collectMacroEvents() {
-  const today = todayISO();
-  return psData[today]?.macroEvents || [];
-}
-
-// Inject FF events as macro events
-function injectFFIntoMacro(events) {
-  const today = todayISO();
-  if (!psData[today]) psData[today] = { date: today, bias: "", score: 50, fed: "", justification: "", headlines: "", fedCtx: "", macroEvents: [] };
-  if (!psData[today].macroEvents) psData[today].macroEvents = [];
-  events.forEach(ev => {
-    const exists = psData[today].macroEvents.some(e => e.name === ev.name);
-    if (!exists && isPriorityEvent(ev.name)) {
-      psData[today].macroEvents.push({ name: ev.name, time: ev.time || "", actual: ev.actual || "", forecast: ev.forecast || "", impact: ev.impact || "", priority: true });
-    }
-  });
-  savePSData(); renderMacroEvents(today);
+function collectMacroEvents(d) {
+  d = d || psDate || todayISO();
+  return psData[d]?.macroEvents || [];
 }
 
 
 // ═══════════════════════════════════════════
-// MARKET CONTEXT (VIX / SPX / DXY)
+// VIX REGIME (kept for Reports usage)
 // ═══════════════════════════════════════════
 function vixRegimeInfo(v) {
   if (v < 15) return { label: "Low Vol", cls: "good", color: "var(--green)" };
@@ -2258,122 +2212,161 @@ function vixRegimeInfo(v) {
   if (v < 30) return { label: "High",    cls: "bad",  color: "var(--red)"   };
   return             { label: "Stress",  cls: "bad",  color: "#ff4444"      };
 }
-function updateVixBadge() {
-  const v = parseFloat(document.getElementById("mc-vix").value);
-  const el = document.getElementById("mc-vix-badge"); if (!el) return;
-  if (isNaN(v)) { el.textContent = "—"; el.className = "badge"; el.style.color = ""; return; }
-  const r = vixRegimeInfo(v);
-  el.textContent = r.label; el.className = "badge " + r.cls; el.style.color = r.color;
-}
-function updateSpxBadge() {
-  const v = parseFloat(document.getElementById("mc-spx").value);
-  const el = document.getElementById("mc-spx-badge"); if (!el) return;
-  if (isNaN(v)) { el.textContent = "—"; el.className = "badge"; el.style.color = ""; return; }
-  el.textContent = (v >= 0 ? "+" : "") + v.toFixed(2) + "%";
-  el.className = "badge " + (v > 0.1 ? "good" : v < -0.1 ? "bad" : "");
-  el.style.color = v > 0.1 ? "var(--green)" : v < -0.1 ? "var(--red)" : "var(--sub)";
-}
-async function fetchMarketData() {
-  const btn = document.getElementById("mc-autofill-btn"); if (btn) { btn.disabled = true; btn.textContent = "⏳ A carregar..."; }
-  const proxy = "https://api.allorigins.win/get?url=";
-  const yf = sym => proxy + encodeURIComponent("https://query1.finance.yahoo.com/v8/finance/chart/" + sym + "?interval=1d&range=5d");
-  const results = {};
-  const syms = [{ key: "vix", sym: "%5EVIX" }, { key: "spx", sym: "%5EGSPC" }, { key: "dxy", sym: "DX-Y.NYB" }];
-  for (const { key, sym } of syms) {
-    try {
-      const r = await fetch(proxy + encodeURIComponent("https://query1.finance.yahoo.com/v8/finance/chart/" + sym + "?interval=1d&range=5d"));
-      const raw = await r.json();
-      const chart = JSON.parse(raw.contents)?.chart?.result?.[0];
-      if (!chart) continue;
-      const closes = chart.indicators?.quote?.[0]?.close?.filter(c => c !== null);
-      if (closes?.length >= 2) {
-        const prev = closes[closes.length - 2], last = closes[closes.length - 1];
-        results[key] = { price: last, changePct: ((last - prev) / Math.abs(prev)) * 100 };
-      } else if (closes?.length === 1) {
-        results[key] = { price: closes[0], changePct: 0 };
-      }
-    } catch(e) { console.warn("fetchMarketData " + sym, e); }
+
+// ═══════════════════════════════════════════
+// DOCUMENTO COMPLETO (modal)
+// ═══════════════════════════════════════════
+function openDocModal() {
+  const d = psDate || todayISO();
+  const ctx = psData[d] || {};
+  const trds = curAcct ? dayTrades(d) : [];
+  const dayPnl = trds.reduce((s,t)=>s+t.pnl,0);
+  const DAYS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const dayName = DAYS[new Date(d + 'T12:00:00').getDay()] || '';
+  const bc = ctx.bias==='Bullish'?'var(--green)':ctx.bias==='Bearish'?'var(--red)':ctx.bias==='Cauteloso'?'var(--amber)':'var(--sub)';
+  const bg = ctx.bias==='Bullish'?'#071f0f':ctx.bias==='Bearish'?'#1f0707':ctx.bias==='Cauteloso'?'#241a06':'var(--s3)';
+  const sentC = ctx.sentiment==='Risk-On'?'var(--green)':ctx.sentiment==='Risk-Off'?'var(--red)':'var(--sub)';
+
+  // Section helper
+  const sec = (title, content) => content ? '<div style="margin-bottom:20px"><div class="doc-sec-title">' + title + '</div>' + content + '</div>' : '';
+  const kv = (lbl, val) => val ? '<div style="display:flex;gap:8px;margin-bottom:5px"><span style="font-family:var(--mono);font-size:10px;color:var(--hint);min-width:120px;flex-shrink:0">' + lbl + '</span><span style="font-family:var(--mono);font-size:11px;color:var(--text)">' + val + '</span></div>' : '';
+  const badge = (v, c, bg2) => v ? '<span style="font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 9px;border-radius:5px;color:' + c + ';background:' + bg2 + ';border:1px solid ' + c + ';margin-right:6px">' + v + '</span>' : '';
+  const ta = (v) => v ? '<div style="font-size:12px;color:var(--text);line-height:1.7;white-space:pre-wrap;background:var(--s2);padding:10px 12px;border-radius:8px;margin-top:5px">' + v + '</div>' : '';
+
+  // Header
+  let html = '<div style="margin-bottom:20px">';
+  html += '<div style="font-size:20px;font-weight:700;margin-bottom:4px">' + d + ' · ' + dayName + '</div>';
+  if (trds.length) {
+    const pc = dayPnl>0?'var(--green)':dayPnl<0?'var(--red)':'var(--sub)';
+    html += '<div style="font-family:var(--mono);font-size:15px;font-weight:700;color:' + pc + ';margin-bottom:8px">' + (dayPnl>=0?'+':'')+'$'+dayPnl.toFixed(2) + ' · ' + trds.length + ' trades</div>';
   }
-  if (results.vix) { document.getElementById("mc-vix").value = results.vix.price.toFixed(2); updateVixBadge(); }
-  if (results.spx) { document.getElementById("mc-spx").value = results.spx.changePct.toFixed(2); updateSpxBadge(); }
-  if (results.dxy) { document.getElementById("mc-dxy").value = results.dxy.price.toFixed(2); }
-  if (Object.keys(results).length) toast("Market data actualizado ✓", "ok");
-  else toast("Sem dados — tenta depois do mercado abrir", "err");
-  if (btn) { btn.disabled = false; btn.textContent = "⚡ Auto-fill"; }
+  html += '<div style="display:flex;flex-wrap:wrap;gap:6px">';
+  if (ctx.bias) html += badge(ctx.bias, bc, bg);
+  if (ctx.fed) html += badge(ctx.fed, 'var(--sub)', 'var(--s3)');
+  if (ctx.sentiment) html += badge(ctx.sentiment, sentC, 'var(--s3)');
+  html += '</div></div>';
+
+  // Profile Framing
+  let profHtml = '';
+  const poc = [ctx.poc_daily&&'Diário: '+ctx.poc_daily, ctx.poc_weekly&&'Semanal: '+ctx.poc_weekly, ctx.poc_3m&&'3M: '+ctx.poc_3m].filter(Boolean);
+  if (poc.length) profHtml += kv('POC', poc.join(' · '));
+  if (ctx.vah||ctx.val) profHtml += kv('VAH / VAL', [(ctx.vah?'VAH '+ctx.vah:''),(ctx.val?'VAL '+ctx.val:'')].filter(Boolean).join(' · '));
+  const renderList = (items, label, fmt) => {
+    if (!items?.length) return '';
+    return kv(label, items.map(fmt).join(', '));
+  };
+  profHtml += renderList(ctx.hvn_levels,'HVN', x => x.price+(x.note?' ('+x.note+')':''));
+  profHtml += renderList(ctx.lvn_levels,'LVN', x => x.price+(x.note?' ('+x.note+')':''));
+  profHtml += renderList(ctx.delta_anomalies,'Delta', x => x.price+' '+x.type+(x.note?' ('+x.note+')':''));
+  profHtml += renderList(ctx.supply_demand_zones,'S/D Zones', x => x.type+' '+x.from+'–'+x.to+(x.note?' ('+x.note+')':''));
+  profHtml += renderList(ctx.sr_levels,'S/R', x => x.price+' ('+x.type+' '+x.timeframe+')');
+  if (ctx.profile_notes) profHtml += ta(ctx.profile_notes);
+  html += sec('Pilar 1 — Profile Framing', profHtml);
+
+  // Macro
+  let macroHtml = '';
+  if (ctx.fedCtx) macroHtml += kv('Contexto Fed', '') + ta(ctx.fedCtx);
+  if (ctx.sentiment_narrative) macroHtml += kv('Sentiment / Vol', '') + ta(ctx.sentiment_narrative);
+  if (ctx.capital_flow) macroHtml += kv('Capital Flow', '') + ta(ctx.capital_flow);
+  if (ctx.dxy_vix_narrative) macroHtml += kv('DXY · VIX · US2Y', '') + ta(ctx.dxy_vix_narrative);
+  if (ctx.geopolitics) macroHtml += kv('Geopolítica', '') + ta(ctx.geopolitics);
+  if (ctx.macroEvents?.length) {
+    macroHtml += '<div style="margin-top:8px">';
+    ctx.macroEvents.forEach(ev => {
+      const impC = /bull/i.test(ev.impact)?'var(--green)':/bear/i.test(ev.impact)?'var(--red)':'var(--sub)';
+      macroHtml += '<div style="display:flex;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid var(--b1);font-family:var(--mono);font-size:11px">';
+      macroHtml += '<span style="color:var(--sub);min-width:50px">'+(ev.time||'—')+'</span>';
+      macroHtml += '<span style="flex:1;font-weight:600">'+(ev.priority?'🔴 ':'')+ev.name+'</span>';
+      if (ev.forecast) macroHtml += '<span style="color:var(--hint)">Prev: '+ev.forecast+'</span>';
+      if (ev.actual) macroHtml += '<span style="color:var(--text);font-weight:600">Actual: '+ev.actual+'</span>';
+      if (ev.impact) macroHtml += '<span style="color:'+impC+';font-weight:600">'+ev.impact+'</span>';
+      macroHtml += '</div>';
+    });
+    macroHtml += '</div>';
+  }
+  html += sec('Pilar 2 — Macro & Fundamental', macroHtml);
+
+  // Game Plan
+  if (ctx.narrative) html += sec('Narrativa & Game Plan', ta(ctx.narrative));
+
+  // Trades
+  if (trds.length) {
+    const sorted = [...trds].sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+    let tHtml = '<div style="display:grid;grid-template-columns:60px 50px 44px 1fr 80px 50px;gap:6px;font-family:var(--mono);font-size:10px;color:var(--hint);text-transform:uppercase;border-bottom:1px solid var(--b1);padding-bottom:5px;margin-bottom:6px"><span>Hora</span><span>Símbolo</span><span>Dir</span><span>Entry→Exit</span><span>P&L</span><span>R</span></div>';
+    sorted.forEach(t => {
+      const pc2 = t.pnl>0?'var(--green)':t.pnl<0?'var(--red)':'var(--sub)';
+      const rc = t.risk&&t.risk>0?t.pnl/t.risk:(t.r||null);
+      tHtml += '<div style="display:grid;grid-template-columns:60px 50px 44px 1fr 80px 50px;gap:6px;font-family:var(--mono);font-size:11px;padding:5px 0;border-bottom:1px solid var(--b1)">';
+      tHtml += '<span style="color:var(--sub)">'+(t.time?t.time.slice(0,5):'—')+'</span>';
+      tHtml += '<span>'+(t.symbol||'NQ')+'</span>';
+      tHtml += '<span style="color:'+(t.direction==='Long'?'var(--green)':'var(--red)')+'">'+(t.direction||'—')+'</span>';
+      tHtml += '<span style="color:var(--sub)">@'+(t.entry||'—')+'→'+(t.exit||'—')+'</span>';
+      tHtml += '<span style="color:'+pc2+';font-weight:600">'+(t.pnl>=0?'+':'')+'$'+t.pnl.toFixed(2)+'</span>';
+      tHtml += '<span style="color:'+(rc==null?'var(--hint)':rc>=1?'var(--green)':rc>=0?'var(--amber)':'var(--red)')+'">'+(rc!=null?rc.toFixed(2)+'R':'—')+'</span>';
+      tHtml += '</div>';
+    });
+    html += sec('Trades do dia', tHtml);
+  }
+
+  document.getElementById('doc-modal-body').innerHTML = html;
+  document.getElementById('doc-modal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeDocModal() {
+  document.getElementById('doc-modal').style.display = 'none';
+  document.body.style.overflow = '';
 }
 
 // ═══════════════════════════════════════════
-// FOREXFACTORY
+// REVIEW — Session Context
 // ═══════════════════════════════════════════
-async function loadFF() {
-  const el = document.getElementById("ff-body"), st = document.getElementById("ff-status"); if (!el) return;
-  st.textContent = "A carregar..."; el.innerHTML = '<div style="text-align:center;padding:16px;color:var(--hint);font-family:var(--mono);font-size:12px">A carregar...</div>';
-  try {
-    const resp = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent("https://nfs.faireconomy.media/ff_calendar_thisweek.xml"));
-    const data = await resp.json();
-    const doc = new DOMParser().parseFromString(data.contents, "text/xml");
-    const events = [...doc.querySelectorAll("event")].filter(e => {
-      const ccy = e.querySelector("currency")?.textContent?.toUpperCase() || "";
-      const imp = e.querySelector("impact")?.textContent?.toLowerCase() || "";
-      return ccy === "USD" && (imp === "high" || imp === "medium");
-    });
-    if (!events.length) { el.innerHTML = '<div style="text-align:center;padding:16px;color:var(--hint);font-family:var(--mono);font-size:12px">Sem eventos USD esta semana</div>'; return; }
-    const byDay = {}; const today = todayISO();
-    events.forEach(e => { const d = (e.querySelector("date")?.textContent || "").split(" ")[0]; if (!byDay[d]) byDay[d] = []; byDay[d].push(e); });
-    let html = '<div class="ff-head"><span>Hora</span><span>Evento</span><span style="text-align:right">Actual</span><span style="text-align:right">Forecast</span><span style="text-align:right">Anterior</span><span style="text-align:right">NQ</span></div>';
-    Object.keys(byDay).sort().forEach(d => {
-      html += '<div style="font-size:10px;font-family:var(--mono);font-weight:600;color:' + (d === today ? "var(--accent)" : "var(--hint)") + ';padding:6px 0 3px;text-transform:uppercase;letter-spacing:.06em">' + d + (d === today ? " · Hoje" : "") + '</div>';
-      byDay[d].forEach(ev => {
-        const time = ev.querySelector("time")?.textContent || "—";
-        const title = ev.querySelector("title")?.textContent || "—";
-        const actual = ev.querySelector("actual")?.textContent || "";
-        const forecast = ev.querySelector("forecast")?.textContent || "";
-        const prev = ev.querySelector("previous")?.textContent || "";
-        const imp = ev.querySelector("impact")?.textContent || "";
-        let ac = "", nqEl = '<span class="ff-tbd">Pendente</span>';
-        if (actual && forecast) {
-          const a = parseFloat(actual.replace(/[^0-9.-]/g, "")), f = parseFloat(forecast.replace(/[^0-9.-]/g, ""));
-          if (!isNaN(a) && !isNaN(f)) {
-            if (a > f) { ac = "color:var(--green);font-weight:600"; nqEl = '<span class="ff-bull">▲ Bull</span>'; }
-            else if (a < f) { ac = "color:var(--red);font-weight:600"; nqEl = '<span class="ff-bear">▼ Bear</span>'; }
-            else nqEl = '<span class="ff-tbd">Em linha</span>';
-          }
-        }
-        html += '<div class="ff-row"><span style="color:var(--sub)">' + time + '</span><span style="color:var(--text);font-weight:500">' + title + '<span style="color:' + (imp.toLowerCase() === "high" ? "var(--red)" : "var(--amber)") + ';font-size:9px;margin-left:5px">●</span></span><span style="text-align:right;' + ac + '">' + (actual || "—") + '</span><span style="text-align:right;color:var(--sub)">' + (forecast || "—") + '</span><span style="text-align:right;color:var(--hint)">' + (prev || "—") + '</span><span style="text-align:right">' + nqEl + '</span></div>';
-      });
-    });
-    el.innerHTML = html;
-    st.textContent = new Date().toLocaleTimeString("pt", { hour: "2-digit", minute: "2-digit" });
-    // Inject priority events into macro events list
-    const ffEvents = [];
-    Object.keys(byDay).forEach(d => {
-      byDay[d].forEach(ev => {
-        const title = ev.querySelector("title")?.textContent || "";
-        if (isPriorityEvent(title)) {
-          const actual = ev.querySelector("actual")?.textContent || "";
-          const forecast = ev.querySelector("forecast")?.textContent || "";
-          const time2 = ev.querySelector("time")?.textContent || "";
-          let impact = "";
-          if (actual && forecast) {
-            const a2 = parseFloat(actual.replace(/[^0-9.-]/g,"")), f2 = parseFloat(forecast.replace(/[^0-9.-]/g,""));
-            if (!isNaN(a2) && !isNaN(f2)) {
-              const diff = ((a2-f2)/Math.abs(f2||1))*100;
-              if (diff > 5) impact = "Extreme Bullish";
-              else if (diff > 1) impact = "Bullish";
-              else if (diff < -5) impact = "Extreme Bearish";
-              else if (diff < -1) impact = "Bearish";
-              else impact = "Neutro";
-            }
-          }
-          ffEvents.push({ name: title, time: time2, actual, forecast, impact });
-        }
-      });
-    });
-    if (ffEvents.length) injectFFIntoMacro(ffEvents);
-  } catch(e) {
-    st.textContent = "Indisponível";
-    el.innerHTML = '<div style="padding:12px;font-family:var(--mono);font-size:11px;color:var(--amber)">Feed indisponível · <a href="https://www.forexfactory.com/calendar" target="_blank" style="color:var(--accent)">Abrir ForexFactory ↗</a></div>';
+let sessCtxOpen = false;
+function toggleSessCtx() {
+  const el = document.getElementById('rv-sess-ctx');
+  const arrow = document.getElementById('rv-sess-ctx-arrow');
+  sessCtxOpen = !sessCtxOpen;
+  el.style.display = sessCtxOpen ? 'block' : 'none';
+  if (arrow) arrow.textContent = sessCtxOpen ? '▴' : '▾';
+  if (sessCtxOpen) renderSessCtx();
+}
+function renderSessCtx() {
+  const el = document.getElementById('rv-sess-ctx'); if (!el) return;
+  const ctx = psData[rvDate] || {};
+  if (!ctx.bias && !ctx.narrative && !ctx.poc_daily) { el.innerHTML = '<div style="color:var(--hint);font-family:var(--mono);font-size:11px">Sem contexto de sessão para este dia.<br><button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="closeReview();showTab(\'presessao\',document.querySelectorAll(\'.tab\')[4]);psDate=\'' + rvDate + '\';loadPSDate(\'' + rvDate + '\')">Preencher sessão →</button></div>'; return; }
+  const bc = ctx.bias==='Bullish'?'var(--green)':ctx.bias==='Bearish'?'var(--red)':ctx.bias==='Cauteloso'?'var(--amber)':'var(--sub)';
+  const bg = ctx.bias==='Bullish'?'#071f0f':ctx.bias==='Bearish'?'#1f0707':ctx.bias==='Cauteloso'?'#241a06':'var(--s3)';
+  let h = '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">';
+  if (ctx.bias) h += '<span style="font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;color:'+bc+';background:'+bg+';border:1px solid '+bc+'">'+ctx.bias+'</span>';
+  if (ctx.fed) h += '<span style="font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:4px;color:var(--sub);background:var(--s3);border:1px solid var(--b1)">'+ctx.fed+'</span>';
+  if (ctx.sentiment) { const sc=ctx.sentiment==='Risk-On'?'var(--green)':ctx.sentiment==='Risk-Off'?'var(--red)':'var(--sub)'; h+='<span style="font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:4px;color:'+sc+';background:var(--s3);border:1px solid '+sc+'44">'+ctx.sentiment+'</span>'; }
+  h += '</div>';
+  if (ctx.poc_daily||ctx.vah||ctx.val) {
+    h += '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:7px;font-family:var(--mono);font-size:10px">';
+    if (ctx.poc_daily) h += '<span style="color:var(--hint)">POC <b style="color:var(--text)">' + ctx.poc_daily + '</b></span>';
+    if (ctx.vah) h += '<span style="color:var(--hint)">VAH <b style="color:var(--green)">' + ctx.vah + '</b></span>';
+    if (ctx.val) h += '<span style="color:var(--hint)">VAL <b style="color:var(--red)">' + ctx.val + '</b></span>';
+    h += '</div>';
   }
+  if (ctx.narrative) {
+    const short = ctx.narrative.slice(0, 150);
+    const more = ctx.narrative.length > 150;
+    h += '<div style="font-size:11px;color:var(--sub);line-height:1.6;margin-bottom:6px" id="rv-narr-text">' + short + (more?'<span id="rv-narr-more">... <button onclick="document.getElementById(\'rv-narr-text\').innerHTML=\'' + ctx.narrative.replace(/'/g,"\\'").replace(/\n/g,'<br>') + '\'" style="background:transparent;border:none;color:var(--accent);cursor:pointer;font-size:10px;font-family:var(--mono)">ver mais</button></span>':'') + '</div>';
+  }
+  if (ctx.macroEvents?.some(e=>e.actual)) {
+    h += '<div style="font-size:10px;font-family:var(--mono);color:var(--hint);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Eventos</div>';
+    ctx.macroEvents.filter(e=>e.name).forEach(ev => {
+      const impC = /bull/i.test(ev.impact)?'var(--green)':/bear/i.test(ev.impact)?'var(--red)':'var(--sub)';
+      h += '<div style="display:flex;gap:5px;align-items:center;font-size:10px;font-family:var(--mono);padding:2px 0"><span style="color:var(--hint)">' + (ev.time||'—') + '</span><span style="flex:1">' + ev.name + '</span>' + (ev.actual?'<span style="font-weight:600">'+ev.actual+'</span>':'') + (ev.impact?'<span style="color:'+impC+';font-weight:600">'+ev.impact+'</span>':'') + '</div>';
+    });
+  }
+  el.innerHTML = h;
+}
+function updateRvSessCtxDot() {
+  const ctx = psData[rvDate] || {};
+  const dot = document.getElementById('rv-sess-status-dot'); if (!dot) return;
+  const hasCtx = !!(ctx.bias || ctx.narrative || ctx.poc_daily);
+  dot.textContent = hasCtx ? '●' : '○';
+  dot.style.color = hasCtx ? 'var(--green)' : 'var(--hint)';
 }
 
 // ═══════════════════════════════════════════
@@ -2431,6 +2424,11 @@ function renderReview() {
   document.getElementById("rv-tp").value = t.tp || "";
   document.getElementById("rv-risk").value = t.risk || "";
   rvCalcRR(); rvRenderStars(t.rating || 0); rvRenderProcessScore(t); rvRenderNQScale(t); rvRenderMistakes();
+  updateRvSessCtxDot();
+  // reset session ctx panel on trade change
+  sessCtxOpen = false;
+  const scEl = document.getElementById('rv-sess-ctx'); if (scEl) scEl.style.display = 'none';
+  const scArrow = document.getElementById('rv-sess-ctx-arrow'); if (scArrow) scArrow.textContent = '▾';
   // Day context banner in review left panel (show above running pnl)
   const ctxBanner = document.getElementById("rv-ctx-banner");
   if (ctxBanner && ctx) {
@@ -3131,7 +3129,7 @@ function renderQuant() {
       (mcr ? '<div class="sec"><div class="sec-title">Monte Carlo · 2000 sim</div>' + svgMC(mcr.paths) + '<div class="mc-row"><div class="mc-cell"><div class="mc-val" style="color:var(--red)">'+mcr.p5.toFixed(1)+'R</div><div class="mc-lbl">P5</div></div><div class="mc-cell"><div class="mc-val">'+mcr.p50.toFixed(1)+'R</div><div class="mc-lbl">P50</div></div><div class="mc-cell"><div class="mc-val" style="color:var(--green)">'+mcr.p95.toFixed(1)+'R</div><div class="mc-lbl">P95</div></div><div class="mc-cell"><div class="mc-val" style="color:'+(mcr.ruin<5?"var(--green)":mcr.ruin<15?"var(--amber)":"var(--red)")+'">'+mcr.ruin.toFixed(1)+'%</div><div class="mc-lbl">Ruína</div></div></div></div>' : '<div class="sec"><div class="sec-title">Monte Carlo</div><div style="text-align:center;padding:20px;color:var(--hint);font-family:var(--mono);font-size:12px">Define risco em ≥3 trades</div></div>') +
     '</div>' +
     '<div class="sec"><div class="sec-title">EV por confluência</div>' + evBars + '</div>' +
-    (biasHTML ? '<div class="sec"><div class="sec-title">Performance por bias (MRKT Edge)</div>' + biasHTML + '</div>' : '') +
+    (biasHTML ? '<div class="sec"><div class="sec-title">Performance por bias do dia</div>' + biasHTML + '</div>' : '') +
     buildProcessScoreHTML(t) +
     buildConfCountHTML(t) +
     buildRegimeHTML(t);
@@ -3398,10 +3396,9 @@ function buildClaudePromptDay(date) {
 CONTEXTO DO DIA:
   Data: ${date} | Conta: ${curAcct?.name || "—"}
   Bias: ${ctx.bias || "—"} | Fed Sentiment: ${ctx.fed || "—"}
-  MRKT Score: ${ctx.score != null ? ctx.score + "/100" : "—"}
-  VIX: ${ctx.vix != null ? ctx.vix + " (" + (ctx.vixRegime||"—") + ")" : "—"} | SPX Δ%: ${ctx.spxDelta != null ? (ctx.spxDelta>0?"+":"") + ctx.spxDelta.toFixed(2) + "%" : "—"} | DXY: ${ctx.dxy != null ? ctx.dxy.toFixed(2) : "—"}
-  Opening Drive: ${ctx.openDrive || "—"} | VA: ${ctx.vaPos || "—"}
-${macroLines ? "  Eventos macro:\n" + macroLines : ""}${ctx.justification ? "\n  Fundamentação: " + ctx.justification.slice(0,150) : ""}${ctx.headlines ? "\n  Manchetes: " + ctx.headlines.slice(0,150) : ""}
+  Sentiment: ${ctx.sentiment || "—"}
+  POC: ${ctx.poc_daily||"—"} | VAH: ${ctx.vah||"—"} | VAL: ${ctx.val||"—"}
+${macroLines ? "  Eventos macro:\n" + macroLines : ""}${ctx.narrative ? "\n  Game Plan: " + ctx.narrative.slice(0,200) : ""}${ctx.profile_notes ? "\n  Profile: " + ctx.profile_notes.slice(0,150) : ""}
 
 TRADES DO DIA (${trades.length} trades, P&L total: $${dayPnl.toFixed(2)}):
 ${tradeLines || "  Nenhuma trade."}
@@ -3941,5 +3938,17 @@ function rptCalendar(t) {
   return '<div class="sec"><div class="sec-title">Calendário anual</div>' + html + '</div>';
 }
 </script>
+
+<!-- DOC MODAL -->
+<div id="doc-modal" style="display:none" class="doc-modal-overlay" onclick="if(event.target===this)closeDocModal()">
+  <div class="doc-modal-inner">
+    <button class="doc-modal-close" onclick="closeDocModal()">✕</button>
+    <div id="doc-modal-body"></div>
+    <div style="margin-top:20px;display:flex;gap:8px;justify-content:flex-end" class="no-print">
+      <button class="btn btn-ghost btn-sm" onclick="window.print()">🖨 Exportar PDF</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeDocModal()">Fechar</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
