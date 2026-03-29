@@ -416,8 +416,159 @@ Configurar em: Netlify Dashboard → Site Settings → Environment Variables
 
 ## Próxima tarefa prioritária
 
-**Reestruturação da Pré-sessão** (em curso) — ver descrição completa em conversa.
-Depois: **Fase 6 — Edge Explorer**
+**Tweaks pendentes (2026-03-29)** — implementar o conjunto abaixo antes de avançar para Fase 6.
+
+---
+
+## Tweaks pendentes — implementar a seguir
+
+### 1. Review de Trade — Redesign completo
+
+**REMOVER** do review:
+- Tabs separadas (Notas / Prints / Confluências / Erros)
+- NQ Scale
+- Process Score
+- Hold Time
+- "Contexto da Sessão"
+
+**NOVO LAYOUT — painel direito (numa página só, de cima para baixo):**
+
+```
+┌─────────────────────────────────────────┐
+│ 📸 PRINTS DO SETUP                      │
+│ [zona de upload — drag & drop]          │
+│ [thumbnails com X para remover]         │
+├─────────────────────────────────────────┤
+│ 📝 TRADE RECAP                          │
+│ [textarea livre]                        │
+│ Placeholder: "Descreve o que viste —    │
+│ orderflow, porque entraste, lições..."  │
+├─────────────────────────────────────────┤
+│ ⚠ ERROS (opcional)                      │
+│ [textarea livre — pequena]              │
+│ Placeholder: "O que correu mal..."      │
+│ Se vazio não mostra nada no review      │
+└─────────────────────────────────────────┘
+```
+
+**PAINEL ESQUERDO — manter mas simplificar:**
+- Remover Process Score, NQ Scale, Hold Time, Contexto da Sessão
+- Adicionar secção CONFLUÊNCIAS directamente no painel esquerdo (abaixo do R-Multiple):
+  - Chips das confluências seleccionáveis
+  - Botão "+ Nova confluência" que abre mini form inline:
+    `[nome] [cor (color picker)] [tem S/R? toggle]`
+  - Guardar em Supabase tabela `custom_confluences`
+  - Aparecer na lista junto com as confluências base existentes
+- Entry e Exit: preencher automaticamente com os valores do CSV (já existem no import)
+
+**CAMPOS STOP LOSS E TAKE PROFIT — mudar para ticks:**
+- Label: "Stop Loss (ticks)" e "Take Profit (ticks)"
+- Input em ticks (número inteiro)
+- Calcular e mostrar automaticamente o valor em $:
+  - MNQ: ticks × $0.50 × qty
+  - NQ:  ticks × $5.00 × qty
+  - MCL: ticks × $1.00 × qty (Micro Crude Oil)
+  - CL:  ticks × $10.00 × qty (Crude Oil)
+- Mostrar abaixo do input: "= $X.XX"
+- Campo Risco ($) mantém-se mas é calculado automaticamente a partir do Stop em ticks
+
+**TIPOGRAFIA:**
+- Aumentar font-size geral da app em 1-2px
+- Labels mais visíveis — usar `--text` em vez de `--hint`
+- Mais espaçamento entre secções no painel esquerdo
+
+---
+
+### 2. Pré-sessão — Simplificar eventos macro
+
+Nos eventos macro do dia, quando o utilizador clica num evento (ex: NFP, CPI, FOMC...),
+em vez de mostrar campos Actual/Forecast/Bullish/Bearish, mostrar apenas:
+
+```
+┌─────────────────────────────────────┐
+│ NFP  HIGH                        ✕  │
+│ ┌─────────────────────────────────┐ │
+│ │ Ex: Se abaixo 150k → USD fraco  │ │
+│ │ → potencial spike bullish NQ    │ │
+│ └─────────────────────────────────┘ │
+└─────────────────────────────────────┘
+```
+
+- Textarea pequena por evento para previsão livre
+- Sem Actual, Forecast, Bullish/Bearish buttons
+- Guardar como texto no campo `note` do evento
+
+**Adicionar aos eventos rápidos:**
+- "Retail Sales"
+- "Fed Chair Speaks" (substituir "Fed Speaker")
+- "President Speaks"
+- "Average Hourly Earnings"
+
+---
+
+### 3. Pré-sessão — Ligação automática ao Diário
+
+No Diário, quando se expande um dia, mostrar no topo:
+- Badge Bias + Badge Fed + Badge Sentiment
+- Primeiras 100 chars do Game Plan
+- Link "Ver pré-sessão completa →" que navega para tab Pré-sessão com esse dia seleccionado
+- Se não há pré-sessão: "○ Sem pré-sessão — clica para preencher →" com link para a tab
+
+---
+
+### 4. Diário — Remover botão Contexto
+
+Remover o botão "Contexto" de cada card do Diário — substituído pela ligação automática do ponto 3.
+
+---
+
+### 5. Reports — Remover tab Tempo
+
+Remover completamente a sub-tab "⏱ Tempo" dos Reports.
+Motivo: o CSV do Deepcharts não exporta hora, por isso não há dados para analisar.
+
+---
+
+### 6. Geral — Botão Limpar tudo
+
+Adicionar botão "🗑 Limpar tudo" nas definições (junto ao Backup/Restaurar).
+
+**Dupla confirmação:**
+1. Modal: "Tens a certeza? Esta acção apaga TODAS as trades e sessões." → [Cancelar] [Continuar]
+2. Input de texto: "Escreve CONFIRMAR para continuar" — botão só activa quando texto está correcto
+
+**Apaga:** todas as trades do Supabase e localStorage para esta conta.
+**NÃO apaga:** sessões de pré-sessão, contas, configurações.
+
+---
+
+### Migration Supabase necessária
+
+```sql
+-- Tabela para confluências custom do utilizador
+CREATE TABLE IF NOT EXISTS custom_confluences (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id),
+  account_id TEXT,
+  label TEXT NOT NULL,
+  color TEXT NOT NULL DEFAULT '#5b8fff',
+  has_sr BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE custom_confluences ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "user_own" ON custom_confluences
+  USING (user_id = auth.uid());
+
+-- Adicionar campos ticks às trades
+ALTER TABLE trades
+ADD COLUMN IF NOT EXISTS stop_ticks INTEGER,
+ADD COLUMN IF NOT EXISTS tp_ticks INTEGER;
+```
+
+---
+
+## Fase 6 — Edge Explorer (depois dos tweaks acima)
 
 Criar nova sub-tab nos Reports com EV, Win Rate e Profit Factor por:
 - Confluência (cada uma das 10)
