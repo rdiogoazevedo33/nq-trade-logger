@@ -363,6 +363,71 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .macro-impact-btn.xbull.on{background:#041205;border-color:#00ff88;color:#00ff88}
 .macro-impact-btn.xbear.on{background:#1a0404;border-color:#ff2222;color:#ff2222}
 
+/* PS LAYOUT 2-COLUNAS */
+.ps-layout{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+@media(max-width:720px){.ps-layout{grid-template-columns:1fr}}
+.ps-pilar-profile{background:color-mix(in srgb,var(--accent) 4%,var(--s1));border:1px solid color-mix(in srgb,var(--accent) 20%,var(--b1))}
+.ps-pilar-macro{background:color-mix(in srgb,var(--amber) 4%,var(--s1));border:1px solid color-mix(in srgb,var(--amber) 20%,var(--b1))}
+
+/* PS UPLOAD ZONE */
+.ps-upload-zone{border:2px dashed var(--b2);border-radius:11px;padding:22px 16px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:10px}
+.ps-upload-zone:hover,.ps-upload-zone.drag{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 5%,transparent)}
+.ps-upload-zone-txt{font-size:11px;font-family:var(--mono);color:var(--hint)}
+.ps-thumb-grid{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+.ps-thumb{position:relative;width:90px;height:66px;border-radius:8px;overflow:hidden;border:1px solid var(--b1)}
+.ps-thumb img{width:100%;height:100%;object-fit:cover;cursor:pointer}
+.ps-thumb-rm{position:absolute;top:3px;right:3px;background:#000000bb;border:none;color:#fff;cursor:pointer;font-size:10px;border-radius:4px;width:18px;height:18px;display:flex;align-items:center;justify-content:center;line-height:1}
+.ps-thumb-rm:hover{background:var(--red)}
+
+/* PS PROFILE BIAS */
+.ps-pbias-btn{font-family:var(--mono);font-size:11px;padding:6px 11px;border-radius:7px;border:1px solid var(--b1);background:var(--s2);cursor:pointer;color:var(--sub);transition:all .15s}
+.ps-pbias-btn.bull.on{background:#071f0f;border-color:var(--green);color:var(--green)}
+.ps-pbias-btn.bear.on{background:#1f0707;border-color:var(--red);color:var(--red)}
+.ps-pbias-btn.neut.on{background:var(--s3);border-color:var(--sub);color:var(--text)}
+
+/* PS COLLAPSIBLE */
+.ps-collapse-hdr{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:8px 0;border-bottom:1px solid var(--b1);margin-bottom:10px;user-select:none;transition:color .13s}
+.ps-collapse-hdr:hover .ps-collapse-title{color:var(--text)}
+.ps-collapse-title{font-size:10px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--hint);display:flex;align-items:center;gap:6px}
+.ps-collapse-filled{width:6px;height:6px;border-radius:50%;background:var(--amber);display:none}
+.ps-collapse-filled.show{display:inline-block}
+.ps-collapse-arrow{font-size:10px;color:var(--hint);transition:transform .18s}
+.ps-collapse-arrow.open{transform:rotate(180deg)}
+.ps-collapse-body{overflow:hidden;transition:max-height .22s ease}
+
+/* EDGE EXPLORER */
+.ee-filter-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:9px 13px;margin-bottom:14px}
+.ee-filter-lbl{font-size:10px;font-family:var(--mono);color:var(--hint)}
+.ee-pill{font-family:var(--mono);font-size:11px;padding:4px 11px;border-radius:6px;border:1px solid var(--b1);background:var(--s3);color:var(--sub);cursor:pointer;transition:all .13s}
+.ee-pill.on{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--s3))}
+.ee-min-in{font-family:var(--mono);font-size:11px;background:var(--s3);border:1px solid var(--b1);border-radius:6px;color:var(--text);padding:4px 8px;outline:none;width:55px}
+.ee-min-in:focus{border-color:var(--accent)}
+.ee-sec-title{font-size:11px;font-family:var(--mono);font-weight:600;color:var(--text);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--b1)}
+.ee-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px}
+.ee-table th{font-family:var(--mono);font-size:10px;color:var(--hint);text-align:left;padding:6px 8px;border-bottom:1px solid var(--b1);font-weight:500;white-space:nowrap}
+.ee-table th.r{text-align:right}
+.ee-table td{padding:7px 8px;border-bottom:1px solid color-mix(in srgb,var(--b1) 50%,transparent);font-family:var(--mono);font-size:11px;vertical-align:middle}
+.ee-table td.r{text-align:right}
+.ee-table tr:hover td{background:var(--s2)}
+.ee-table tr.insuff td{opacity:.4}
+.ee-row-pos{background:color-mix(in srgb,var(--green) 5%,transparent)}
+.ee-row-neg{background:color-mix(in srgb,var(--red) 5%,transparent)}
+.ee-hm-wrap{overflow-x:auto;margin-bottom:16px}
+.ee-hm{border-collapse:collapse;font-size:11px;font-family:var(--mono);min-width:500px}
+.ee-hm th{padding:5px 8px;font-size:10px;color:var(--hint);font-weight:500;white-space:nowrap;border-bottom:1px solid var(--b1)}
+.ee-hm td{padding:6px 8px;text-align:center;border:1px solid var(--b1);min-width:56px;cursor:default;font-size:11px;font-weight:600}
+.ee-hm td.hm-empty{background:var(--s2);color:var(--hint);font-weight:400;font-size:10px}
+.ee-hm td.hm-hi{background:color-mix(in srgb,var(--green) 25%,var(--s2));color:#e0fff0}
+.ee-hm td.hm-mid{background:color-mix(in srgb,var(--green) 12%,var(--s2));color:var(--green)}
+.ee-hm td.hm-neut{background:var(--s2);color:var(--sub)}
+.ee-hm td.hm-lo{background:color-mix(in srgb,var(--red) 12%,var(--s2));color:var(--red)}
+.ee-hm td.hm-vlo{background:color-mix(in srgb,var(--red) 25%,var(--s2));color:#ffe0e0}
+.ee-hm td.hm-insuff{background:var(--s3);color:var(--hint);font-size:9px;font-weight:400}
+.ee-setup-card{background:var(--s1);border:1px solid var(--b1);border-radius:11px;padding:13px;margin-bottom:8px}
+.ee-setup-label{font-size:12px;font-weight:600;color:var(--text);margin-bottom:6px}
+.ee-conf-bar{height:5px;border-radius:3px;background:var(--b1);margin-top:8px;overflow:hidden}
+.ee-conf-bar-fill{height:100%;border-radius:3px;background:var(--accent)}
+
 /* DAY REVIEW SUMMARY (calendar day header) */
 .day-summary{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:14px 16px;margin-bottom:14px}
 .day-summary-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
@@ -595,6 +660,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
           <button class="rit-btn" onclick="setReportTab('winsloss',this)">Wins vs Losses</button>
           <button class="rit-btn" onclick="setReportTab('calendar',this)">Calendário</button>
           <button class="rit-btn" onclick="setReportTab('time',this)">⏱ Tempo</button>
+          <button class="rit-btn" onclick="setReportTab('edge',this)">🔍 Edge Explorer</button>
         </div>
         <div id="report-scope-row" style="display:flex;gap:5px;flex-wrap:wrap"></div>
         <button class="btn btn-ghost btn-sm" style="color:var(--purple);margin-left:auto" onclick="analyzeEdgeWithClaude()">✦ Edge Finder</button>
@@ -664,140 +730,141 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
         <button class="btn btn-accent btn-sm" onclick="savePS()" style="padding:7px 18px;font-size:12px">Guardar sessão</button>
       </div>
 
-      <!-- PILAR 1: PROFILE FRAMING -->
-      <div class="ps-pilar ps-pilar-profile">
-        <div class="ps-pilar-title">Pilar 1 — Profile Framing</div>
-        <div class="ps-pilar-sub">Volume Profile RTH · Sessão NY (9:30–16:00 ET)</div>
+      <!-- 2-COLUMN LAYOUT -->
+      <div class="ps-layout">
 
-        <!-- POC grid -->
-        <div class="ps-field-lbl">Pontos de Controlo (POC)</div>
-        <div class="ps-poc-grid">
-          <div>
-            <div style="font-size:9px;font-family:var(--mono);color:var(--hint);margin-bottom:4px">POC Diário</div>
-            <input type="number" class="ps-num-input" id="ps-poc-daily" placeholder="—" step="0.25">
+        <!-- PILAR 1: PROFILE FRAMING -->
+        <div class="ps-pilar ps-pilar-profile">
+          <div class="ps-pilar-title" style="color:var(--accent)">Pilar 1 — Profile Framing</div>
+          <div class="ps-pilar-sub">Deepcharts · Volume Profile RTH</div>
+
+          <!-- Upload prints -->
+          <div class="ps-field-lbl">Prints do Deepcharts</div>
+          <div class="ps-thumb-grid" id="ps-screenshot-grid"></div>
+          <div class="ps-upload-zone" id="ps-upload-zone" onclick="document.getElementById('ps-file-input').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="psDrop(event)">
+            <div style="font-size:20px;opacity:.3;margin-bottom:6px">📊</div>
+            <div class="ps-upload-zone-txt">Arrasta o print do Deepcharts com os níveis marcados<br><span style="color:var(--hint);font-size:10px">ou clica para seleccionar (múltiplos)</span></div>
           </div>
-          <div>
-            <div style="font-size:9px;font-family:var(--mono);color:var(--hint);margin-bottom:4px">POC Semanal</div>
-            <input type="number" class="ps-num-input" id="ps-poc-weekly" placeholder="—" step="0.25">
+          <input type="file" id="ps-file-input" accept="image/*" multiple style="display:none" onchange="psFilesSelected(this.files)">
+
+          <!-- Profile bias -->
+          <div class="ps-field-lbl" style="margin-top:12px">Estrutura do Profile</div>
+          <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+            <button class="ps-pbias-btn bull" onclick="setPSProfileBias('Bullish estrutura',this)">▲ Bullish estrutura</button>
+            <button class="ps-pbias-btn bear" onclick="setPSProfileBias('Bearish estrutura',this)">▼ Bearish estrutura</button>
+            <button class="ps-pbias-btn neut" onclick="setPSProfileBias('Neutro/Range',this)">— Neutro/Range</button>
           </div>
-          <div>
-            <div style="font-size:9px;font-family:var(--mono);color:var(--hint);margin-bottom:4px">POC 3M Composto</div>
-            <input type="number" class="ps-num-input" id="ps-poc-3m" placeholder="—" step="0.25">
+
+          <!-- Profile notes -->
+          <div class="ps-field-lbl">Leitura do Profile</div>
+          <textarea class="ps-ta" id="ps-profile-notes" style="min-height:120px" placeholder="Ex: POC em 24450, VAH em 24800. HVN forte em 24600 espero actue como suporte. LVN em 24350 zona de aceleração. Delta anomaly buy em 24580..."></textarea>
+        </div>
+
+        <!-- PILAR 2: MACRO & FUNDAMENTAL -->
+        <div class="ps-pilar ps-pilar-macro">
+          <div class="ps-pilar-title" style="color:var(--amber)">Pilar 2 — Macro &amp; Fundamental</div>
+          <div class="ps-pilar-sub">Contexto macroeconómico e fundamentais do dia</div>
+
+          <!-- Bias -->
+          <div class="ps-field-lbl">Bias do dia</div>
+          <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
+            <button class="ps-bias-btn bull" onclick="setPSBias('Bullish',this)">▲ Bullish</button>
+            <button class="ps-bias-btn bear" onclick="setPSBias('Bearish',this)">▼ Bearish</button>
+            <button class="ps-bias-btn neut" onclick="setPSBias('Neutro',this)">— Neutro</button>
+            <button class="ps-bias-btn caut" onclick="setPSBias('Cauteloso',this)">⚠ Cauteloso</button>
           </div>
-        </div>
 
-        <!-- VAH / VAL -->
-        <div class="ps-field-lbl">Value Area</div>
-        <div class="ps-vah-grid">
-          <div>
-            <div style="font-size:9px;font-family:var(--mono);color:var(--hint);margin-bottom:4px">VAH (Value Area High)</div>
-            <input type="number" class="ps-num-input" id="ps-vah" placeholder="—" step="0.25">
+          <!-- Eventos macro (expandido por default) -->
+          <div class="ps-collapse-hdr" onclick="togglePSCollapse('ps-col-events',this)">
+            <div class="ps-collapse-title">
+              <span class="ps-collapse-filled" id="ps-col-events-dot"></span>
+              📅 Eventos macro do dia
+            </div>
+            <span class="ps-collapse-arrow open" id="ps-col-events-arrow">▼</span>
           </div>
-          <div>
-            <div style="font-size:9px;font-family:var(--mono);color:var(--hint);margin-bottom:4px">VAL (Value Area Low)</div>
-            <input type="number" class="ps-num-input" id="ps-val" placeholder="—" step="0.25">
+          <div class="ps-collapse-body" id="ps-col-events" style="max-height:2000px">
+            <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">
+              <span style="font-size:9px;font-family:var(--mono);color:var(--hint);align-self:center;margin-right:3px">Adicionar:</span>
+              <button class="ps-predef-event" onclick="addPSEventPredef('FOMC')">FOMC</button>
+              <button class="ps-predef-event" onclick="addPSEventPredef('CPI')">CPI</button>
+              <button class="ps-predef-event" onclick="addPSEventPredef('PPI')">PPI</button>
+              <button class="ps-predef-event" onclick="addPSEventPredef('NFP')">NFP</button>
+              <button class="ps-predef-event" onclick="addPSEventPredef('GDP')">GDP</button>
+              <button class="ps-predef-event" onclick="addPSEventPredef('PMI')">PMI</button>
+              <button class="ps-predef-event" onclick="addPSEventPredef('JOLTS')">JOLTS</button>
+              <button class="ps-predef-event" onclick="addPSEventPredef('Jobless Claims')">Jobless Claims</button>
+              <button class="ps-predef-event" onclick="addPSEventPredef('Fed Speaker')">Fed Speaker</button>
+              <button class="ps-predef-event" onclick="addMacroEvent()">+ Manual</button>
+            </div>
+            <div id="macro-events-list" style="margin-bottom:10px"></div>
           </div>
-        </div>
 
-        <!-- HVN -->
-        <div class="ps-field-lbl" style="margin-top:10px">HVN — High Volume Nodes</div>
-        <div class="ps-dyn-list" id="ps-hvn-list"></div>
-        <button class="ps-add-btn" onclick="addPSLevel('hvn')">+ Adicionar HVN</button>
+          <!-- Fed (colapsado) -->
+          <div class="ps-collapse-hdr" onclick="togglePSCollapse('ps-col-fed',this)">
+            <div class="ps-collapse-title">
+              <span class="ps-collapse-filled" id="ps-col-fed-dot"></span>
+              🏦 Fed Narrative + Contexto
+            </div>
+            <span class="ps-collapse-arrow" id="ps-col-fed-arrow">▼</span>
+          </div>
+          <div class="ps-collapse-body" id="ps-col-fed" style="max-height:0;overflow:hidden">
+            <div style="padding-top:4px">
+              <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">
+                <button class="fed-btn hawk" onclick="setFed('Hawkish',this)">🔴 Hawkish</button>
+                <button class="fed-btn nhawk" onclick="setFed('Neutral to Hawkish',this)">🟠 Neutral to Hawkish</button>
+                <button class="fed-btn neut" onclick="setFed('Neutral',this)">⚪ Neutral</button>
+                <button class="fed-btn ndove" onclick="setFed('Neutral to Dovish',this)">🔵 Neutral to Dovish</button>
+                <button class="fed-btn dove" onclick="setFed('Dovish',this)">🟢 Dovish</button>
+              </div>
+              <textarea class="ps-ta" id="ps-fed-ctx" style="min-height:52px;margin-bottom:14px" placeholder="Ex: Boa notícia de emprego mas Fed mantém posição neutral — inflação ainda acima do target. Mercado a priceiar cut em Junho..."></textarea>
+            </div>
+          </div>
 
-        <!-- LVN -->
-        <div class="ps-field-lbl" style="margin-top:12px">LVN — Low Volume Nodes</div>
-        <div class="ps-dyn-list" id="ps-lvn-list"></div>
-        <button class="ps-add-btn" onclick="addPSLevel('lvn')">+ Adicionar LVN</button>
+          <!-- Sentiment (colapsado) -->
+          <div class="ps-collapse-hdr" onclick="togglePSCollapse('ps-col-sent',this)">
+            <div class="ps-collapse-title">
+              <span class="ps-collapse-filled" id="ps-col-sent-dot"></span>
+              📊 Sentiment + Capital Flow + DXY/VIX/US2Y
+            </div>
+            <span class="ps-collapse-arrow" id="ps-col-sent-arrow">▼</span>
+          </div>
+          <div class="ps-collapse-body" id="ps-col-sent" style="max-height:0;overflow:hidden">
+            <div style="padding-top:4px">
+              <div class="ps-field-lbl">Sentiment de mercado</div>
+              <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+                <button class="ps-sent-btn" id="sent-ron" onclick="setPSSentiment('Risk-On',this)">✦ Risk-On</button>
+                <button class="ps-sent-btn" id="sent-roff" onclick="setPSSentiment('Risk-Off',this)">✦ Risk-Off</button>
+                <button class="ps-sent-btn" id="sent-neut" onclick="setPSSentiment('Neutro',this)">— Neutro</button>
+              </div>
+              <div class="ps-field-lbl">Narrativa de sentiment / volatilidade</div>
+              <textarea class="ps-ta" id="ps-sentiment-narrative" style="min-height:52px;margin-bottom:10px" placeholder="Ex: VIX abaixo de 20 — regime de baixa volatilidade. DXY a enfraquecer suporta NQ..."></textarea>
+              <div class="ps-field-lbl">Capital Flow</div>
+              <textarea class="ps-ta" id="ps-capital-flow" style="min-height:44px;margin-bottom:10px" placeholder="Ex: USD fraco, bonds estáveis, rotação para growth, tech sector líder..."></textarea>
+              <div class="ps-field-lbl">DXY · VIX · US2Y — Contexto</div>
+              <textarea class="ps-ta" id="ps-dxy-vix-narrative" style="min-height:44px;margin-bottom:10px" placeholder="Ex: DXY recua abaixo de 103, VIX em 18 (Low Vol), US2Y estável..."></textarea>
+            </div>
+          </div>
 
-        <!-- Delta Anomalies -->
-        <div class="ps-field-lbl" style="margin-top:12px">Delta Anomalies</div>
-        <div class="ps-dyn-list" id="ps-delta-list"></div>
-        <button class="ps-add-btn" onclick="addPSDelta()">+ Adicionar Delta Anomaly</button>
+          <!-- Geopolitics (colapsado) -->
+          <div class="ps-collapse-hdr" onclick="togglePSCollapse('ps-col-geo',this)">
+            <div class="ps-collapse-title">
+              <span class="ps-collapse-filled" id="ps-col-geo-dot"></span>
+              🌍 Geopolítica
+            </div>
+            <span class="ps-collapse-arrow" id="ps-col-geo-arrow">▼</span>
+          </div>
+          <div class="ps-collapse-body" id="ps-col-geo" style="max-height:0;overflow:hidden">
+            <div style="padding-top:4px">
+              <textarea class="ps-ta" id="ps-geopolitics" style="min-height:52px" placeholder="Ex: Iran conflict a pressionar oil, risk-off sentiment no Asia session..."></textarea>
+            </div>
+          </div>
 
-        <!-- Supply / Demand Zones -->
-        <div class="ps-field-lbl" style="margin-top:12px">Supply / Demand Zones</div>
-        <div class="ps-dyn-list" id="ps-sdzone-list"></div>
-        <button class="ps-add-btn" onclick="addPSSDZone()">+ Adicionar Zona</button>
+        </div><!-- end pilar-2 -->
+      </div><!-- end ps-layout -->
 
-        <!-- S/R Levels -->
-        <div class="ps-field-lbl" style="margin-top:12px">Níveis de Suporte / Resistência</div>
-        <div class="ps-dyn-list" id="ps-sr-list"></div>
-        <button class="ps-add-btn" onclick="addPSSR()">+ Adicionar Nível S/R</button>
-
-        <!-- Profile Notes -->
-        <div class="ps-field-lbl" style="margin-top:14px">Leitura do Profile</div>
-        <textarea class="ps-ta" id="ps-profile-notes" style="min-height:80px" placeholder="Descreve a leitura geral do volume profile — onde está o value area, que zonas são importantes, se o mercado está em equilíbrio ou desequilíbrio..."></textarea>
-      </div>
-
-      <!-- PILAR 2: MACRO & FUNDAMENTAL -->
-      <div class="ps-pilar ps-pilar-macro">
-        <div class="ps-pilar-title">Pilar 2 — Macro &amp; Fundamental</div>
-        <div class="ps-pilar-sub">Contexto macroeconómico e fundamentais do dia</div>
-
-        <!-- Bias -->
-        <div class="ps-field-lbl">Bias do dia</div>
-        <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
-          <button class="ps-bias-btn bull" onclick="setPSBias('Bullish',this)">▲ Bullish</button>
-          <button class="ps-bias-btn bear" onclick="setPSBias('Bearish',this)">▼ Bearish</button>
-          <button class="ps-bias-btn neut" onclick="setPSBias('Neutro',this)">— Neutro</button>
-          <button class="ps-bias-btn caut" onclick="setPSBias('Cauteloso',this)">⚠ Cauteloso</button>
-        </div>
-
-        <!-- Fed Narrative -->
-        <div class="ps-field-lbl">Fed Narrative</div>
-        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">
-          <button class="fed-btn hawk" onclick="setFed('Hawkish',this)">🔴 Hawkish</button>
-          <button class="fed-btn nhawk" onclick="setFed('Neutral to Hawkish',this)">🟠 Neutral to Hawkish</button>
-          <button class="fed-btn neut" onclick="setFed('Neutral',this)">⚪ Neutral</button>
-          <button class="fed-btn ndove" onclick="setFed('Neutral to Dovish',this)">🔵 Neutral to Dovish</button>
-          <button class="fed-btn dove" onclick="setFed('Dovish',this)">🟢 Dovish</button>
-        </div>
-        <div class="ps-field-lbl">Contexto Fed</div>
-        <textarea class="ps-ta" id="ps-fed-ctx" style="min-height:52px;margin-bottom:14px" placeholder="Ex: Boa notícia de emprego mas Fed mantém posição neutral — inflação ainda acima do target. Mercado a priceiar cut em Junho..."></textarea>
-
-        <!-- Sentiment -->
-        <div class="ps-field-lbl">Sentiment de mercado</div>
-        <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
-          <button class="ps-sent-btn" id="sent-ron" onclick="setPSSentiment('Risk-On',this)">✦ Risk-On</button>
-          <button class="ps-sent-btn" id="sent-roff" onclick="setPSSentiment('Risk-Off',this)">✦ Risk-Off</button>
-          <button class="ps-sent-btn" id="sent-neut" onclick="setPSSentiment('Neutro',this)">— Neutro</button>
-        </div>
-        <div class="ps-field-lbl">Narrativa de sentiment / volatilidade</div>
-        <textarea class="ps-ta" id="ps-sentiment-narrative" style="min-height:60px;margin-bottom:14px" placeholder="Ex: VIX abaixo de 20 — regime de baixa volatilidade, espero swings mais pequenos. DXY a enfraquecer suporta NQ. US2Y estável não pressiona tech..."></textarea>
-
-        <!-- Capital Flow -->
-        <div class="ps-field-lbl">Capital Flow</div>
-        <textarea class="ps-ta" id="ps-capital-flow" style="min-height:48px;margin-bottom:14px" placeholder="Ex: USD fraco, bonds estáveis, rotação de defensivos para growth, tech sector líder..."></textarea>
-
-        <!-- DXY/VIX/US2Y narrative -->
-        <div class="ps-field-lbl">DXY · VIX · US2Y — Contexto</div>
-        <textarea class="ps-ta" id="ps-dxy-vix-narrative" style="min-height:48px;margin-bottom:14px" placeholder="Ex: DXY recua abaixo de 103, VIX em 18 (Low Vol), US2Y estável — conjunto favorável para longs no NQ..."></textarea>
-
-        <!-- Macro Events -->
-        <div class="ps-field-lbl" style="margin-bottom:8px">Eventos macro do dia</div>
-        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">
-          <span style="font-size:9px;font-family:var(--mono);color:var(--hint);align-self:center;margin-right:3px">Adicionar:</span>
-          <button class="ps-predef-event" onclick="addPSEventPredef('FOMC')">FOMC</button>
-          <button class="ps-predef-event" onclick="addPSEventPredef('CPI')">CPI</button>
-          <button class="ps-predef-event" onclick="addPSEventPredef('PPI')">PPI</button>
-          <button class="ps-predef-event" onclick="addPSEventPredef('NFP')">NFP</button>
-          <button class="ps-predef-event" onclick="addPSEventPredef('GDP')">GDP</button>
-          <button class="ps-predef-event" onclick="addPSEventPredef('PMI')">PMI</button>
-          <button class="ps-predef-event" onclick="addPSEventPredef('JOLTS')">JOLTS</button>
-          <button class="ps-predef-event" onclick="addPSEventPredef('Jobless Claims')">Jobless Claims</button>
-          <button class="ps-predef-event" onclick="addPSEventPredef('Fed Speaker')">Fed Speaker</button>
-          <button class="ps-predef-event" onclick="addMacroEvent()">+ Manual</button>
-        </div>
-        <div id="macro-events-list" style="margin-bottom:10px"></div>
-
-        <!-- Geopolitics -->
-        <div class="ps-field-lbl">Geopolítica</div>
-        <textarea class="ps-ta" id="ps-geopolitics" style="min-height:48px" placeholder="Ex: Iran conflict a pressionar oil, risk-off sentiment no Asia session..."></textarea>
-      </div>
-
-      <!-- GAME PLAN -->
+      <!-- GAME PLAN (abaixo dos 2 pilares) -->
       <div class="ps-gameplan-wrap">
-        <div class="ps-gameplan-title">Narrativa &amp; Game Plan do dia</div>
+        <div class="ps-gameplan-title">📋 Narrativa &amp; Game Plan do dia</div>
         <div class="ps-gameplan-sub">Resume tudo — o que o profile diz, o que o macro diz, qual o bias e porquê, o que procuras para entrar, o que invalida o setup</div>
         <textarea class="ps-ta" id="ps-narrative" style="min-height:120px" placeholder="Resume tudo — o que o profile diz, o que o macro diz, qual o bias e porquê, o que procuras para entrar, o que invalida o setup..."></textarea>
       </div>
@@ -1136,7 +1203,7 @@ let accounts = [], curAcct = null, allT = {}, psData = {};
 let curDate = "", scope = "all", calY = 0, calM = 0, dashPeriod = "month";
 let modalId = null, modalDayIds = [];
 let rvDate = "", rvIdx = 0;
-let psBias = "", psFed = "", psSentiment = "", psDate = "";
+let psBias = "", psFed = "", psSentiment = "", psDate = "", psProfileBias = "";
 
 function loadData() {
   try { accounts = JSON.parse(localStorage.getItem(SK_A) || "[]"); } catch(e) { accounts = []; }
@@ -1881,21 +1948,22 @@ function loadPSDate(d) {
   if (psSentiment === 'Risk-On') { const b = document.getElementById('sent-ron'); if (b) b.classList.add('on-ron'); }
   else if (psSentiment === 'Risk-Off') { const b = document.getElementById('sent-roff'); if (b) b.classList.add('on-roff'); }
   else if (psSentiment === 'Neutro') { const b = document.getElementById('sent-neut'); if (b) b.classList.add('on-neut'); }
-  // POC / VAH / VAL
-  const numF = id => { const el = document.getElementById(id); if (el) el.value = ctx[id.replace('ps-','').replace(/-/g,'_')] != null ? ctx[id.replace('ps-','').replace(/-/g,'_')] : ''; };
-  const fmap = {'ps-poc-daily':'poc_daily','ps-poc-weekly':'poc_weekly','ps-poc-3m':'poc_3m','ps-vah':'vah','ps-val':'val'};
-  Object.entries(fmap).forEach(([id, key]) => { const el = document.getElementById(id); if (el) el.value = ctx[key] != null ? ctx[key] : ''; });
   // Textareas
   const taMap = {'ps-fed-ctx':'fedCtx','ps-profile-notes':'profile_notes','ps-sentiment-narrative':'sentiment_narrative','ps-capital-flow':'capital_flow','ps-dxy-vix-narrative':'dxy_vix_narrative','ps-geopolitics':'geopolitics','ps-narrative':'narrative'};
   Object.entries(taMap).forEach(([id, key]) => { const el = document.getElementById(id); if (el) el.value = ctx[key] || ''; });
-  // Dynamic lists
-  renderPSLevelList('hvn', d);
-  renderPSLevelList('lvn', d);
-  renderPSDeltaList(d);
-  renderPSSDZoneList(d);
-  renderPSSRList(d);
+  // Profile bias buttons
+  psProfileBias = ctx.profile_bias || '';
+  document.querySelectorAll('.ps-pbias-btn').forEach(b => { b.classList.remove('on'); if (psProfileBias && b.textContent.trim() === psProfileBias) b.classList.add('on'); });
+  // Profile screenshots
+  renderPSScreenshots(d);
   // Macro events
   renderMacroEvents(d);
+  // Collapsible dots (filled indicator)
+  const setDot = (id, val) => { const el = document.getElementById(id); if (el) el.classList.toggle('show', !!val); };
+  setDot('ps-col-events-dot', ctx.macroEvents?.length);
+  setDot('ps-col-fed-dot', ctx.fed || ctx.fedCtx);
+  setDot('ps-col-sent-dot', ctx.sentiment || ctx.sentiment_narrative || ctx.capital_flow || ctx.dxy_vix_narrative);
+  setDot('ps-col-geo-dot', ctx.geopolitics);
   updatePSStatusBadge();
   renderPSHist();
 }
@@ -1917,6 +1985,78 @@ function setPSSentiment(v, btn) {
   else if (v === 'Risk-Off') btn.classList.add('on-roff');
   else btn.classList.add('on-neut');
 }
+function setPSProfileBias(v, btn) {
+  psProfileBias = (psProfileBias === v) ? '' : v;
+  document.querySelectorAll('.ps-pbias-btn').forEach(b => b.classList.remove('on'));
+  if (psProfileBias) btn.classList.add('on');
+}
+
+// ─── Collapsible sections ─────────────────────
+function togglePSCollapse(id, hdr) {
+  const body = document.getElementById(id); if (!body) return;
+  const arrow = hdr.querySelector('.ps-collapse-arrow');
+  const isOpen = body.style.maxHeight !== '0px' && body.style.maxHeight !== '';
+  if (isOpen) {
+    body.style.maxHeight = '0px';
+    body.style.overflow = 'hidden';
+    if (arrow) arrow.classList.remove('open');
+  } else {
+    body.style.maxHeight = '2000px';
+    body.style.overflow = 'visible';
+    if (arrow) arrow.classList.add('open');
+  }
+}
+
+// ─── Profile Screenshots ─────────────────────
+function renderPSScreenshots(d) {
+  const grid = document.getElementById('ps-screenshot-grid'); if (!grid) return;
+  const shots = (psData[d] || {}).profile_screenshots || [];
+  if (!shots.length) { grid.innerHTML = ''; return; }
+  grid.innerHTML = shots.map((src, i) =>
+    '<div class="ps-thumb">' +
+    '<img src="' + src + '" onclick="openPSImg(\'' + src.replace(/'/g,"\\'") + '\')" title="Clica para ver em tamanho completo">' +
+    '<button class="ps-thumb-rm" onclick="removePSScreenshot(\'' + d + '\',' + i + ')">✕</button>' +
+    '</div>'
+  ).join('');
+}
+function openPSImg(src) {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:#000000ee;z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out';
+  const img = document.createElement('img');
+  img.src = src;
+  img.style.cssText = 'max-width:95vw;max-height:95vh;border-radius:10px;box-shadow:0 0 40px #0008';
+  overlay.appendChild(img);
+  overlay.onclick = () => overlay.remove();
+  document.body.appendChild(overlay);
+}
+function removePSScreenshot(d, i) {
+  if (!psData[d]?.profile_screenshots) return;
+  psData[d].profile_screenshots.splice(i, 1);
+  savePSData();
+  renderPSScreenshots(d);
+}
+function psFilesSelected(files) {
+  if (!files?.length) return;
+  const d = psDate || todayISO();
+  ensurePSDate(d);
+  if (!psData[d].profile_screenshots) psData[d].profile_screenshots = [];
+  let loaded = 0;
+  Array.from(files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      psData[d].profile_screenshots.push(e.target.result);
+      loaded++;
+      if (loaded === files.length) { savePSData(); renderPSScreenshots(d); }
+    };
+    reader.readAsDataURL(file);
+  });
+  document.getElementById('ps-file-input').value = '';
+}
+function psDrop(e) {
+  e.preventDefault();
+  document.getElementById('ps-upload-zone').classList.remove('drag');
+  psFilesSelected(e.dataTransfer.files);
+}
 
 function savePS() {
   const d = psDate || todayISO();
@@ -1935,17 +2075,20 @@ function savePS() {
     dxy_vix_narrative: g('ps-dxy-vix-narrative'),
     geopolitics: g('ps-geopolitics'),
     narrative: g('ps-narrative'),
-    poc_daily: n(g('ps-poc-daily')),
-    poc_weekly: n(g('ps-poc-weekly')),
-    poc_3m: n(g('ps-poc-3m')),
-    vah: n(g('ps-vah')),
-    val: n(g('ps-val')),
     profile_notes: g('ps-profile-notes'),
+    profile_bias: psProfileBias,
+    profile_screenshots: existing.profile_screenshots || [],
     macroEvents: collectMacroEvents(d),
     // backward compat fields
     justification: g('ps-profile-notes') || existing.justification || '',
     score: existing.score || 50
   };
+  // update dots
+  const setDot = (id, val) => { const el = document.getElementById(id); if (el) el.classList.toggle('show', !!val); };
+  setDot('ps-col-events-dot', psData[d].macroEvents?.length);
+  setDot('ps-col-fed-dot', psData[d].fed || psData[d].fedCtx);
+  setDot('ps-col-sent-dot', psData[d].sentiment || psData[d].sentiment_narrative || psData[d].capital_flow || psData[d].dxy_vix_narrative);
+  setDot('ps-col-geo-dot', psData[d].geopolitics);
   savePSData();
   updatePSStatusBadge();
   renderPSHist();
@@ -3609,6 +3752,7 @@ function renderReports() {
   else if (activeReportTab==='winsloss') el.innerHTML = rptWinsLoss(t);
   else if (activeReportTab==='calendar') el.innerHTML = rptCalendar(t);
   else if (activeReportTab==='time') el.innerHTML = rptTime(t);
+  else if (activeReportTab==='edge') el.innerHTML = rptEdge(t);
 }
 
 function setTimeView(v, btn) {
@@ -3936,6 +4080,259 @@ function rptCalendar(t) {
     html += '</div></div>';
   });
   return '<div class="sec"><div class="sec-title">Calendário anual</div>' + html + '</div>';
+}
+
+// ═══════════════════════════════════════════
+// FASE 6 — EDGE EXPLORER
+// ═══════════════════════════════════════════
+let eeMinN = 5;
+
+function setEdgePeriod(v, btn) {
+  rScope = v;
+  document.querySelectorAll('.ee-pill[data-ep]').forEach(b => b.classList.remove('on'));
+  if (btn) btn.classList.add('on');
+  document.getElementById('reports-body').innerHTML = rptEdge(reportScopedT());
+}
+
+function eeStats(trades) {
+  if (!trades.length) return null;
+  const wins = trades.filter(t => t.pnl > 0);
+  const losses = trades.filter(t => t.pnl < 0);
+  const wr = wins.length / trades.length;
+  const avgWinR = wins.length ? wins.reduce((s,t)=>s+(t.r||0),0)/wins.length : 0;
+  const avgLossR = losses.length ? Math.abs(losses.reduce((s,t)=>s+(t.r||0),0)/losses.length) : 0;
+  const ev = wr * avgWinR - (1-wr) * avgLossR;
+  const totalPnl = trades.reduce((s,t)=>s+t.pnl,0);
+  const totalWins = wins.reduce((s,t)=>s+t.pnl,0);
+  const totalLoss = Math.abs(losses.reduce((s,t)=>s+t.pnl,0));
+  const pf = totalLoss > 0 ? totalWins/totalLoss : totalWins > 0 ? 99 : 0;
+  const avgR = trades.reduce((s,t)=>s+(t.r||0),0)/trades.length;
+  return { n: trades.length, wr, wins: wins.length, losses: losses.length, avgR, ev, totalPnl, pf };
+}
+
+function eeRow(label, st, minN, colorDot) {
+  if (!st || st.n < minN) {
+    return '<tr class="insuff"><td>' + label + '</td><td class="r" colspan="6" style="color:var(--hint);font-size:10px">amostra insuficiente (' + (st ? st.n : 0) + ' trades)</td></tr>';
+  }
+  const wrPct = (st.wr * 100).toFixed(0);
+  const wrColor = st.wr >= 0.65 ? 'var(--green)' : st.wr >= 0.5 ? 'var(--teal)' : st.wr < 0.4 ? 'var(--red)' : 'var(--sub)';
+  const evColor = st.ev > 0.2 ? 'var(--green)' : st.ev > 0 ? 'var(--teal)' : st.ev < 0 ? 'var(--red)' : 'var(--sub)';
+  const pnlColor = st.totalPnl >= 0 ? 'var(--green)' : 'var(--red)';
+  const rowCls = st.ev > 0.1 ? 'ee-row-pos' : st.ev < -0.1 ? 'ee-row-neg' : '';
+  const dot = colorDot ? '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + colorDot + ';margin-right:6px;flex-shrink:0"></span>' : '';
+  return '<tr class="' + rowCls + '">' +
+    '<td>' + dot + label + '</td>' +
+    '<td class="r" style="color:var(--hint)">' + st.n + '</td>' +
+    '<td class="r" style="color:' + wrColor + '">' + wrPct + '%</td>' +
+    '<td class="r" style="color:' + evColor + '">' + (st.ev >= 0 ? '+' : '') + st.ev.toFixed(2) + 'R</td>' +
+    '<td class="r" style="color:var(--sub)">' + (st.avgR >= 0 ? '+' : '') + st.avgR.toFixed(2) + 'R</td>' +
+    '<td class="r" style="color:' + pnlColor + '">' + (st.totalPnl >= 0 ? '+' : '') + '$' + st.totalPnl.toFixed(0) + '</td>' +
+    '<td class="r" style="color:var(--sub)">' + st.pf.toFixed(2) + '</td>' +
+    '</tr>';
+}
+
+function eeTable(title, rows) {
+  return '<div class="ee-sec-title">' + title + '</div>' +
+    '<div style="overflow-x:auto"><table class="ee-table">' +
+    '<thead><tr><th>Dimensão</th><th class="r">N</th><th class="r">Win Rate</th><th class="r">EV</th><th class="r">Avg R</th><th class="r">Total P&L</th><th class="r">PF</th></tr></thead>' +
+    '<tbody>' + rows + '</tbody></table></div>';
+}
+
+function hmClass(wr, n, minN) {
+  if (!n || n < minN) return 'hm-insuff';
+  if (wr >= 0.65) return 'hm-hi';
+  if (wr >= 0.55) return 'hm-mid';
+  if (wr >= 0.45) return 'hm-neut';
+  if (wr >= 0.35) return 'hm-lo';
+  return 'hm-vlo';
+}
+
+function buildHeatmap(title, rowDefs, colDefs, getCellTrades, minN) {
+  let html = '<div class="ee-sec-title">' + title + '</div><div class="ee-hm-wrap"><table class="ee-hm">';
+  html += '<thead><tr><th></th>' + colDefs.map(c => '<th>' + c.label + '</th>').join('') + '</tr></thead><tbody>';
+  rowDefs.forEach(row => {
+    html += '<tr><th style="text-align:left;padding:5px 8px;white-space:nowrap">' + row.label + '</th>';
+    colDefs.forEach(col => {
+      const trades = getCellTrades(row.key, col.key);
+      if (!trades || !trades.length) {
+        html += '<td class="hm-empty">—</td>';
+      } else if (trades.length < minN) {
+        html += '<td class="hm-insuff" title="' + trades.length + ' trades (insuficiente)">' + trades.length + '</td>';
+      } else {
+        const wr = trades.filter(t=>t.pnl>0).length/trades.length;
+        const wrPct = Math.round(wr*100);
+        const ev = eeStats(trades);
+        const cls = hmClass(wr, trades.length, minN);
+        const tip = trades.length + 'T · WR ' + wrPct + '% · EV ' + (ev ? (ev.ev>=0?'+':'')+ev.ev.toFixed(2)+'R' : '—');
+        html += '<td class="' + cls + '" title="' + tip + '">' + wrPct + '%</td>';
+      }
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  return html;
+}
+
+function rptEdge(trades) {
+  if (!trades || !trades.length) {
+    return '<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">Importa trades e preenche confluências para ver o Edge Explorer</div></div>';
+  }
+  const minN = eeMinN;
+
+  // ── Filtro global ──
+  const filterHtml = '<div class="ee-filter-bar">' +
+    '<span class="ee-filter-lbl">Período:</span>' +
+    ['all','month','week'].map((v,i) => {
+      const labels = ['Tudo','30d','7d'];
+      return '<button class="ee-pill' + (rScope===v?' on':'') + '" data-ep="1" onclick="setEdgePeriod(\'' + v + '\',this)">' + labels[i] + '</button>';
+    }).join('') +
+    '<span class="ee-filter-lbl" style="margin-left:8px">Mín. trades/célula:</span>' +
+    '<input class="ee-min-in" type="number" value="' + minN + '" min="1" max="50" onchange="eeMinN=parseInt(this.value)||5;document.getElementById(\'reports-body\').innerHTML=rptEdge(reportScopedT())">' +
+    '</div>';
+
+  // ── Helpers ──
+  function getConfsFromTrade(t) { return parseConfs(t.confluences); }
+  function getCtx(d) { return psData[d] || {}; }
+  function getSlot(t) { return t.time_slot || getTimeSlot(t.time) || 'pre-orb'; }
+
+  // ══ SECÇÃO 1 — POR DIMENSÃO ══
+
+  // Tabela 1 — Por confluência
+  const confGroups = {};
+  trades.forEach(t => {
+    getConfsFromTrade(t).forEach(c => {
+      if (!confGroups[c.id]) confGroups[c.id] = [];
+      confGroups[c.id].push(t);
+    });
+  });
+  const confData = CONFS.map(c => ({ c, st: eeStats(confGroups[c.id]||[]) }))
+    .sort((a,b) => {
+      const ea = a.st ? a.st.ev : -99, eb = b.st ? b.st.ev : -99;
+      return eb - ea;
+    });
+  const confRowsHtml = confData.map(({c, st}) => eeRow(c.label, st, minN, c.color)).join('');
+
+  // Tabela 2 — Por time slot
+  const slotGroups = {};
+  SLOT_ORDER.forEach(k => { slotGroups[k] = []; });
+  trades.forEach(t => { const s = getSlot(t); if (slotGroups[s] !== undefined) slotGroups[s].push(t); });
+  const slotRowsHtml = SLOT_ORDER.map(k => eeRow(SLOT_LABELS[k], eeStats(slotGroups[k]), minN, null)).join('');
+
+  // Tabela 3 — Por bias
+  const BIAS_ORDER = ['Bullish','Bearish','Neutro','Cauteloso','Sem bias'];
+  const biasGroups = {};
+  BIAS_ORDER.forEach(k => { biasGroups[k] = []; });
+  trades.forEach(t => {
+    const b = getCtx(t.date).bias || 'Sem bias';
+    const key = BIAS_ORDER.includes(b) ? b : 'Sem bias';
+    biasGroups[key].push(t);
+  });
+  const biasRowsHtml = BIAS_ORDER.map(k => eeRow(k, eeStats(biasGroups[k]), minN, null)).join('');
+
+  // Tabela 4 — Por Fed
+  const FED_ORDER = ['Hawkish','Neutral to Hawkish','Neutral','Neutral to Dovish','Dovish','Não definido'];
+  const fedGroups = {};
+  FED_ORDER.forEach(k => { fedGroups[k] = []; });
+  trades.forEach(t => {
+    const f = getCtx(t.date).fed || 'Não definido';
+    const key = FED_ORDER.includes(f) ? f : 'Não definido';
+    fedGroups[key].push(t);
+  });
+  const fedRowsHtml = FED_ORDER.map(k => eeRow(k, eeStats(fedGroups[k]), minN, null)).join('');
+
+  const sec1 = '<div class="sec">' +
+    eeTable('Por Confluência', confRowsHtml) +
+    eeTable('Por Time Slot', slotRowsHtml) +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">' +
+    '<div>' + eeTable('Por Bias do Dia', biasRowsHtml) + '</div>' +
+    '<div>' + eeTable('Por Fed Sentiment', fedRowsHtml) + '</div>' +
+    '</div>' +
+    '</div>';
+
+  // ══ SECÇÃO 2 — HEATMAPS ══
+
+  const BIAS_COLS = ['Bullish','Bearish','Neutro','Cauteloso'].map(k=>({key:k,label:k}));
+  const SLOT_ROWS = SLOT_ORDER.map(k=>({key:k,label:SLOT_LABELS[k]}));
+  const CONF_ROWS = CONFS.map(c=>({key:c.id,label:c.label.split(' ')[0]}));
+
+  const hm1 = buildHeatmap(
+    'Confluência × Time Slot — Win Rate',
+    CONF_ROWS, SLOT_ORDER.map(k=>({key:k,label:SLOT_LABELS[k].split('–')[0]})),
+    (confId, slotKey) => trades.filter(t => {
+      const confs = getConfsFromTrade(t);
+      return confs.some(c=>c.id===confId) && getSlot(t)===slotKey;
+    }),
+    minN
+  );
+
+  const hm2 = buildHeatmap(
+    'Confluência × Bias — Win Rate',
+    CONF_ROWS, BIAS_COLS,
+    (confId, biasKey) => trades.filter(t => {
+      const confs = getConfsFromTrade(t);
+      const b = getCtx(t.date).bias || 'Sem bias';
+      return confs.some(c=>c.id===confId) && b===biasKey;
+    }),
+    minN
+  );
+
+  const hm3 = buildHeatmap(
+    'Time Slot × Bias — Win Rate',
+    SLOT_ROWS, BIAS_COLS,
+    (slotKey, biasKey) => trades.filter(t => {
+      const b = getCtx(t.date).bias || 'Sem bias';
+      return getSlot(t)===slotKey && b===biasKey;
+    }),
+    minN
+  );
+
+  const sec2 = '<div class="sec">' + hm1 + hm2 + hm3 + '</div>';
+
+  // ══ SECÇÃO 3 — TOP SETUPS ══
+  const combos = {};
+  trades.forEach(t => {
+    const slot = getSlot(t);
+    const bias = getCtx(t.date).bias || '';
+    const confs = getConfsFromTrade(t);
+    confs.forEach(c => {
+      const key = c.id + '|' + slot + '|' + bias;
+      if (!combos[key]) combos[key] = { label: (CMAP[c.id]?.label||c.id) + ' · ' + SLOT_LABELS[slot] + (bias?' · '+bias:''), trades: [] };
+      combos[key].trades.push(t);
+    });
+  });
+  const comboArr = Object.values(combos)
+    .map(g => ({ label: g.label, st: eeStats(g.trades) }))
+    .filter(g => g.st && g.st.n >= minN)
+    .sort((a,b) => b.st.ev - a.st.ev);
+
+  function setupCard(item, isGood) {
+    const st = item.st;
+    const wrPct = Math.round(st.wr*100);
+    const conf = Math.min(st.n / 30, 1);
+    const accentColor = isGood ? 'var(--green)' : 'var(--red)';
+    return '<div class="ee-setup-card" style="border-color:' + (isGood?'color-mix(in srgb,var(--green) 30%,var(--b1))':'color-mix(in srgb,var(--red) 30%,var(--b1))') + '">' +
+      '<div class="ee-setup-label">' + item.label + '</div>' +
+      '<div style="display:flex;gap:12px;font-family:var(--mono);font-size:11px;flex-wrap:wrap">' +
+      '<span style="color:var(--hint)">' + st.n + ' trades</span>' +
+      '<span style="color:' + accentColor + '">WR ' + wrPct + '%</span>' +
+      '<span style="color:' + accentColor + '">EV ' + (st.ev>=0?'+':'') + st.ev.toFixed(2) + 'R</span>' +
+      '<span style="color:var(--sub)">Avg ' + (st.avgR>=0?'+':'') + st.avgR.toFixed(2) + 'R</span>' +
+      '</div>' +
+      '<div class="ee-conf-bar"><div class="ee-conf-bar-fill" style="width:' + Math.round(conf*100) + '%;background:' + accentColor + '" title="' + st.n + '/30 trades"></div></div>' +
+      '</div>';
+  }
+
+  const top3 = comboArr.slice(0,3).map(i=>setupCard(i,true)).join('') || '<div style="color:var(--hint);font-family:var(--mono);font-size:12px">Dados insuficientes</div>';
+  const bot3 = [...comboArr].reverse().slice(0,3).filter(i=>i.st.ev<0).map(i=>setupCard(i,false)).join('') || '<div style="color:var(--hint);font-family:var(--mono);font-size:12px">Nenhuma combinação negativa com amostra suficiente</div>';
+
+  const sec3 = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
+    '<div class="sec"><div class="ee-sec-title" style="color:var(--green)">🏆 Top 3 Setups com mais edge</div>' + top3 + '</div>' +
+    '<div class="sec"><div class="ee-sec-title" style="color:var(--red)">⚠ Top 3 Situações a evitar</div>' + bot3 + '</div>' +
+    '</div>';
+
+  const nota = '<div style="font-size:11px;font-family:var(--mono);color:var(--hint);text-align:center;padding:10px 0">Análise baseada em ' + trades.length + ' trades. Mínimo recomendado: 30 trades por condição para resultados estatisticamente válidos.</div>';
+
+  return filterHtml + sec1 + sec2 + sec3 + nota;
 }
 </script>
 
