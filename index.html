@@ -1155,11 +1155,14 @@ async function sbPullData() {
     return;
   }
   data.forEach(row => {
-    if (row.key === "nq10_a")  { try { accounts     = row.value; } catch(e){} }
-    if (row.key === "nq10_t")  { try { allT         = row.value; } catch(e){} }
-    if (row.key === "nq10_ps") { try { psData       = row.value; } catch(e){} }
-    if (row.key === "nq10_cc") { try { customConfs  = row.value; localStorage.setItem("nq10_cc", JSON.stringify(customConfs)); } catch(e){} }
+    if (row.key === "nq10_a")  { try { const v = row.value; if (Array.isArray(v)) accounts = v; } catch(e){} }
+    if (row.key === "nq10_t")  { try { const v = row.value; if (v && typeof v === "object") allT = v; } catch(e){} }
+    if (row.key === "nq10_ps") { try { const v = row.value; if (v && typeof v === "object") psData = v; } catch(e){} }
+    if (row.key === "nq10_cc") { try { const v = row.value; if (Array.isArray(v)) { customConfs = v; localStorage.setItem("nq10_cc", JSON.stringify(customConfs)); } } catch(e){} }
   });
+  if (!Array.isArray(accounts) || !accounts.length) {
+    accounts = [{ id: "lucid", name: "Lucid", emoji: "🔵" }, { id: "mff", name: "My Funded Futures", emoji: "🟢" }];
+  }
   localStorage.setItem("nq10_a",  JSON.stringify(accounts));
   localStorage.setItem("nq10_t",  JSON.stringify(allT));
   localStorage.setItem("nq10_ps", JSON.stringify(psData));
@@ -1217,6 +1220,7 @@ async function sbLogout() {
 // ═══════════════════════════════════════════
 const SK_A = "nq10_a", SK_T = "nq10_t", SK_PS = "nq10_ps";
 let accounts = [], curAcct = null, allT = {}, psData = {};
+let customConfs = [];
 let curDate = "", scope = "all", calY = 0, calM = 0, dashPeriod = "month";
 let modalId = null, modalDayIds = [];
 let rvDate = "", rvIdx = 0;
@@ -1246,8 +1250,8 @@ function savePSData() {
   sbPushKey("nq10_ps", psData);
 }
 
-function dayTrades(iso) { return (allT[curAcct.id] || []).filter(t => t.date === iso); }
-function acctTrades() { return allT[curAcct.id] || []; }
+function dayTrades(iso) { return (Array.isArray(allT[curAcct.id]) ? allT[curAcct.id] : []).filter(t => t.date === iso); }
+function acctTrades() { return Array.isArray(allT[curAcct.id]) ? allT[curAcct.id] : []; }
 function setAcctTrades(arr) { allT[curAcct.id] = arr; persist(); }
 function todayISO() { return new Date().toISOString().split("T")[0]; }
 
@@ -1431,8 +1435,8 @@ function rvSetSR(btn) {
 function renderAccts() {
   const grid = document.getElementById("acct-grid");
   grid.innerHTML = accounts.map(a => {
-    const at = allT[a.id] || [];
-    const pnl = at.reduce((s, t) => s + t.pnl, 0);
+    const at = Array.isArray(allT[a.id]) ? allT[a.id] : [];
+    const pnl = at.reduce((s, t) => s + (t.pnl || 0), 0);
     const col = pnl > 0 ? "var(--green)" : pnl < 0 ? "var(--red)" : "var(--hint)";
     return '<div class="acard">' +
       '<div class="acard-body" onclick="selectAcct(\'' + a.id + '\')">' +
@@ -1488,7 +1492,7 @@ function changeEmoji(id, e) {
 function deleteAcct(id, e) {
   e.stopPropagation();
   const a = accounts.find(x => x.id === id); if (!a) return;
-  const n = (allT[id] || []).length;
+  const n = (Array.isArray(allT[id]) ? allT[id] : []).length;
   if (!confirm("Eliminar \"" + a.name + "\"?" + (n > 0 ? " Apaga " + n + " trades." : ""))) return;
   accounts = accounts.filter(x => x.id !== id); delete allT[id];
   persist(); renderAccts();
@@ -3771,8 +3775,6 @@ async function executeClearAll() {
 // ═══════════════════════════════════════════
 // CONFLUÊNCIAS CUSTOM NO REVIEW
 // ═══════════════════════════════════════════
-let customConfs = JSON.parse(localStorage.getItem("nq10_cc") || "[]");
-
 function rvToggleNewConf() {
   const f = document.getElementById("rv-new-conf-form");
   if (f) f.style.display = f.style.display === "none" ? "block" : "none";
@@ -3800,7 +3802,8 @@ function rvSaveNewConf() {
 }
 
 function loadCustomConfs() {
-  customConfs = JSON.parse(localStorage.getItem("nq10_cc") || "[]");
+  try { customConfs = JSON.parse(localStorage.getItem("nq10_cc") || "[]"); } catch(e) { customConfs = []; }
+  if (!Array.isArray(customConfs)) customConfs = [];
   customConfs.forEach(c => {
     if (!CMAP[c.id]) {
       if (!c.group) c.group = "Custom";
