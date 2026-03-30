@@ -59,6 +59,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .btn-accent:hover{background:#4a7ef0}
 .btn-green{background:var(--green);color:#041a0f;font-weight:600}
 .btn-sm{font-size:11px;padding:5px 11px}
+.settings-menu-item{display:block;width:100%;text-align:left;background:transparent;border:none;color:var(--sub);font-family:var(--mono);font-size:11px;padding:7px 12px;border-radius:7px;cursor:pointer;transition:all .12s;white-space:nowrap}
+.settings-menu-item:hover{background:var(--s3);color:var(--text)}
 
 /* CARDS / SECTIONS */
 .sec{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:16px;margin-bottom:12px}
@@ -588,13 +590,17 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     </div>
     <div style="display:flex;gap:8px;align-items:center">
       <div id="sb-auth-bar"></div>
-      <span style="font-size:10px;font-family:var(--mono);color:var(--hint)" id="save-lbl"></span>
+      <span id="save-lbl" style="font-size:10px;font-family:var(--mono);color:var(--hint)"></span>
       <button class="btn btn-ghost btn-sm" onclick="goAccts()">← contas</button>
-      <span style="font-size:10px;font-family:var(--mono);color:var(--hint)" id="backup-lbl"></span>
-      <button class="btn btn-ghost btn-sm" onclick="exportAllData()" title="Exportar todos os dados para backup">↓ Backup</button>
-      <label class="btn btn-ghost btn-sm" style="cursor:pointer" title="Importar backup">↑ Restaurar<input type="file" accept=".json" style="display:none" onchange="importAllData(event)"></label>
-      <button class="btn btn-ghost btn-sm" onclick="exportAllCSV()" title="Exportar todas as trades em CSV">↓ CSV Completo</button>
       <button class="btn btn-green btn-sm" onclick="exportCSV()">↓ CSV Dia</button>
+      <div style="position:relative" id="settings-wrap">
+        <button class="btn btn-ghost btn-sm" onclick="toggleSettingsMenu()" title="Definições">⚙</button>
+        <div id="settings-menu" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:6px;z-index:500;min-width:180px;box-shadow:0 8px 24px #0006">
+          <button class="settings-menu-item" onclick="exportAllData();toggleSettingsMenu()">↓ Backup (JSON)</button>
+          <label class="settings-menu-item" style="cursor:pointer">↑ Restaurar (JSON)<input type="file" accept=".json" style="display:none" onchange="importAllData(event);toggleSettingsMenu()"></label>
+          <button class="settings-menu-item" onclick="exportAllCSV();toggleSettingsMenu()">↓ CSV Completo</button>
+        </div>
+      </div>
       <button class="btn btn-ghost btn-sm" style="color:var(--red);border-color:var(--red)22" onclick="showClearAllModal()" title="Apagar todas as trades">🗑 Limpar</button>
     </div>
   </div>
@@ -2023,6 +2029,12 @@ function loadPSDate(d) {
   renderPSScreenshots(d);
   // Macro events
   renderMacroEvents(d);
+  // Dynamic level lists
+  renderPSLevelList('hvn', d);
+  renderPSLevelList('lvn', d);
+  renderPSDeltaList(d);
+  renderPSSDZoneList(d);
+  renderPSSRList(d);
   // Collapsible dots (filled indicator)
   const setDot = (id, val) => { const el = document.getElementById(id); if (el) el.classList.toggle('show', !!val); };
   setDot('ps-col-events-dot', ctx.macroEvents?.length);
@@ -3675,6 +3687,23 @@ async function analyzeWeekWithClaude() {
 // ═══════════════════════════════════════════
 // UTILS
 // ═══════════════════════════════════════════
+function toggleSettingsMenu() {
+  const menu = document.getElementById('settings-menu'); if (!menu) return;
+  const isOpen = menu.style.display !== 'none';
+  menu.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) {
+    // fechar ao clicar fora
+    setTimeout(() => {
+      document.addEventListener('click', function closeMenu(e) {
+        if (!document.getElementById('settings-wrap')?.contains(e.target)) {
+          menu.style.display = 'none';
+          document.removeEventListener('click', closeMenu);
+        }
+      });
+    }, 0);
+  }
+}
+
 function exportAllData() {
   const backup = {
     version: 2,
