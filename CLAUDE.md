@@ -75,7 +75,7 @@ FIM DO DIA:
 
 ## Stack técnica
 
-- **Frontend:** Vanilla HTML/CSS/JS — ficheiro único `index.html` (3955 linhas)
+- **Frontend:** Vanilla HTML/CSS/JS — ficheiro único `index.html`
 - **Base de dados:** Supabase (PostgreSQL) + localStorage como fallback/cache
 - **Hosting:** Netlify com deploy automático a partir do GitHub
 - **Claude API:** Proxy seguro via Netlify Function (`netlify/functions/`)
@@ -126,17 +126,17 @@ Dados guardados em `localStorage` + sincronizados com Supabase via `sbPushKey()`
   pnl: number,
   stop: number,
   tp: number,
+  stop_ticks: number,         // stop loss em ticks
+  tp_ticks: number,           // take profit em ticks
   rr: number,                 // risk/reward ratio planeado
   r: number,                  // R realizado (pnl/risk)
   confluences: JSON,          // array de {id, sr}
   score: number,              // nº de confluências
   rating: number,             // 1-5 estrelas
-  notes: string,
+  notes: string,              // trade recap (texto livre)
   notes_html: string,
   screenshots: array,         // base64
-  mistakes: array,            // ["Entrei cedo demais", ...]
-  mistakes_note: string,
-  process_score: number,      // 0-4
+  mistakes_note: string,      // erros (texto livre, opcional)
   session_date: "YYYY-MM-DD"  // referência à tabela sessions
 }
 ```
@@ -170,7 +170,7 @@ Dados guardados em `localStorage` + sincronizados com Supabase via `sbPushKey()`
   sentiment_narrative: string,
   capital_flow: string,
   dxy_vix_us2y_narrative: string,
-  macro_events: array,        // [{name, time, expected, nq_reaction, actual, impact}]
+  macro_events: array,        // [{name, impact, note}] — nota livre por evento
   geopolitics: string,
 
   // PROFILE FRAMING DIÁRIO
@@ -228,6 +228,8 @@ Dados guardados em `localStorage` + sincronizados com Supabase via `sbPushKey()`
 
 Confluências com `sr: true` têm toggles S (Support) / R (Resistance).
 
+O utilizador pode adicionar confluências customizadas via "+ Nova confluência" no review de trade. Guardadas na tabela Supabase `custom_confluences` e aparecem junto às base.
+
 ---
 
 ## Time slots e sessões
@@ -257,7 +259,6 @@ Confluências com `sr: true` têm toggles S (Support) / R (Resistance).
 - **Detailed** — breakdown por Days/Weeks/Months/Time/Confluence/Fed
 - **Wins vs Losses** — comparação e distribuição R-Multiple
 - **Calendário** — vista de calendário nos reports
-- **⏱ Tempo** — análise por time slot (Fase 5)
 
 ---
 
@@ -279,7 +280,10 @@ Confluências com `sr: true` têm toggles S (Support) / R (Resistance).
 - Fed Context (textarea)
 - Sentiment (Risk-On/Risk-Off/Neutro)
 - Sentiment narrative, Capital flow, DXY/VIX/US2Y narrativa, Geopolítica
-- Macro Events (lista dinâmica com nome/hora/expectativa/reacção NQ/actual/impacto)
+- Macro Events — lista dinâmica simplificada:
+  - Eventos rápidos: NFP, CPI, FOMC, PCE, GDP, ISM, PPI, Retail Sales, Fed Chair Speaks, President Speaks, Average Hourly Earnings, etc.
+  - Cada evento tem: nome, impacto (LOW/MED/HIGH) e nota livre (textarea pequena)
+  - Sem campos Actual/Forecast/Bullish/Bearish
 - Game Plan do dia (textarea grande — narrativa unificada)
 
 ---
@@ -305,16 +309,6 @@ nqScore     = (winScore * 0.35) + (pfScore * 0.35) + (sharpeScore * 0.30)
 // < 10 trades:  "Amostra pequena ⚠"
 // 10-30 trades: "A desenvolver"
 // > 30 trades:  "Estável" (ou "Robusto" se score > 75)
-```
-
-## Process Score — fórmula
-
-```javascript
-// +1 confluências suficientes (score >= 2)
-// +1 seguiu bias do dia
-// +1 sem mistakes seleccionados
-// +1 R planeado definido (rr não null)
-// Total: 0-4
 ```
 
 ---
@@ -377,7 +371,8 @@ MNQ;2025-10-20 09:31:18;1;21450.75;21480.25;59.00
 | 3 | Dashboard + NQ Score | ✅ Completo |
 | 4 | Review: NQ Scale + Mistakes + Process Score | ✅ Completo |
 | 5 | Timestamps + time slot filters nos Reports | ✅ Completo |
-| — | Reestruturação Pré-sessão (2 pilares + semanal) | 🔄 Em curso |
+| — | Reestruturação Pré-sessão (2 pilares + semanal) | ✅ Completo |
+| — | Tweaks UI: review redesign, macro simplificado, diário+pré-sessão link, limpar tudo | ✅ Completo |
 | 6 | Edge Explorer manual (EV/WR/PF por confluência+hora+bias+Fed) | ⏳ Por fazer |
 | 7 | IA Edge Finder — identificação A+ setups | ⏳ Por fazer |
 | 8 | Geração código Pine Script / Python | ⏳ Por fazer |
@@ -416,159 +411,40 @@ Configurar em: Netlify Dashboard → Site Settings → Environment Variables
 
 ## Próxima tarefa prioritária
 
-**Tweaks pendentes (2026-03-29)** — implementar o conjunto abaixo antes de avançar para Fase 6.
+**Fase 6 — Edge Explorer** — criar sub-tab nos Reports (ver secção abaixo).
 
 ---
 
-## Tweaks pendentes — implementar a seguir
+## Review de Trade — Layout actual
 
-### 1. Review de Trade — Redesign completo
+**Painel esquerdo:** Símbolo, Direcção, Entry, Exit, Qty, PnL, Stop Loss (ticks + $), Take Profit (ticks + $), R-Multiple, Rating (estrelas), Confluências (chips + "+ Nova confluência").
 
-**REMOVER** do review:
-- Tabs separadas (Notas / Prints / Confluências / Erros)
-- NQ Scale
-- Process Score
-- Hold Time
-- "Contexto da Sessão"
+**Cálculo ticks → $:**
+- MNQ: ticks × $0.50 × qty
+- NQ:  ticks × $5.00 × qty
+- MCL: ticks × $1.00 × qty
+- CL:  ticks × $10.00 × qty
 
-**NOVO LAYOUT — painel direito (numa página só, de cima para baixo):**
+**Painel direito (de cima para baixo):**
+1. Prints do Setup (drag & drop, thumbnails com X)
+2. Trade Recap (textarea livre)
+3. Erros — opcional (textarea pequena; se vazio, não aparece no view)
 
-```
-┌─────────────────────────────────────────┐
-│ 📸 PRINTS DO SETUP                      │
-│ [zona de upload — drag & drop]          │
-│ [thumbnails com X para remover]         │
-├─────────────────────────────────────────┤
-│ 📝 TRADE RECAP                          │
-│ [textarea livre]                        │
-│ Placeholder: "Descreve o que viste —    │
-│ orderflow, porque entraste, lições..."  │
-├─────────────────────────────────────────┤
-│ ⚠ ERROS (opcional)                      │
-│ [textarea livre — pequena]              │
-│ Placeholder: "O que correu mal..."      │
-│ Se vazio não mostra nada no review      │
-└─────────────────────────────────────────┘
-```
-
-**PAINEL ESQUERDO — manter mas simplificar:**
-- Remover Process Score, NQ Scale, Hold Time, Contexto da Sessão
-- Adicionar secção CONFLUÊNCIAS directamente no painel esquerdo (abaixo do R-Multiple):
-  - Chips das confluências seleccionáveis
-  - Botão "+ Nova confluência" que abre mini form inline:
-    `[nome] [cor (color picker)] [tem S/R? toggle]`
-  - Guardar em Supabase tabela `custom_confluences`
-  - Aparecer na lista junto com as confluências base existentes
-- Entry e Exit: preencher automaticamente com os valores do CSV (já existem no import)
-
-**CAMPOS STOP LOSS E TAKE PROFIT — mudar para ticks:**
-- Label: "Stop Loss (ticks)" e "Take Profit (ticks)"
-- Input em ticks (número inteiro)
-- Calcular e mostrar automaticamente o valor em $:
-  - MNQ: ticks × $0.50 × qty
-  - NQ:  ticks × $5.00 × qty
-  - MCL: ticks × $1.00 × qty (Micro Crude Oil)
-  - CL:  ticks × $10.00 × qty (Crude Oil)
-- Mostrar abaixo do input: "= $X.XX"
-- Campo Risco ($) mantém-se mas é calculado automaticamente a partir do Stop em ticks
-
-**TIPOGRAFIA:**
-- Aumentar font-size geral da app em 1-2px
-- Labels mais visíveis — usar `--text` em vez de `--hint`
-- Mais espaçamento entre secções no painel esquerdo
+**Confluências customizadas:** tabela Supabase `custom_confluences` (id, user_id, account_id, label, color, has_sr). Criadas via mini form inline no review.
 
 ---
 
-### 2. Pré-sessão — Simplificar eventos macro
+## Diário — comportamento actual
 
-Nos eventos macro do dia, quando o utilizador clica num evento (ex: NFP, CPI, FOMC...),
-em vez de mostrar campos Actual/Forecast/Bullish/Bearish, mostrar apenas:
-
-```
-┌─────────────────────────────────────┐
-│ NFP  HIGH                        ✕  │
-│ ┌─────────────────────────────────┐ │
-│ │ Ex: Se abaixo 150k → USD fraco  │ │
-│ │ → potencial spike bullish NQ    │ │
-│ └─────────────────────────────────┘ │
-└─────────────────────────────────────┘
-```
-
-- Textarea pequena por evento para previsão livre
-- Sem Actual, Forecast, Bullish/Bearish buttons
-- Guardar como texto no campo `note` do evento
-
-**Adicionar aos eventos rápidos:**
-- "Retail Sales"
-- "Fed Chair Speaks" (substituir "Fed Speaker")
-- "President Speaks"
-- "Average Hourly Earnings"
-
----
-
-### 3. Pré-sessão — Ligação automática ao Diário
-
-No Diário, quando se expande um dia, mostrar no topo:
-- Badge Bias + Badge Fed + Badge Sentiment
+Ao expandir um dia mostra no topo:
+- Badge Bias + Badge Fed + Badge Sentiment (da pré-sessão)
 - Primeiras 100 chars do Game Plan
-- Link "Ver pré-sessão completa →" que navega para tab Pré-sessão com esse dia seleccionado
-- Se não há pré-sessão: "○ Sem pré-sessão — clica para preencher →" com link para a tab
+- Link "Ver pré-sessão completa →" (navega para tab Pré-sessão com esse dia)
+- Se sem pré-sessão: "○ Sem pré-sessão — clica para preencher →"
 
 ---
 
-### 4. Diário — Remover botão Contexto
-
-Remover o botão "Contexto" de cada card do Diário — substituído pela ligação automática do ponto 3.
-
----
-
-### 5. Reports — Remover tab Tempo
-
-Remover completamente a sub-tab "⏱ Tempo" dos Reports.
-Motivo: o CSV do Deepcharts não exporta hora, por isso não há dados para analisar.
-
----
-
-### 6. Geral — Botão Limpar tudo
-
-Adicionar botão "🗑 Limpar tudo" nas definições (junto ao Backup/Restaurar).
-
-**Dupla confirmação:**
-1. Modal: "Tens a certeza? Esta acção apaga TODAS as trades e sessões." → [Cancelar] [Continuar]
-2. Input de texto: "Escreve CONFIRMAR para continuar" — botão só activa quando texto está correcto
-
-**Apaga:** todas as trades do Supabase e localStorage para esta conta.
-**NÃO apaga:** sessões de pré-sessão, contas, configurações.
-
----
-
-### Migration Supabase necessária
-
-```sql
--- Tabela para confluências custom do utilizador
-CREATE TABLE IF NOT EXISTS custom_confluences (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES auth.users(id),
-  account_id TEXT,
-  label TEXT NOT NULL,
-  color TEXT NOT NULL DEFAULT '#5b8fff',
-  has_sr BOOLEAN DEFAULT false,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-ALTER TABLE custom_confluences ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "user_own" ON custom_confluences
-  USING (user_id = auth.uid());
-
--- Adicionar campos ticks às trades
-ALTER TABLE trades
-ADD COLUMN IF NOT EXISTS stop_ticks INTEGER,
-ADD COLUMN IF NOT EXISTS tp_ticks INTEGER;
-```
-
----
-
-## Fase 6 — Edge Explorer (depois dos tweaks acima)
+## Fase 6 — Edge Explorer
 
 Criar nova sub-tab nos Reports com EV, Win Rate e Profit Factor por:
 - Confluência (cada uma das 10)

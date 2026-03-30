@@ -571,10 +571,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 <!-- ACCOUNT SCREEN -->
 <div id="acct-screen">
   <div class="as-brand"><div class="as-icon">NQ</div><div class="as-title">Trade Logger</div></div>
-  <div class="as-sub">Seleciona a conta para começar</div>
+  <div class="as-sub" id="as-sub">A verificar sessão...</div>
   <div id="sb-auth-bar" style="margin-bottom:20px"></div>
-  <div class="acct-grid" id="acct-grid"></div>
-  <div style="margin-top:12px"><button class="btn btn-ghost" onclick="addAcct()">+ Nova conta</button></div>
+  <div id="acct-section" style="display:none">
+    <div class="acct-grid" id="acct-grid"></div>
+    <div style="margin-top:12px"><button class="btn btn-ghost" onclick="addAcct()">+ Nova conta</button></div>
+  </div>
 </div>
 
 <!-- MAIN APP -->
@@ -1131,8 +1133,10 @@ const sb = supabase.createClient(SB_URL, SB_KEY);
 let sbUser = null;
 
 async function sbInit() {
-  const { data: { session } } = await sb.auth.getSession();
-  sbUser = session?.user || null;
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    sbUser = session?.user || null;
+  } catch(e) { sbUser = null; }
   if (sbUser) { await sbPullData(); showSbStatus(); }
   else showSbLogin();
   sb.auth.onAuthStateChange(async (event, session) => {
@@ -1176,6 +1180,8 @@ async function sbPushKey(key, value) {
 
 function showSbLogin() {
   const el = document.getElementById("sb-auth-bar"); if (!el) return;
+  const sub = document.getElementById("as-sub"); if (sub) sub.textContent = "Autentica-te para começar";
+  const sec = document.getElementById("acct-section"); if (sec) sec.style.display = "none";
   el.innerHTML = '<div style="display:flex;align-items:center;gap:8px">' +
     '<input type="email" id="sb-email" placeholder="email" style="font-family:var(--mono);font-size:11px;background:var(--s3);border:1px solid var(--b1);border-radius:6px;color:var(--text);padding:4px 9px;outline:none;width:160px">' +
     '<input type="password" id="sb-pass" placeholder="password" style="font-family:var(--mono);font-size:11px;background:var(--s3);border:1px solid var(--b1);border-radius:6px;color:var(--text);padding:4px 9px;outline:none;width:110px">' +
@@ -1186,6 +1192,8 @@ function showSbLogin() {
 
 function showSbStatus() {
   const el = document.getElementById("sb-auth-bar"); if (!el) return;
+  const sub = document.getElementById("as-sub"); if (sub) sub.textContent = "Seleciona a conta para começar";
+  const sec = document.getElementById("acct-section"); if (sec) sec.style.display = "";
   el.innerHTML = '<div style="display:flex;align-items:center;gap:8px">' +
     '<span style="font-family:var(--mono);font-size:10px;color:var(--green)">● ' + sbUser.email + '</span>' +
     '<button class="btn btn-ghost btn-sm" onclick="sbLogout()">Sair</button>' +
