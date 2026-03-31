@@ -272,6 +272,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .ps-bias-btn.bear.on{background:#1f0707;border-color:var(--red);color:var(--red)}
 .ps-bias-btn.neut.on{background:var(--s3);border-color:var(--sub);color:var(--text)}
 .ps-bias-btn.caut.on{background:#241a06;border-color:var(--amber);color:var(--amber)}
+.ps-bias-btn.range.on{background:#150d1f;border-color:var(--purple);color:var(--purple)}
 
 /* PS STATUS BADGE */
 .ps-status-badge{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;font-weight:600;padding:3px 10px;border-radius:6px;border:1px solid}
@@ -386,6 +387,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .ps-pbias-btn.bull.on{background:#071f0f;border-color:var(--green);color:var(--green)}
 .ps-pbias-btn.bear.on{background:#1f0707;border-color:var(--red);color:var(--red)}
 .ps-pbias-btn.neut.on{background:var(--s3);border-color:var(--sub);color:var(--text)}
+
+/* DATE INPUT */
+input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1) opacity(.5);cursor:pointer}
+input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 
 /* PS COLLAPSIBLE */
 .ps-collapse-hdr{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:8px 0;border-bottom:1px solid var(--b1);margin-bottom:10px;user-select:none;transition:color .13s}
@@ -607,12 +612,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   <div class="tabs">
     <button class="tab on"  onclick="showTab('dashboard',this)">Dashboard</button>
     <button class="tab"     onclick="showTab('journal',this)">Diário</button>
-    <button class="tab"     onclick="showTab('trades',this)">Trades</button>
     <button class="tab"     onclick="showTab('import',this)">+ CSV</button>
     <button class="tab"     onclick="showTab('presessao',this)">📰 Pré-sessão</button>
     <button class="tab"     onclick="showTab('reports',this)">Reports</button>
-    <button class="tab"     onclick="showTab('quant',this)">Quant</button>
-    <button class="tab"     onclick="showTab('cal',this)">Calendário</button>
   </div>
   <div class="content">
 
@@ -623,9 +625,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 
     <!-- JOURNAL -->
     <div class="view" id="view-journal">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
         <span style="font-size:13px;font-weight:600">Diário de Trades</span>
-        <span style="font-size:11px;font-family:var(--mono);color:var(--hint)" id="journal-lbl"></span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:11px;font-family:var(--mono);color:var(--hint)" id="journal-lbl"></span>
+          <button class="btn btn-accent btn-sm" onclick="showTab('import',document.querySelectorAll('.tab')[2])">+ Importar CSV</button>
+        </div>
       </div>
       <div class="jfilter-bar">
         <span class="jfilter-lbl">Período</span>
@@ -638,8 +643,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
         <button class="jfilter-btn on" onclick="setJFilter('bias','all',this)">Todos</button>
         <button class="jfilter-btn" onclick="setJFilter('bias','Bullish',this)">Bullish</button>
         <button class="jfilter-btn" onclick="setJFilter('bias','Bearish',this)">Bearish</button>
-        <button class="jfilter-btn" onclick="setJFilter('bias','Neutro',this)">Neutro</button>
-        <button class="jfilter-btn" onclick="setJFilter('bias','Cauteloso',this)">Cauteloso</button>
+        <button class="jfilter-btn" onclick="setJFilter('bias','Consolidation/Ranging',this)">Ranging</button>
         <div class="jfilter-sep"></div>
         <span class="jfilter-lbl">Resultado</span>
         <button class="jfilter-btn on" onclick="setJFilter('result','all',this)">Todos</button>
@@ -683,32 +687,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div id="reports-body"></div>
     </div>
 
-    <!-- TRADES -->
-    <div class="view" id="view-trades">
-      <div class="sess-bar">
-        <span style="font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.08em">Sessão</span>
-        <input type="date" class="date-in" id="sess-date" onchange="onDateChange()">
-        <div style="display:flex;gap:5px;flex-wrap:wrap" id="sess-pills"></div>
-        <span style="font-size:11px;font-family:var(--mono);color:var(--hint);margin-left:auto" id="sess-stat"></span>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px">
-        <span style="font-size:11px;font-family:var(--mono);color:var(--hint)" id="list-lbl">—</span>
-        <div style="display:flex;gap:7px">
-          <button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="clearDay()">Limpar dia</button>
-          <button class="btn btn-ghost btn-sm" style="color:var(--purple)" onclick="analyzeDayWithClaude()">✦ Analisar dia</button>
-          <button class="btn btn-accent btn-sm" onclick="showTab('import',document.querySelectorAll('.tab')[1])">+ Importar CSV</button>
-        </div>
-      </div>
-      <div id="claude-day-panel" style="display:none;margin-bottom:12px;background:var(--s1);border:1px solid var(--purple);border-radius:14px;overflow:hidden">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--b1)">
-          <span style="font-size:10px;font-family:var(--mono);color:var(--purple);text-transform:uppercase;letter-spacing:.08em">✦ Claude — Análise do dia</span>
-          <button onclick="document.getElementById('claude-day-panel').style.display='none'" style="background:transparent;border:none;color:var(--hint);cursor:pointer;font-size:14px">✕</button>
-        </div>
-        <div id="claude-day-body" style="padding:16px;font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap;font-family:var(--sans)"></div>
-      </div>
-      <div id="trade-list"></div>
-    </div>
-
     <!-- IMPORT -->
     <div class="view" id="view-import">
       <div class="dropzone" id="dropzone"
@@ -731,7 +709,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:11px 14px">
         <div style="flex:1;min-width:0">
           <div style="font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Sessão</div>
-          <input type="date" id="ps-date-picker" style="font-family:var(--mono);font-size:13px;font-weight:600;background:transparent;border:none;color:var(--text);outline:none;cursor:pointer" onchange="loadPSDate(this.value)">
+          <input type="date" id="ps-date-picker" style="font-family:var(--mono);font-size:13px;font-weight:600;background:var(--s2);border:1px solid var(--b1);border-radius:8px;color:var(--text);outline:none;cursor:pointer;padding:6px 10px;transition:border-color .15s" onmouseover="this.style.borderColor='var(--b2)'" onmouseout="if(document.activeElement!==this)this.style.borderColor='var(--b1)'" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--b1)'" onchange="loadPSDate(this.value)">
         </div>
         <span class="ps-status-badge empty" id="ps-status-badge">○ Não preenchida</span>
         <button class="btn btn-ghost btn-sm" onclick="openDocModal()" style="gap:5px">📄 Documento</button>
@@ -778,8 +756,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
           <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
             <button class="ps-bias-btn bull" onclick="setPSBias('Bullish',this)">▲ Bullish</button>
             <button class="ps-bias-btn bear" onclick="setPSBias('Bearish',this)">▼ Bearish</button>
-            <button class="ps-bias-btn neut" onclick="setPSBias('Neutro',this)">— Neutro</button>
-            <button class="ps-bias-btn caut" onclick="setPSBias('Cauteloso',this)">⚠ Cauteloso</button>
+            <button class="ps-bias-btn range" onclick="setPSBias('Consolidation/Ranging',this)">↔ Consolidation/Ranging</button>
           </div>
 
           <!-- Eventos macro (expandido por default) -->
@@ -886,35 +863,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
       <!-- HISTORY -->
       <div class="sec"><div class="sec-title">Sessões anteriores</div><div id="ps-hist"></div></div>
     </div>
-    <!-- QUANT -->
-    <div class="view" id="view-quant">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <div class="scope-row" id="scope-row" style="margin-bottom:0"></div>
-        <button class="btn btn-ghost btn-sm" style="color:var(--purple);flex-shrink:0;margin-left:10px" onclick="analyzeWeekWithClaude()">✦ Análise semanal</button>
-      </div>
-      <div id="claude-week-panel" style="display:none;margin-bottom:12px;background:var(--s1);border:1px solid var(--purple);border-radius:14px;overflow:hidden">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--b1)">
-          <span style="font-size:10px;font-family:var(--mono);color:var(--purple);text-transform:uppercase;letter-spacing:.08em">✦ Claude — Análise semanal</span>
-          <button onclick="document.getElementById('claude-week-panel').style.display='none'" style="background:transparent;border:none;color:var(--hint);cursor:pointer;font-size:14px">✕</button>
-        </div>
-        <div id="claude-week-body" style="padding:16px;font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap;font-family:var(--sans)"></div>
-      </div>
-      <div id="quant-body"><div style="text-align:center;padding:60px;color:var(--hint);font-family:var(--mono);font-size:12px">Importa trades para ver o dashboard</div></div>
-    </div>
-
-    <!-- CALENDAR -->
-    <div class="view" id="view-cal">
-      <div class="sec">
-        <div class="sec-title">
-          <span id="cal-lbl"></span>
-          <div style="display:flex;gap:5px"><button class="cal-btn" onclick="calNav(-1)">‹</button><button class="cal-btn" onclick="calNav(1)">›</button><button class="cal-btn" onclick="calToday()">Hoje</button></div>
-        </div>
-        <div class="cal-grid" id="cal-hdr"></div>
-        <div style="height:4px"></div>
-        <div class="cal-grid" id="cal-grid"></div>
-      </div>
-    </div>
-
   </div><!-- end .content -->
 </div><!-- end #app -->
 
@@ -1235,7 +1183,7 @@ async function sbLogout() {
 const SK_A = "nq10_a", SK_T = "nq10_t", SK_PS = "nq10_ps";
 let accounts = [], curAcct = null, allT = {}, psData = {};
 let customConfs = [];
-let curDate = "", scope = "all", calY = 0, calM = 0, dashPeriod = "month";
+let curDate = "", scope = "all", calY = 0, calM = 0, dashPeriod = "month", dashMode = "summary";
 let modalId = null, modalDayIds = [];
 let rvDate = "", rvIdx = 0;
 let psBias = "", psFed = "", psSentiment = "", psDate = "", psProfileBias = "";
@@ -1359,6 +1307,19 @@ function calcProcessScore4(t) {
   return score;
 }
 
+function getBiasColor(bias) {
+  if (bias === 'Bullish') return 'var(--green)';
+  if (bias === 'Bearish') return 'var(--red)';
+  if (bias === 'Consolidation/Ranging') return 'var(--purple)';
+  return 'var(--sub)';
+}
+function getBiasBg(bias) {
+  if (bias === 'Bullish') return '#071f0f';
+  if (bias === 'Bearish') return '#1f0707';
+  if (bias === 'Consolidation/Ranging') return '#150d1f';
+  return 'var(--s3)';
+}
+
 function parseConfs(raw) {
   if (!raw) return [];
   if (Array.isArray(raw)) return raw;
@@ -1474,9 +1435,9 @@ function selectAcct(id) {
   document.getElementById("nav-acct").textContent = curAcct.name;
   curDate = todayISO();
   const now = new Date(); calY = now.getFullYear(); calM = now.getMonth();
-  document.getElementById("sess-date").value = curDate;
+  const sessDateEl = document.getElementById("sess-date"); if (sessDateEl) sessDateEl.value = curDate;
   buildConfs("m-confs", "[]", "cchip", "sr-btn", "sr-btn", "toggleConf", "setSR");
-  renderSessBar(); renderList(); renderCalendar();
+  renderSessBar(); renderList();
   updateBackupLbl();
   showTab("dashboard", document.querySelectorAll(".tab")[0]);
 }
@@ -1515,25 +1476,29 @@ function deleteAcct(id, e) {
 // ═══════════════════════════════════════════
 // SESSION / LIST
 // ═══════════════════════════════════════════
-function onDateChange() { curDate = document.getElementById("sess-date").value; renderSessBar(); renderList(); }
+function onDateChange() { const el = document.getElementById("sess-date"); if (el) curDate = el.value; renderSessBar(); renderList(); }
 function renderSessBar() {
   const dates = [...new Set(acctTrades().map(t => t.date))].sort().reverse();
-  document.getElementById("sess-pills").innerHTML = dates.slice(0, 6).map(d => {
+  const pillsEl = document.getElementById("sess-pills");
+  if (pillsEl) pillsEl.innerHTML = dates.slice(0, 6).map(d => {
     const pnl = dayTrades(d).reduce((s, t) => s + t.pnl, 0);
     const col = pnl > 0 ? "var(--green)" : pnl < 0 ? "var(--red)" : "var(--sub)";
     return '<div class="spill' + (d === curDate ? " on" : "") + '" onclick="jumpDate(\'' + d + '\')">' +
       d.slice(5) + '<span style="color:' + col + '">' + (pnl >= 0 ? "+" : "") + "$" + pnl.toFixed(0) + '</span></div>';
   }).join("");
-  document.getElementById("sess-stat").textContent = acctTrades().length ? acctTrades().length + " trades" : "";
+  const statEl = document.getElementById("sess-stat");
+  if (statEl) statEl.textContent = acctTrades().length ? acctTrades().length + " trades" : "";
 }
-function jumpDate(d) { curDate = d; document.getElementById("sess-date").value = d; renderSessBar(); renderList(); }
+function jumpDate(d) { curDate = d; const el = document.getElementById("sess-date"); if (el) el.value = d; renderSessBar(); renderList(); }
 
 function renderList() {
   const dt = dayTrades(curDate);
   const pnl = dt.reduce((s, t) => s + t.pnl, 0);
   const wr = dt.length ? Math.round(dt.filter(t => t.pnl > 0).length / dt.length * 100) : 0;
-  document.getElementById("list-lbl").textContent = dt.length + " trades · " + (pnl >= 0 ? "+" : "") + "$" + pnl.toFixed(2) + " · " + wr + "% win";
+  const lblEl = document.getElementById("list-lbl");
+  if (lblEl) lblEl.textContent = dt.length + " trades · " + (pnl >= 0 ? "+" : "") + "$" + pnl.toFixed(2) + " · " + wr + "% win";
   const el = document.getElementById("trade-list");
+  if (!el) return;
   if (!dt.length) {
     el.innerHTML = '<div class="empty-state"><div class="empty-icon">◈</div><div class="empty-text">Sem trades — importa o CSV do Deepcharts</div></div>';
     return;
@@ -1613,11 +1578,11 @@ function confirmImport() {
   const p = window._pending; if (!p?.length) return;
   setAcctTrades([...acctTrades(), ...p]);
   window._pending = null;
-  curDate = p[0].date; document.getElementById("sess-date").value = curDate;
+  curDate = p[0].date; const sessDateEl2 = document.getElementById("sess-date"); if (sessDateEl2) sessDateEl2.value = curDate;
   document.getElementById("import-result").innerHTML = '<div style="text-align:center;padding:20px;color:var(--green);font-family:var(--mono);font-size:13px;border:1px solid #0a2e18;border-radius:12px;margin-top:14px;background:#071f0f">✓ ' + p.length + ' trades importadas</div>';
-  renderSessBar(); renderList(); renderCalendar();
+  renderSessBar(); renderList();
   toast(p.length + " importadas!", "ok");
-  setTimeout(() => showTab("trades", document.querySelectorAll(".tab")[0]), 1200);
+  setTimeout(() => showTab("journal", document.querySelectorAll(".tab")[1]), 1200);
 }
 
 // ═══════════════════════════════════════════
@@ -1778,7 +1743,7 @@ function renderJournal() {
   const total = days.reduce((s,d) => s+d.trades.length, 0);
   document.getElementById('journal-lbl').textContent = days.length+' dias · '+total+' trades';
 
-  const BIAS_C = { Bullish:'#1fd17a', Bearish:'#f04f4f', Neutro:'#8892aa', Cauteloso:'#f0a832' };
+  const BIAS_C = { Bullish:'#1fd17a', Bearish:'#f04f4f', 'Consolidation/Ranging':'#9b72f5' };
   const FED_C  = { Hawkish:'#f04f4f', Dovish:'#1fd17a', Neutro:'#8892aa' };
 
   body.innerHTML = days.map(({ date, trades }) => {
@@ -1871,15 +1836,15 @@ function renderJDayPSCtx(date) {
   const hasFed  = ctx.fed;
   const hasSent = ctx.sentiment;
   const hasPlan = ctx.narrative;
-  const tabIdx  = 4; // pré-sessão tab index
+  const tabIdx  = 3; // pré-sessão tab index
   if (!hasBias && !hasFed && !hasSent && !hasPlan) {
     return '<div style="padding:9px 16px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:8px">' +
       '<span style="font-size:11px;color:var(--hint);font-family:var(--mono)">○ Sem pré-sessão para este dia</span>' +
       '<button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="goToPSDate(\''+date+'\')">Preencher →</button>' +
     '</div>';
   }
-  const biasC = ctx.bias==='Bullish'?'var(--green)':ctx.bias==='Bearish'?'var(--red)':ctx.bias==='Cauteloso'?'var(--amber)':'var(--sub)';
-  const biasBg = ctx.bias==='Bullish'?'#071f0f':ctx.bias==='Bearish'?'#1f0707':ctx.bias==='Cauteloso'?'#241a06':'var(--s3)';
+  const biasC = getBiasColor(ctx.bias);
+  const biasBg = getBiasBg(ctx.bias);
   const fedC = ctx.fed?.includes('Hawkish')?'var(--red)':ctx.fed?.includes('Dovish')?'var(--green)':'var(--sub)';
   const sentC = ctx.sentiment==='Risk-On'?'var(--green)':ctx.sentiment==='Risk-Off'?'var(--red)':'var(--sub)';
   const planSnippet = hasPlan ? ctx.narrative.slice(0,100) + (ctx.narrative.length>100?'…':'') : '';
@@ -1896,7 +1861,7 @@ function renderJDayPSCtx(date) {
 
 function goToPSDate(date) {
   psDate = date;
-  showTab('presessao', document.querySelectorAll('.tab')[4]);
+  showTab('presessao', document.querySelectorAll('.tab')[3]);
   loadPSDate(date);
 }
 
@@ -1911,7 +1876,7 @@ function toggleJDay(date) {
 function openCtxModal(date) {
   const ctx = psData[date] || {};
   document.getElementById('ctx-modal-title').textContent = jFmtDate(date);
-  const BIAS_C = { Bullish:'#1fd17a', Bearish:'#f04f4f', Neutro:'#8892aa', Cauteloso:'#f0a832' };
+  const BIAS_C = { Bullish:'#1fd17a', Bearish:'#f04f4f', 'Consolidation/Ranging':'#9b72f5' };
   const FED_C  = { Hawkish:'#f04f4f', Dovish:'#1fd17a', Neutro:'#8892aa' };
   const body = document.getElementById('ctx-modal-body');
   if (!Object.keys(ctx).length) {
@@ -1965,8 +1930,6 @@ function showTab(id, btn) {
   document.querySelectorAll(".tab").forEach(t => t.classList.remove("on"));
   document.getElementById("view-" + id)?.classList.add("on");
   if (btn) btn.classList.add("on");
-  if (id === "quant") { buildScope(); renderQuant(); }
-  if (id === "cal") renderCalendar();
   if (id === "presessao") { if (!psDate) psDate = todayISO(); initPS(); }
   if (id === "dashboard") renderDashboard();
   if (id === "journal") renderJournal();
@@ -2309,8 +2272,8 @@ function renderPSHist() {
     const ctx = psData[d];
     const dt = curAcct ? dayTrades(d) : [];
     const pnl = dt.reduce((s, t) => s + t.pnl, 0);
-    const bc = ctx.bias === 'Bullish' ? 'var(--green)' : ctx.bias === 'Bearish' ? 'var(--red)' : ctx.bias === 'Cauteloso' ? 'var(--amber)' : 'var(--sub)';
-    const bg = ctx.bias === 'Bullish' ? '#071f0f' : ctx.bias === 'Bearish' ? '#1f0707' : ctx.bias === 'Cauteloso' ? '#241a06' : 'var(--s3)';
+    const bc = getBiasColor(ctx.bias);
+    const bg = getBiasBg(ctx.bias);
     const pc = pnl > 0 ? 'var(--green)' : pnl < 0 ? 'var(--red)' : 'var(--sub)';
     const st = psStatus(ctx);
     const stLbl = st === 'ready' ? '<span style="color:var(--green);font-size:9px;font-family:var(--mono)">✓ Completa</span>' : st === 'incomplete' ? '<span style="color:var(--amber);font-size:9px;font-family:var(--mono)">◑ Incompleta</span>' : '';
@@ -2405,8 +2368,8 @@ function openDocModal() {
   const dayPnl = trds.reduce((s,t)=>s+t.pnl,0);
   const DAYS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
   const dayName = DAYS[new Date(d + 'T12:00:00').getDay()] || '';
-  const bc = ctx.bias==='Bullish'?'var(--green)':ctx.bias==='Bearish'?'var(--red)':ctx.bias==='Cauteloso'?'var(--amber)':'var(--sub)';
-  const bg = ctx.bias==='Bullish'?'#071f0f':ctx.bias==='Bearish'?'#1f0707':ctx.bias==='Cauteloso'?'#241a06':'var(--s3)';
+  const bc = getBiasColor(ctx.bias);
+  const bg = getBiasBg(ctx.bias);
   const sentC = ctx.sentiment==='Risk-On'?'var(--green)':ctx.sentiment==='Risk-Off'?'var(--red)':'var(--sub)';
 
   // Section helper
@@ -2514,9 +2477,9 @@ function toggleSessCtx() {
 function renderSessCtx() {
   const el = document.getElementById('rv-sess-ctx'); if (!el) return;
   const ctx = psData[rvDate] || {};
-  if (!ctx.bias && !ctx.narrative && !ctx.poc_daily) { el.innerHTML = '<div style="color:var(--hint);font-family:var(--mono);font-size:11px">Sem contexto de sessão para este dia.<br><button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="closeReview();showTab(\'presessao\',document.querySelectorAll(\'.tab\')[4]);psDate=\'' + rvDate + '\';loadPSDate(\'' + rvDate + '\')">Preencher sessão →</button></div>'; return; }
-  const bc = ctx.bias==='Bullish'?'var(--green)':ctx.bias==='Bearish'?'var(--red)':ctx.bias==='Cauteloso'?'var(--amber)':'var(--sub)';
-  const bg = ctx.bias==='Bullish'?'#071f0f':ctx.bias==='Bearish'?'#1f0707':ctx.bias==='Cauteloso'?'#241a06':'var(--s3)';
+  if (!ctx.bias && !ctx.narrative && !ctx.poc_daily) { el.innerHTML = '<div style="color:var(--hint);font-family:var(--mono);font-size:11px">Sem contexto de sessão para este dia.<br><button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="closeReview();showTab(\'presessao\',document.querySelectorAll(\'.tab\')[3]);psDate=\'' + rvDate + '\';loadPSDate(\'' + rvDate + '\')">Preencher sessão →</button></div>'; return; }
+  const bc = getBiasColor(ctx.bias);
+  const bg = getBiasBg(ctx.bias);
   let h = '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">';
   if (ctx.bias) h += '<span style="font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;color:'+bc+';background:'+bg+';border:1px solid '+bc+'">'+ctx.bias+'</span>';
   if (ctx.fed) h += '<span style="font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:4px;color:var(--sub);background:var(--s3);border:1px solid var(--b1)">'+ctx.fed+'</span>';
@@ -2612,8 +2575,8 @@ function renderReview() {
   // Day context banner
   const ctxBanner = document.getElementById("rv-ctx-banner");
   if (ctxBanner && ctx) {
-    const biasC = ctx.bias==="Bullish"?"var(--green)":ctx.bias==="Bearish"?"var(--red)":ctx.bias==="Cauteloso"?"var(--amber)":"var(--sub)";
-    const biasBg = ctx.bias==="Bullish"?"#071f0f":ctx.bias==="Bearish"?"#1f0707":ctx.bias==="Cauteloso"?"#241a06":"var(--s3)";
+    const biasC = getBiasColor(ctx.bias);
+    const biasBg = getBiasBg(ctx.bias);
     const fedC = ctx.fed?.includes("Hawkish") ? "var(--red)" : ctx.fed?.includes("Dovish") ? "var(--green)" : "var(--sub)";
     const sentC = ctx.sentiment==="Risk-On"?"var(--green)":ctx.sentiment==="Risk-Off"?"var(--red)":"var(--sub)";
     ctxBanner.innerHTML =
@@ -3058,23 +3021,48 @@ function svgCumLine(trades, W, H) {
   </svg>`;
 }
 
+function setDashMode(mode, btn) {
+  dashMode = mode;
+  document.querySelectorAll('.dash-mode-btn').forEach(b => b.classList.remove('on'));
+  if (btn) btn.classList.add('on');
+  renderDashboard();
+}
+
 function renderDashboard() {
   const body = document.getElementById("dashboard-body");
   if (!body) return;
   const allTrades = acctTrades();
+
+  // Mode toggle
+  const modeToggle = '<div style="display:flex;gap:5px;margin-bottom:16px">' +
+    '<button class="scope-btn dash-mode-btn' + (dashMode==='summary'?' on':'') + '" onclick="setDashMode(\'summary\',this)">📊 Resumo</button>' +
+    '<button class="scope-btn dash-mode-btn' + (dashMode==='quant'?' on':'') + '" onclick="setDashMode(\'quant\',this)">🔬 Quant</button>' +
+    '</div>';
 
   // Período selector HTML (sempre visível)
   const periods = [["today","Hoje"],["week","Esta semana"],["month","Este mês"],["30d","30d"],["90d","90d"],["all","Todo o histórico"]];
   const periodBar = `<div class="dash-period-bar">${periods.map(([p,l])=>`<button class="dash-pbtn${dashPeriod===p?" on":""}" onclick="setDashPeriod('${p}',this)">${l}</button>`).join("")}</div>`;
 
   if (!allTrades.length) {
-    body.innerHTML = periodBar + '<div class="empty-state" style="margin-top:30px"><div class="empty-icon">📊</div><div class="empty-text">Sem trades neste período. Importa um CSV para começar.</div><div style="margin-top:14px"><button class="btn btn-accent btn-sm" onclick="showTab(\'import\',document.querySelectorAll(\'.tab\')[3])">Importar CSV</button></div></div>';
+    body.innerHTML = modeToggle + periodBar + '<div class="empty-state" style="margin-top:30px"><div class="empty-icon">📊</div><div class="empty-text">Sem trades neste período. Importa um CSV para começar.</div><div style="margin-top:14px"><button class="btn btn-accent btn-sm" onclick="showTab(\'import\',document.querySelectorAll(\'.tab\')[2])">Importar CSV</button></div></div>';
     return;
   }
 
   const trades = dashScopedT();
   if (!trades.length) {
-    body.innerHTML = periodBar + '<div class="empty-state" style="margin-top:30px"><div class="empty-icon">🔍</div><div class="empty-text">Sem trades neste período.</div></div>';
+    body.innerHTML = modeToggle + periodBar + '<div class="empty-state" style="margin-top:30px"><div class="empty-icon">🔍</div><div class="empty-text">Sem trades neste período.</div></div>';
+    return;
+  }
+
+  // ─── QUANT MODE ──────────────────────────
+  if (dashMode === 'quant') {
+    const quantScope_old = scope;
+    scope = (dashPeriod === 'all' ? 'all' : dashPeriod === 'week' ? 'week' : dashPeriod === '7d' ? 'week' : dashPeriod === 'month' || dashPeriod === '30d' ? 'month' : 'all');
+    const quantBody = '<div id="quant-body"></div>';
+    const claudeWeekPanel = '<div id="claude-week-panel" style="display:none;margin-bottom:12px;background:var(--s1);border:1px solid var(--purple);border-radius:14px;overflow:hidden"><div style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--b1)"><span style="font-size:10px;font-family:var(--mono);color:var(--purple);text-transform:uppercase;letter-spacing:.08em">✦ Claude — Análise semanal</span><button onclick="document.getElementById(\'claude-week-panel\').style.display=\'none\'" style="background:transparent;border:none;color:var(--hint);cursor:pointer;font-size:14px">✕</button></div><div id="claude-week-body" style="padding:16px;font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap;font-family:var(--sans)"></div></div>';
+    const scopeRow = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div class="scope-row" id="scope-row" style="margin-bottom:0"></div><button class="btn btn-ghost btn-sm" style="color:var(--purple);flex-shrink:0;margin-left:10px" onclick="analyzeWeekWithClaude()">✦ Análise semanal</button></div>';
+    body.innerHTML = modeToggle + scopeRow + claudeWeekPanel + quantBody;
+    buildScope(); renderQuant();
     return;
   }
 
@@ -3163,17 +3151,17 @@ function renderDashboard() {
   </div>`;
 
   // ─── CALENDÁRIO INLINE ───────────────────
-  const now = new Date();
-  const calDays = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
-  const firstDow = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
-  const firstOff = (firstDow + 6) % 7;
   const todayStr = todayISO();
+  const calRef = new Date(calY, calM, 1);
+  const calDays = new Date(calY, calM+1, 0).getDate();
+  const firstDow = calRef.getDay();
+  const firstOff = (firstDow + 6) % 7;
   const dmAll = {};
   acctTrades().forEach(t=>{ if(!dmAll[t.date]) dmAll[t.date]=0; dmAll[t.date]+=t.pnl; });
   let calHTML = ["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"].map(d=>`<div class="dash-cal-dh">${d}</div>`).join("");
   calHTML += Array(firstOff).fill("<div></div>").join("");
   for (let d=1; d<=calDays; d++) {
-    const iso = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const iso = `${calY}-${String(calM+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
     const pnl = dmAll[iso];
     const hasTrades = pnl !== undefined;
     const dayTrds = acctTrades().filter(t=>t.date===iso);
@@ -3186,8 +3174,13 @@ function renderDashboard() {
     const tip = hasTrades ? `title="${iso}: ${pnl>=0?"+":""}$${pnl.toFixed(2)} · ${dayTrds.length} trade${dayTrds.length>1?"s":""}"` : "";
     calHTML += `<div class="${cls}" style="opacity:${opacity}" ${click} ${tip}><div class="dash-cal-dn">${d}</div>${pnlDisp}</div>`;
   }
+  const calMonthLabel = calRef.toLocaleDateString("pt-PT",{month:"long",year:"numeric"});
   const calCard = `<div class="dash-cal-card">
-    <div class="dash-cal-hdr"><div class="dash-cal-title">${now.toLocaleDateString("pt-PT",{month:"long",year:"numeric"})}</div></div>
+    <div class="dash-cal-hdr">
+      <button onclick="calNav(-1)" style="background:none;border:none;color:var(--sub);font-size:16px;cursor:pointer;padding:0 6px;line-height:1" title="Mês anterior">‹</button>
+      <div class="dash-cal-title">${calMonthLabel}</div>
+      <button onclick="calNav(1)" style="background:none;border:none;color:var(--sub);font-size:16px;cursor:pointer;padding:0 6px;line-height:1" title="Próximo mês">›</button>
+    </div>
     <div class="dash-cal-grid">${calHTML}</div>
   </div>`;
 
@@ -3217,7 +3210,7 @@ function renderDashboard() {
     ${recent5.length?rtRows:'<div style="color:var(--hint);font-size:12px;font-family:var(--mono)">Sem trades recentes</div>'}
   </div>`;
 
-  body.innerHTML = periodBar + metricsHTML + chartsHTML +
+  body.innerHTML = modeToggle + periodBar + metricsHTML + chartsHTML +
     `<div class="dash-bottom">${calCard}${recentCard}</div>`;
 }
 
@@ -3228,18 +3221,8 @@ const MONTHS = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","A
 function calNav(d) { calM += d; if (calM > 11) { calM = 0; calY++; } if (calM < 0) { calM = 11; calY--; } renderCalendar(); }
 function calToday() { const n = new Date(); calY = n.getFullYear(); calM = n.getMonth(); renderCalendar(); }
 function renderCalendar() {
-  document.getElementById("cal-lbl").textContent = MONTHS[calM] + " " + calY;
-  document.getElementById("cal-hdr").innerHTML = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"].map(d => '<div class="cal-hc">' + d + '</div>').join("");
-  const first = new Date(calY, calM, 1).getDay(), days = new Date(calY, calM + 1, 0).getDate(), today = todayISO();
-  const dm = {}; acctTrades().forEach(t => { if (!dm[t.date]) dm[t.date] = 0; dm[t.date] += t.pnl; });
-  let html = Array(first).fill('<div class="cday empty-c"></div>').join("");
-  for (let d = 1; d <= days; d++) {
-    const iso = calY + "-" + String(calM + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
-    const pnl = dm[iso]; let cls = "empty-d", extra = "";
-    if (pnl !== undefined) { cls = pnl > 0 ? "win" : pnl < 0 ? "loss" : "be"; extra = '<span style="font-size:8px">' + (pnl >= 0 ? "+" : "") + "$" + Math.round(pnl) + '</span>'; }
-    html += '<div class="cday ' + cls + (iso === today ? " today" : "") + '" onclick="openReview(\'' + iso + '\')">' + d + extra + '</div>';
-  }
-  document.getElementById("cal-grid").innerHTML = html;
+  // Calendário integrado no Dashboard — renderDashboard trata do calendário
+  renderDashboard();
 }
 
 // ═══════════════════════════════════════════
@@ -3316,7 +3299,7 @@ function renderQuant() {
   const evBars = Object.entries(byConf).sort((a,b)=>b[1].n-a[1].n).map(([name,d]) => { const wr=d.n?d.w/d.n:0,aW=d.w?d.tW/d.w:0,aL=(d.n-d.w)?d.tL/(d.n-d.w):0; const ev=wr*aW-(1-wr)*aL; const pct=Math.min(100,Math.max(0,(ev+100)/2)); return '<div class="bar-row"><div class="barlbl">'+name+'</div><div class="bartrack"><div class="barfill" style="width:'+pct+'%;background:'+d.color+'"></div></div><div class="barval" style="color:'+(ev>0?"var(--green)":"var(--red)")+'">'+(ev>0?"+":"")+"$"+ev.toFixed(1)+'</div><div class="barn">'+d.n+'T</div></div>'; }).join("") || '<div style="color:var(--hint);font-size:12px;font-family:var(--mono)">Adiciona confluências para ver EV</div>';
   // Bias correlation
   const bG = {}; t.forEach(x => { const b=psData[x.date]?.bias||null; if(!b)return; if(!bG[b])bG[b]={n:0,w:0,tW:0,tL:0}; bG[b].n++; if(x.pnl>0){bG[b].w++;bG[b].tW+=x.pnl;}else bG[b].tL+=Math.abs(x.pnl); });
-  const biasHTML = Object.entries(bG).map(([b,d]) => { const wr=d.n?Math.round(d.w/d.n*100):0; const ev=(d.n?d.w/d.n:0)*(d.w?d.tW/d.w:0)-((d.n?1-d.w/d.n:0))*(d.n-d.w?d.tL/(d.n-d.w):0); const bc=b==="Bullish"?"var(--green)":b==="Bearish"?"var(--red)":b==="Cauteloso"?"var(--amber)":"var(--sub)"; const bg=b==="Bullish"?"#071f0f":b==="Bearish"?"#1f0707":b==="Cauteloso"?"#241a06":"var(--s3)"; return '<div style="display:grid;grid-template-columns:90px 35px 1fr 60px 60px;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--b1);font-family:var(--mono);font-size:11px"><span style="color:'+bc+';background:'+bg+';padding:2px 8px;border-radius:5px;font-weight:600;font-size:10px">'+b+'</span><span style="color:var(--hint)">'+d.n+'T</span><div style="background:var(--s3);border-radius:3px;height:5px;overflow:hidden"><div style="width:'+wr+'%;height:100%;background:'+bc+';border-radius:3px"></div></div><span style="color:var(--accent);text-align:right">'+wr+'%</span><span style="color:'+(ev>0?"var(--green)":"var(--red)")+';text-align:right">'+(ev>0?"+":"")+"$"+ev.toFixed(1)+'</span></div>'; }).join("");
+  const biasHTML = Object.entries(bG).map(([b,d]) => { const wr=d.n?Math.round(d.w/d.n*100):0; const ev=(d.n?d.w/d.n:0)*(d.w?d.tW/d.w:0)-((d.n?1-d.w/d.n:0))*(d.n-d.w?d.tL/(d.n-d.w):0); const bc=getBiasColor(b); const bg=getBiasBg(b); return '<div style="display:grid;grid-template-columns:90px 35px 1fr 60px 60px;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--b1);font-family:var(--mono);font-size:11px"><span style="color:'+bc+';background:'+bg+';padding:2px 8px;border-radius:5px;font-weight:600;font-size:10px">'+b+'</span><span style="color:var(--hint)">'+d.n+'T</span><div style="background:var(--s3);border-radius:3px;height:5px;overflow:hidden"><div style="width:'+wr+'%;height:100%;background:'+bc+';border-radius:3px"></div></div><span style="color:var(--accent);text-align:right">'+wr+'%</span><span style="color:'+(ev>0?"var(--green)":"var(--red)")+';text-align:right">'+(ev>0?"+":"")+"$"+ev.toFixed(1)+'</span></div>'; }).join("");
   el.innerHTML =
     '<div class="metric-grid">' +
       '<div class="mcard"><div class="mval" style="color:'+(s.net>=0?"var(--green)":"var(--red)")+'">'+(s.net>=0?"+":"")+"$"+s.net.toFixed(2)+'</div><div class="mlbl">Net P&L</div><div class="msub">'+s.n+' trades</div></div>' +
@@ -3733,12 +3716,17 @@ function updateBackupLbl() {
 function exportAllCSV() {
   const all = acctTrades();
   if (!all.length) return toast("Sem trades", "err");
-  const header = "Date;Time;Symbol;Direction;Entry;Exit;Stop;TP;Risk;PnL;RR;R;Confluences;Fed;Bias;Mistakes";
+  const header = "Date;Time;Symbol;Direction;Entry;Exit;PnL;Stop_Ticks;TP_Ticks;Risk_USD;RR_Planned;R_Realized;Confluences;Rating;Trade_Recap;Errors;Day_Bias;Fed_Narrative;Sentiment";
   const rows = all.map(x => {
     const ctx = psData[x.date] || {};
-    const confsStr = parseConfs(x.confluences).map(c => confLabel(c.id, c.sr)).join("|");
-    const mistakesStr = (x.mistakes || []).join("|");
-    return [x.date, x.time||"", x.symbol, x.direction, x.entry||"", x.exit||"", x.stop||"", x.tp||"", x.risk||"", x.pnl, x.rr||"", x.r||"", confsStr, ctx.fed||"", ctx.bias||"", mistakesStr].join(";");
+    const confsStr = parseConfs(x.confluences).map(c => {
+      const conf = CMAP[c.id]; if (!conf) return c.id;
+      return conf.label + (c.sr ? (c.sr === 'S' ? ' Support' : ' Resistance') : '');
+    }).join(" | ");
+    const riskUSD = (x.stop_ticks && x.qty) ? (x.stop_ticks * 0.50 * x.qty).toFixed(2) : (x.risk || "");
+    const recap = (x.notes || "").replace(/\n/g, " ");
+    const errors = (x.mistakes_note || "").replace(/\n/g, " ");
+    return [x.date, x.time||"", x.symbol||"", x.direction||"", x.entry||"", x.exit||"", x.pnl, x.stop_ticks||"", x.tp_ticks||"", riskUSD, x.rr||"", x.r||"", confsStr, x.rating||"", recap, errors, ctx.bias||"", ctx.fed||"", ctx.sentiment||""].join(";");
   });
   const csv = [header, ...rows].join("\r\n");
   const a = document.createElement("a");
@@ -3802,11 +3790,20 @@ function checkClearAllConfirm() {
 async function executeClearAll() {
   if (!curAcct) return;
   hideClearAllModal();
-  if (allT[curAcct.id]) { allT[curAcct.id] = {}; }
+  allT[curAcct.id] = [];
+  // Clear pre-session data for this account
+  const acctId = curAcct.id;
+  Object.keys(psData).forEach(date => {
+    if ((psData[date].account_id || psData[date].accountId) === acctId) {
+      delete psData[date];
+    }
+  });
   persist();
+  localStorage.setItem("nq10_ps", JSON.stringify(psData));
   await sbPushKey("nq10_t", allT);
+  await sbPushKey("nq10_ps", psData);
   renderSessBar(); renderList(); renderCalendar(); renderJournal(); renderDashboard(); renderReports();
-  toast("Todas as trades apagadas ✓", "ok");
+  toast("Todas as trades e pré-sessões apagadas ✓", "ok");
 }
 
 // ═══════════════════════════════════════════
@@ -3852,8 +3849,19 @@ function loadCustomConfs() {
 
 function exportCSV() {
   const t = dayTrades(curDate); if (!t.length) return toast("Sem trades", "err");
-  const rows = t.map(x => [x.date,x.symbol,x.direction,x.entry,x.exit,x.stop,x.tp,x.risk,x.pnl,x.rr,x.r].join(";"));
-  const csv = ["Date;Symbol;Direction;Entry;Exit;Stop;TP;Risk;PnL;RR;R",...rows].join("\r\n");
+  const ctx = psData[curDate] || {};
+  const header = "Date;Time;Symbol;Direction;Entry;Exit;PnL;Stop_Ticks;TP_Ticks;Risk_USD;RR_Planned;R_Realized;Confluences;Rating;Trade_Recap;Errors;Day_Bias;Fed_Narrative;Sentiment";
+  const rows = t.map(x => {
+    const confsStr = parseConfs(x.confluences).map(c => {
+      const conf = CMAP[c.id]; if (!conf) return c.id;
+      return conf.label + (c.sr ? (c.sr === 'S' ? ' Support' : ' Resistance') : '');
+    }).join(" | ");
+    const riskUSD = (x.stop_ticks && x.qty) ? (x.stop_ticks * 0.50 * x.qty).toFixed(2) : (x.risk || "");
+    const recap = (x.notes || "").replace(/\n/g, " ");
+    const errors = (x.mistakes_note || "").replace(/\n/g, " ");
+    return [x.date, x.time||"", x.symbol||"", x.direction||"", x.entry||"", x.exit||"", x.pnl, x.stop_ticks||"", x.tp_ticks||"", riskUSD, x.rr||"", x.r||"", confsStr, x.rating||"", recap, errors, ctx.bias||"", ctx.fed||"", ctx.sentiment||""].join(";");
+  });
+  const csv = [header, ...rows].join("\r\n");
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download = (curAcct?.name||"trades")+"_"+curDate.replace(/-/g,"")+".csv"; a.click();
   toast(t.length + " exportadas", "ok");
 }
@@ -4348,7 +4356,6 @@ function rptEdge(trades) {
   // ── Helpers ──
   function getConfsFromTrade(t) { return parseConfs(t.confluences); }
   function getCtx(d) { return psData[d] || {}; }
-  function getSlot(t) { return t.time_slot || getTimeSlot(t.time) || 'pre-orb'; }
 
   // ══ SECÇÃO 1 — POR DIMENSÃO ══
 
@@ -4367,14 +4374,8 @@ function rptEdge(trades) {
     });
   const confRowsHtml = confData.map(({c, st}) => eeRow(c.label, st, minN, c.color)).join('');
 
-  // Tabela 2 — Por time slot
-  const slotGroups = {};
-  SLOT_ORDER.forEach(k => { slotGroups[k] = []; });
-  trades.forEach(t => { const s = getSlot(t); if (slotGroups[s] !== undefined) slotGroups[s].push(t); });
-  const slotRowsHtml = SLOT_ORDER.map(k => eeRow(SLOT_LABELS[k], eeStats(slotGroups[k]), minN, null)).join('');
-
-  // Tabela 3 — Por bias
-  const BIAS_ORDER = ['Bullish','Bearish','Neutro','Cauteloso','Sem bias'];
+  // Tabela 2 — Por bias
+  const BIAS_ORDER = ['Bullish','Bearish','Consolidation/Ranging','Sem bias'];
   const biasGroups = {};
   BIAS_ORDER.forEach(k => { biasGroups[k] = []; });
   trades.forEach(t => {
@@ -4384,7 +4385,7 @@ function rptEdge(trades) {
   });
   const biasRowsHtml = BIAS_ORDER.map(k => eeRow(k, eeStats(biasGroups[k]), minN, null)).join('');
 
-  // Tabela 4 — Por Fed
+  // Tabela 3 — Por Fed
   const FED_ORDER = ['Hawkish','Neutral to Hawkish','Neutral','Neutral to Dovish','Dovish','Não definido'];
   const fedGroups = {};
   FED_ORDER.forEach(k => { fedGroups[k] = []; });
@@ -4397,7 +4398,6 @@ function rptEdge(trades) {
 
   const sec1 = '<div class="sec">' +
     eeTable('Por Confluência', confRowsHtml) +
-    eeTable('Por Time Slot', slotRowsHtml) +
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">' +
     '<div>' + eeTable('Por Bias do Dia', biasRowsHtml) + '</div>' +
     '<div>' + eeTable('Por Fed Sentiment', fedRowsHtml) + '</div>' +
@@ -4406,19 +4406,8 @@ function rptEdge(trades) {
 
   // ══ SECÇÃO 2 — HEATMAPS ══
 
-  const BIAS_COLS = ['Bullish','Bearish','Neutro','Cauteloso'].map(k=>({key:k,label:k}));
-  const SLOT_ROWS = SLOT_ORDER.map(k=>({key:k,label:SLOT_LABELS[k]}));
+  const BIAS_COLS = ['Bullish','Bearish','Consolidation/Ranging'].map(k=>({key:k,label:k}));
   const CONF_ROWS = CONFS.map(c=>({key:c.id,label:c.label.split(' ')[0]}));
-
-  const hm1 = buildHeatmap(
-    'Confluência × Time Slot — Win Rate',
-    CONF_ROWS, SLOT_ORDER.map(k=>({key:k,label:SLOT_LABELS[k].split('–')[0]})),
-    (confId, slotKey) => trades.filter(t => {
-      const confs = getConfsFromTrade(t);
-      return confs.some(c=>c.id===confId) && getSlot(t)===slotKey;
-    }),
-    minN
-  );
 
   const hm2 = buildHeatmap(
     'Confluência × Bias — Win Rate',
@@ -4431,27 +4420,16 @@ function rptEdge(trades) {
     minN
   );
 
-  const hm3 = buildHeatmap(
-    'Time Slot × Bias — Win Rate',
-    SLOT_ROWS, BIAS_COLS,
-    (slotKey, biasKey) => trades.filter(t => {
-      const b = getCtx(t.date).bias || 'Sem bias';
-      return getSlot(t)===slotKey && b===biasKey;
-    }),
-    minN
-  );
-
-  const sec2 = '<div class="sec">' + hm1 + hm2 + hm3 + '</div>';
+  const sec2 = '<div class="sec">' + hm2 + '</div>';
 
   // ══ SECÇÃO 3 — TOP SETUPS ══
   const combos = {};
   trades.forEach(t => {
-    const slot = getSlot(t);
     const bias = getCtx(t.date).bias || '';
     const confs = getConfsFromTrade(t);
     confs.forEach(c => {
-      const key = c.id + '|' + slot + '|' + bias;
-      if (!combos[key]) combos[key] = { label: (CMAP[c.id]?.label||c.id) + ' · ' + SLOT_LABELS[slot] + (bias?' · '+bias:''), trades: [] };
+      const key = c.id + '|' + bias;
+      if (!combos[key]) combos[key] = { label: (CMAP[c.id]?.label||c.id) + (bias?' · '+bias:''), trades: [] };
       combos[key].trades.push(t);
     });
   });
