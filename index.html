@@ -644,18 +644,52 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 
 /* No activity */
 .ddr-empty{padding:11px 17px;font-size:11px;font-family:var(--mono);color:var(--hint);display:flex;align-items:center;gap:8px}
+
+/* LOGIN SCREEN */
+#login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:32px;position:fixed;inset:0;background:var(--bg);z-index:1000}
+.login-card{background:var(--s1);border:1px solid var(--b1);border-radius:16px;padding:28px 28px 24px;width:100%;max-width:360px;margin-top:20px;box-shadow:0 20px 60px #00000055}
+.login-card h2{font-size:14px;font-weight:600;margin-bottom:18px;text-align:center;color:var(--sub);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em}
+.login-input{width:100%;font-family:var(--mono);font-size:13px;background:var(--s2);border:1px solid var(--b1);border-radius:8px;color:var(--text);padding:9px 12px;outline:none;margin-bottom:10px;transition:border-color .15s;display:block}
+.login-input:focus{border-color:var(--accent)}
+.login-input::placeholder{color:var(--hint)}
+.login-divider{text-align:center;font-size:11px;color:var(--hint);font-family:var(--mono);margin:10px 0}
+/* Sync indicator */
+.sync-dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0;transition:background .3s}
+.sync-dot.ok{background:var(--green)}
+.sync-dot.err{background:var(--red);animation:sync-err-pulse 1.5s infinite}
+.sync-dot.off{background:var(--hint)}
+.sync-dot.busy{background:var(--amber);animation:sync-busy-pulse .8s infinite}
+@keyframes sync-err-pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes sync-busy-pulse{0%,100%{opacity:1}50%{opacity:.3}}
 </style>
 </head>
 <body>
 
-<!-- ACCOUNT SCREEN -->
-<div id="acct-screen">
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
   <div class="as-brand"><div class="as-icon">NQ</div><div class="as-title">Trade Logger</div></div>
-  <div class="as-sub" id="as-sub">A verificar sessão...</div>
-  <div id="sb-auth-bar" style="margin-bottom:20px"></div>
-  <div id="acct-section" style="display:none">
+  <div class="as-sub">Diário profissional para trading de futuros NQ</div>
+  <div class="login-card">
+    <h2>Entrar na conta</h2>
+    <input type="email" id="login-email" class="login-input" placeholder="Email" autocomplete="email">
+    <input type="password" id="login-pass" class="login-input" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')sbLogin()">
+    <button class="btn btn-accent" style="width:100%;padding:10px;font-size:13px;margin-bottom:8px" onclick="sbLogin()">Entrar</button>
+    <div class="login-divider">— ou —</div>
+    <button class="btn btn-ghost" style="width:100%;padding:8px;font-size:12px" onclick="sbSignUp()">Criar conta</button>
+    <div id="login-msg" style="margin-top:12px;font-size:11px;font-family:var(--mono);color:var(--hint);text-align:center;min-height:16px"></div>
+  </div>
+</div>
+
+<!-- ACCOUNT SCREEN -->
+<div id="acct-screen" style="display:none">
+  <div class="as-brand"><div class="as-icon">NQ</div><div class="as-title">Trade Logger</div></div>
+  <div class="as-sub" id="as-sub">Seleciona a conta para começar</div>
+  <div id="acct-section">
     <div class="acct-grid" id="acct-grid"></div>
-    <div style="margin-top:12px"><button class="btn btn-ghost" onclick="addAcct()">+ Nova conta</button></div>
+    <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+      <button class="btn btn-ghost" onclick="addAcct()">+ Nova conta</button>
+      <button class="btn btn-ghost btn-sm" onclick="sbLogout()" style="color:var(--hint)">Sair da sessão</button>
+    </div>
   </div>
 </div>
 
@@ -667,7 +701,10 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
       <div><div class="brand-name">Trade Logger</div><div class="brand-acct" id="nav-acct"></div></div>
     </div>
     <div style="display:flex;gap:8px;align-items:center">
-      <div id="sb-auth-bar"></div>
+      <span id="sync-status" style="display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;color:var(--hint)" title="Estado da sincronização com a cloud">
+        <span class="sync-dot off" id="sync-dot"></span>
+        <span id="sync-label" style="max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+      </span>
       <span id="save-lbl" style="font-size:10px;font-family:var(--mono);color:var(--hint)"></span>
       <button class="btn btn-ghost btn-sm" onclick="goAccts()">← contas</button>
       <button class="btn btn-green btn-sm" onclick="exportCSV()">↓ CSV Dia</button>
@@ -1142,26 +1179,59 @@ const sb = supabase.createClient(SB_URL, SB_KEY);
 let sbUser = null;
 
 async function sbInit() {
+  setSyncStatus("busy", "a verificar...");
   try {
     const { data: { session } } = await sb.auth.getSession();
     sbUser = session?.user || null;
   } catch(e) { sbUser = null; }
-  if (sbUser) { await sbPullData(); showSbStatus(); }
-  else showSbLogin();
+  if (sbUser) {
+    await sbPullData();
+    showAcctScreen();
+  } else {
+    showLoginScreen();
+  }
   sb.auth.onAuthStateChange(async (event, session) => {
     sbUser = session?.user || null;
-    if (event === "SIGNED_IN") { await sbPullData(); showSbStatus(); }
-    if (event === "SIGNED_OUT") showSbLogin();
+    if (event === "SIGNED_IN") {
+      setLoginMsg("");
+      await sbPullData();
+      showAcctScreen();
+    }
+    if (event === "SIGNED_OUT") {
+      showLoginScreen();
+    }
   });
+}
+
+function showLoginScreen() {
+  document.getElementById("login-screen").style.display = "flex";
+  document.getElementById("acct-screen").style.display = "none";
+  document.getElementById("app").style.display = "none";
+  setSyncStatus("off", "");
+}
+
+function showAcctScreen() {
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("acct-screen").style.display = "flex";
+  document.getElementById("app").style.display = "none";
+  // Show email in topbar sync label
+  setSyncStatus("ok", sbUser?.email || "autenticado");
+  renderAccts();
 }
 
 async function sbPullData() {
   if (!sbUser) return;
+  setSyncStatus("busy", "a carregar...");
   const { data, error } = await sb.from("user_data").select("key,value").eq("user_id", sbUser.id);
-  if (error) { console.error("sbPullData:", error); return; }
+  if (error) {
+    console.error("sbPullData:", error);
+    setSyncStatus("err", "erro sync");
+    toast("Erro ao carregar dados da cloud: " + error.message, "err");
+    renderAccts();
+    return;
+  }
   if (data.length === 0) {
-    // Supabase vazio — só faz upload se houver dados locais reais
-    // (evita apagar dados na cloud por causa de localStorage vazio)
+    // Supabase vazio — faz upload se houver dados locais reais
     const localHasTrades = Object.values(allT).some(arr => Array.isArray(arr) && arr.length > 0);
     const localHasSess   = Object.keys(psData).length > 0;
     const localHasWP     = Object.keys(weeklyPrep).length > 0;
@@ -1170,8 +1240,11 @@ async function sbPullData() {
       await sbPushKey("nq10_t",  allT);
       await sbPushKey("nq10_ps", psData);
       await sbPushKey("nq10_wp", weeklyPrep);
-      showToast("Dados enviados para a cloud!");
+      toast("Dados locais enviados para a cloud ✓", "ok");
+    } else {
+      setSyncStatus("ok", sbUser?.email || "autenticado");
     }
+    renderAccts();
     return;
   }
   data.forEach(row => {
@@ -1188,57 +1261,69 @@ async function sbPullData() {
   localStorage.setItem("nq10_t",  JSON.stringify(allT));
   localStorage.setItem("nq10_ps", JSON.stringify(psData));
   localStorage.setItem("nq10_wp", JSON.stringify(weeklyPrep));
+  setSyncStatus("ok", sbUser?.email || "autenticado");
   renderAccts();
 }
 
 async function sbPushKey(key, value) {
   if (!sbUser) return;
-  await sb.from("user_data").upsert({ user_id: sbUser.id, key, value, updated_at: new Date().toISOString() }, { onConflict: "user_id,key" });
+  setSyncStatus("busy", "a guardar...");
+  const { error } = await sb.from("user_data").upsert(
+    { user_id: sbUser.id, key, value, updated_at: new Date().toISOString() },
+    { onConflict: "user_id,key" }
+  );
+  if (error) {
+    console.error("sbPushKey(" + key + "):", error);
+    setSyncStatus("err", "erro sync");
+    toast("Erro ao sincronizar (" + key + "): " + error.message, "err");
+  } else {
+    setSyncStatus("ok", sbUser?.email || "autenticado");
+  }
 }
 
-function showSbLogin() {
-  const el = document.getElementById("sb-auth-bar"); if (!el) return;
-  const sub = document.getElementById("as-sub"); if (sub) sub.textContent = "Autentica-te para começar";
-  const sec = document.getElementById("acct-section"); if (sec) sec.style.display = "none";
-  el.innerHTML = '<div style="display:flex;align-items:center;gap:8px">' +
-    '<input type="email" id="sb-email" placeholder="email" style="font-family:var(--mono);font-size:11px;background:var(--s3);border:1px solid var(--b1);border-radius:6px;color:var(--text);padding:4px 9px;outline:none;width:160px">' +
-    '<input type="password" id="sb-pass" placeholder="password" style="font-family:var(--mono);font-size:11px;background:var(--s3);border:1px solid var(--b1);border-radius:6px;color:var(--text);padding:4px 9px;outline:none;width:110px">' +
-    '<button class="btn btn-accent btn-sm" onclick="sbLogin()">Entrar</button>' +
-    '<button class="btn btn-ghost btn-sm" onclick="sbSignUp()">Registar</button>' +
-    '</div>';
+function setSyncStatus(state, label) {
+  const dot = document.getElementById("sync-dot");
+  const lbl = document.getElementById("sync-label");
+  if (dot) dot.className = "sync-dot " + state;
+  if (lbl) lbl.textContent = label;
 }
 
-function showSbStatus() {
-  const el = document.getElementById("sb-auth-bar"); if (!el) return;
-  const sub = document.getElementById("as-sub"); if (sub) sub.textContent = "Seleciona a conta para começar";
-  const sec = document.getElementById("acct-section"); if (sec) sec.style.display = "";
-  el.innerHTML = '<div style="display:flex;align-items:center;gap:8px">' +
-    '<span style="font-family:var(--mono);font-size:10px;color:var(--green)">● ' + sbUser.email + '</span>' +
-    '<button class="btn btn-ghost btn-sm" onclick="sbLogout()">Sair</button>' +
-    '</div>';
+function setLoginMsg(msg, isErr) {
+  const el = document.getElementById("login-msg");
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = isErr ? "var(--red)" : "var(--hint)";
 }
 
 async function sbLogin() {
-  const email = document.getElementById("sb-email")?.value?.trim();
-  const pass  = document.getElementById("sb-pass")?.value?.trim();
-  if (!email || !pass) return toast("Preenche email e password", "err");
+  const email = document.getElementById("login-email")?.value?.trim();
+  const pass  = document.getElementById("login-pass")?.value?.trim();
+  if (!email || !pass) return setLoginMsg("Preenche email e password", true);
+  setLoginMsg("A entrar...");
   const { error } = await sb.auth.signInWithPassword({ email, password: pass });
-  if (error) toast("Erro: " + error.message, "err");
-  else toast("Sessão iniciada ✓", "ok");
+  if (error) setLoginMsg("Erro: " + error.message, true);
+  // success handled via onAuthStateChange
 }
 
 async function sbSignUp() {
-  const email = document.getElementById("sb-email")?.value?.trim();
-  const pass  = document.getElementById("sb-pass")?.value?.trim();
-  if (!email || !pass) return toast("Preenche email e password", "err");
-  if (pass.length < 6) return toast("Password mínimo 6 caracteres", "err");
+  const email = document.getElementById("login-email")?.value?.trim();
+  const pass  = document.getElementById("login-pass")?.value?.trim();
+  if (!email || !pass) return setLoginMsg("Preenche email e password", true);
+  if (pass.length < 6) return setLoginMsg("Password mínimo 6 caracteres", true);
+  setLoginMsg("A criar conta...");
   const { error } = await sb.auth.signUp({ email, password: pass });
-  if (error) toast("Erro: " + error.message, "err");
-  else toast("Conta criada — verifica o email ✓", "ok");
+  if (error) setLoginMsg("Erro: " + error.message, true);
+  else setLoginMsg("Conta criada — verifica o email para confirmar ✓");
 }
 
 async function sbLogout() {
   await sb.auth.signOut();
+  // limpar estado local
+  allT = {}; psData = {}; weeklyPrep = {};
+  accounts = [{ id: "lucid", name: "Lucid", emoji: "🔵" }, { id: "mff", name: "My Funded Futures", emoji: "🟢" }];
+  customConfs = [];
+  localStorage.clear();
+  showLoginScreen();
   toast("Sessão terminada", "ok");
 }
 // ═══════════════════════════════════════════
