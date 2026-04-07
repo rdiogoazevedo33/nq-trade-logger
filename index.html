@@ -245,7 +245,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .rv-sec-title{font-size:11px;font-family:var(--mono);color:var(--text);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
 /* Screenshots */
 .ss-zone{border:2px dashed var(--b2);border-radius:10px;padding:28px;text-align:center;cursor:pointer;transition:all .18s}
-.ss-zone:hover{border-color:var(--accent)}
+.ss-zone:hover,.ss-zone.drag{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 5%,transparent)}
 .ss-wrap{position:relative;border-radius:9px;overflow:hidden;border:1px solid var(--b1);margin-bottom:8px}
 .ss-wrap img{width:100%;display:block}
 .ss-del{position:absolute;top:7px;right:7px;background:rgba(0,0,0,.75);border:none;color:#fff;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center}
@@ -376,10 +376,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .ps-upload-zone{border:2px dashed var(--b2);border-radius:11px;padding:22px 16px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:10px}
 .ps-upload-zone:hover,.ps-upload-zone.drag{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 5%,transparent)}
 .ps-upload-zone-txt{font-size:11px;font-family:var(--mono);color:var(--hint)}
-.ps-thumb-grid{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
-.ps-thumb{position:relative;width:90px;height:66px;border-radius:8px;overflow:hidden;border:1px solid var(--b1)}
-.ps-thumb img{width:100%;height:100%;object-fit:cover;cursor:pointer}
-.ps-thumb-rm{position:absolute;top:3px;right:3px;background:#000000bb;border:none;color:#fff;cursor:pointer;font-size:10px;border-radius:4px;width:18px;height:18px;display:flex;align-items:center;justify-content:center;line-height:1}
+.ps-thumb-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.ps-thumb{position:relative;border-radius:8px;overflow:hidden;border:1px solid var(--b1)}
+.ps-thumb img{width:100%;height:auto;display:block;cursor:default}
+.ps-thumb-rm{position:absolute;top:7px;right:7px;background:#000000bb;border:none;color:#fff;cursor:pointer;font-size:10px;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;line-height:1}
 .ps-thumb-rm:hover{background:var(--red)}
 
 /* PS PROFILE BIAS */
@@ -389,8 +389,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .ps-pbias-btn.neut.on{background:var(--s3);border-color:var(--sub);color:var(--text)}
 
 /* DATE INPUT */
+input[type="date"]{background:var(--s2);color:var(--text);border:1px solid var(--b1);border-radius:7px;font-family:var(--mono);padding:5px 9px;outline:none;cursor:pointer;transition:border-color .15s}
+input[type="date"]:hover{border-color:var(--b2)}
+input[type="date"]:focus{border-color:var(--accent)}
 input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1) opacity(.5);cursor:pointer}
 input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
+#ps-date-picker{font-size:13px;font-weight:600;padding:6px 10px;border-radius:8px}
 
 /* PS COLLAPSIBLE */
 .ps-collapse-hdr{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:8px 0;border-bottom:1px solid var(--b1);margin-bottom:10px;user-select:none;transition:color .13s}
@@ -597,10 +601,10 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .wp-subsec-ttl{font-size:11px;font-weight:600;margin-bottom:9px}
 .wp-upload-zone{border:1.5px dashed var(--b2);border-radius:8px;padding:12px;text-align:center;cursor:pointer;transition:all .17s;font-size:11px;color:var(--hint);font-family:var(--mono);margin-bottom:7px}
 .wp-upload-zone:hover,.wp-upload-zone.drag{border-color:var(--accent);color:var(--accent)}
-.wp-thumb-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
-.wp-thumb{position:relative;width:60px;height:45px;border-radius:7px;overflow:hidden;border:1px solid var(--b1);flex-shrink:0}
-.wp-thumb img{width:100%;height:100%;object-fit:cover;cursor:pointer;display:block}
-.wp-thumb-rm{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.8);border:none;color:#fff;border-radius:50%;width:15px;height:15px;cursor:pointer;font-size:8px;display:flex;align-items:center;justify-content:center;line-height:1;padding:0}
+.wp-thumb-row{display:flex;flex-direction:column;gap:8px;margin-bottom:6px}
+.wp-thumb{position:relative;border-radius:7px;overflow:hidden;border:1px solid var(--b1)}
+.wp-thumb img{width:100%;height:auto;display:block;cursor:default}
+.wp-thumb-rm{position:absolute;top:7px;right:7px;background:rgba(0,0,0,.8);border:none;color:#fff;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:9px;display:flex;align-items:center;justify-content:center;line-height:1;padding:0}
 .wp-bias-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px;align-items:center}
 .wp-bias-btn{font-family:var(--mono);font-size:11px;padding:5px 12px;border-radius:7px;border:1px solid var(--b1);background:var(--s2);cursor:pointer;color:var(--sub);transition:all .15s}
 .wp-bias-btn.bull.on{background:#071f0f;border-color:var(--green);color:var(--green)}
@@ -760,7 +764,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:11px 14px">
         <div style="flex:1;min-width:0">
           <div style="font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Sessão</div>
-          <input type="date" id="ps-date-picker" style="font-family:var(--mono);font-size:13px;font-weight:600;background:var(--s2);border:1px solid var(--b1);border-radius:8px;color:var(--text);outline:none;cursor:pointer;padding:6px 10px;transition:border-color .15s" onmouseover="this.style.borderColor='var(--b2)'" onmouseout="if(document.activeElement!==this)this.style.borderColor='var(--b1)'" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--b1)'" onchange="loadPSDate(this.value)">
+          <input type="date" id="ps-date-picker" onchange="loadPSDate(this.value)">
         </div>
         <span class="ps-status-badge empty" id="ps-status-badge">○ Não preenchida</span>
         <button class="btn btn-ghost btn-sm" onclick="openDocModal()" style="gap:5px">📄 Documento</button>
@@ -1852,6 +1856,7 @@ function renderWeekCard(weekStart, isCurrent) {
       '<span class="week-badge-pill '+(isCurrent?'current':'done')+'">'+( isCurrent?'Em curso':'Concluída')+'</span>' +
       (weekTrades.length ? '<span class="week-pnl-lbl" style="color:'+pnlColor+'">'+pnlStr+'</span>' : '') +
       '<span class="week-meta-lbl">'+tradeDays+'d · '+weekTrades.length+'T</span>' +
+      '<button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 10px;margin-left:auto" onclick="event.stopPropagation();showWeekFullPrep(\''+weekStart+'\')" title="Ver preparação completa da semana">📋 Preparação</button>' +
       '<span class="week-chevron">▶</span>' +
     '</div>' +
     '<div class="week-body" id="wkb-'+weekStart+'">' +
@@ -1875,13 +1880,13 @@ function buildWeeklyPrepSection(weekStart) {
     const shots = wp[section+'_screenshots'] || [];
     const abbr = section==='cot'?'cot':section==='profile'?'prof':'geo';
     const thumbsHtml = shots.map((src,i) =>
-      '<div class="wp-thumb"><img src="'+src+'" onclick="openPSImg(\''+src.replace(/'/g,"\\'")+'\')"><button class="wp-thumb-rm" onclick="wpRemoveShot(\''+weekStart+'\',\''+section+'\','+i+')">✕</button></div>'
+      '<div class="wp-thumb"><img src="'+src+'" alt="print"><button class="wp-thumb-rm" onclick="wpRemoveShot(\''+weekStart+'\',\''+section+'\','+i+')">✕</button></div>'
     ).join('');
     return '<div class="wp-subsec">' +
       '<div class="wp-subsec-ttl">'+icon+' '+title+'</div>' +
       '<input type="file" accept="image/*" multiple id="wp-'+abbr+'-in-'+weekStart+'" style="display:none" onchange="wpFilesSelected(\''+weekStart+'\',\''+section+'\',this.files)">' +
       '<div class="wp-thumb-row" id="wp-'+abbr+'-thumbs-'+weekStart+'">'+thumbsHtml+'</div>' +
-      '<div class="wp-upload-zone" onclick="document.getElementById(\'wp-'+abbr+'-in-'+weekStart+'\').click()" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="event.preventDefault();this.classList.remove(\'drag\');wpFilesSelected(\''+weekStart+'\',\''+section+'\',event.dataTransfer.files)">+ Adicionar print</div>' +
+      '<div class="wp-upload-zone" onclick="document.getElementById(\'wp-'+abbr+'-in-'+weekStart+'\').click()" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="wpDrop(event,\''+weekStart+'\',\''+section+'\')">+ Adicionar print</div>' +
       '<textarea class="ps-ta" style="min-height:68px" id="wp-'+abbr+'-notes-'+weekStart+'" placeholder="'+getWPPlaceholder(section)+'">'+escHtml(wp[section+'_notes']||'')+'</textarea>' +
     '</div>';
   };
@@ -1958,7 +1963,7 @@ function renderWPThumbs(weekStart, section) {
   const el = document.getElementById('wp-'+abbr+'-thumbs-'+weekStart); if (!el) return;
   const shots = weeklyPrep[weekStart]?.[section+'_screenshots'] || [];
   el.innerHTML = shots.map((src,i) =>
-    '<div class="wp-thumb"><img src="'+src+'" onclick="openPSImg(\''+src.replace(/'/g,"\\'")+'\')" ><button class="wp-thumb-rm" onclick="wpRemoveShot(\''+weekStart+'\',\''+section+'\','+i+')">✕</button></div>'
+    '<div class="wp-thumb"><img src="'+src+'" alt="print"><button class="wp-thumb-rm" onclick="wpRemoveShot(\''+weekStart+'\',\''+section+'\','+i+')">✕</button></div>'
   ).join('');
 }
 
@@ -2017,7 +2022,7 @@ function buildDiaryDayDetail(date) {
   }).join('');
   const profShots = ctx.profile_screenshots || [];
   const profThumbsHtml = profShots.map((src,i) =>
-    '<div class="wp-thumb"><img src="'+src+'" onclick="openPSImg(\''+src.replace(/'/g,"\\'")+'\')" ><button class="wp-thumb-rm" onclick="ddrRemoveShot(\''+date+'\','+i+')">✕</button></div>'
+    '<div class="wp-thumb"><img src="'+src+'" alt="print"><button class="wp-thumb-rm" onclick="ddrRemoveShot(\''+date+'\','+i+')">✕</button></div>'
   ).join('');
 
   // Macro & Fundamental — right col
@@ -2052,7 +2057,7 @@ function buildDiaryDayDetail(date) {
       '<div class="ddr-field-lbl">Prints do Deepcharts</div>' +
       '<input type="file" accept="image/*" multiple id="ddr-ss-in-'+date+'" style="display:none" onchange="ddrFilesSelected(\''+date+'\',this.files)">' +
       '<div class="wp-thumb-row" id="ddr-ss-grid-'+date+'">'+profThumbsHtml+'</div>' +
-      '<div class="wp-upload-zone" onclick="document.getElementById(\'ddr-ss-in-'+date+'\').click()" ondragover="event.preventDefault()" ondrop="event.preventDefault();ddrFilesSelected(\''+date+'\',event.dataTransfer.files)" style="padding:10px;margin-bottom:8px;font-size:10px">+ Print</div>' +
+      '<div class="wp-upload-zone" onclick="document.getElementById(\'ddr-ss-in-'+date+'\').click()" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="ddrDrop(event,\''+date+'\')" style="padding:10px;margin-bottom:8px;font-size:10px">+ Print</div>' +
       '<div class="ddr-field-lbl">Bias do profile</div>' +
       '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">'+pBiasBtns+'</div>' +
       '<div class="ddr-field-lbl">Leitura do profile</div>' +
@@ -2211,7 +2216,7 @@ function ddrFilesSelected(date, files) {
         savePSData();
         const grid = document.getElementById('ddr-ss-grid-'+date);
         if (grid) grid.innerHTML = psData[date].profile_screenshots.map((src,i) =>
-          '<div class="wp-thumb"><img src="'+src+'" onclick="openPSImg(\''+src.replace(/'/g,"\\'")+'\')" ><button class="wp-thumb-rm" onclick="ddrRemoveShot(\''+date+'\','+i+')">✕</button></div>'
+          '<div class="wp-thumb"><img src="'+src+'" alt="print"><button class="wp-thumb-rm" onclick="ddrRemoveShot(\''+date+'\','+i+')">✕</button></div>'
         ).join('');
       }
     };
@@ -2224,7 +2229,7 @@ function ddrRemoveShot(date, idx) {
   savePSData();
   const grid = document.getElementById('ddr-ss-grid-'+date);
   if (grid) grid.innerHTML = psData[date].profile_screenshots.map((src,i) =>
-    '<div class="wp-thumb"><img src="'+src+'" onclick="openPSImg(\''+src.replace(/'/g,"\\'")+'\')" ><button class="wp-thumb-rm" onclick="ddrRemoveShot(\''+date+'\','+i+')">✕</button></div>'
+    '<div class="wp-thumb"><img src="'+src+'" alt="print"><button class="wp-thumb-rm" onclick="ddrRemoveShot(\''+date+'\','+i+')">✕</button></div>'
   ).join('');
 }
 
@@ -2587,7 +2592,7 @@ function renderPSScreenshots(d) {
   if (!shots.length) { grid.innerHTML = ''; return; }
   grid.innerHTML = shots.map((src, i) =>
     '<div class="ps-thumb">' +
-    '<img src="' + src + '" onclick="openPSImg(\'' + src.replace(/'/g,"\\'") + '\')" title="Clica para ver em tamanho completo">' +
+    '<img src="' + src + '" alt="print">' +
     '<button class="ps-thumb-rm" onclick="removePSScreenshot(\'' + d + '\',' + i + ')">✕</button>' +
     '</div>'
   ).join('');
@@ -2625,12 +2630,6 @@ function psFilesSelected(files) {
   });
   document.getElementById('ps-file-input').value = '';
 }
-function psDrop(e) {
-  e.preventDefault();
-  document.getElementById('ps-upload-zone').classList.remove('drag');
-  psFilesSelected(e.dataTransfer.files);
-}
-
 function savePS() {
   const d = psDate || todayISO();
   const existing = psData[d] || {};
@@ -3322,7 +3321,8 @@ function rvRemovePrint(i) {
 }
 function rvRenderGallery(ss) {
   const el = document.getElementById("rv-gallery"); if (!el) return;
-  if (!ss?.length) { el.innerHTML = '<div class="ss-zone" onclick="document.getElementById(\'rv-img-in\').click()"><div style="font-size:20px;opacity:.2;margin-bottom:7px">📷</div><div style="font-size:12px;color:var(--hint);font-family:var(--mono)">Clica para adicionar prints</div></div>'; return; }
+  const dropAttrs = ' ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="rvDrop(event)"';
+  if (!ss?.length) { el.innerHTML = '<div class="ss-zone"' + dropAttrs + ' onclick="document.getElementById(\'rv-img-in\').click()"><div style="font-size:20px;opacity:.2;margin-bottom:7px">📷</div><div style="font-size:12px;color:var(--hint);font-family:var(--mono)">Arrasta prints aqui ou clica para adicionar</div></div>'; return; }
   el.innerHTML = ss.map((src, i) =>
     '<div class="ss-wrap">' +
       '<img src="' + src + '">' +
@@ -3330,7 +3330,7 @@ function rvRenderGallery(ss) {
       '<button onclick="analyzeScreenshot(' + i + ',this)" style="position:absolute;bottom:6px;left:6px;background:rgba(91,143,255,.9);border:none;border-radius:6px;color:#fff;font-size:10px;font-family:var(--mono);padding:3px 8px;cursor:pointer;font-weight:600">🔍 Analisar</button>' +
     '</div>'
   ).join("") +
-    '<div class="ss-zone" style="padding:14px;margin-top:4px" onclick="document.getElementById(\'rv-img-in\').click()"><div style="font-size:11px;color:var(--hint);font-family:var(--mono)">+ Adicionar mais</div></div>';
+    '<div class="ss-zone" style="padding:14px;margin-top:4px"' + dropAttrs + ' onclick="document.getElementById(\'rv-img-in\').click()"><div style="font-size:11px;color:var(--hint);font-family:var(--mono)">+ Adicionar mais</div></div>';
 }
 
 // ═══════════════════════════════════════════
@@ -4257,8 +4257,8 @@ function exportAllCSV() {
       return conf.label + (c.sr ? (c.sr === 'S' ? ' Support' : ' Resistance') : '');
     }).join(" | ");
     const riskUSD = (x.stop_ticks && x.qty) ? (x.stop_ticks * 0.50 * x.qty).toFixed(2) : (x.risk || "");
-    const recap = (x.notes || "").replace(/\n/g, " ");
-    const errors = (x.mistakes_note || "").replace(/\n/g, " ");
+    const recap = stripHTML(x.notes || "").replace(/\n/g, " ");
+    const errors = stripHTML(x.mistakes_note || "").replace(/\n/g, " ");
     return [x.date, x.time||"", x.symbol||"", x.direction||"", x.entry||"", x.exit||"", x.pnl, x.stop_ticks||"", x.tp_ticks||"", riskUSD, x.rr||"", x.r||"", confsStr, x.rating||"", recap, errors, ctx.bias||"", ctx.fed||"", ctx.sentiment||""].join(";");
   });
   const csv = [header, ...rows].join("\r\n");
@@ -4323,20 +4323,20 @@ function checkClearAllConfirm() {
 async function executeClearAll() {
   if (!curAcct) return;
   hideClearAllModal();
+  // Clear in memory
   allT[curAcct.id] = [];
-  // Clear pre-session data for this account
-  const acctId = curAcct.id;
-  Object.keys(psData).forEach(date => {
-    if ((psData[date].account_id || psData[date].accountId) === acctId) {
-      delete psData[date];
-    }
-  });
-  persist();
-  localStorage.setItem("nq10_ps", JSON.stringify(psData));
-  await sbPushKey("nq10_t", allT);
-  await sbPushKey("nq10_ps", psData);
-  renderSessBar(); renderList(); renderCalendar(); renderDiary(); renderDashboard(); renderReports();
-  toast("Todas as trades e pré-sessões apagadas ✓", "ok");
+  // Save to localStorage immediately
+  localStorage.setItem(SK_T, JSON.stringify(allT));
+  // Push to Supabase (awaited — this is the fix: ensures cloud is updated)
+  try {
+    await sbPushKey("nq10_t", allT);
+    renderSessBar(); renderList(); renderCalendar(); renderDiary(); renderDashboard(); renderReports();
+    toast("Trades apagadas ✓", "ok");
+  } catch(err) {
+    console.error("Erro ao apagar do Supabase:", err);
+    renderSessBar(); renderList(); renderCalendar(); renderDiary(); renderDashboard(); renderReports();
+    toast("Apagado localmente (erro na cloud — verifica ligação)", "err");
+  }
 }
 
 // ═══════════════════════════════════════════
@@ -4380,6 +4380,160 @@ function loadCustomConfs() {
   });
 }
 
+// ─── Image Drop Utilities ─────────────────────────────────────────
+function stripHTML(s) {
+  const d = document.createElement('div'); d.innerHTML = s || ''; return d.textContent || d.innerText || '';
+}
+
+async function getDropImages(e) {
+  e.preventDefault();
+  // Filesystem / OS drag
+  let files = Array.from(e.dataTransfer.files || []).filter(f => f.type.startsWith('image/'));
+  if (files.length) return files;
+  // DataTransfer items (Chrome sometimes doesn't expose files directly)
+  const items = Array.from(e.dataTransfer.items || []);
+  files = items.filter(i => i.kind === 'file' && i.type.startsWith('image/')).map(i => i.getAsFile()).filter(Boolean);
+  if (files.length) return files;
+  // Browser-dragged image — try text/html img src
+  const html = e.dataTransfer.getData('text/html');
+  if (html) {
+    const m = html.match(/src="([^"]+)"/);
+    if (m && m[1] && !m[1].startsWith('data:')) {
+      try { const r = await fetch(m[1]); const b = await r.blob(); if (b.type.startsWith('image/')) return [b]; } catch(ex) {}
+    }
+  }
+  // URL list fallback
+  const uriList = e.dataTransfer.getData('text/uri-list') || '';
+  const uri = uriList.split('\n').map(s => s.trim()).find(s => s && !s.startsWith('#'));
+  if (uri) {
+    try { const r = await fetch(uri); const b = await r.blob(); if (b.type.startsWith('image/')) return [b]; } catch(ex) {}
+  }
+  return [];
+}
+
+function readImageFiles(filesOrBlobs, callback) {
+  if (!filesOrBlobs?.length) return;
+  const arr = Array.from(filesOrBlobs);
+  let loaded = 0;
+  const results = new Array(arr.length);
+  arr.forEach((f, i) => {
+    const r = new FileReader();
+    r.onload = ev => { results[i] = ev.target.result; loaded++; if (loaded === arr.length) callback(results.filter(Boolean)); };
+    r.readAsDataURL(f);
+  });
+}
+
+async function psDrop(e) {
+  e.preventDefault();
+  document.getElementById('ps-upload-zone').classList.remove('drag');
+  const imgs = await getDropImages(e);
+  if (imgs.length) psFilesSelected(imgs);
+}
+
+async function wpDrop(e, weekStart, section) {
+  e.preventDefault();
+  const zone = e.currentTarget; if (zone) zone.classList.remove('drag');
+  const imgs = await getDropImages(e);
+  if (imgs.length) wpFilesSelected(weekStart, section, imgs);
+}
+
+async function ddrDrop(e, date) {
+  e.preventDefault();
+  const zone = e.currentTarget; if (zone) zone.classList.remove('drag');
+  const imgs = await getDropImages(e);
+  if (imgs.length) ddrFilesSelected(date, imgs);
+}
+
+async function rvDrop(e) {
+  e.preventDefault();
+  const zone = e.currentTarget; if (zone) zone.classList.remove('drag');
+  const imgs = await getDropImages(e);
+  if (!imgs.length) return;
+  const trds = dayTrades(rvDate); const t = trds[rvIdx]; if (!t) return;
+  const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id); if (idx === -1) return;
+  if (!all[idx].screenshots) all[idx].screenshots = [];
+  readImageFiles(imgs, results => {
+    results.forEach(src => all[idx].screenshots.push(src));
+    setAcctTrades(all); rvRenderGallery(all[idx].screenshots);
+    toast(results.length + ' print(s) guardado(s)', 'ok');
+  });
+}
+
+// ─── Semana — Ver Preparação Completa ────────────────────────────
+function showWeekFullPrep(weekStart) {
+  const wp = weeklyPrep[weekStart] || {};
+  const days = getWeekDays(weekStart);
+  const sec = (title, content) => content ? '<div style="margin-bottom:20px"><div class="doc-sec-title">' + title + '</div>' + content + '</div>' : '';
+  const ta = v => v ? '<div style="font-size:12px;color:var(--text);line-height:1.7;white-space:pre-wrap;background:var(--s2);padding:10px 12px;border-radius:8px;margin-top:5px">' + escHtml(v) + '</div>' : '';
+  const kv = (l, v) => v ? '<div style="display:flex;gap:8px;margin-bottom:5px"><span style="font-family:var(--mono);font-size:10px;color:var(--hint);min-width:110px;flex-shrink:0">' + l + '</span><span style="font-family:var(--mono);font-size:11px;color:var(--text)">' + v + '</span></div>' : '';
+  const imgCol = shots => shots.length ? '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">' + shots.map(src => '<img src="' + src + '" style="width:100%;border-radius:8px;border:1px solid var(--b1);display:block">').join('') + '</div>' : '';
+  const D = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const M = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+  let html = '<div style="font-size:18px;font-weight:700;margin-bottom:4px">' + fmtWeekRange(weekStart) + '</div>';
+  html += '<div style="font-size:11px;font-family:var(--mono);color:var(--hint);margin-bottom:20px">Preparação completa da semana</div>';
+
+  // ── SECÇÃO 1: Preparação Semanal
+  let wpHtml = '';
+  const addSubsec = (shots, notes, title, icon) => {
+    let s = '';
+    if (shots?.length) s += imgCol(shots);
+    if (notes) s += ta(notes);
+    if (s) wpHtml += '<div style="margin-bottom:14px"><div style="font-size:11px;font-weight:600;margin-bottom:8px;color:var(--text)">' + icon + ' ' + title + '</div>' + s + '</div>';
+  };
+  addSubsec(wp.cot_screenshots, wp.cot_notes, 'COT Report', '📊');
+  addSubsec(wp.profile_screenshots, wp.profile_notes, 'Profile Framing Semanal', '📈');
+  addSubsec(wp.geo_screenshots, wp.geo_notes, 'Geopolítica & Macro', '🌍');
+  if (wp.weekly_bias) {
+    const bc = getBiasColor(wp.weekly_bias);
+    wpHtml += '<div style="margin-top:4px">' + kv('Bias semanal', '') + '<span style="font-family:var(--mono);font-size:12px;font-weight:600;color:' + bc + '">' + wp.weekly_bias + '</span></div>';
+  }
+  if (wpHtml) html += sec('Preparação Semanal', wpHtml);
+
+  // ── SECÇÃO 2: Pré-sessões da semana
+  const daysWithPS = days.filter(d => {
+    const ctx = psData[d];
+    return ctx && (ctx.narrative || ctx.bias || ctx.profile_notes || (ctx.profile_screenshots||[]).length || (ctx.macroEvents||[]).length);
+  });
+  daysWithPS.forEach(date => {
+    const ctx = psData[date] || {};
+    const dObj = new Date(date + 'T12:00:00');
+    const dayLbl = D[dObj.getDay()] + ', ' + dObj.getDate() + ' ' + M[dObj.getMonth()];
+    const bc = getBiasColor(ctx.bias); const bg = getBiasBg(ctx.bias);
+    const sentC = ctx.sentiment === 'Risk-On' ? 'var(--green)' : ctx.sentiment === 'Risk-Off' ? 'var(--red)' : 'var(--sub)';
+    let dayHtml = '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">';
+    if (ctx.bias) dayHtml += '<span style="font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 9px;border-radius:5px;color:' + bc + ';background:' + bg + ';border:1px solid ' + bc + '44">' + ctx.bias + '</span>';
+    if (ctx.fed) dayHtml += '<span style="font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 9px;border-radius:5px;color:var(--sub);background:var(--s3);border:1px solid var(--b1)">' + ctx.fed + '</span>';
+    if (ctx.sentiment) dayHtml += '<span style="font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 9px;border-radius:5px;color:' + sentC + ';background:var(--s3);border:1px solid var(--b1)">' + ctx.sentiment + '</span>';
+    dayHtml += '</div>';
+    if ((ctx.profile_screenshots||[]).length) dayHtml += imgCol(ctx.profile_screenshots);
+    if (ctx.profile_notes) dayHtml += ta(ctx.profile_notes);
+    if (ctx.macroEvents?.length) {
+      dayHtml += '<div style="margin-top:6px">';
+      ctx.macroEvents.forEach(ev => {
+        const impC = /bull/i.test(ev.impact || '') ? 'var(--green)' : /bear/i.test(ev.impact || '') ? 'var(--red)' : 'var(--sub)';
+        dayHtml += '<div style="font-family:var(--mono);font-size:11px;padding:4px 0;border-bottom:1px solid var(--b1);display:flex;gap:8px;align-items:center">';
+        dayHtml += '<span style="color:var(--sub);flex-shrink:0">' + (ev.priority ? '🔴 ' : '') + ev.name + '</span>';
+        if (ev.impact) dayHtml += '<span style="color:' + impC + ';font-size:10px">' + ev.impact + '</span>';
+        if (ev.note) dayHtml += '<span style="color:var(--hint);flex:1">' + escHtml(ev.note) + '</span>';
+        dayHtml += '</div>';
+      });
+      dayHtml += '</div>';
+    }
+    if (ctx.geopolitics) dayHtml += ta(ctx.geopolitics);
+    if (ctx.narrative) dayHtml += '<div style="font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;margin-top:10px;margin-bottom:4px">Game Plan</div>' + ta(ctx.narrative);
+    html += sec('Pré-sessão — ' + dayLbl, dayHtml);
+  });
+
+  if (!wpHtml && !daysWithPS.length) {
+    html += '<div style="text-align:center;padding:40px;color:var(--hint);font-family:var(--mono);font-size:12px">Sem preparação preenchida para esta semana</div>';
+  }
+
+  document.getElementById('doc-modal-body').innerHTML = html;
+  document.getElementById('doc-modal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
 function exportCSV() {
   const t = dayTrades(curDate); if (!t.length) return toast("Sem trades", "err");
   const ctx = psData[curDate] || {};
@@ -4390,8 +4544,8 @@ function exportCSV() {
       return conf.label + (c.sr ? (c.sr === 'S' ? ' Support' : ' Resistance') : '');
     }).join(" | ");
     const riskUSD = (x.stop_ticks && x.qty) ? (x.stop_ticks * 0.50 * x.qty).toFixed(2) : (x.risk || "");
-    const recap = (x.notes || "").replace(/\n/g, " ");
-    const errors = (x.mistakes_note || "").replace(/\n/g, " ");
+    const recap = stripHTML(x.notes || "").replace(/\n/g, " ");
+    const errors = stripHTML(x.mistakes_note || "").replace(/\n/g, " ");
     return [x.date, x.time||"", x.symbol||"", x.direction||"", x.entry||"", x.exit||"", x.pnl, x.stop_ticks||"", x.tp_ticks||"", riskUSD, x.rr||"", x.r||"", confsStr, x.rating||"", recap, errors, ctx.bias||"", ctx.fed||"", ctx.sentiment||""].join(";");
   });
   const csv = [header, ...rows].join("\r\n");
