@@ -571,6 +571,75 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .stat-table thead th:not(:first-child){text-align:right}
 .stat-two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px}
 @media(max-width:700px){.stat-two-col{grid-template-columns:1fr}}
+
+/* ─── DIÁRIO HIERÁRQUICO — Week / Day ───────────────────────── */
+.diary-week-card{background:var(--s1);border:1px solid var(--b1);border-radius:16px;margin-bottom:12px;overflow:hidden;transition:border-color .15s}
+.diary-week-card.current{border-color:color-mix(in srgb,var(--accent) 35%,var(--b1))}
+.week-hdr{display:flex;align-items:center;gap:10px;padding:12px 17px;cursor:pointer;user-select:none;flex-wrap:wrap;transition:background .12s}
+.week-hdr:hover{background:var(--s2)}
+.week-dates{font-size:13px;font-weight:600;flex:1;min-width:120px}
+.week-badge-pill{font-family:var(--mono);font-size:9px;font-weight:600;padding:2px 8px;border-radius:5px;border:1px solid}
+.week-badge-pill.current{color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent);border-color:color-mix(in srgb,var(--accent) 40%,transparent)}
+.week-badge-pill.done{color:var(--hint);background:var(--s3);border-color:var(--b1)}
+.week-pnl-lbl{font-family:var(--mono);font-size:13px;font-weight:700}
+.week-meta-lbl{font-family:var(--mono);font-size:10px;color:var(--hint)}
+.week-chevron{font-size:10px;color:var(--hint);transition:transform .2s;flex-shrink:0;width:14px;text-align:center}
+.week-body{display:none;border-top:1px solid var(--b1)}
+.diary-week-card.open>.week-body{display:block}
+.diary-week-card.open>.week-hdr .week-chevron{transform:rotate(90deg)}
+
+/* Weekly prep */
+.wp-section{padding:14px 17px;border-bottom:1px solid var(--b1);background:var(--s2)}
+.wp-section-hdr{font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.wp-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+@media(max-width:640px){.wp-grid{grid-template-columns:1fr}}
+.wp-subsec{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:13px}
+.wp-subsec-ttl{font-size:11px;font-weight:600;margin-bottom:9px}
+.wp-upload-zone{border:1.5px dashed var(--b2);border-radius:8px;padding:12px;text-align:center;cursor:pointer;transition:all .17s;font-size:11px;color:var(--hint);font-family:var(--mono);margin-bottom:7px}
+.wp-upload-zone:hover,.wp-upload-zone.drag{border-color:var(--accent);color:var(--accent)}
+.wp-thumb-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
+.wp-thumb{position:relative;width:60px;height:45px;border-radius:7px;overflow:hidden;border:1px solid var(--b1);flex-shrink:0}
+.wp-thumb img{width:100%;height:100%;object-fit:cover;cursor:pointer;display:block}
+.wp-thumb-rm{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.8);border:none;color:#fff;border-radius:50%;width:15px;height:15px;cursor:pointer;font-size:8px;display:flex;align-items:center;justify-content:center;line-height:1;padding:0}
+.wp-bias-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.wp-bias-btn{font-family:var(--mono);font-size:11px;padding:5px 12px;border-radius:7px;border:1px solid var(--b1);background:var(--s2);cursor:pointer;color:var(--sub);transition:all .15s}
+.wp-bias-btn.bull.on{background:#071f0f;border-color:var(--green);color:var(--green)}
+.wp-bias-btn.bear.on{background:#1f0707;border-color:var(--red);color:var(--red)}
+.wp-bias-btn.range.on{background:#150d1f;border-color:var(--purple);color:var(--purple)}
+
+/* Day rows inside week */
+.diary-day-row{border-bottom:1px solid var(--b1)}
+.diary-day-row:last-child{border-bottom:none}
+.ddr-hdr{display:flex;align-items:center;gap:8px;padding:10px 17px;cursor:pointer;transition:background .12s;flex-wrap:wrap}
+.ddr-hdr:hover{background:color-mix(in srgb,var(--s3) 60%,transparent)}
+.ddr-day-lbl{font-size:12px;font-weight:600;min-width:130px;flex-shrink:0}
+.ddr-badges{display:flex;gap:4px;flex-wrap:wrap;flex:1;min-width:0}
+.ddr-plan-snip{font-size:10px;font-family:var(--mono);color:var(--hint);flex:2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px}
+.ddr-pnl-lbl{font-family:var(--mono);font-size:12px;font-weight:700;text-align:right;flex-shrink:0}
+.ddr-cnt{font-family:var(--mono);font-size:10px;color:var(--hint);flex-shrink:0}
+.ddr-chev{font-size:10px;color:var(--hint);transition:transform .2s;flex-shrink:0}
+.diary-day-row.open .ddr-chev{transform:rotate(90deg)}
+.ddr-detail{display:none;border-top:1px solid var(--b1)}
+.diary-day-row.open .ddr-detail{display:block}
+
+/* Day detail — 2-col pre-session layout */
+.ddr-ps-cols{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--b1)}
+@media(max-width:660px){.ddr-ps-cols{grid-template-columns:1fr}}
+.ddr-ps-col{padding:14px 16px}
+.ddr-ps-col:first-child{border-right:1px solid var(--b1)}
+@media(max-width:660px){.ddr-ps-col:first-child{border-right:none;border-bottom:1px solid var(--b1)}}
+.ddr-field-lbl{font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.ddr-game-plan{padding:14px 16px;border-bottom:1px solid var(--b1)}
+.ddr-save-bar{padding:9px 16px;border-bottom:1px solid var(--b1);display:flex;justify-content:flex-end;gap:8px;background:var(--s1)}
+.ddr-trades-wrap{padding:0}
+
+/* Macro events inside day detail */
+.ddr-mev{background:var(--s1);border:1px solid var(--b1);border-radius:9px;padding:9px 11px;margin-bottom:6px}
+.ddr-mev-head{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.ddr-high-badge{font-family:var(--mono);font-size:9px;font-weight:600;padding:1px 6px;border-radius:4px;background:#1f070710;color:var(--red);border:1px solid #f04f4f33}
+
+/* No activity */
+.ddr-empty{padding:11px 17px;font-size:11px;font-family:var(--mono);color:var(--hint);display:flex;align-items:center;gap:8px}
 </style>
 </head>
 <body>
@@ -613,7 +682,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
     <button class="tab on"  onclick="showTab('dashboard',this)">Dashboard</button>
     <button class="tab"     onclick="showTab('journal',this)">Diário</button>
     <button class="tab"     onclick="showTab('import',this)">+ CSV</button>
-    <button class="tab"     onclick="showTab('presessao',this)">📰 Pré-sessão</button>
+    <button class="tab"     onclick="showTab('presessao',this)">Pré-sessão</button>
     <button class="tab"     onclick="showTab('reports',this)">Reports</button>
   </div>
   <div class="content">
@@ -623,32 +692,14 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
       <div id="dashboard-body"><div style="text-align:center;padding:60px;color:var(--hint);font-family:var(--mono);font-size:12px">Importa trades para ver o dashboard</div></div>
     </div>
 
-    <!-- JOURNAL -->
+    <!-- JOURNAL / DIÁRIO HIERÁRQUICO -->
     <div class="view" id="view-journal">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-        <span style="font-size:13px;font-weight:600">Diário de Trades</span>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <span style="font-size:13px;font-weight:600">Diário de Trading</span>
         <div style="display:flex;align-items:center;gap:8px">
           <span style="font-size:11px;font-family:var(--mono);color:var(--hint)" id="journal-lbl"></span>
-          <button class="btn btn-accent btn-sm" onclick="showTab('import',document.querySelectorAll('.tab')[2])">+ Importar CSV</button>
+          <button class="btn btn-accent btn-sm" onclick="showTab('import',document.querySelectorAll('.tab')[2])">+ CSV</button>
         </div>
-      </div>
-      <div class="jfilter-bar">
-        <span class="jfilter-lbl">Período</span>
-        <button class="jfilter-btn on" onclick="setJFilter('range','7',this)">7d</button>
-        <button class="jfilter-btn" onclick="setJFilter('range','30',this)">30d</button>
-        <button class="jfilter-btn" onclick="setJFilter('range','90',this)">90d</button>
-        <button class="jfilter-btn" onclick="setJFilter('range','all',this)">Tudo</button>
-        <div class="jfilter-sep"></div>
-        <span class="jfilter-lbl">Bias</span>
-        <button class="jfilter-btn on" onclick="setJFilter('bias','all',this)">Todos</button>
-        <button class="jfilter-btn" onclick="setJFilter('bias','Bullish',this)">Bullish</button>
-        <button class="jfilter-btn" onclick="setJFilter('bias','Bearish',this)">Bearish</button>
-        <button class="jfilter-btn" onclick="setJFilter('bias','Consolidation/Ranging',this)">Ranging</button>
-        <div class="jfilter-sep"></div>
-        <span class="jfilter-lbl">Resultado</span>
-        <button class="jfilter-btn on" onclick="setJFilter('result','all',this)">Todos</button>
-        <button class="jfilter-btn" onclick="setJFilter('result','win',this)">Dias ganhos</button>
-        <button class="jfilter-btn" onclick="setJFilter('result','loss',this)">Dias perdidos</button>
       </div>
       <div id="journal-body"></div>
     </div>
@@ -1109,6 +1160,7 @@ async function sbPullData() {
     await sbPushKey("nq10_a", accounts);
     await sbPushKey("nq10_t", allT);
     await sbPushKey("nq10_ps", psData);
+    await sbPushKey("nq10_wp", weeklyPrep);
     showToast("Dados enviados para a cloud!");
     return;
   }
@@ -1117,6 +1169,7 @@ async function sbPullData() {
     if (row.key === "nq10_t")  { try { const v = row.value; if (v && typeof v === "object") allT = v; } catch(e){} }
     if (row.key === "nq10_ps") { try { const v = row.value; if (v && typeof v === "object") psData = v; } catch(e){} }
     if (row.key === "nq10_cc") { try { const v = row.value; if (Array.isArray(v)) { customConfs = v; localStorage.setItem("nq10_cc", JSON.stringify(customConfs)); } } catch(e){} }
+    if (row.key === "nq10_wp") { try { const v = row.value; if (v && typeof v === "object") weeklyPrep = v; } catch(e){} }
   });
   if (!Array.isArray(accounts) || !accounts.length) {
     accounts = [{ id: "lucid", name: "Lucid", emoji: "🔵" }, { id: "mff", name: "My Funded Futures", emoji: "🟢" }];
@@ -1124,6 +1177,7 @@ async function sbPullData() {
   localStorage.setItem("nq10_a",  JSON.stringify(accounts));
   localStorage.setItem("nq10_t",  JSON.stringify(allT));
   localStorage.setItem("nq10_ps", JSON.stringify(psData));
+  localStorage.setItem("nq10_wp", JSON.stringify(weeklyPrep));
   renderAccts();
 }
 
@@ -1180,8 +1234,9 @@ async function sbLogout() {
 // ═══════════════════════════════════════════
 // STORAGE
 // ═══════════════════════════════════════════
-const SK_A = "nq10_a", SK_T = "nq10_t", SK_PS = "nq10_ps";
-let accounts = [], curAcct = null, allT = {}, psData = {};
+const SK_A = "nq10_a", SK_T = "nq10_t", SK_PS = "nq10_ps", SK_WP = "nq10_wp";
+let accounts = [], curAcct = null, allT = {}, psData = {}, weeklyPrep = {};
+const diaryState = {}; // { date: { bias, fed, sentiment, profileBias } }
 let customConfs = [];
 let curDate = "", scope = "all", calY = 0, calM = 0, dashPeriod = "month", dashMode = "summary";
 let modalId = null, modalDayIds = [];
@@ -1192,6 +1247,7 @@ function loadData() {
   try { accounts = JSON.parse(localStorage.getItem(SK_A) || "[]"); } catch(e) { accounts = []; }
   try { allT = JSON.parse(localStorage.getItem(SK_T) || "{}"); } catch(e) { allT = {}; }
   try { psData = JSON.parse(localStorage.getItem(SK_PS) || "{}"); } catch(e) { psData = {}; }
+  try { weeklyPrep = JSON.parse(localStorage.getItem(SK_WP) || "{}"); } catch(e) { weeklyPrep = {}; }
   if (!accounts.length) {
     accounts = [{ id: "lucid", name: "Lucid", emoji: "🔵" }, { id: "mff", name: "My Funded Futures", emoji: "🟢" }];
     persist();
@@ -1210,6 +1266,13 @@ function persist() {
 function savePSData() {
   localStorage.setItem(SK_PS, JSON.stringify(psData));
   sbPushKey("nq10_ps", psData);
+}
+function saveWPData() {
+  localStorage.setItem(SK_WP, JSON.stringify(weeklyPrep));
+  sbPushKey("nq10_wp", weeklyPrep);
+}
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 function dayTrades(iso) { return (Array.isArray(allT[curAcct.id]) ? allT[curAcct.id] : []).filter(t => t.date === iso); }
@@ -1667,7 +1730,7 @@ function setJFilter(key, val, btn) {
     if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("setJFilter('" + key + "'")) b.classList.remove('on');
   });
   if (btn) btn.classList.add('on');
-  renderJournal();
+  renderDiary();
 }
 
 function getJDays() {
@@ -1726,6 +1789,476 @@ const JDAYS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 function jFmtDate(iso) {
   const d = new Date(iso+'T12:00:00');
   return JDAYS[d.getDay()]+', '+d.getDate()+' '+JMONTHS[d.getMonth()]+' '+d.getFullYear();
+}
+
+// ═══════════════════════════════════════════
+// DIÁRIO HIERÁRQUICO — Week/Day
+// ═══════════════════════════════════════════
+
+function getMonday(isoDate) {
+  const d = new Date(isoDate + 'T12:00:00');
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  return d.toISOString().split('T')[0];
+}
+function getWeekDays(weekStart) {
+  const days = [];
+  for (let i = 0; i < 5; i++) {
+    const d = new Date(weekStart + 'T12:00:00');
+    d.setDate(d.getDate() + i);
+    days.push(d.toISOString().split('T')[0]);
+  }
+  return days;
+}
+function fmtWeekRange(weekStart) {
+  const days = getWeekDays(weekStart);
+  const s = new Date(days[0] + 'T12:00:00');
+  const e = new Date(days[4] + 'T12:00:00');
+  const M = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  if (s.getFullYear() !== e.getFullYear()) return s.getDate()+' '+M[s.getMonth()]+' '+s.getFullYear()+' – '+e.getDate()+' '+M[e.getMonth()]+' '+e.getFullYear();
+  if (s.getMonth() === e.getMonth()) return s.getDate()+'–'+e.getDate()+' '+M[s.getMonth()]+' '+s.getFullYear();
+  return s.getDate()+' '+M[s.getMonth()]+' – '+e.getDate()+' '+M[e.getMonth()]+' '+s.getFullYear();
+}
+
+function renderDiary() {
+  const body = document.getElementById('journal-body');
+  if (!body) return;
+  if (!curAcct) return;
+  const today = todayISO();
+  const todayWeek = getMonday(today);
+  const weekSet = new Set([todayWeek]);
+  acctTrades().forEach(t => weekSet.add(getMonday(t.date)));
+  Object.keys(psData).forEach(d => weekSet.add(getMonday(d)));
+  Object.keys(weeklyPrep).forEach(ws => weekSet.add(ws));
+  const weeks = [...weekSet].sort((a,b) => b.localeCompare(a));
+  const totalTrades = acctTrades().length;
+  document.getElementById('journal-lbl').textContent = weeks.length + ' semanas · ' + totalTrades + ' trades';
+  body.innerHTML = weeks.map(ws => renderWeekCard(ws, ws === todayWeek)).join('');
+}
+
+function renderWeekCard(weekStart, isCurrent) {
+  const trades = acctTrades();
+  const days = getWeekDays(weekStart);
+  const weekTrades = trades.filter(t => days.includes(t.date));
+  const weekPnl = weekTrades.reduce((s,t) => s+t.pnl, 0);
+  const tradeDays = new Set(weekTrades.map(t => t.date)).size;
+  const pnlColor = weekPnl > 0 ? 'var(--green)' : weekPnl < 0 ? 'var(--red)' : 'var(--hint)';
+  const pnlStr = weekTrades.length ? ((weekPnl>=0?'+':'')+'$'+weekPnl.toFixed(2)) : '—';
+  const isOpen = isCurrent;
+  return '<div class="diary-week-card'+(isCurrent?' current':'')+(isOpen?' open':'') +'" id="wk-'+weekStart+'">' +
+    '<div class="week-hdr" onclick="toggleWeekCard(\''+weekStart+'\')">' +
+      '<span class="week-dates">'+fmtWeekRange(weekStart)+'</span>' +
+      '<span class="week-badge-pill '+(isCurrent?'current':'done')+'">'+( isCurrent?'Em curso':'Concluída')+'</span>' +
+      (weekTrades.length ? '<span class="week-pnl-lbl" style="color:'+pnlColor+'">'+pnlStr+'</span>' : '') +
+      '<span class="week-meta-lbl">'+tradeDays+'d · '+weekTrades.length+'T</span>' +
+      '<span class="week-chevron">▶</span>' +
+    '</div>' +
+    '<div class="week-body" id="wkb-'+weekStart+'">' +
+      buildWeeklyPrepSection(weekStart) +
+      '<div class="week-days">' + days.map(d => buildDiaryDayRow(d)).join('') + '</div>' +
+    '</div>' +
+  '</div>';
+}
+function toggleWeekCard(ws) {
+  const el = document.getElementById('wk-'+ws); if (el) el.classList.toggle('open');
+}
+
+// ─── Weekly Prep ──────────────────────────────────────────────────
+
+function buildWeeklyPrepSection(weekStart) {
+  const wp = weeklyPrep[weekStart] || {};
+  const bias = wp.weekly_bias || '';
+  const biasOpts = [{v:'Bullish',cls:'bull',lbl:'▲ Bullish'},{v:'Bearish',cls:'bear',lbl:'▼ Bearish'},{v:'Consolidation/Ranging',cls:'range',lbl:'◆ Ranging'}];
+  const biasBtns = biasOpts.map(b => '<button class="wp-bias-btn '+b.cls+(bias===b.v?' on':'')+'" onclick="setWPBias(\''+weekStart+'\',\''+b.v+'\',this)">'+b.lbl+'</button>').join('');
+  const buildSubsec = (section, title, icon) => {
+    const shots = wp[section+'_screenshots'] || [];
+    const abbr = section==='cot'?'cot':section==='profile'?'prof':'geo';
+    const thumbsHtml = shots.map((src,i) =>
+      '<div class="wp-thumb"><img src="'+src+'" onclick="openPSImg(\''+src.replace(/'/g,"\\'")+'\')"><button class="wp-thumb-rm" onclick="wpRemoveShot(\''+weekStart+'\',\''+section+'\','+i+')">✕</button></div>'
+    ).join('');
+    return '<div class="wp-subsec">' +
+      '<div class="wp-subsec-ttl">'+icon+' '+title+'</div>' +
+      '<input type="file" accept="image/*" multiple id="wp-'+abbr+'-in-'+weekStart+'" style="display:none" onchange="wpFilesSelected(\''+weekStart+'\',\''+section+'\',this.files)">' +
+      '<div class="wp-thumb-row" id="wp-'+abbr+'-thumbs-'+weekStart+'">'+thumbsHtml+'</div>' +
+      '<div class="wp-upload-zone" onclick="document.getElementById(\'wp-'+abbr+'-in-'+weekStart+'\').click()" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="event.preventDefault();this.classList.remove(\'drag\');wpFilesSelected(\''+weekStart+'\',\''+section+'\',event.dataTransfer.files)">+ Adicionar print</div>' +
+      '<textarea class="ps-ta" style="min-height:68px" id="wp-'+abbr+'-notes-'+weekStart+'" placeholder="'+getWPPlaceholder(section)+'">'+escHtml(wp[section+'_notes']||'')+'</textarea>' +
+    '</div>';
+  };
+  return '<div class="wp-section">' +
+    '<div class="wp-section-hdr">Preparação semanal' +
+      '<button class="btn btn-accent btn-sm" onclick="saveWP(\''+weekStart+'\')">Guardar</button>' +
+    '</div>' +
+    '<div class="wp-grid">' +
+      buildSubsec('cot','COT Report','📊') +
+      buildSubsec('profile','Profile Framing Semanal','📈') +
+      buildSubsec('geo','Geopolítica & Macro','🌍') +
+    '</div>' +
+    '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+      '<span style="font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em">Bias semanal:</span>' +
+      '<div class="wp-bias-row">'+biasBtns+'</div>' +
+    '</div>' +
+  '</div>';
+}
+function getWPPlaceholder(section) {
+  if (section==='cot') return 'Posicionamento institucional NQ, correlações EUR/USD, 10Y, Gold...';
+  if (section==='profile') return 'POC semanal, VAH/VAL, HVN/LVN semanais, bias do composite...';
+  return 'Eventos da semana, Fed narrative, geopolítica relevante, bias semanal...';
+}
+function setWPBias(weekStart, val, btn) {
+  if (!weeklyPrep[weekStart]) weeklyPrep[weekStart] = {};
+  weeklyPrep[weekStart].weekly_bias = weeklyPrep[weekStart].weekly_bias === val ? '' : val;
+  document.querySelectorAll('#wk-'+weekStart+' .wp-bias-btn').forEach(b => b.classList.remove('on'));
+  if (weeklyPrep[weekStart].weekly_bias) btn.classList.add('on');
+}
+function saveWP(weekStart) {
+  if (!weeklyPrep[weekStart]) weeklyPrep[weekStart] = {};
+  const g = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+  const ex = weeklyPrep[weekStart];
+  weeklyPrep[weekStart] = {
+    ...ex,
+    cot_notes: g('wp-cot-notes-'+weekStart),
+    profile_notes: g('wp-prof-notes-'+weekStart),
+    geo_notes: g('wp-geo-notes-'+weekStart),
+    cot_screenshots: ex.cot_screenshots || [],
+    profile_screenshots: ex.profile_screenshots || [],
+    geo_screenshots: ex.geo_screenshots || [],
+    weekly_bias: ex.weekly_bias || ''
+  };
+  saveWPData();
+  toast('Preparação semanal guardada ✓','ok');
+}
+function wpFilesSelected(weekStart, section, files) {
+  if (!files?.length) return;
+  if (!weeklyPrep[weekStart]) weeklyPrep[weekStart] = {};
+  const key = section+'_screenshots';
+  if (!weeklyPrep[weekStart][key]) weeklyPrep[weekStart][key] = [];
+  let loaded = 0;
+  Array.from(files).forEach(f => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      weeklyPrep[weekStart][key].push(e.target.result);
+      loaded++;
+      if (loaded === files.length) { saveWPData(); renderWPThumbs(weekStart, section); }
+    };
+    reader.readAsDataURL(f);
+  });
+  const abbr = section==='cot'?'cot':section==='profile'?'prof':'geo';
+  const inp = document.getElementById('wp-'+abbr+'-in-'+weekStart);
+  if (inp) inp.value = '';
+}
+function wpRemoveShot(weekStart, section, idx) {
+  const key = section+'_screenshots';
+  if (!weeklyPrep[weekStart]?.[key]) return;
+  weeklyPrep[weekStart][key].splice(idx, 1);
+  saveWPData(); renderWPThumbs(weekStart, section);
+}
+function renderWPThumbs(weekStart, section) {
+  const abbr = section==='cot'?'cot':section==='profile'?'prof':'geo';
+  const el = document.getElementById('wp-'+abbr+'-thumbs-'+weekStart); if (!el) return;
+  const shots = weeklyPrep[weekStart]?.[section+'_screenshots'] || [];
+  el.innerHTML = shots.map((src,i) =>
+    '<div class="wp-thumb"><img src="'+src+'" onclick="openPSImg(\''+src.replace(/'/g,"\\'")+'\')" ><button class="wp-thumb-rm" onclick="wpRemoveShot(\''+weekStart+'\',\''+section+'\','+i+')">✕</button></div>'
+  ).join('');
+}
+
+// ─── Day Row ─────────────────────────────────────────────────────
+
+function buildDiaryDayRow(date) {
+  const trades = acctTrades().filter(t => t.date === date);
+  const ctx = psData[date] || {};
+  const pnl = trades.reduce((s,t) => s+t.pnl, 0);
+  const pnlColor = pnl > 0 ? 'var(--green)' : pnl < 0 ? 'var(--red)' : 'var(--sub)';
+  const pnlStr = trades.length ? ((pnl>=0?'+':'')+'$'+pnl.toFixed(2)) : '—';
+  const D = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const M = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const d = new Date(date+'T12:00:00');
+  const dayLbl = D[d.getDay()]+', '+d.getDate()+' '+M[d.getMonth()];
+  const isToday = date === todayISO();
+
+  let badges = '';
+  if (ctx.bias) { const bc=getBiasColor(ctx.bias),bg=getBiasBg(ctx.bias); badges+='<span class="jbadge" style="background:'+bg+';color:'+bc+';border:1px solid '+bc+'44">'+ctx.bias+'</span>'; }
+  if (ctx.fed) { const fc=ctx.fed.includes('Hawkish')?'var(--red)':ctx.fed.includes('Dovish')?'var(--green)':'var(--sub)'; badges+='<span class="jbadge" style="color:'+fc+';border:1px solid '+fc+'44">'+ctx.fed.split(' to ')[0]+'</span>'; }
+  (ctx.macroEvents||[]).filter(e=>e.priority).forEach(e => {
+    badges+='<span class="jbadge" style="background:#1f070710;color:var(--red);border:1px solid #f04f4f33">'+e.name+'</span>';
+  });
+
+  const planSnip = ctx.narrative ? escHtml(ctx.narrative.slice(0,60)+(ctx.narrative.length>60?'…':'')) : '';
+
+  return '<div class="diary-day-row" id="ddr-'+date+'">' +
+    '<div class="ddr-hdr" onclick="toggleDiaryDay(\''+date+'\')">' +
+      '<span class="ddr-day-lbl">'+(isToday?'<span style="color:var(--accent)">● </span>':'')+dayLbl+'</span>' +
+      '<div class="ddr-badges">'+badges+'</div>' +
+      (planSnip ? '<span class="ddr-plan-snip">'+planSnip+'</span>' : '') +
+      '<span class="ddr-pnl-lbl" style="color:'+pnlColor+'">'+pnlStr+'</span>' +
+      '<span class="ddr-cnt">'+(trades.length?trades.length+'T':'')+'</span>' +
+      '<span class="ddr-chev">▶</span>' +
+    '</div>' +
+    '<div class="ddr-detail" id="ddd-'+date+'">' + buildDiaryDayDetail(date) + '</div>' +
+  '</div>';
+}
+function toggleDiaryDay(date) {
+  const row = document.getElementById('ddr-'+date); if (!row) return;
+  row.classList.toggle('open');
+}
+
+// ─── Day Detail — inline Pre-Sessão + Trades ─────────────────────
+
+function buildDiaryDayDetail(date) {
+  const ctx = psData[date] || {};
+  if (!diaryState[date]) diaryState[date] = { bias: ctx.bias||'', fed: ctx.fed||'', sentiment: ctx.sentiment||'', profileBias: ctx.profile_bias||'' };
+  const ds = diaryState[date];
+
+  // Profile Framing — left col
+  const pBiasOpts = ['Bullish','Bearish','Consolidation/Ranging'];
+  const pBiasBtns = pBiasOpts.map(v => {
+    const cls = v==='Bullish'?'bull':v==='Bearish'?'bear':'range';
+    return '<button class="ps-bias-btn '+cls+(ds.profileBias===v?' on':'')+'" onclick="setDiaryPBias(\''+date+'\',\''+v+'\',this)">'+v+'</button>';
+  }).join('');
+  const profShots = ctx.profile_screenshots || [];
+  const profThumbsHtml = profShots.map((src,i) =>
+    '<div class="wp-thumb"><img src="'+src+'" onclick="openPSImg(\''+src.replace(/'/g,"\\'")+'\')" ><button class="wp-thumb-rm" onclick="ddrRemoveShot(\''+date+'\','+i+')">✕</button></div>'
+  ).join('');
+
+  // Macro & Fundamental — right col
+  const biasOpts = ['Bullish','Bearish','Consolidation/Ranging'];
+  const biasBtns = biasOpts.map(v => {
+    const cls = v==='Bullish'?'bull':v==='Bearish'?'bear':'range';
+    return '<button class="ps-bias-btn '+cls+(ds.bias===v?' on':'')+'" onclick="setDiaryBias(\''+date+'\',\''+v+'\',this)">'+v+'</button>';
+  }).join('');
+  const fedOpts = [{v:'Hawkish',cls:'hawk'},{v:'Neutral to Hawkish',cls:'nhawk'},{v:'Neutral',cls:'neut'},{v:'Neutral to Dovish',cls:'ndove'},{v:'Dovish',cls:'dove'}];
+  const fedBtns = fedOpts.map(f => '<button class="fed-btn '+f.cls+(ds.fed===f.v?' on':'')+'" onclick="setDiaryFed(\''+date+'\',\''+f.v+'\',this)" style="font-size:10px;padding:4px 9px">'+f.v+'</button>').join('');
+  const sentBtns = [
+    ['Risk-On','on-ron'],['Risk-Off','on-roff'],['Neutro','on-neut']
+  ].map(([v,cls]) => '<button class="ps-sent-btn'+(ds.sentiment===v?' '+cls:'')+'" onclick="setDiarySentiment(\''+date+'\',\''+v+'\',this)">'+v+'</button>').join('');
+
+  // Macro events
+  const macroEvts = ctx.macroEvents || [];
+  const PREDEF = ['NFP','CPI','FOMC','PCE','GDP','ISM','PPI','Retail Sales','Fed Chair Speaks','AHE'];
+  const predefBtns = PREDEF.map(name => macroEvts.some(e=>e.name===name) ? '' :
+    '<button class="ps-predef-event" onclick="ddrAddMacroEvent(\''+date+'\',\''+name+'\')">'+name+'</button>'
+  ).join('');
+  const macroEvtHtml = '<div id="ddr-mev-'+date+'">' + buildDdrMacroEvents(date) + '</div>';
+
+  // Trades
+  const trades = acctTrades().filter(t => t.date === date);
+  const tradesHtml = trades.length ? buildDdrTrades(date, trades)
+    : '<div class="ddr-empty">Sem trades neste dia · <button class="btn btn-ghost btn-sm" onclick="showTab(\'import\',document.querySelectorAll(\'.tab\')[2])">Importar CSV →</button></div>';
+
+  return '<div class="ddr-ps-cols">' +
+    // LEFT
+    '<div class="ddr-ps-col">' +
+      '<div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:10px">Profile Framing</div>' +
+      '<div class="ddr-field-lbl">Prints do Deepcharts</div>' +
+      '<input type="file" accept="image/*" multiple id="ddr-ss-in-'+date+'" style="display:none" onchange="ddrFilesSelected(\''+date+'\',this.files)">' +
+      '<div class="wp-thumb-row" id="ddr-ss-grid-'+date+'">'+profThumbsHtml+'</div>' +
+      '<div class="wp-upload-zone" onclick="document.getElementById(\'ddr-ss-in-'+date+'\').click()" ondragover="event.preventDefault()" ondrop="event.preventDefault();ddrFilesSelected(\''+date+'\',event.dataTransfer.files)" style="padding:10px;margin-bottom:8px;font-size:10px">+ Print</div>' +
+      '<div class="ddr-field-lbl">Bias do profile</div>' +
+      '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">'+pBiasBtns+'</div>' +
+      '<div class="ddr-field-lbl">Leitura do profile</div>' +
+      '<textarea class="ps-ta" id="ddr-pnotes-'+date+'" style="min-height:80px" placeholder="Volume Profile RTH, POC/VAH/VAL, HVN/LVN, Delta...">'+escHtml(ctx.profile_notes||'')+'</textarea>' +
+    '</div>' +
+    // RIGHT
+    '<div class="ddr-ps-col">' +
+      '<div style="font-size:11px;font-weight:700;color:var(--purple);margin-bottom:10px">Macro & Fundamental</div>' +
+      '<div class="ddr-field-lbl">Bias do dia</div>' +
+      '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">'+biasBtns+'</div>' +
+      '<div class="ddr-field-lbl">Fed Narrative</div>' +
+      '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">'+fedBtns+'</div>' +
+      '<div class="ddr-field-lbl">Sentiment</div>' +
+      '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">'+sentBtns+'</div>' +
+      '<div class="ddr-field-lbl">Eventos Macro</div>' +
+      '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:7px">'+predefBtns+
+        '<button class="ps-predef-event" onclick="ddrAddMacroEventManual(\''+date+'\')">+ Manual</button>' +
+      '</div>' +
+      macroEvtHtml +
+      '<div class="ddr-field-lbl" style="margin-top:10px">Geopolítica</div>' +
+      '<textarea class="ps-ta" id="ddr-geo-'+date+'" style="min-height:48px" placeholder="Geopolítica relevante para NQ...">'+escHtml(ctx.geopolitics||'')+'</textarea>' +
+    '</div>' +
+  '</div>' +
+  // Game Plan
+  '<div class="ddr-game-plan">' +
+    '<div class="ddr-field-lbl">Game Plan do dia</div>' +
+    '<textarea class="ps-ta" id="ddr-narrative-'+date+'" style="min-height:90px" placeholder="Resume tudo — profile, macro, bias, o que procuras, o que invalida o setup...">'+escHtml(ctx.narrative||'')+'</textarea>' +
+  '</div>' +
+  // Save bar
+  '<div class="ddr-save-bar">' +
+    '<button class="btn btn-ghost btn-sm" onclick="goToPSDate(\''+date+'\')">Ver pré-sessão completa →</button>' +
+    '<button class="btn btn-accent btn-sm" onclick="saveDiaryDayPS(\''+date+'\')">Guardar pré-sessão</button>' +
+  '</div>' +
+  // Trades
+  '<div class="ddr-trades-wrap">' + tradesHtml + '</div>';
+}
+
+function buildDdrMacroEvents(date) {
+  const evts = (psData[date]||{}).macroEvents || [];
+  if (!evts.length) return '<div style="color:var(--hint);font-size:11px;font-family:var(--mono);padding:4px 0">Sem eventos — clica nos botões acima para adicionar</div>';
+  return evts.map((ev, i) =>
+    '<div class="ddr-mev">' +
+    '<div class="ddr-mev-head">' +
+      '<span style="font-family:var(--mono);font-size:11px;font-weight:600">'+escHtml(ev.name)+'</span>' +
+      (ev.priority ? '<span class="ddr-high-badge">HIGH</span>' : '') +
+      '<button onclick="ddrRemoveMacroEvent(\''+date+'\','+i+')" style="background:transparent;border:none;color:var(--hint);cursor:pointer;font-size:12px;margin-left:auto;flex-shrink:0">✕</button>' +
+    '</div>' +
+    '<textarea class="ps-ta" style="min-height:40px" placeholder="Nota sobre este evento..." oninput="ddrUpdateMacroNote(\''+date+'\','+i+',this.value)">'+escHtml(ev.note||'')+'</textarea>' +
+    '</div>'
+  ).join('');
+}
+
+function buildDdrTrades(date, trades) {
+  const sorted = [...trades].sort((a,b) => (a.time||'99:99').localeCompare(b.time||'99:99'));
+  const hdr = '<div class="jtrade-hdr"><span>Hora</span><span>Símbolo</span><span>Dir</span><span>Entry→Exit</span><span>P&L</span><span>R</span><span>NQ Scale</span><span></span></div>';
+  return hdr + sorted.map(t => {
+    const idx = trades.indexOf(t);
+    const pc = t.pnl>0?'var(--green)':t.pnl<0?'var(--red)':'var(--sub)';
+    const rc = t.risk&&t.risk>0 ? t.pnl/t.risk : (t.r&&t.r!==0?t.r:null);
+    const rStr = rc!=null?rc.toFixed(2)+'R':'—';
+    const rColor = rc==null?'var(--hint)':rc>=1?'var(--green)':rc>=0?'var(--amber)':'var(--red)';
+    const confs = parseConfs(t.confluences);
+    const confHtml = confs.length
+      ? confs.slice(0,3).map(({id}) => { const c=CMAP[id]; return c?'<span class="cbadge" style="background:'+c.color+'18;color:'+c.color+';border:1px solid '+c.color+'44">'+c.label.split(' ')[0]+'</span>':''; }).join('')+(confs.length>3?'<span class="cbadge" style="background:var(--s3);color:var(--hint)">+'+(confs.length-3)+'</span>':'')
+      : '<span style="color:var(--hint)">—</span>';
+    const dirC = t.direction==='Long'?'var(--green)':'var(--red)';
+    return '<div class="jtrade-row" onclick="openReviewFromList(\''+date+'\','+idx+')">' +
+      '<span style="color:var(--sub)">'+(t.time?t.time.slice(0,5):'—')+'</span>' +
+      '<span style="background:var(--s3);padding:1px 5px;border-radius:4px;border:1px solid var(--b1)">'+(t.symbol||'NQ')+'</span>' +
+      '<span style="color:'+dirC+';font-weight:600">'+(t.direction||'—')+'</span>' +
+      '<span style="color:var(--sub)">@'+(t.entry||'—')+'→'+(t.exit||'—')+'</span>' +
+      '<span style="color:'+pc+';font-weight:600">'+((t.pnl>=0?'+':'')+'$'+t.pnl.toFixed(2))+'</span>' +
+      '<span style="color:'+rColor+'">'+rStr+'</span>' +
+      '<span>'+nqScale(rc,true)+'</span>' +
+      '<span style="cursor:pointer;color:var(--hint);text-align:center" onclick="event.stopPropagation();openReviewFromList(\''+date+'\','+idx+')">↗</span>' +
+    '</div>';
+  }).join('');
+}
+
+// ─── Diary Day PS setters ──────────────────────────────────────────
+function setDiaryBias(date, val, btn) {
+  if (!diaryState[date]) diaryState[date] = {};
+  diaryState[date].bias = diaryState[date].bias===val ? '' : val;
+  document.querySelectorAll('#ddr-'+date+' .ddr-ps-cols .ddr-ps-col:last-child .ps-bias-btn').forEach(b=>b.classList.remove('on'));
+  if (diaryState[date].bias) btn.classList.add('on');
+}
+function setDiaryPBias(date, val, btn) {
+  if (!diaryState[date]) diaryState[date] = {};
+  diaryState[date].profileBias = diaryState[date].profileBias===val ? '' : val;
+  document.querySelectorAll('#ddr-'+date+' .ddr-ps-cols .ddr-ps-col:first-child .ps-bias-btn').forEach(b=>b.classList.remove('on'));
+  if (diaryState[date].profileBias) btn.classList.add('on');
+}
+function setDiaryFed(date, val, btn) {
+  if (!diaryState[date]) diaryState[date] = {};
+  diaryState[date].fed = diaryState[date].fed===val ? '' : val;
+  document.querySelectorAll('#ddd-'+date+' .fed-btn').forEach(b=>b.classList.remove('on'));
+  if (diaryState[date].fed) btn.classList.add('on');
+}
+function setDiarySentiment(date, val, btn) {
+  if (!diaryState[date]) diaryState[date] = {};
+  diaryState[date].sentiment = diaryState[date].sentiment===val ? '' : val;
+  document.querySelectorAll('#ddd-'+date+' .ps-sent-btn').forEach(b=>b.classList.remove('on-ron','on-roff','on-neut'));
+  if (diaryState[date].sentiment) {
+    const cls = val==='Risk-On'?'on-ron':val==='Risk-Off'?'on-roff':'on-neut';
+    btn.classList.add(cls);
+  }
+}
+
+// ─── Diary Day Macro Events ────────────────────────────────────────
+function ddrAddMacroEvent(date, name) {
+  ensurePSDate(date);
+  if (!psData[date].macroEvents) psData[date].macroEvents = [];
+  if (psData[date].macroEvents.some(e=>e.name===name)) { toast(name+' já adicionado','err'); return; }
+  // Preserve unsaved textarea values before re-render
+  const pn = document.getElementById('ddr-pnotes-'+date); if(pn) { ensurePSDate(date); psData[date].profile_notes = pn.value; }
+  const gn = document.getElementById('ddr-geo-'+date); if(gn) { psData[date].geopolitics = gn.value; }
+  const na = document.getElementById('ddr-narrative-'+date); if(na) { psData[date].narrative = na.value; }
+  psData[date].macroEvents.push({name, time:'', note:'', priority:isPriorityEvent(name)});
+  savePSData();
+  const detail = document.getElementById('ddd-'+date);
+  if (detail) detail.innerHTML = buildDiaryDayDetail(date);
+}
+function ddrAddMacroEventManual(date) {
+  const name = prompt('Nome do evento (ex: CPI, NFP, FOMC):'); if (!name?.trim()) return;
+  ddrAddMacroEvent(date, name.trim());
+}
+function ddrRemoveMacroEvent(date, idx) {
+  if (!psData[date]?.macroEvents) return;
+  // Preserve unsaved textarea values
+  const pn = document.getElementById('ddr-pnotes-'+date); if(pn) { ensurePSDate(date); psData[date].profile_notes = pn.value; }
+  const gn = document.getElementById('ddr-geo-'+date); if(gn) { psData[date].geopolitics = gn.value; }
+  const na = document.getElementById('ddr-narrative-'+date); if(na) { psData[date].narrative = na.value; }
+  psData[date].macroEvents.splice(idx, 1);
+  savePSData();
+  const detail = document.getElementById('ddd-'+date);
+  if (detail) detail.innerHTML = buildDiaryDayDetail(date);
+}
+function ddrUpdateMacroNote(date, idx, note) {
+  if (!psData[date]?.macroEvents?.[idx]) return;
+  psData[date].macroEvents[idx].note = note;
+  // debounce save via existing auto-save on PS save
+}
+
+// ─── Diary Day Screenshot upload ──────────────────────────────────
+function ddrFilesSelected(date, files) {
+  if (!files?.length) return;
+  ensurePSDate(date);
+  if (!psData[date].profile_screenshots) psData[date].profile_screenshots = [];
+  let loaded = 0;
+  Array.from(files).forEach(f => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      psData[date].profile_screenshots.push(e.target.result);
+      loaded++;
+      if (loaded === files.length) {
+        savePSData();
+        const grid = document.getElementById('ddr-ss-grid-'+date);
+        if (grid) grid.innerHTML = psData[date].profile_screenshots.map((src,i) =>
+          '<div class="wp-thumb"><img src="'+src+'" onclick="openPSImg(\''+src.replace(/'/g,"\\'")+'\')" ><button class="wp-thumb-rm" onclick="ddrRemoveShot(\''+date+'\','+i+')">✕</button></div>'
+        ).join('');
+      }
+    };
+    reader.readAsDataURL(f);
+  });
+}
+function ddrRemoveShot(date, idx) {
+  if (!psData[date]?.profile_screenshots) return;
+  psData[date].profile_screenshots.splice(idx, 1);
+  savePSData();
+  const grid = document.getElementById('ddr-ss-grid-'+date);
+  if (grid) grid.innerHTML = psData[date].profile_screenshots.map((src,i) =>
+    '<div class="wp-thumb"><img src="'+src+'" onclick="openPSImg(\''+src.replace(/'/g,"\\'")+'\')" ><button class="wp-thumb-rm" onclick="ddrRemoveShot(\''+date+'\','+i+')">✕</button></div>'
+  ).join('');
+}
+
+// ─── Save Diary Day PS ─────────────────────────────────────────────
+function saveDiaryDayPS(date) {
+  const ds = diaryState[date] || {};
+  ensurePSDate(date);
+  const existing = psData[date];
+  const g = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+  psData[date] = {
+    ...existing,
+    date,
+    bias: ds.bias || '',
+    fed: ds.fed || '',
+    sentiment: ds.sentiment || '',
+    profile_bias: ds.profileBias || '',
+    profile_notes: g('ddr-pnotes-'+date),
+    geopolitics: g('ddr-geo-'+date),
+    narrative: g('ddr-narrative-'+date),
+    macroEvents: existing.macroEvents || [],
+    profile_screenshots: existing.profile_screenshots || [],
+    justification: g('ddr-pnotes-'+date) || existing.justification || '',
+    score: existing.score || 50
+  };
+  savePSData();
+  toast('Pré-sessão guardada ✓','ok');
+  // Update header badges without full re-render
+  const hdr = document.querySelector('#ddr-'+date+' .ddr-hdr');
+  if (hdr) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = buildDiaryDayRow(date);
+    const newHdr = tmp.querySelector('.ddr-hdr');
+    if (newHdr) hdr.innerHTML = newHdr.innerHTML;
+  }
 }
 
 function renderJournal() {
@@ -1932,7 +2465,7 @@ function showTab(id, btn) {
   if (btn) btn.classList.add("on");
   if (id === "presessao") { if (!psDate) psDate = todayISO(); initPS(); }
   if (id === "dashboard") renderDashboard();
-  if (id === "journal") renderJournal();
+  if (id === "journal") renderDiary();
   if (id === "reports") renderReports();
 }
 
@@ -3802,7 +4335,7 @@ async function executeClearAll() {
   localStorage.setItem("nq10_ps", JSON.stringify(psData));
   await sbPushKey("nq10_t", allT);
   await sbPushKey("nq10_ps", psData);
-  renderSessBar(); renderList(); renderCalendar(); renderJournal(); renderDashboard(); renderReports();
+  renderSessBar(); renderList(); renderCalendar(); renderDiary(); renderDashboard(); renderReports();
   toast("Todas as trades e pré-sessões apagadas ✓", "ok");
 }
 
