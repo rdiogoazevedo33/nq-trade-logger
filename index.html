@@ -1224,35 +1224,28 @@ function showAcctScreen() {
 async function sbPullData() {
   if (!sbUser) { console.warn("[NQ] sbPullData: sem utilizador autenticado"); return; }
   setSyncStatus("busy", "a carregar...");
-  console.log("[NQ] sbPullData: a carregar dados do Supabase para user_id=" + sbUser.id);
-  const { data, error } = await sb.from("user_data").select("key,value").eq("user_id", sbUser.id);
-  if (error) {
-    console.error("sbPullData:", error);
+  console.log("[NQ] sbPullData: user_id=" + sbUser.id);
+
+  // Fetch em paralelo: user_data (contas, prefs), trades e sessions
+  const [udRes, trRes, seRes] = await Promise.all([
+    sb.from("user_data").select("key,value").eq("user_id", sbUser.id),
+    sb.from("trades").select("id,account_id,data,screenshots").eq("user_id", sbUser.id),
+    sb.from("sessions").select("date,data,screenshots").eq("user_id", sbUser.id)
+  ]);
+
+  if (udRes.error) {
+    console.error("sbPullData (user_data):", udRes.error);
     setSyncStatus("err", "erro sync");
-    toast("Erro ao carregar dados da cloud: " + error.message, "err");
+    toast("Erro ao carregar dados da cloud: " + udRes.error.message, "err");
     renderAccts();
     return;
   }
-  if (data.length === 0) {
-    // Supabase vazio — faz upload se houver dados locais reais
-    const localHasTrades = Object.values(allT).some(arr => Array.isArray(arr) && arr.length > 0);
-    const localHasSess   = Object.keys(psData).length > 0;
-    const localHasWP     = Object.keys(weeklyPrep).length > 0;
-    if (localHasTrades || localHasSess || localHasWP) {
-      await sbPushKey("nq10_a",  accounts);
-      await sbPushKey("nq10_t",  allT);
-      await sbPushKey("nq10_ps", psData);
-      await sbPushKey("nq10_wp", weeklyPrep);
-      toast("Dados locais enviados para a cloud ✓", "ok");
-    } else {
-      setSyncStatus("ok", sbUser?.email || "autenticado");
-    }
-    renderAccts();
-    return;
-  }
-  console.log("[NQ] sbPullData: recebidas", data.length, "linhas:", data.map(r => r.key).join(", "));
+
+  const udData = udRes.data || [];
   let psImgs = null, wpImgs = null;
-  data.forEach(row => {
+
+  // Processar user_data (contas, confluências, weekly, e fallback legacy para trades/sessions)
+  udData.forEach(row => {
     if (row.key === "nq10_a")       { try { const v = row.value; if (Array.isArray(v)) accounts = v; } catch(e){} }
     if (row.key === "nq10_t")       { try { const v = row.value; if (v && typeof v === "object") allT = v; } catch(e){} }
     if (row.key === "nq10_ps")      { try { const v = row.value; if (v && typeof v === "object") psData = v; } catch(e){} }
@@ -1261,7 +1254,8 @@ async function sbPullData() {
     if (row.key === "nq10_wp")      { try { const v = row.value; if (v && typeof v === "object") weeklyPrep = v; } catch(e){} }
     if (row.key === "nq10_wp_imgs") { try { const v = row.value; if (v && typeof v === "object") wpImgs = v; } catch(e){} }
   });
-  // Fundir imagens de volta nos dados
+
+  // Aplicar imagens legacy das sessões
   if (psImgs) {
     Object.keys(psImgs).forEach(d => {
       if (!psData[d]) psData[d] = {};
@@ -1274,6 +1268,70 @@ async function sbPullData() {
       Object.keys(wpImgs[w]).forEach(k => { weeklyPrep[w][k + '_screenshots'] = wpImgs[w][k]; });
     });
   }
+
+  // Tabela trades (tem prioridade sobre nq10_t legacy)
+  const hasTrades = !trRes.error && trRes.data?.length > 0;
+  if (hasTrades) {
+    console.log("[NQ] sbPullData: " + trRes.data.length + " trades (tabela trades)");
+    allT = {};
+    trRes.data.forEach(row => {
+      if (!allT[row.account_id]) allT[row.account_id] = [];
+      allT[row.account_id].push({ id: row.id, ...row.data, screenshots: row.screenshots || [] });
+    });
+  } else if (!trRes.error && trRes.data?.length === 0) {
+    // Tabela vazia — migrar dados legacy se existirem
+    const legacyHasTrades = Object.values(allT).some(arr => Array.isArray(arr) && arr.length > 0);
+    if (legacyHasTrades) {
+      console.log("[NQ] sbPullData: a migrar trades legacy para tabela nova (em background)...");
+      (async () => {
+        for (const [accId, trades] of Object.entries(allT)) {
+          for (const trade of (trades || [])) await sbSaveTrade(accId, trade);
+        }
+        console.log("[NQ] Migração de trades concluída");
+      })();
+    }
+  }
+
+  // Tabela sessions (tem prioridade sobre nq10_ps legacy)
+  const hasSessions = !seRes.error && seRes.data?.length > 0;
+  if (hasSessions) {
+    console.log("[NQ] sbPullData: " + seRes.data.length + " sessões (tabela sessions)");
+    psData = {};
+    seRes.data.forEach(row => {
+      psData[row.date] = { ...row.data, profile_screenshots: row.screenshots || [] };
+    });
+  } else if (!seRes.error && seRes.data?.length === 0) {
+    // Tabela vazia — migrar sessões legacy
+    const legacyHasSess = Object.keys(psData).length > 0;
+    if (legacyHasSess) {
+      console.log("[NQ] sbPullData: a migrar sessões legacy para tabela nova (em background)...");
+      (async () => {
+        for (const [date, sess] of Object.entries(psData)) await sbSaveSession(date, sess);
+        console.log("[NQ] Migração de sessões concluída");
+      })();
+    }
+  }
+
+  // Se tudo vazio — upload dos dados locais
+  if (udData.length === 0 && !hasTrades && !hasSessions) {
+    const localHasTrades = Object.values(allT).some(arr => Array.isArray(arr) && arr.length > 0);
+    const localHasSess   = Object.keys(psData).length > 0;
+    const localHasWP     = Object.keys(weeklyPrep).length > 0;
+    if (localHasTrades || localHasSess || localHasWP) {
+      await sbPushKey("nq10_a", accounts);
+      for (const [accId, trades] of Object.entries(allT)) {
+        for (const trade of (trades || [])) await sbSaveTrade(accId, trade);
+      }
+      for (const [date, sess] of Object.entries(psData)) await sbSaveSession(date, sess);
+      await sbPushKey("nq10_wp", weeklyPrep);
+      toast("Dados locais enviados para a cloud ✓", "ok");
+    } else {
+      setSyncStatus("ok", sbUser?.email || "autenticado");
+    }
+    renderAccts();
+    return;
+  }
+
   if (!Array.isArray(accounts) || !accounts.length) {
     accounts = [{ id: "lucid", name: "Lucid", emoji: "🔵" }, { id: "mff", name: "My Funded Futures", emoji: "🟢" }];
   }
@@ -1313,6 +1371,52 @@ async function sbPushKey(key, value) {
     toast("Erro ao guardar — verifica a ligação", "err");
     return false;
   }
+}
+
+// ── Funções Supabase por linha (trades / sessions) ──────────────────
+async function sbSaveTrade(accountId, trade) {
+  if (!sbUser) return true;
+  const { screenshots, ...data } = trade;
+  setSyncStatus("busy", "a guardar...");
+  const { error } = await sb.from("trades").upsert(
+    { id: String(trade.id), user_id: sbUser.id, account_id: accountId, data, screenshots: screenshots || [], updated_at: new Date().toISOString() },
+    { onConflict: "user_id,id" }
+  );
+  if (error) {
+    console.error("[NQ] sbSaveTrade ERRO:", trade.id, error.message);
+    setSyncStatus("err", "erro ao guardar");
+    return false;
+  }
+  setSyncStatus("ok", sbUser?.email || "autenticado");
+  return true;
+}
+async function sbDeleteTrade(tradeId) {
+  if (!sbUser) return true;
+  const { error } = await sb.from("trades").delete().eq("user_id", sbUser.id).eq("id", String(tradeId));
+  if (error) { console.error("[NQ] sbDeleteTrade ERRO:", tradeId, error.message); return false; }
+  return true;
+}
+async function sbDeleteAccountTrades(accountId) {
+  if (!sbUser) return true;
+  const { error } = await sb.from("trades").delete().eq("user_id", sbUser.id).eq("account_id", accountId);
+  if (error) { console.error("[NQ] sbDeleteAccountTrades ERRO:", accountId, error.message); return false; }
+  return true;
+}
+async function sbSaveSession(date, sessionData) {
+  if (!sbUser) return true;
+  const { profile_screenshots, ...data } = sessionData || {};
+  setSyncStatus("busy", "a guardar...");
+  const { error } = await sb.from("sessions").upsert(
+    { date, user_id: sbUser.id, data, screenshots: profile_screenshots || [], updated_at: new Date().toISOString() },
+    { onConflict: "user_id,date" }
+  );
+  if (error) {
+    console.error("[NQ] sbSaveSession ERRO:", date, error.message);
+    setSyncStatus("err", "erro ao guardar");
+    return false;
+  }
+  setSyncStatus("ok", sbUser?.email || "autenticado");
+  return true;
 }
 
 function setSyncStatus(state, label) {
@@ -1390,7 +1494,7 @@ function persist() {
   if (el) el.textContent = "guardado " + new Date().toLocaleTimeString("pt", { hour: "2-digit", minute: "2-digit" });
   console.log("[NQ] persist: accounts=" + JSON.stringify(accounts).length + "B | trades=" + JSON.stringify(allT).length + "B | sbUser=" + (sbUser ? sbUser.id : "null"));
   sbPushKey("nq10_a", accounts);
-  sbPushKey("nq10_t", allT);
+  // trades guardadas individualmente via sbSaveTrade — não fazer push do allT completo
 }
 
 // ── Compressão de imagens ────────────────────────────────────────
@@ -1412,27 +1516,23 @@ function compressImage(base64, maxWidth, quality) {
 }
 
 let _psSaving = false;
-async function savePSData() {
+async function savePSData(date) {
   localStorage.setItem(SK_PS, JSON.stringify(psData));
   if (!sbUser) { console.log("[NQ] savePSData: sem utilizador, guardado só localmente"); return true; }
   if (_psSaving) { console.log("[NQ] savePSData: save já em curso, a ignorar"); return true; }
   _psSaving = true;
-  console.log("[NQ] savePSData: a iniciar split texto/imagens...");
   try {
-    const textOnly = {}, imgs = {};
-    Object.keys(psData).forEach(d => {
-      const s = psData[d];
-      if (!s || typeof s !== 'object') { textOnly[d] = s; return; }
-      const shots = s.profile_screenshots || [];
-      textOnly[d] = Object.assign({}, s, { profile_screenshots: [] });
-      if (shots.length) imgs[d] = shots;
-    });
-    const nImgDates = Object.keys(imgs).length;
-    const totalImgs = Object.values(imgs).reduce((n, arr) => n + arr.length, 0);
-    console.log("[NQ] savePSData: texto=" + JSON.stringify(textOnly).length + " bytes | imagens=" + totalImgs + " print(s) em " + nImgDates + " data(s)");
-    const ok = await sbPushKey("nq10_ps", textOnly);
-    if (ok && nImgDates > 0) await sbPushKey("nq10_ps_imgs", imgs);
-    return ok;
+    if (date) {
+      // Guardar apenas esta sessão (caso normal)
+      return await sbSaveSession(date, psData[date] || {});
+    } else {
+      // Guardar todas as sessões (usado no restore de backup)
+      for (const [d, sess] of Object.entries(psData)) {
+        const ok = await sbSaveSession(d, sess);
+        if (!ok) return false;
+      }
+      return true;
+    }
   } finally {
     _psSaving = false;
   }
@@ -1778,7 +1878,9 @@ function renderList() {
 function clearDay() {
   if (!dayTrades(curDate).length) return;
   if (!confirm("Apagar todas as trades de " + curDate + "?")) return;
+  const toDelete = dayTrades(curDate).map(t => t.id);
   setAcctTrades(acctTrades().filter(t => t.date !== curDate));
+  if (sbUser) toDelete.forEach(id => sbDeleteTrade(id));
   renderSessBar(); renderList(); renderCalendar(); toast("Dia apagado", "ok");
 }
 
@@ -1836,6 +1938,7 @@ function parseCSV(text, fname) {
 function confirmImport() {
   const p = window._pending; if (!p?.length) return;
   setAcctTrades([...acctTrades(), ...p]);
+  if (sbUser) p.forEach(trade => sbSaveTrade(curAcct.id, trade));
   window._pending = null;
   curDate = p[0].date; const sessDateEl2 = document.getElementById("sess-date"); if (sessDateEl2) sessDateEl2.value = curDate;
   document.getElementById("import-result").innerHTML = '<div style="text-align:center;padding:20px;color:var(--green);font-family:var(--mono);font-size:13px;border:1px solid #0a2e18;border-radius:12px;margin-top:14px;background:#071f0f">✓ ' + p.length + ' trades importadas</div>';
@@ -1906,7 +2009,7 @@ function saveModal(silent = false) {
   else if (entry && stop && tp) rr = parseFloat((Math.abs(tp - entry) / Math.abs(entry - stop)).toFixed(2));
   const r = risk && risk > 0 ? parseFloat((all[idx].pnl / risk).toFixed(3)) : 0;
   all[idx] = { ...all[idx], entry, stop, tp, risk, rr, r, confluences: serConfs(confs), score: confs.length, notesHTML: document.getElementById("m-editor").innerHTML, notes: document.getElementById("m-editor").innerText };
-  setAcctTrades(all); renderList(); renderSessBar();
+  setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]); renderList(); renderSessBar();
   if (!silent) toast("Guardado ✓", "ok");
 }
 function fmt(cmd) { document.getElementById("m-editor").focus(); document.execCommand(cmd); }
@@ -2370,7 +2473,7 @@ function ddrAddMacroEvent(date, name) {
   const gn = document.getElementById('ddr-geo-'+date); if(gn) { psData[date].geopolitics = gn.value; }
   const na = document.getElementById('ddr-narrative-'+date); if(na) { psData[date].narrative = na.value; }
   psData[date].macroEvents.push({name, time:'', note:'', priority:isPriorityEvent(name)});
-  savePSData();
+  savePSData(date);
   const detail = document.getElementById('ddd-'+date);
   if (detail) detail.innerHTML = buildDiaryDayDetail(date);
 }
@@ -2385,7 +2488,7 @@ function ddrRemoveMacroEvent(date, idx) {
   const gn = document.getElementById('ddr-geo-'+date); if(gn) { psData[date].geopolitics = gn.value; }
   const na = document.getElementById('ddr-narrative-'+date); if(na) { psData[date].narrative = na.value; }
   psData[date].macroEvents.splice(idx, 1);
-  savePSData();
+  savePSData(date);
   const detail = document.getElementById('ddd-'+date);
   if (detail) detail.innerHTML = buildDiaryDayDetail(date);
 }
@@ -2408,7 +2511,7 @@ function ddrFilesSelected(date, files) {
       psData[date].profile_screenshots.push(compressed);
       loaded++;
       if (loaded === files.length) {
-        savePSData();
+        savePSData(date);
         const grid = document.getElementById('ddr-ss-grid-'+date);
         if (grid) grid.innerHTML = psData[date].profile_screenshots.map((src,i) =>
           '<div class="wp-thumb"><img src="'+src+'" alt="print" onclick="openImgOverlay(this.src)"><button class="wp-thumb-rm" onclick="ddrRemoveShot(\''+date+'\','+i+')">✕</button></div>'
@@ -2421,7 +2524,7 @@ function ddrFilesSelected(date, files) {
 function ddrRemoveShot(date, idx) {
   if (!psData[date]?.profile_screenshots) return;
   psData[date].profile_screenshots.splice(idx, 1);
-  savePSData();
+  savePSData(date);
   const grid = document.getElementById('ddr-ss-grid-'+date);
   if (grid) grid.innerHTML = psData[date].profile_screenshots.map((src,i) =>
     '<div class="wp-thumb"><img src="'+src+'" alt="print" onclick="openImgOverlay(this.src)"><button class="wp-thumb-rm" onclick="ddrRemoveShot(\''+date+'\','+i+')">✕</button></div>'
@@ -2449,7 +2552,7 @@ function saveDiaryDayPS(date) {
     justification: g('ddr-pnotes-'+date) || existing.justification || '',
     score: existing.score || 50
   };
-  savePSData();
+  savePSData(date);
   toast('Pré-sessão guardada ✓','ok');
   // Update header badges without full re-render
   const hdr = document.querySelector('#ddr-'+date+' .ddr-hdr');
@@ -2810,7 +2913,7 @@ function openPSImg(src) { openImgOverlay(src); }
 function removePSScreenshot(d, i) {
   if (!psData[d]?.profile_screenshots) return;
   psData[d].profile_screenshots.splice(i, 1);
-  savePSData();
+  savePSData(d);
   renderPSScreenshots(d);
 }
 function psFilesSelected(files) {
@@ -2825,7 +2928,7 @@ function psFilesSelected(files) {
       const compressed = await compressImage(e.target.result);
       psData[d].profile_screenshots.push(compressed);
       loaded++;
-      if (loaded === files.length) { savePSData(); renderPSScreenshots(d); }
+      if (loaded === files.length) { savePSData(d); renderPSScreenshots(d); }
     };
     reader.readAsDataURL(file);
   });
@@ -2863,7 +2966,7 @@ async function savePS() {
   setDot('ps-col-fed-dot', psData[d].fed || psData[d].fedCtx);
   setDot('ps-col-sent-dot', psData[d].sentiment || psData[d].sentiment_narrative || psData[d].capital_flow || psData[d].dxy_vix_narrative);
   setDot('ps-col-geo-dot', psData[d].geopolitics);
-  const ok = await savePSData();
+  const ok = await savePSData(d);
   updatePSStatusBadge();
   renderPSHist();
   if (ok !== false) toast('Sessão guardada ✓', 'ok');
@@ -2898,7 +3001,7 @@ function removePSLevel(type, d, i) {
   const key = type + '_levels';
   if (!psData[d]?.[key]) return;
   psData[d][key].splice(i, 1);
-  savePSData(); renderPSLevelList(type, d);
+  savePSData(d); renderPSLevelList(type, d);
 }
 function updatePSLevel(type, d, i, field, val) {
   const key = type + '_levels';
@@ -2928,7 +3031,7 @@ function addPSDelta() {
   psData[d].delta_anomalies.push({ price: null, type: 'buy', note: '' });
   renderPSDeltaList(d);
 }
-function removePSDelta(d, i) { psData[d].delta_anomalies.splice(i,1); savePSData(); renderPSDeltaList(d); }
+function removePSDelta(d, i) { psData[d].delta_anomalies.splice(i,1); savePSData(d); renderPSDeltaList(d); }
 function updatePSDelta(d, i, field, val) { if (!psData[d]?.delta_anomalies?.[i]) return; psData[d].delta_anomalies[i][field] = field==='price'?(parseFloat(val)||null):val; }
 
 function renderPSSDZoneList(d) {
@@ -2954,7 +3057,7 @@ function addPSSDZone() {
   psData[d].supply_demand_zones.push({ type: 'supply', from: null, to: null, note: '' });
   renderPSSDZoneList(d);
 }
-function removePSSDZone(d, i) { psData[d].supply_demand_zones.splice(i,1); savePSData(); renderPSSDZoneList(d); }
+function removePSSDZone(d, i) { psData[d].supply_demand_zones.splice(i,1); savePSData(d); renderPSSDZoneList(d); }
 function updatePSSDZone(d, i, field, val) { if (!psData[d]?.supply_demand_zones?.[i]) return; psData[d].supply_demand_zones[i][field] = (field==='from'||field==='to')?(parseFloat(val)||null):val; }
 
 function renderPSSRList(d) {
@@ -2983,7 +3086,7 @@ function addPSSR() {
   psData[d].sr_levels.push({ price: null, type: 'support', timeframe: 'D' });
   renderPSSRList(d);
 }
-function removePSSR(d, i) { psData[d].sr_levels.splice(i,1); savePSData(); renderPSSRList(d); }
+function removePSSR(d, i) { psData[d].sr_levels.splice(i,1); savePSData(d); renderPSSRList(d); }
 function updatePSSR(d, i, field, val) { if (!psData[d]?.sr_levels?.[i]) return; psData[d].sr_levels[i][field] = field==='price'?(parseFloat(val)||null):val; }
 
 // Predefined event shortcuts
@@ -2994,7 +3097,7 @@ function addPSEventPredef(name) {
   const exists = psData[d].macroEvents.some(e => e.name === name);
   if (!exists) {
     psData[d].macroEvents.push({ name, time: '', note: '', priority: isPriorityEvent(name) });
-    savePSData(); renderMacroEvents(d);
+    savePSData(d); renderMacroEvents(d);
   } else toast(name + ' já adicionado', 'err');
 }
 
@@ -3058,21 +3161,21 @@ function addMacroEvent() {
   ensurePSDate(d);
   if (!psData[d].macroEvents) psData[d].macroEvents = [];
   psData[d].macroEvents.push({ name: name.trim(), time: "", note: "", priority: isPriorityEvent(name.trim()) });
-  savePSData(); renderMacroEvents(d);
+  savePSData(d); renderMacroEvents(d);
 }
 
 function removeMacroEvent(i) {
   const d = psDate || todayISO();
   if (!psData[d]?.macroEvents) return;
   psData[d].macroEvents.splice(i, 1);
-  savePSData(); renderMacroEvents(d);
+  savePSData(d); renderMacroEvents(d);
 }
 
 function updateMacroEventNote(i, note) {
   const d = psDate || todayISO();
   if (!psData[d]?.macroEvents?.[i]) return;
   psData[d].macroEvents[i].note = note;
-  savePSData();
+  savePSData(d);
 }
 
 function collectMacroEvents(d) {
@@ -3385,7 +3488,7 @@ function rvToggleMistake(btn, label) {
   const i = all[idx].mistakes.indexOf(label);
   if (i >= 0) all[idx].mistakes.splice(i, 1); else all[idx].mistakes.push(label);
   all[idx].process_score = calcProcessScore4(all[idx]);
-  setAcctTrades(all);
+  setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]);
   btn.classList.toggle("on", all[idx].mistakes.includes(label));
   const goodEl = document.getElementById("rv-mistakes-good");
   if (goodEl) goodEl.style.display = all[idx].mistakes.length === 0 ? "block" : "none";
@@ -3495,13 +3598,13 @@ function rvToggleProcess(key) {
   const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id); if (idx === -1) return;
   if (!all[idx].ps) all[idx].ps = {};
   all[idx].ps[key] = !all[idx].ps[key];
-  setAcctTrades(all);
+  setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]);
   rvRenderProcessScore(all[idx]);
 }
 
 function rvSetRating(v) {
   const trds = dayTrades(rvDate); const t = trds[rvIdx]; if (!t) return;
-  const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id); if (idx !== -1) { all[idx].rating = v; setAcctTrades(all); }
+  const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id); if (idx !== -1) { all[idx].rating = v; setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]); }
   rvRenderStars(v);
 }
 function rvRenderStars(v) { document.querySelectorAll(".rv-star").forEach((s, i) => { s.textContent = i < v ? "★" : "☆"; s.style.color = i < v ? "var(--amber)" : "var(--hint)"; }); }
@@ -3513,13 +3616,13 @@ function rvAddPrints(e) {
   const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id); if (idx === -1) return;
   if (!all[idx].screenshots) all[idx].screenshots = [];
   let done = 0;
-  files.forEach(f => { const r = new FileReader(); r.onload = async ev => { const compressed = await compressImage(ev.target.result); all[idx].screenshots.push(compressed); done++; if (done === files.length) { setAcctTrades(all); rvRenderGallery(all[idx].screenshots); toast(done + " print(s) guardado(s)", "ok"); } }; r.readAsDataURL(f); });
+  files.forEach(f => { const r = new FileReader(); r.onload = async ev => { const compressed = await compressImage(ev.target.result); all[idx].screenshots.push(compressed); done++; if (done === files.length) { setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]); rvRenderGallery(all[idx].screenshots); toast(done + " print(s) guardado(s)", "ok"); } }; r.readAsDataURL(f); });
   e.target.value = "";
 }
 function rvRemovePrint(i) {
   const trds = dayTrades(rvDate); const t = trds[rvIdx]; if (!t) return;
   const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id); if (idx === -1) return;
-  all[idx].screenshots?.splice(i, 1); setAcctTrades(all); rvRenderGallery(all[idx].screenshots || []);
+  all[idx].screenshots?.splice(i, 1); setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]); rvRenderGallery(all[idx].screenshots || []);
 }
 function rvRenderGallery(ss) {
   const el = document.getElementById("rv-gallery"); if (!el) return;
@@ -3584,7 +3687,7 @@ async function analyzeScreenshot(i, btn) {
     rvCalcRR();
     if (result.direction) {
       const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id);
-      if (idx !== -1) { all[idx].direction = result.direction; setAcctTrades(all); renderList(); }
+      if (idx !== -1) { all[idx].direction = result.direction; setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]); renderList(); }
     }
     toast(filled + " campo(s) preenchido(s) ✓", "ok");
     saveReview(true);
@@ -3611,7 +3714,7 @@ function saveReview(silent = false) {
   const updated = { ...all[idx], entry, stop_ticks: stopTicks, tp_ticks: tpTicks, risk, rr, r, confluences: serConfs(confs), score: confs.length, notes, notesHTML: "", mistakes_note: mistakesNote };
   updated.process_score = calcProcessScore4(updated);
   all[idx] = updated;
-  setAcctTrades(all);
+  setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]);
   if (!silent) toast("Trade guardada ✓", "ok");
 }
 
@@ -4506,12 +4609,14 @@ function importAllData(e) {
       localStorage.setItem(SK_PS, JSON.stringify(psData));
       localStorage.setItem(SK_WP, JSON.stringify(weeklyPrep));
 
-      // Sync all to Supabase (usar savePSData/saveWPData para split texto/imagens)
+      // Sync all to Supabase (trades e sessions por linha individual)
       if (sbUser) {
         toast("A sincronizar com Supabase…", "ok");
         await sbPushKey("nq10_a", accounts);
-        await sbPushKey("nq10_t", allT);
-        await savePSData();
+        for (const [accId, trades] of Object.entries(allT)) {
+          for (const trade of (trades || [])) await sbSaveTrade(accId, trade);
+        }
+        await savePSData(); // sem data = guarda todas as sessões
         await saveWPData();
         if (customConfs.length) await sbPushKey("nq10_cc", customConfs);
       }
@@ -4560,9 +4665,8 @@ async function executeClearAll() {
   allT[curAcct.id] = [];
   // Save to localStorage immediately
   localStorage.setItem(SK_T, JSON.stringify(allT));
-  // Push to Supabase (awaited — this is the fix: ensures cloud is updated)
   try {
-    await sbPushKey("nq10_t", allT);
+    if (sbUser) await sbDeleteAccountTrades(curAcct.id);
     renderSessBar(); renderList(); renderCalendar(); renderDiary(); renderDashboard(); renderReports();
     toast("Trades apagadas ✓", "ok");
   } catch(err) {
@@ -4688,7 +4792,7 @@ async function rvDrop(e) {
   readImageFiles(imgs, results => {
     Promise.all(results.map(src => compressImage(src))).then(compressed => {
       compressed.forEach(src => all[idx].screenshots.push(src));
-      setAcctTrades(all); rvRenderGallery(all[idx].screenshots);
+      setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]); rvRenderGallery(all[idx].screenshots);
       toast(compressed.length + ' print(s) guardado(s)', 'ok');
     });
   });
