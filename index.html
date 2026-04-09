@@ -1359,23 +1359,29 @@ async function sbPushKey(key, value) {
   const payloadBytes = JSON.stringify(value).length;
   console.log("[NQ] sbPushKey INÍCIO:", key, "| tamanho:", payloadBytes, "bytes (" + (payloadBytes/1024).toFixed(1) + " KB)", "| user_id:", sbUser.id);
   setSyncStatus("busy", "a guardar...");
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("timeout")), 10000)
+  );
   try {
-    const { data, error } = await sb.from("user_data").upsert(
-      { user_id: sbUser.id, key, value, updated_at: new Date().toISOString() },
-      { onConflict: "user_id,key" }
-    ).select("key");
-    if (error) {
-      console.error("[NQ] sbPushKey ERRO:", key, "| código:", error.code, "| mensagem:", error.message, "| detalhes:", error.details, "| hint:", error.hint, "| obj completo:", error);
-      setSyncStatus("err", "erro ao guardar");
+    const result = await Promise.race([
+      sb.from("user_data").upsert(
+        { user_id: sbUser.id, key, value, updated_at: new Date().toISOString() },
+        { onConflict: "user_id,key" }
+      ).select("key"),
+      timeout
+    ]);
+    if (result?.error) {
+      console.error("[NQ] sbPushKey ERRO:", key, "| código:", result.error.code, "| mensagem:", result.error.message, "| detalhes:", result.error.details, "| hint:", result.error.hint, "| obj completo:", result.error);
+      setSyncStatus("err", "Erro ao guardar — tenta de novo");
       toast("Erro ao guardar — tenta de novo", "err");
       return false;
     }
-    console.log("[NQ] sbPushKey SUCESSO:", key, "| resposta:", data);
+    console.log("[NQ] sbPushKey SUCESSO:", key, "| resposta:", result?.data);
     setSyncStatus("ok", sbUser?.email || "autenticado");
     return true;
   } catch (e) {
     console.error("[NQ] sbPushKey EXCEPÇÃO:", key, "| tipo:", e?.name, "| mensagem:", e?.message, "| obj completo:", e);
-    setSyncStatus("err", "erro ao guardar");
+    setSyncStatus("err", "Erro ao guardar — tenta de novo");
     toast("Erro ao guardar — verifica a ligação", "err");
     return false;
   }
@@ -1386,13 +1392,26 @@ async function sbSaveTrade(accountId, trade) {
   if (!sbUser) return true;
   const { screenshots, ...data } = trade;
   setSyncStatus("busy", "a guardar...");
-  const { error } = await sb.from("trades").upsert(
-    { id: String(trade.id), user_id: sbUser.id, account_id: accountId, data, screenshots: screenshots || [], updated_at: new Date().toISOString() },
-    { onConflict: "user_id,id" }
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("timeout")), 10000)
   );
-  if (error) {
-    console.error("[NQ] sbSaveTrade ERRO:", trade.id, error.message);
-    setSyncStatus("err", "erro ao guardar");
+  let result;
+  try {
+    result = await Promise.race([
+      sb.from("trades").upsert(
+        { id: String(trade.id), user_id: sbUser.id, account_id: accountId, data, screenshots: screenshots || [], updated_at: new Date().toISOString() },
+        { onConflict: "user_id,id" }
+      ),
+      timeout
+    ]);
+  } catch(e) {
+    console.error("[NQ] sbSaveTrade ERRO:", trade.id, e.message);
+    setSyncStatus("err", "Erro ao guardar — tenta de novo");
+    return false;
+  }
+  if (result?.error) {
+    console.error("[NQ] sbSaveTrade ERRO:", trade.id, result.error.message);
+    setSyncStatus("err", "Erro ao guardar — tenta de novo");
     return false;
   }
   setSyncStatus("ok", sbUser?.email || "autenticado");
@@ -1414,13 +1433,26 @@ async function sbSaveSession(date, sessionData) {
   if (!sbUser) return true;
   const { profile_screenshots, ...data } = sessionData || {};
   setSyncStatus("busy", "a guardar...");
-  const { error } = await sb.from("sessions").upsert(
-    { date, user_id: sbUser.id, data, screenshots: profile_screenshots || [], updated_at: new Date().toISOString() },
-    { onConflict: "user_id,date" }
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("timeout")), 10000)
   );
-  if (error) {
-    console.error("[NQ] sbSaveSession ERRO:", date, error.message);
-    setSyncStatus("err", "erro ao guardar");
+  let result;
+  try {
+    result = await Promise.race([
+      sb.from("sessions").upsert(
+        { date, user_id: sbUser.id, data, screenshots: profile_screenshots || [], updated_at: new Date().toISOString() },
+        { onConflict: "user_id,date" }
+      ),
+      timeout
+    ]);
+  } catch(e) {
+    console.error("[NQ] sbSaveSession ERRO:", date, e.message);
+    setSyncStatus("err", "Erro ao guardar — tenta de novo");
+    return false;
+  }
+  if (result?.error) {
+    console.error("[NQ] sbSaveSession ERRO:", date, result.error.message);
+    setSyncStatus("err", "Erro ao guardar — tenta de novo");
     return false;
   }
   setSyncStatus("ok", sbUser?.email || "autenticado");
