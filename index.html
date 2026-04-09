@@ -828,9 +828,9 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
           <!-- Profile bias -->
           <div class="ps-field-lbl" style="margin-top:12px">Estrutura do Profile</div>
           <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
-            <button class="ps-pbias-btn bull" onclick="setPSProfileBias('Bullish estrutura',this)">▲ Bullish estrutura</button>
-            <button class="ps-pbias-btn bear" onclick="setPSProfileBias('Bearish estrutura',this)">▼ Bearish estrutura</button>
-            <button class="ps-pbias-btn neut" onclick="setPSProfileBias('Neutro/Range',this)">— Neutro/Range</button>
+            <button class="ps-pbias-btn bull" data-val="Bullish estrutura" onclick="setPSProfileBias('Bullish estrutura',this)">▲ Bullish estrutura</button>
+            <button class="ps-pbias-btn bear" data-val="Bearish estrutura" onclick="setPSProfileBias('Bearish estrutura',this)">▼ Bearish estrutura</button>
+            <button class="ps-pbias-btn neut" data-val="Neutro/Range" onclick="setPSProfileBias('Neutro/Range',this)">— Neutro/Range</button>
           </div>
 
           <!-- Profile notes -->
@@ -890,11 +890,11 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
           <div class="ps-collapse-body" id="ps-col-fed" style="max-height:0;overflow:hidden">
             <div style="padding-top:4px">
               <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">
-                <button class="fed-btn hawk" onclick="setFed('Hawkish',this)">🔴 Hawkish</button>
-                <button class="fed-btn nhawk" onclick="setFed('Neutral to Hawkish',this)">🟠 Neutral to Hawkish</button>
-                <button class="fed-btn neut" onclick="setFed('Neutral',this)">⚪ Neutral</button>
-                <button class="fed-btn ndove" onclick="setFed('Neutral to Dovish',this)">🔵 Neutral to Dovish</button>
-                <button class="fed-btn dove" onclick="setFed('Dovish',this)">🟢 Dovish</button>
+                <button class="fed-btn hawk" data-val="Hawkish" onclick="setFed('Hawkish',this)">🔴 Hawkish</button>
+                <button class="fed-btn nhawk" data-val="Neutral to Hawkish" onclick="setFed('Neutral to Hawkish',this)">🟠 Neutral to Hawkish</button>
+                <button class="fed-btn neut" data-val="Neutral" onclick="setFed('Neutral',this)">⚪ Neutral</button>
+                <button class="fed-btn ndove" data-val="Neutral to Dovish" onclick="setFed('Neutral to Dovish',this)">🔵 Neutral to Dovish</button>
+                <button class="fed-btn dove" data-val="Dovish" onclick="setFed('Dovish',this)">🟢 Dovish</button>
               </div>
               <textarea class="ps-ta" id="ps-fed-ctx" style="min-height:52px;margin-bottom:14px" placeholder="Ex: Boa notícia de emprego mas Fed mantém posição neutral — inflação ainda acima do target. Mercado a priceiar cut em Junho..."></textarea>
             </div>
@@ -2690,8 +2690,8 @@ function loadPSDate(d) {
   psSentiment = ctx.sentiment || '';
   // Bias buttons
   document.querySelectorAll('.ps-bias-btn').forEach(b => { b.classList.remove('on'); if (psBias && b.textContent.includes(psBias)) b.classList.add('on'); });
-  // Fed buttons
-  document.querySelectorAll('.fed-btn').forEach(b => { b.classList.remove('on'); if (psFed && b.textContent.includes(psFed)) b.classList.add('on'); });
+  // Fed buttons (data-val para correspondência exacta)
+  document.querySelectorAll('.fed-btn[data-val]').forEach(b => { b.classList.remove('on'); if (psFed && b.dataset.val === psFed) b.classList.add('on'); });
   // Sentiment buttons
   document.querySelectorAll('.ps-sent-btn').forEach(b => b.classList.remove('on-ron', 'on-roff', 'on-neut'));
   if (psSentiment === 'Risk-On') { const b = document.getElementById('sent-ron'); if (b) b.classList.add('on-ron'); }
@@ -2702,7 +2702,7 @@ function loadPSDate(d) {
   Object.entries(taMap).forEach(([id, key]) => { const el = document.getElementById(id); if (el) el.value = ctx[key] || ''; });
   // Profile bias buttons
   psProfileBias = ctx.profile_bias || '';
-  document.querySelectorAll('.ps-pbias-btn').forEach(b => { b.classList.remove('on'); if (psProfileBias && b.textContent.trim() === psProfileBias) b.classList.add('on'); });
+  document.querySelectorAll('.ps-pbias-btn[data-val]').forEach(b => { b.classList.remove('on'); if (psProfileBias && b.dataset.val === psProfileBias) b.classList.add('on'); });
   // Profile screenshots
   renderPSScreenshots(d);
   // Macro events
@@ -2725,7 +2725,7 @@ function loadPSDate(d) {
 
 function setFed(v, btn) {
   psFed = v;
-  document.querySelectorAll('.fed-btn').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('.fed-btn[data-val]').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
 }
 function setPSBias(v, btn) {
@@ -2742,7 +2742,7 @@ function setPSSentiment(v, btn) {
 }
 function setPSProfileBias(v, btn) {
   psProfileBias = (psProfileBias === v) ? '' : v;
-  document.querySelectorAll('.ps-pbias-btn').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('.ps-pbias-btn[data-val]').forEach(b => b.classList.remove('on'));
   if (psProfileBias) btn.classList.add('on');
 }
 
@@ -4488,13 +4488,13 @@ function importAllData(e) {
       localStorage.setItem(SK_PS, JSON.stringify(psData));
       localStorage.setItem(SK_WP, JSON.stringify(weeklyPrep));
 
-      // Sync all to Supabase
+      // Sync all to Supabase (usar savePSData/saveWPData para split texto/imagens)
       if (sbUser) {
         toast("A sincronizar com Supabase…", "ok");
-        await sbPushKey("nq10_a",  accounts);
-        await sbPushKey("nq10_t",  allT);
-        await sbPushKey("nq10_ps", psData);
-        await sbPushKey("nq10_wp", weeklyPrep);
+        await sbPushKey("nq10_a", accounts);
+        await sbPushKey("nq10_t", allT);
+        await savePSData();
+        await saveWPData();
         if (customConfs.length) await sbPushKey("nq10_cc", customConfs);
       }
 
