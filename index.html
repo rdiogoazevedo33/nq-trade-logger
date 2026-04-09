@@ -1180,10 +1180,12 @@ let sbUser = null;
 
 async function sbInit() {
   setSyncStatus("busy", "a verificar...");
+  console.log("[NQ] sbInit: a verificar sessão...");
   try {
     const { data: { session } } = await sb.auth.getSession();
     sbUser = session?.user || null;
-  } catch(e) { sbUser = null; }
+    console.log("[NQ] sbInit: sessão =", sbUser ? ("autenticado como " + sbUser.email + " id=" + sbUser.id) : "sem sessão");
+  } catch(e) { sbUser = null; console.error("[NQ] sbInit: erro ao verificar sessão:", e); }
   if (sbUser) {
     await sbPullData();
     showAcctScreen();
@@ -1220,8 +1222,9 @@ function showAcctScreen() {
 }
 
 async function sbPullData() {
-  if (!sbUser) return;
+  if (!sbUser) { console.warn("[NQ] sbPullData: sem utilizador autenticado"); return; }
   setSyncStatus("busy", "a carregar...");
+  console.log("[NQ] sbPullData: a carregar dados do Supabase para user_id=" + sbUser.id);
   const { data, error } = await sb.from("user_data").select("key,value").eq("user_id", sbUser.id);
   if (error) {
     console.error("sbPullData:", error);
@@ -1247,6 +1250,7 @@ async function sbPullData() {
     renderAccts();
     return;
   }
+  console.log("[NQ] sbPullData: recebidas", data.length, "linhas:", data.map(r => r.key).join(", "));
   let psImgs = null, wpImgs = null;
   data.forEach(row => {
     if (row.key === "nq10_a")       { try { const v = row.value; if (Array.isArray(v)) accounts = v; } catch(e){} }
@@ -1282,23 +1286,29 @@ async function sbPullData() {
 }
 
 async function sbPushKey(key, value) {
-  if (!sbUser) return true;
+  if (!sbUser) {
+    console.warn("[NQ] sbPushKey(" + key + "): sbUser é null — utilizador não autenticado, a ignorar save");
+    return true;
+  }
+  const payloadBytes = JSON.stringify(value).length;
+  console.log("[NQ] sbPushKey INÍCIO:", key, "| tamanho:", payloadBytes, "bytes (" + (payloadBytes/1024).toFixed(1) + " KB)", "| user_id:", sbUser.id);
   setSyncStatus("busy", "a guardar...");
   try {
-    const { error } = await sb.from("user_data").upsert(
+    const { data, error } = await sb.from("user_data").upsert(
       { user_id: sbUser.id, key, value, updated_at: new Date().toISOString() },
       { onConflict: "user_id,key" }
-    );
+    ).select("key");
     if (error) {
-      console.error("sbPushKey(" + key + "):", error);
+      console.error("[NQ] sbPushKey ERRO:", key, "| código:", error.code, "| mensagem:", error.message, "| detalhes:", error.details, "| hint:", error.hint, "| obj completo:", error);
       setSyncStatus("err", "erro ao guardar");
       toast("Erro ao guardar — tenta de novo", "err");
       return false;
     }
+    console.log("[NQ] sbPushKey SUCESSO:", key, "| resposta:", data);
     setSyncStatus("ok", sbUser?.email || "autenticado");
     return true;
   } catch (e) {
-    console.error("sbPushKey(" + key + "):", e);
+    console.error("[NQ] sbPushKey EXCEPÇÃO:", key, "| tipo:", e?.name, "| mensagem:", e?.message, "| obj completo:", e);
     setSyncStatus("err", "erro ao guardar");
     toast("Erro ao guardar — verifica a ligação", "err");
     return false;
@@ -1378,6 +1388,7 @@ function persist() {
   localStorage.setItem(SK_T, JSON.stringify(allT));
   const el = document.getElementById("save-lbl");
   if (el) el.textContent = "guardado " + new Date().toLocaleTimeString("pt", { hour: "2-digit", minute: "2-digit" });
+  console.log("[NQ] persist: accounts=" + JSON.stringify(accounts).length + "B | trades=" + JSON.stringify(allT).length + "B | sbUser=" + (sbUser ? sbUser.id : "null"));
   sbPushKey("nq10_a", accounts);
   sbPushKey("nq10_t", allT);
 }
@@ -1403,10 +1414,11 @@ function compressImage(base64, maxWidth, quality) {
 let _psSaving = false;
 async function savePSData() {
   localStorage.setItem(SK_PS, JSON.stringify(psData));
-  if (!sbUser || _psSaving) return true;
+  if (!sbUser) { console.log("[NQ] savePSData: sem utilizador, guardado só localmente"); return true; }
+  if (_psSaving) { console.log("[NQ] savePSData: save já em curso, a ignorar"); return true; }
   _psSaving = true;
+  console.log("[NQ] savePSData: a iniciar split texto/imagens...");
   try {
-    // Separar texto de imagens para evitar payload demasiado grande
     const textOnly = {}, imgs = {};
     Object.keys(psData).forEach(d => {
       const s = psData[d];
@@ -1415,8 +1427,11 @@ async function savePSData() {
       textOnly[d] = Object.assign({}, s, { profile_screenshots: [] });
       if (shots.length) imgs[d] = shots;
     });
+    const nImgDates = Object.keys(imgs).length;
+    const totalImgs = Object.values(imgs).reduce((n, arr) => n + arr.length, 0);
+    console.log("[NQ] savePSData: texto=" + JSON.stringify(textOnly).length + " bytes | imagens=" + totalImgs + " print(s) em " + nImgDates + " data(s)");
     const ok = await sbPushKey("nq10_ps", textOnly);
-    if (ok && Object.keys(imgs).length) await sbPushKey("nq10_ps_imgs", imgs);
+    if (ok && nImgDates > 0) await sbPushKey("nq10_ps_imgs", imgs);
     return ok;
   } finally {
     _psSaving = false;
@@ -1426,8 +1441,10 @@ async function savePSData() {
 let _wpSaving = false;
 async function saveWPData() {
   localStorage.setItem(SK_WP, JSON.stringify(weeklyPrep));
-  if (!sbUser || _wpSaving) return true;
+  if (!sbUser) { console.log("[NQ] saveWPData: sem utilizador, guardado só localmente"); return true; }
+  if (_wpSaving) { console.log("[NQ] saveWPData: save já em curso, a ignorar"); return true; }
   _wpSaving = true;
+  console.log("[NQ] saveWPData: a iniciar split texto/imagens...");
   try {
     const textOnly = {}, imgs = {};
     Object.keys(weeklyPrep).forEach(w => {
@@ -1442,6 +1459,7 @@ async function saveWPData() {
       textOnly[w] = rest;
       if (Object.keys(wi).length) imgs[w] = wi;
     });
+    console.log("[NQ] saveWPData: texto=" + JSON.stringify(textOnly).length + " bytes | semanas com imagens=" + Object.keys(imgs).length);
     const ok = await sbPushKey("nq10_wp", textOnly);
     if (ok && Object.keys(imgs).length) await sbPushKey("nq10_wp_imgs", imgs);
     return ok;
