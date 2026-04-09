@@ -1247,13 +1247,29 @@ async function sbPullData() {
     renderAccts();
     return;
   }
+  let psImgs = null, wpImgs = null;
   data.forEach(row => {
-    if (row.key === "nq10_a")  { try { const v = row.value; if (Array.isArray(v)) accounts = v; } catch(e){} }
-    if (row.key === "nq10_t")  { try { const v = row.value; if (v && typeof v === "object") allT = v; } catch(e){} }
-    if (row.key === "nq10_ps") { try { const v = row.value; if (v && typeof v === "object") psData = v; } catch(e){} }
-    if (row.key === "nq10_cc") { try { const v = row.value; if (Array.isArray(v)) { customConfs = v; localStorage.setItem("nq10_cc", JSON.stringify(customConfs)); } } catch(e){} }
-    if (row.key === "nq10_wp") { try { const v = row.value; if (v && typeof v === "object") weeklyPrep = v; } catch(e){} }
+    if (row.key === "nq10_a")       { try { const v = row.value; if (Array.isArray(v)) accounts = v; } catch(e){} }
+    if (row.key === "nq10_t")       { try { const v = row.value; if (v && typeof v === "object") allT = v; } catch(e){} }
+    if (row.key === "nq10_ps")      { try { const v = row.value; if (v && typeof v === "object") psData = v; } catch(e){} }
+    if (row.key === "nq10_ps_imgs") { try { const v = row.value; if (v && typeof v === "object") psImgs = v; } catch(e){} }
+    if (row.key === "nq10_cc")      { try { const v = row.value; if (Array.isArray(v)) { customConfs = v; localStorage.setItem("nq10_cc", JSON.stringify(customConfs)); } } catch(e){} }
+    if (row.key === "nq10_wp")      { try { const v = row.value; if (v && typeof v === "object") weeklyPrep = v; } catch(e){} }
+    if (row.key === "nq10_wp_imgs") { try { const v = row.value; if (v && typeof v === "object") wpImgs = v; } catch(e){} }
   });
+  // Fundir imagens de volta nos dados
+  if (psImgs) {
+    Object.keys(psImgs).forEach(d => {
+      if (!psData[d]) psData[d] = {};
+      psData[d].profile_screenshots = psImgs[d];
+    });
+  }
+  if (wpImgs) {
+    Object.keys(wpImgs).forEach(w => {
+      if (!weeklyPrep[w]) weeklyPrep[w] = {};
+      Object.keys(wpImgs[w]).forEach(k => { weeklyPrep[w][k + '_screenshots'] = wpImgs[w][k]; });
+    });
+  }
   if (!Array.isArray(accounts) || !accounts.length) {
     accounts = [{ id: "lucid", name: "Lucid", emoji: "🔵" }, { id: "mff", name: "My Funded Futures", emoji: "🟢" }];
   }
@@ -1266,18 +1282,26 @@ async function sbPullData() {
 }
 
 async function sbPushKey(key, value) {
-  if (!sbUser) return;
+  if (!sbUser) return true;
   setSyncStatus("busy", "a guardar...");
-  const { error } = await sb.from("user_data").upsert(
-    { user_id: sbUser.id, key, value, updated_at: new Date().toISOString() },
-    { onConflict: "user_id,key" }
-  );
-  if (error) {
-    console.error("sbPushKey(" + key + "):", error);
-    setSyncStatus("err", "erro sync");
-    toast("Erro ao sincronizar (" + key + "): " + error.message, "err");
-  } else {
+  try {
+    const { error } = await sb.from("user_data").upsert(
+      { user_id: sbUser.id, key, value, updated_at: new Date().toISOString() },
+      { onConflict: "user_id,key" }
+    );
+    if (error) {
+      console.error("sbPushKey(" + key + "):", error);
+      setSyncStatus("err", "erro ao guardar");
+      toast("Erro ao guardar — tenta de novo", "err");
+      return false;
+    }
     setSyncStatus("ok", sbUser?.email || "autenticado");
+    return true;
+  } catch (e) {
+    console.error("sbPushKey(" + key + "):", e);
+    setSyncStatus("err", "erro ao guardar");
+    toast("Erro ao guardar — verifica a ligação", "err");
+    return false;
   }
 }
 
@@ -1358,13 +1382,72 @@ function persist() {
   sbPushKey("nq10_t", allT);
 }
 
-function savePSData() {
-  localStorage.setItem(SK_PS, JSON.stringify(psData));
-  sbPushKey("nq10_ps", psData);
+// ── Compressão de imagens ────────────────────────────────────────
+function compressImage(base64, maxWidth, quality) {
+  maxWidth = maxWidth || 800; quality = quality || 0.7;
+  return new Promise(function(resolve) {
+    const img = new Image();
+    img.onload = function() {
+      const ratio = Math.min(maxWidth / img.width, 1);
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width * ratio);
+      canvas.height = Math.round(img.height * ratio);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = function() { resolve(base64); };
+    img.src = base64;
+  });
 }
-function saveWPData() {
+
+let _psSaving = false;
+async function savePSData() {
+  localStorage.setItem(SK_PS, JSON.stringify(psData));
+  if (!sbUser || _psSaving) return true;
+  _psSaving = true;
+  try {
+    // Separar texto de imagens para evitar payload demasiado grande
+    const textOnly = {}, imgs = {};
+    Object.keys(psData).forEach(d => {
+      const s = psData[d];
+      if (!s || typeof s !== 'object') { textOnly[d] = s; return; }
+      const shots = s.profile_screenshots || [];
+      textOnly[d] = Object.assign({}, s, { profile_screenshots: [] });
+      if (shots.length) imgs[d] = shots;
+    });
+    const ok = await sbPushKey("nq10_ps", textOnly);
+    if (ok && Object.keys(imgs).length) await sbPushKey("nq10_ps_imgs", imgs);
+    return ok;
+  } finally {
+    _psSaving = false;
+  }
+}
+
+let _wpSaving = false;
+async function saveWPData() {
   localStorage.setItem(SK_WP, JSON.stringify(weeklyPrep));
-  sbPushKey("nq10_wp", weeklyPrep);
+  if (!sbUser || _wpSaving) return true;
+  _wpSaving = true;
+  try {
+    const textOnly = {}, imgs = {};
+    Object.keys(weeklyPrep).forEach(w => {
+      const wp = weeklyPrep[w];
+      if (!wp || typeof wp !== 'object') { textOnly[w] = wp; return; }
+      const rest = Object.assign({}, wp);
+      const wi = {};
+      ['cot', 'profile', 'geo'].forEach(k => {
+        const key = k + '_screenshots';
+        if (rest[key] && rest[key].length) { wi[k] = rest[key]; rest[key] = []; }
+      });
+      textOnly[w] = rest;
+      if (Object.keys(wi).length) imgs[w] = wi;
+    });
+    const ok = await sbPushKey("nq10_wp", textOnly);
+    if (ok && Object.keys(imgs).length) await sbPushKey("nq10_wp_imgs", imgs);
+    return ok;
+  } finally {
+    _wpSaving = false;
+  }
 }
 function escHtml(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
@@ -2007,7 +2090,8 @@ function setWPBias(weekStart, val, btn) {
   document.querySelectorAll('#wk-'+weekStart+' .wp-bias-btn').forEach(b => b.classList.remove('on'));
   if (weeklyPrep[weekStart].weekly_bias) btn.classList.add('on');
 }
-function saveWP(weekStart) {
+async function saveWP(weekStart) {
+  if (_wpSaving) { toast('A guardar, aguarda...', 'err'); return; }
   if (!weeklyPrep[weekStart]) weeklyPrep[weekStart] = {};
   const g = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
   const ex = weeklyPrep[weekStart];
@@ -2021,8 +2105,8 @@ function saveWP(weekStart) {
     geo_screenshots: ex.geo_screenshots || [],
     weekly_bias: ex.weekly_bias || ''
   };
-  saveWPData();
-  toast('Preparação semanal guardada ✓','ok');
+  const ok = await saveWPData();
+  if (ok !== false) toast('Preparação semanal guardada ✓','ok');
 }
 function wpFilesSelected(weekStart, section, files) {
   if (!files?.length) return;
@@ -2032,8 +2116,9 @@ function wpFilesSelected(weekStart, section, files) {
   let loaded = 0;
   Array.from(files).forEach(f => {
     const reader = new FileReader();
-    reader.onload = e => {
-      weeklyPrep[weekStart][key].push(e.target.result);
+    reader.onload = async e => {
+      const compressed = await compressImage(e.target.result);
+      weeklyPrep[weekStart][key].push(compressed);
       loaded++;
       if (loaded === files.length) { saveWPData(); renderWPThumbs(weekStart, section); }
     };
@@ -2300,8 +2385,9 @@ function ddrFilesSelected(date, files) {
   let loaded = 0;
   Array.from(files).forEach(f => {
     const reader = new FileReader();
-    reader.onload = e => {
-      psData[date].profile_screenshots.push(e.target.result);
+    reader.onload = async e => {
+      const compressed = await compressImage(e.target.result);
+      psData[date].profile_screenshots.push(compressed);
       loaded++;
       if (loaded === files.length) {
         savePSData();
@@ -2717,8 +2803,9 @@ function psFilesSelected(files) {
   let loaded = 0;
   Array.from(files).forEach(file => {
     const reader = new FileReader();
-    reader.onload = e => {
-      psData[d].profile_screenshots.push(e.target.result);
+    reader.onload = async e => {
+      const compressed = await compressImage(e.target.result);
+      psData[d].profile_screenshots.push(compressed);
       loaded++;
       if (loaded === files.length) { savePSData(); renderPSScreenshots(d); }
     };
@@ -2726,7 +2813,8 @@ function psFilesSelected(files) {
   });
   document.getElementById('ps-file-input').value = '';
 }
-function savePS() {
+async function savePS() {
+  if (_psSaving) { toast('A guardar, aguarda...', 'err'); return; }
   const d = psDate || todayISO();
   const existing = psData[d] || {};
   const n = v => { const f = parseFloat(v); return isNaN(f) ? null : f; };
@@ -2757,10 +2845,10 @@ function savePS() {
   setDot('ps-col-fed-dot', psData[d].fed || psData[d].fedCtx);
   setDot('ps-col-sent-dot', psData[d].sentiment || psData[d].sentiment_narrative || psData[d].capital_flow || psData[d].dxy_vix_narrative);
   setDot('ps-col-geo-dot', psData[d].geopolitics);
-  savePSData();
+  const ok = await savePSData();
   updatePSStatusBadge();
   renderPSHist();
-  toast('Sessão guardada ✓', 'ok');
+  if (ok !== false) toast('Sessão guardada ✓', 'ok');
 }
 
 // ─── Dynamic Level Lists ─────────────────────
@@ -3407,7 +3495,7 @@ function rvAddPrints(e) {
   const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id); if (idx === -1) return;
   if (!all[idx].screenshots) all[idx].screenshots = [];
   let done = 0;
-  files.forEach(f => { const r = new FileReader(); r.onload = ev => { all[idx].screenshots.push(ev.target.result); done++; if (done === files.length) { setAcctTrades(all); rvRenderGallery(all[idx].screenshots); toast(done + " print(s) guardado(s)", "ok"); } }; r.readAsDataURL(f); });
+  files.forEach(f => { const r = new FileReader(); r.onload = async ev => { const compressed = await compressImage(ev.target.result); all[idx].screenshots.push(compressed); done++; if (done === files.length) { setAcctTrades(all); rvRenderGallery(all[idx].screenshots); toast(done + " print(s) guardado(s)", "ok"); } }; r.readAsDataURL(f); });
   e.target.value = "";
 }
 function rvRemovePrint(i) {
@@ -4580,9 +4668,11 @@ async function rvDrop(e) {
   const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id); if (idx === -1) return;
   if (!all[idx].screenshots) all[idx].screenshots = [];
   readImageFiles(imgs, results => {
-    results.forEach(src => all[idx].screenshots.push(src));
-    setAcctTrades(all); rvRenderGallery(all[idx].screenshots);
-    toast(results.length + ' print(s) guardado(s)', 'ok');
+    Promise.all(results.map(src => compressImage(src))).then(compressed => {
+      compressed.forEach(src => all[idx].screenshots.push(src));
+      setAcctTrades(all); rvRenderGallery(all[idx].screenshots);
+      toast(compressed.length + ' print(s) guardado(s)', 'ok');
+    });
   });
 }
 
