@@ -1419,6 +1419,34 @@ async function sbSaveSession(date, sessionData) {
   return true;
 }
 
+// ── Supabase Storage — prints ────────────────────────────────────────
+// folder: 'trades/{trade_id}' | 'sessions/{date}' | 'weekly/{weekStart}/{section}'
+// Devolve URL assinado (10 anos) ou null se falhar (fallback: guardar base64)
+async function sbUploadPrint(folder, base64) {
+  if (!sbUser || !base64?.startsWith('data:')) return null;
+  try {
+    const res = await fetch(base64);
+    const blob = await res.blob();
+    const ext = blob.type.includes('png') ? 'png' : 'jpg';
+    const path = `${sbUser.id}/${folder}/${Date.now()}.${ext}`;
+    const { error: upErr } = await sb.storage.from('prints').upload(path, blob, { contentType: blob.type });
+    if (upErr) { console.error('[NQ] sbUploadPrint ERRO:', upErr.message); return null; }
+    const { data: signData, error: signErr } = await sb.storage.from('prints').createSignedUrl(path, 315360000);
+    if (signErr) { console.error('[NQ] sbUploadPrint signedUrl ERRO:', signErr.message); return null; }
+    return signData?.signedUrl || null;
+  } catch(e) { console.error('[NQ] sbUploadPrint EXCEPÇÃO:', e.message); return null; }
+}
+
+// Apaga ficheiro do Storage se o src for URL do Storage (ignora base64 legacy)
+async function sbDeletePrint(src) {
+  if (!sbUser || !src || !src.startsWith('https://')) return;
+  const match = src.match(/\/object\/sign\/prints\/([^?]+)/);
+  if (!match) return;
+  const path = decodeURIComponent(match[1]);
+  const { error } = await sb.storage.from('prints').remove([path]);
+  if (error) console.error('[NQ] sbDeletePrint ERRO:', error.message);
+}
+
 function setSyncStatus(state, label) {
   const dot = document.getElementById("sync-dot");
   const lbl = document.getElementById("sync-label");
@@ -2238,8 +2266,9 @@ function wpFilesSelected(weekStart, section, files) {
   Array.from(files).forEach(f => {
     const reader = new FileReader();
     reader.onload = async e => {
-      const compressed = await compressImage(e.target.result);
-      weeklyPrep[weekStart][key].push(compressed);
+      const compressed = await compressImage(e.target.result, 1920, 0.92);
+      const stored = await sbUploadPrint('weekly/'+weekStart+'/'+section, compressed);
+      weeklyPrep[weekStart][key].push(stored || compressed);
       loaded++;
       if (loaded === files.length) { saveWPData(); renderWPThumbs(weekStart, section); }
     };
@@ -2252,6 +2281,7 @@ function wpFilesSelected(weekStart, section, files) {
 function wpRemoveShot(weekStart, section, idx) {
   const key = section+'_screenshots';
   if (!weeklyPrep[weekStart]?.[key]) return;
+  sbDeletePrint(weeklyPrep[weekStart][key][idx]);
   weeklyPrep[weekStart][key].splice(idx, 1);
   saveWPData(); renderWPThumbs(weekStart, section);
 }
@@ -2507,8 +2537,9 @@ function ddrFilesSelected(date, files) {
   Array.from(files).forEach(f => {
     const reader = new FileReader();
     reader.onload = async e => {
-      const compressed = await compressImage(e.target.result);
-      psData[date].profile_screenshots.push(compressed);
+      const compressed = await compressImage(e.target.result, 1920, 0.92);
+      const stored = await sbUploadPrint('sessions/'+date, compressed);
+      psData[date].profile_screenshots.push(stored || compressed);
       loaded++;
       if (loaded === files.length) {
         savePSData(date);
@@ -2523,6 +2554,7 @@ function ddrFilesSelected(date, files) {
 }
 function ddrRemoveShot(date, idx) {
   if (!psData[date]?.profile_screenshots) return;
+  sbDeletePrint(psData[date].profile_screenshots[idx]);
   psData[date].profile_screenshots.splice(idx, 1);
   savePSData(date);
   const grid = document.getElementById('ddr-ss-grid-'+date);
@@ -2912,6 +2944,7 @@ function openImgOverlay(src) {
 function openPSImg(src) { openImgOverlay(src); }
 function removePSScreenshot(d, i) {
   if (!psData[d]?.profile_screenshots) return;
+  sbDeletePrint(psData[d].profile_screenshots[i]);
   psData[d].profile_screenshots.splice(i, 1);
   savePSData(d);
   renderPSScreenshots(d);
@@ -2925,8 +2958,9 @@ function psFilesSelected(files) {
   Array.from(files).forEach(file => {
     const reader = new FileReader();
     reader.onload = async e => {
-      const compressed = await compressImage(e.target.result);
-      psData[d].profile_screenshots.push(compressed);
+      const compressed = await compressImage(e.target.result, 1920, 0.92);
+      const stored = await sbUploadPrint('sessions/'+d, compressed);
+      psData[d].profile_screenshots.push(stored || compressed);
       loaded++;
       if (loaded === files.length) { savePSData(d); renderPSScreenshots(d); }
     };
@@ -3616,13 +3650,13 @@ function rvAddPrints(e) {
   const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id); if (idx === -1) return;
   if (!all[idx].screenshots) all[idx].screenshots = [];
   let done = 0;
-  files.forEach(f => { const r = new FileReader(); r.onload = async ev => { const compressed = await compressImage(ev.target.result); all[idx].screenshots.push(compressed); done++; if (done === files.length) { setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]); rvRenderGallery(all[idx].screenshots); toast(done + " print(s) guardado(s)", "ok"); } }; r.readAsDataURL(f); });
+  files.forEach(f => { const r = new FileReader(); r.onload = async ev => { const compressed = await compressImage(ev.target.result, 1920, 0.92); const stored = await sbUploadPrint('trades/'+String(t.id), compressed); all[idx].screenshots.push(stored || compressed); done++; if (done === files.length) { setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]); rvRenderGallery(all[idx].screenshots); toast(done + " print(s) guardado(s)", "ok"); } }; r.readAsDataURL(f); });
   e.target.value = "";
 }
 function rvRemovePrint(i) {
   const trds = dayTrades(rvDate); const t = trds[rvIdx]; if (!t) return;
   const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id); if (idx === -1) return;
-  all[idx].screenshots?.splice(i, 1); setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]); rvRenderGallery(all[idx].screenshots || []);
+  sbDeletePrint(all[idx].screenshots?.[i]); all[idx].screenshots?.splice(i, 1); setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]); rvRenderGallery(all[idx].screenshots || []);
 }
 function rvRenderGallery(ss) {
   const el = document.getElementById("rv-gallery"); if (!el) return;
@@ -3666,7 +3700,16 @@ async function analyzeScreenshot(i, btn) {
   const origText = btn.textContent;
   btn.textContent = "⏳ A analisar..."; btn.disabled = true;
   try {
-    const [, mediaType, b64] = src.match(/^data:([^;]+);base64,(.+)$/);
+    let mediaType, b64;
+    if (src.startsWith('data:')) {
+      [, mediaType, b64] = src.match(/^data:([^;]+);base64,(.+)$/);
+    } else {
+      // URL do Storage — fazer fetch e converter para base64
+      const resp = await fetch(src);
+      const blob = await resp.blob();
+      const dataUrl = await new Promise(res => { const fr = new FileReader(); fr.onload = e => res(e.target.result); fr.readAsDataURL(blob); });
+      [, mediaType, b64] = dataUrl.match(/^data:([^;]+);base64,(.+)$/);
+    }
     const data = await callAnthropicAPI({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 256,
@@ -4791,7 +4834,10 @@ async function rvDrop(e) {
   if (!all[idx].screenshots) all[idx].screenshots = [];
   readImageFiles(imgs, results => {
     Promise.all(results.map(src => compressImage(src))).then(compressed => {
-      compressed.forEach(src => all[idx].screenshots.push(src));
+      await Promise.all(compressed.map(async src => {
+        const stored = await sbUploadPrint('trades/'+String(t.id), src);
+        all[idx].screenshots.push(stored || src);
+      }));
       setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]); rvRenderGallery(all[idx].screenshots);
       toast(compressed.length + ' print(s) guardado(s)', 'ok');
     });
