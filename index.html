@@ -2389,7 +2389,7 @@ function buildDiaryDayDetail(date) {
   const macroEvtHtml = '<div id="ddr-mev-'+date+'">' + buildDdrMacroEvents(date) + '</div>';
 
   // Trades
-  const trades = acctTrades().filter(t => t.date === date);
+  const trades = dayTrades(date);
   const tradesHtml = trades.length ? buildDdrTrades(date, trades)
     : '<div class="ddr-empty">Sem trades neste dia · <button class="btn btn-ghost btn-sm" onclick="showTab(\'import\',document.querySelectorAll(\'.tab\')[2])">Importar CSV →</button></div>';
 
@@ -2454,10 +2454,9 @@ function buildDdrMacroEvents(date) {
 }
 
 function buildDdrTrades(date, trades) {
-  const sorted = [...trades].sort((a,b) => (a.time||'99:99').localeCompare(b.time||'99:99'));
+  const sorted = [...trades].sort((a,b) => { const ar=a.csv_row??Infinity,br=b.csv_row??Infinity; if(ar!==br)return ar-br; return (a.time||'99:99').localeCompare(b.time||'99:99'); });
   const hdr = '<div class="jtrade-hdr"><span>Hora</span><span>Símbolo</span><span>Dir</span><span>Entry→Exit</span><span>P&L</span><span>R</span><span>NQ Scale</span><span></span></div>';
-  return hdr + sorted.map(t => {
-    const idx = trades.indexOf(t);
+  return hdr + sorted.map((t, idx) => {
     const pc = t.pnl>0?'var(--green)':t.pnl<0?'var(--red)':'var(--sub)';
     const rc = t.risk&&t.risk>0 ? t.pnl/t.risk : (t.r&&t.r!==0?t.r:null);
     const rStr = rc!=null?rc.toFixed(2)+'R':'—';
@@ -2683,10 +2682,9 @@ function renderJournal() {
 
 function renderJDayBody(date, trades) {
   if (!trades.length) return '';
-  const sorted = [...trades].sort((a,b) => (a.time||'99:99').localeCompare(b.time||'99:99'));
+  const sorted = [...trades].sort((a,b) => { const ar=a.csv_row??Infinity,br=b.csv_row??Infinity; if(ar!==br)return ar-br; return (a.time||'99:99').localeCompare(b.time||'99:99'); });
   const hdr = '<div class="jtrade-hdr"><span>Hora</span><span>Símbolo</span><span>Dir</span><span>Entry→Exit</span><span>P&L</span><span>R</span><span>NQ Scale</span><span></span></div>';
-  return hdr + sorted.map(t => {
-    const idx = trades.indexOf(t);
+  return hdr + sorted.map((t, idx) => {
     const pc = t.pnl > 0 ? 'var(--green)' : t.pnl < 0 ? 'var(--red)' : 'var(--sub)';
     const rc = t.risk && t.risk > 0 ? t.pnl/t.risk : (t.r && t.r !== 0 ? t.r : null);
     const rStr = rc != null ? rc.toFixed(2)+'R' : '—';
