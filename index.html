@@ -904,7 +904,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
           <div class="ps-collapse-hdr" onclick="togglePSCollapse('ps-col-sent',this)">
             <div class="ps-collapse-title">
               <span class="ps-collapse-filled" id="ps-col-sent-dot"></span>
-              📊 Sentiment + Capital Flow + DXY/VIX/US2Y
+              📊 Sentiment + Capital Flow + DXY/VIX/US10Y
             </div>
             <span class="ps-collapse-arrow" id="ps-col-sent-arrow">▼</span>
           </div>
@@ -916,12 +916,10 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
                 <button class="ps-sent-btn" id="sent-roff" onclick="setPSSentiment('Risk-Off',this)">✦ Risk-Off</button>
                 <button class="ps-sent-btn" id="sent-neut" onclick="setPSSentiment('Neutro',this)">— Neutro</button>
               </div>
-              <div class="ps-field-lbl">Narrativa de sentiment / volatilidade</div>
-              <textarea class="ps-ta" id="ps-sentiment-narrative" style="min-height:52px;margin-bottom:10px" placeholder="Ex: VIX abaixo de 20 — regime de baixa volatilidade. DXY a enfraquecer suporta NQ..."></textarea>
               <div class="ps-field-lbl">Capital Flow</div>
               <textarea class="ps-ta" id="ps-capital-flow" style="min-height:44px;margin-bottom:10px" placeholder="Ex: USD fraco, bonds estáveis, rotação para growth, tech sector líder..."></textarea>
-              <div class="ps-field-lbl">DXY · VIX · US2Y — Contexto</div>
-              <textarea class="ps-ta" id="ps-dxy-vix-narrative" style="min-height:44px;margin-bottom:10px" placeholder="Ex: DXY recua abaixo de 103, VIX em 18 (Low Vol), US2Y estável..."></textarea>
+              <div class="ps-field-lbl">DXY · VIX · US2Y · US10Y</div>
+              <textarea class="ps-ta" id="ps-dxy-vix-narrative" style="min-height:52px;margin-bottom:10px" placeholder="Ex: DXY a enfraquecer abaixo de 103, VIX em 18 (low vol), US2Y estável, US10Y a subir..."></textarea>
             </div>
           </div>
 
@@ -2897,7 +2895,7 @@ function loadPSDate(d) {
   else if (psSentiment === 'Risk-Off') { const b = document.getElementById('sent-roff'); if (b) b.classList.add('on-roff'); }
   else if (psSentiment === 'Neutro') { const b = document.getElementById('sent-neut'); if (b) b.classList.add('on-neut'); }
   // Textareas
-  const taMap = {'ps-fed-ctx':'fedCtx','ps-profile-notes':'profile_notes','ps-sentiment-narrative':'sentiment_narrative','ps-capital-flow':'capital_flow','ps-dxy-vix-narrative':'dxy_vix_narrative','ps-geopolitics':'geopolitics','ps-narrative':'narrative'};
+  const taMap = {'ps-fed-ctx':'fedCtx','ps-profile-notes':'profile_notes','ps-capital-flow':'capital_flow','ps-dxy-vix-narrative':'dxy_vix_narrative','ps-geopolitics':'geopolitics','ps-narrative':'narrative'};
   Object.entries(taMap).forEach(([id, key]) => { const el = document.getElementById(id); if (el) el.value = ctx[key] || ''; });
   // Profile bias buttons
   psProfileBias = ctx.profile_bias || '';
@@ -3027,7 +3025,7 @@ async function savePS() {
     fed: psFed,
     fedCtx: g('ps-fed-ctx'),
     sentiment: psSentiment,
-    sentiment_narrative: g('ps-sentiment-narrative'),
+    sentiment_narrative: existing.sentiment_narrative || '',
     capital_flow: g('ps-capital-flow'),
     dxy_vix_narrative: g('ps-dxy-vix-narrative'),
     geopolitics: g('ps-geopolitics'),
