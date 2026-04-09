@@ -1278,6 +1278,14 @@ async function sbPullData() {
       if (!allT[row.account_id]) allT[row.account_id] = [];
       allT[row.account_id].push({ id: row.id, ...row.data, screenshots: row.screenshots || [] });
     });
+    // Ordenar por csv_row (ordem original do CSV) e depois por time
+    Object.keys(allT).forEach(accId => {
+      allT[accId].sort((a, b) => {
+        const ar = a.csv_row ?? Infinity, br = b.csv_row ?? Infinity;
+        if (ar !== br) return ar - br;
+        return (a.time || '').localeCompare(b.time || '');
+      });
+    });
   } else if (!trRes.error && trRes.data?.length === 0) {
     // Tabela vazia — migrar dados legacy se existirem
     const legacyHasTrades = Object.values(allT).some(arr => Array.isArray(arr) && arr.length > 0);
@@ -1599,7 +1607,15 @@ function escHtml(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-function dayTrades(iso) { return (Array.isArray(allT[curAcct.id]) ? allT[curAcct.id] : []).filter(t => t.date === iso); }
+function dayTrades(iso) {
+  const arr = (Array.isArray(allT[curAcct.id]) ? allT[curAcct.id] : []).filter(t => t.date === iso);
+  return arr.sort((a, b) => {
+    // csv_row preserva a ordem original do CSV; fallback para time
+    const ar = a.csv_row ?? Infinity, br = b.csv_row ?? Infinity;
+    if (ar !== br) return ar - br;
+    return (a.time || '').localeCompare(b.time || '');
+  });
+}
 function acctTrades() { return Array.isArray(allT[curAcct.id]) ? allT[curAcct.id] : []; }
 function setAcctTrades(arr) { allT[curAcct.id] = arr; persist(); }
 function todayISO() { return new Date().toISOString().split("T")[0]; }
@@ -1945,7 +1961,7 @@ function parseCSV(text, fname) {
     const time = dtParts[1] ? dtParts[1].slice(0,8) : null;
     const time_slot = getTimeSlot(time);
     const session = getSession(time);
-    return { id: Date.now() + idx + Math.random(), date: dt, time: time, time_slot, session, symbol: (g(ci.sym) || "NQ").toUpperCase(), direction: dir, entry, exit, pnl, risk: null, stop: null, tp: null, rr: null, r: 0, confluences: "[]", score: 0, notes: "", notesHTML: "", screenshots: [], rating: 0 };
+    return { id: Date.now() + idx + Math.random(), csv_row: idx, date: dt, time: time, time_slot, session, symbol: (g(ci.sym) || "NQ").toUpperCase(), direction: dir, entry, exit, pnl, risk: null, stop: null, tp: null, rr: null, r: 0, confluences: "[]", score: 0, notes: "", notesHTML: "", screenshots: [], rating: 0 };
   }).filter(t => !isNaN(t.pnl));
   if (!parsed.length) { toast("Sem trades válidas", "err"); return; }
   const byDay = {}; parsed.forEach(t => { if (!byDay[t.date]) byDay[t.date] = []; byDay[t.date].push(t); });
