@@ -1224,12 +1224,26 @@ async function sbPullData() {
   setSyncStatus("busy", "a carregar...");
   console.log("[NQ] sbPullData: user_id=" + sbUser.id);
 
-  // Fetch em paralelo: user_data (contas, prefs), trades e sessions
-  const [udRes, trRes, seRes] = await Promise.all([
-    sb.from("user_data").select("key,value").eq("user_id", sbUser.id),
-    sb.from("trades").select("id,account_id,data,screenshots").eq("user_id", sbUser.id),
-    sb.from("sessions").select("date,data,screenshots").eq("user_id", sbUser.id)
-  ]);
+  // Fetch em paralelo com timeout de 8s — se demorar mais, usa dados locais
+  let udRes, trRes, seRes;
+  try {
+    const pullTimeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("timeout")), 8000)
+    );
+    [udRes, trRes, seRes] = await Promise.race([
+      Promise.all([
+        sb.from("user_data").select("key,value").eq("user_id", sbUser.id),
+        sb.from("trades").select("id,account_id,data,screenshots").eq("user_id", sbUser.id),
+        sb.from("sessions").select("date,data,screenshots").eq("user_id", sbUser.id)
+      ]),
+      pullTimeout
+    ]);
+  } catch(e) {
+    console.warn("[NQ] sbPullData: timeout/erro na ligação —", e.message, "— a usar dados locais");
+    setSyncStatus("ok", sbUser?.email || "autenticado");
+    renderAccts();
+    return;
+  }
 
   if (udRes.error) {
     console.error("sbPullData (user_data):", udRes.error);
@@ -3013,7 +3027,8 @@ function psFilesSelected(files) {
   document.getElementById('ps-file-input').value = '';
 }
 async function savePS() {
-  if (_psSaving) { toast('A guardar, aguarda...', 'err'); return; }
+  // Guardar sempre em localStorage imediatamente — independente do estado de carregamento
+  if (_psSaving) { toast('A guardar, aguarda um momento...', 'err'); return; }
   const d = psDate || todayISO();
   const existing = psData[d] || {};
   const n = v => { const f = parseFloat(v); return isNaN(f) ? null : f; };
