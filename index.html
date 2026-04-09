@@ -4833,7 +4833,7 @@ async function rvDrop(e) {
   const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id); if (idx === -1) return;
   if (!all[idx].screenshots) all[idx].screenshots = [];
   readImageFiles(imgs, results => {
-    Promise.all(results.map(src => compressImage(src))).then(compressed => {
+    Promise.all(results.map(src => compressImage(src))).then(async compressed => {
       await Promise.all(compressed.map(async src => {
         const stored = await sbUploadPrint('trades/'+String(t.id), src);
         all[idx].screenshots.push(stored || src);
