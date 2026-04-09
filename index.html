@@ -1186,6 +1186,7 @@ async function sbInit() {
   } catch(e) { sbUser = null; console.error("[NQ] sbInit: erro ao verificar sessão:", e); }
   if (sbUser) {
     await sbPullData();
+    fixTradeDirections(); // corre em background — corrige direcção de trades legacy
     showAcctScreen();
   } else {
     showLoginScreen();
@@ -1195,6 +1196,7 @@ async function sbInit() {
     if (event === "SIGNED_IN") {
       setLoginMsg("");
       await sbPullData();
+      fixTradeDirections(); // corre em background
       showAcctScreen();
     }
     if (event === "SIGNED_OUT") {
@@ -1469,6 +1471,36 @@ async function sbSaveSession(date, sessionData) {
   }
   setSyncStatus("ok", sbUser?.email || "autenticado");
   return true;
+}
+
+// ── Migração one-time: corrigir direcção das trades existentes ───────
+async function fixTradeDirections() {
+  if (localStorage.getItem("nq_dir_fix_v1")) return; // já feito
+  if (!sbUser) return;
+  let fixed = 0;
+  for (const [accId, trades] of Object.entries(allT)) {
+    if (!Array.isArray(trades)) continue;
+    for (const trade of trades) {
+      const priceDiff = (trade.exit || 0) - (trade.entry || 0);
+      if (!trade.entry || !trade.exit || priceDiff === 0 || trade.pnl === 0) continue;
+      // Long: priceDiff e pnl têm o mesmo sinal
+      // Short: priceDiff e pnl têm sinais opostos
+      const correctDir = (priceDiff > 0) === (trade.pnl > 0) ? "Long" : "Short";
+      if (trade.direction !== correctDir) {
+        trade.direction = correctDir;
+        await sbSaveTrade(accId, trade);
+        fixed++;
+      }
+    }
+  }
+  localStorage.setItem("nq_dir_fix_v1", "1");
+  if (fixed > 0) {
+    localStorage.setItem(SK_T, JSON.stringify(allT));
+    toast(fixed + " trade(s) corrigida(s) ✓", "ok");
+    console.log("[NQ] fixTradeDirections: " + fixed + " trades corrigidas");
+  } else {
+    console.log("[NQ] fixTradeDirections: nenhuma trade precisava de correcção");
+  }
 }
 
 // ── Supabase Storage — prints ────────────────────────────────────────
@@ -1998,14 +2030,14 @@ function parseCSV(text, fname) {
     const entry = parseFloat(g(ci.entry)) || null;
     const exit = parseFloat(g(ci.exit)) || null;
     const pnl = parseFloat(g(ci.pnl)) || 0;
-    const dir = qty < 0 ? "Short" : (exit && entry ? (exit > entry ? "Long" : "Short") : "Long");
+    const dir = qty < 0 ? "Short" : "Long";
     const dtRaw = g(ci.dt) || todayISO();
     const dtParts = dtRaw.replace("T"," ").split(" ");
     const dt = dtParts[0].split("T")[0];
     const time = dtParts[1] ? dtParts[1].slice(0,8) : null;
     const time_slot = getTimeSlot(time);
     const session = getSession(time);
-    return { id: Date.now() + idx + Math.random(), csv_row: idx, date: dt, time: time, time_slot, session, symbol: (g(ci.sym) || "NQ").toUpperCase(), direction: dir, entry, exit, pnl, risk: null, stop: null, tp: null, rr: null, r: 0, confluences: "[]", score: 0, notes: "", notesHTML: "", screenshots: [], rating: 0 };
+    return { id: Date.now() + idx + Math.random(), csv_row: idx, date: dt, time: time, time_slot, session, symbol: (g(ci.sym) || "NQ").toUpperCase(), direction: dir, entry, exit, qty: Math.abs(qty), pnl, risk: null, stop: null, tp: null, rr: null, r: 0, confluences: "[]", score: 0, notes: "", notesHTML: "", screenshots: [], rating: 0 };
   }).filter(t => !isNaN(t.pnl));
   if (!parsed.length) { toast("Sem trades válidas", "err"); return; }
   const byDay = {}; parsed.forEach(t => { if (!byDay[t.date]) byDay[t.date] = []; byDay[t.date].push(t); });
