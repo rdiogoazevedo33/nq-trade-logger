@@ -1175,6 +1175,7 @@ const SB_URL  = "https://zjwpfldjpcjigywbrxtw.supabase.co";
 const SB_KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpqd3BmbGRqcGNqaWd5d2JyeHR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMDcxODcsImV4cCI6MjA4OTY4MzE4N30.5DEsybnafgRSoDlqSkaL2HUu2w5sAkC7LrVVheTadms";
 const sb = supabase.createClient(SB_URL, SB_KEY);
 let sbUser = null;
+let _pullDataDone = false; // garante que sbPullData só corre uma vez por sessão
 
 async function sbInit() {
   setSyncStatus("busy", "a verificar...");
@@ -1195,11 +1196,15 @@ async function sbInit() {
     sbUser = session?.user || null;
     if (event === "SIGNED_IN") {
       setLoginMsg("");
-      await sbPullData();
-      fixTradeDirections(); // corre em background
+      if (!_pullDataDone) {
+        // Só corre se sbPullData ainda não correu (evita loop em token refresh)
+        await sbPullData();
+        fixTradeDirections(); // corre em background
+      }
       showAcctScreen();
     }
     if (event === "SIGNED_OUT") {
+      _pullDataDone = false; // reset para permitir pull na próxima autenticação
       showLoginScreen();
     }
   });
@@ -1223,6 +1228,8 @@ function showAcctScreen() {
 
 async function sbPullData() {
   if (!sbUser) { console.warn("[NQ] sbPullData: sem utilizador autenticado"); return; }
+  if (_pullDataDone) { console.warn("[NQ] sbPullData: já foi executado — ignorar chamada duplicada"); return; }
+  _pullDataDone = true;
   setSyncStatus("busy", "a carregar...");
   console.log("[NQ] sbPullData: user_id=" + sbUser.id);
 
