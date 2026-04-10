@@ -661,6 +661,18 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .sync-dot.busy{background:var(--amber);animation:sync-busy-pulse .8s infinite}
 @keyframes sync-err-pulse{0%,100%{opacity:1}50%{opacity:.3}}
 @keyframes sync-busy-pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* FULLSCREEN TEXTAREA MODAL */
+.ta-fs-wrap{position:relative}
+.ta-fs-btn{position:absolute;top:6px;right:6px;z-index:2;background:var(--s2);border:1px solid var(--b1);color:var(--sub);cursor:pointer;font-size:11px;padding:2px 7px;border-radius:5px;opacity:.55;transition:opacity .15s;font-family:var(--mono);line-height:1.5}
+.ta-fs-btn:hover{opacity:1;color:var(--text)}
+#fs-modal{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9000;display:none;align-items:center;justify-content:center}
+.fs-modal-box{width:92vw;height:90vh;display:flex;flex-direction:column;background:var(--s1);border:1px solid var(--b1);border-radius:14px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.7)}
+.fs-modal-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--b1);flex-shrink:0}
+.fs-modal-title{font-size:13px;font-family:var(--mono);color:var(--text);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.fs-modal-close{background:transparent;border:1px solid var(--b1);color:var(--sub);cursor:pointer;font-size:13px;padding:5px 12px;border-radius:6px;font-family:var(--mono)}
+.fs-modal-close:hover{color:var(--text);border-color:var(--b2)}
+#fs-modal-ta{flex:1;background:var(--s2);color:var(--text);border:none;padding:20px 24px;font-family:var(--mono);font-size:13px;line-height:1.9;resize:none;outline:none;width:100%}
 </style>
 </head>
 <body>
@@ -835,7 +847,10 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 
           <!-- Profile notes -->
           <div class="ps-field-lbl">Leitura do Profile</div>
-          <textarea class="ps-ta" id="ps-profile-notes" style="min-height:120px" placeholder="Ex: POC em 24450, VAH em 24800. HVN forte em 24600 espero actue como suporte. LVN em 24350 zona de aceleração. Delta anomaly buy em 24580..."></textarea>
+          <div class="ta-fs-wrap">
+            <button class="ta-fs-btn" onclick="openFSModal('Leitura do Profile','ps-profile-notes')" title="Expandir">⤢</button>
+            <textarea class="ps-ta" id="ps-profile-notes" style="min-height:120px" placeholder="Ex: POC em 24450, VAH em 24800. HVN forte em 24600 espero actue como suporte. LVN em 24350 zona de aceleração. Delta anomaly buy em 24580..."></textarea>
+          </div>
         </div>
 
         <!-- PILAR 2: MACRO & FUNDAMENTAL -->
@@ -944,7 +959,10 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
       <div class="ps-gameplan-wrap">
         <div class="ps-gameplan-title">📋 Narrativa &amp; Game Plan do dia</div>
         <div class="ps-gameplan-sub">Resume tudo — o que o profile diz, o que o macro diz, qual o bias e porquê, o que procuras para entrar, o que invalida o setup</div>
-        <textarea class="ps-ta" id="ps-narrative" style="min-height:120px" placeholder="Resume tudo — o que o profile diz, o que o macro diz, qual o bias e porquê, o que procuras para entrar, o que invalida o setup..."></textarea>
+        <div class="ta-fs-wrap">
+          <button class="ta-fs-btn" onclick="openFSModal('Narrativa &amp; Game Plan','ps-narrative')" title="Expandir">⤢</button>
+          <textarea class="ps-ta" id="ps-narrative" style="min-height:120px" placeholder="Resume tudo — o que o profile diz, o que o macro diz, qual o bias e porquê, o que procuras para entrar, o que invalida o setup..."></textarea>
+        </div>
       </div>
 
       <!-- SAVE (bottom) -->
@@ -1129,14 +1147,20 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
           <div class="rv-sec-hdr">
             <span class="rv-sec-title">📝 Trade Recap</span>
           </div>
-          <textarea class="ps-ta" id="rv-recap" style="min-height:140px;font-size:13px;line-height:1.7" placeholder="Descreve o que viste — orderflow, porque entraste, lições..."></textarea>
+          <div class="ta-fs-wrap">
+            <button class="ta-fs-btn" onclick="openFSModal('Trade Recap','rv-recap')" title="Expandir">⤢</button>
+            <textarea class="ps-ta" id="rv-recap" style="min-height:140px;font-size:13px;line-height:1.7" placeholder="Descreve o que viste — orderflow, porque entraste, lições..."></textarea>
+          </div>
         </div>
         <!-- Erros -->
         <div class="rv-section">
           <div class="rv-sec-hdr">
             <span class="rv-sec-title">⚠ Erros (opcional)</span>
           </div>
-          <textarea class="ps-ta" id="rv-mistakes-note" style="min-height:72px" placeholder="O que correu mal..."></textarea>
+          <div class="ta-fs-wrap">
+            <button class="ta-fs-btn" onclick="openFSModal('Erros','rv-mistakes-note')" title="Expandir">⤢</button>
+            <textarea class="ps-ta" id="rv-mistakes-note" style="min-height:72px" placeholder="O que correu mal..."></textarea>
+          </div>
         </div>
       </div>
     </div>
@@ -2315,7 +2339,10 @@ function buildWeeklyPrepSection(weekStart) {
       '<input type="file" accept="image/*" multiple id="wp-'+abbr+'-in-'+weekStart+'" style="display:none" onchange="wpFilesSelected(\''+weekStart+'\',\''+section+'\',this.files)">' +
       '<div class="wp-thumb-row" id="wp-'+abbr+'-thumbs-'+weekStart+'">'+thumbsHtml+'</div>' +
       '<div class="wp-upload-zone" onclick="document.getElementById(\'wp-'+abbr+'-in-'+weekStart+'\').click()" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="wpDrop(event,\''+weekStart+'\',\''+section+'\')">+ Adicionar print</div>' +
+      '<div class="ta-fs-wrap">' +
+      '<button class="ta-fs-btn" onclick="openFSModal(\''+title+'\',\'wp-'+abbr+'-notes-'+weekStart+'\')" title="Expandir">⤢</button>' +
       '<textarea class="ps-ta" style="min-height:68px" id="wp-'+abbr+'-notes-'+weekStart+'" placeholder="'+getWPPlaceholder(section)+'">'+escHtml(wp[section+'_notes']||'')+'</textarea>' +
+      '</div>' +
     '</div>';
   };
   return '<div class="wp-section">' +
@@ -2493,7 +2520,10 @@ function buildDiaryDayDetail(date) {
       '<div class="ddr-field-lbl">Bias do profile</div>' +
       '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">'+pBiasBtns+'</div>' +
       '<div class="ddr-field-lbl">Leitura do profile</div>' +
+      '<div class="ta-fs-wrap">' +
+      '<button class="ta-fs-btn" onclick="openFSModal(\'Leitura do Profile\',\'ddr-pnotes-'+date+'\')" title="Expandir">⤢</button>' +
       '<textarea class="ps-ta" id="ddr-pnotes-'+date+'" style="min-height:80px" placeholder="Volume Profile RTH, POC/VAH/VAL, HVN/LVN, Delta...">'+escHtml(ctx.profile_notes||'')+'</textarea>' +
+      '</div>' +
     '</div>' +
     // RIGHT
     '<div class="ddr-ps-col">' +
@@ -2516,7 +2546,10 @@ function buildDiaryDayDetail(date) {
   // Game Plan
   '<div class="ddr-game-plan">' +
     '<div class="ddr-field-lbl">Game Plan do dia</div>' +
+    '<div class="ta-fs-wrap">' +
+    '<button class="ta-fs-btn" onclick="openFSModal(\'Game Plan\',\'ddr-narrative-'+date+'\')" title="Expandir">⤢</button>' +
     '<textarea class="ps-ta" id="ddr-narrative-'+date+'" style="min-height:90px" placeholder="Resume tudo — profile, macro, bias, o que procuras, o que invalida o setup...">'+escHtml(ctx.narrative||'')+'</textarea>' +
+    '</div>' +
   '</div>' +
   // Save bar
   '<div class="ddr-save-bar">' +
@@ -2537,7 +2570,10 @@ function buildDdrMacroEvents(date) {
       (ev.priority ? '<span class="ddr-high-badge">HIGH</span>' : '') +
       '<button onclick="ddrRemoveMacroEvent(\''+date+'\','+i+')" style="background:transparent;border:none;color:var(--hint);cursor:pointer;font-size:12px;margin-left:auto;flex-shrink:0">✕</button>' +
     '</div>' +
-    '<textarea class="ps-ta" style="min-height:40px" placeholder="Nota sobre este evento..." oninput="ddrUpdateMacroNote(\''+date+'\','+i+',this.value)">'+escHtml(ev.note||'')+'</textarea>' +
+    '<div class="ta-fs-wrap">' +
+    '<button class="ta-fs-btn" onclick="openFSModal(\''+ev.name.replace(/'/g,"\\'")+'\',\'ddr-mev-note-'+date+'-'+i+'\')" title="Expandir">⤢</button>' +
+    '<textarea class="ps-ta" id="ddr-mev-note-'+date+'-'+i+'" style="min-height:40px" placeholder="Nota sobre este evento..." oninput="ddrUpdateMacroNote(\''+date+'\','+i+',this.value)">'+escHtml(ev.note||'')+'</textarea>' +
+    '</div>' +
     '</div>'
   ).join('');
 }
@@ -3289,7 +3325,10 @@ function buildMacroEventHTML(ev, i) {
       '</div>' +
       '<button onclick="removeMacroEvent(' + i + ')" style="background:transparent;border:none;color:var(--hint);cursor:pointer;font-size:12px;flex-shrink:0">✕</button>' +
     '</div>' +
-    '<textarea class="ps-ta" style="min-height:52px;margin-top:7px" placeholder="Ex: Se abaixo 150k → USD fraco → potencial spike bullish NQ..." oninput="updateMacroEventNote(' + i + ',this.value)">' + noteVal + '</textarea>' +
+    '<div class="ta-fs-wrap">' +
+    '<button class="ta-fs-btn" onclick="openFSModal(\'' + ev.name.replace(/'/g,"\\'") + '\',\'ps-mev-note-' + i + '\')" title="Expandir">⤢</button>' +
+    '<textarea class="ps-ta" id="ps-mev-note-' + i + '" style="min-height:52px;margin-top:7px" placeholder="Ex: Se abaixo 150k → USD fraco → potencial spike bullish NQ..." oninput="updateMacroEventNote(' + i + ',this.value)">' + noteVal + '</textarea>' +
+    '</div>' +
   '</div>';
 }
 
@@ -5643,7 +5682,47 @@ function rptEdge(trades) {
 
   return filterHtml + sec1 + sec2 + sec3 + nota;
 }
+
+// --- FULLSCREEN TEXTAREA ---
+let _fsTaId = null;
+function openFSModal(title, taId) {
+  const ta = document.getElementById(taId); if (!ta) return;
+  _fsTaId = taId;
+  document.getElementById("fs-modal-title").textContent = title;
+  document.getElementById("fs-modal-ta").value = ta.value;
+  document.getElementById("fs-modal").style.display = "flex";
+  setTimeout(() => document.getElementById("fs-modal-ta").focus(), 60);
+}
+function closeFSModal() {
+  const modal = document.getElementById("fs-modal"); if (!modal || modal.style.display === "none") return;
+  if (_fsTaId) {
+    const ta = document.getElementById(_fsTaId);
+    if (ta) {
+      ta.value = document.getElementById("fs-modal-ta").value;
+      ta.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+  }
+  modal.style.display = "none";
+  _fsTaId = null;
+}
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    const m = document.getElementById("fs-modal");
+    if (m && m.style.display === "flex") { e.preventDefault(); closeFSModal(); }
+  }
+});
 </script>
+
+<!-- FULLSCREEN TEXTAREA MODAL -->
+<div id="fs-modal" onclick="if(event.target===this)closeFSModal()">
+  <div class="fs-modal-box">
+    <div class="fs-modal-hdr">
+      <span class="fs-modal-title" id="fs-modal-title"></span>
+      <button class="fs-modal-close" onclick="closeFSModal()">✕ Fechar</button>
+    </div>
+    <textarea id="fs-modal-ta"></textarea>
+  </div>
+</div>
 
 <!-- DOC MODAL -->
 <div id="doc-modal" style="display:none" class="doc-modal-overlay" onclick="if(event.target===this)closeDocModal()">
