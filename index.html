@@ -1219,11 +1219,16 @@ function showLoginScreen() {
 
 function showAcctScreen() {
   document.getElementById("login-screen").style.display = "none";
-  document.getElementById("acct-screen").style.display = "flex";
   document.getElementById("app").style.display = "none";
-  // Show email in topbar sync label
   setSyncStatus("ok", sbUser?.email || "autenticado");
   renderAccts();
+  // Auto-entrar na última conta usada
+  const lastId = localStorage.getItem("nq10_last_account");
+  if (lastId && accounts.find(a => a.id === lastId)) {
+    selectAcct(lastId);
+    return;
+  }
+  document.getElementById("acct-screen").style.display = "flex";
 }
 
 async function sbPullData() {
@@ -1916,6 +1921,7 @@ renderAccts();
 
 function selectAcct(id) {
   curAcct = accounts.find(a => a.id === id); if (!curAcct) return;
+  localStorage.setItem("nq10_last_account", id);
   document.getElementById("acct-screen").style.display = "none";
   document.getElementById("app").style.display = "flex";
   document.getElementById("nav-acct").textContent = curAcct.name;
