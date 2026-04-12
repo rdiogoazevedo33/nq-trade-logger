@@ -1955,7 +1955,10 @@ function selectAcct(id) {
   buildConfs("m-confs", "[]", "cchip", "sr-btn", "sr-btn", "toggleConf", "setSR");
   renderSessBar(); renderList();
   updateBackupLbl();
-  showTab("dashboard", document.querySelectorAll(".tab")[0]);
+  const _savedTab = localStorage.getItem("nq_active_tab");
+  const _tabBtns  = document.querySelectorAll(".tab");
+  const _savedBtn = _savedTab ? [..._tabBtns].find(b => b.getAttribute("onclick")?.includes("'"+_savedTab+"'")) : null;
+  showTab(_savedTab && _savedBtn ? _savedTab : "dashboard", _savedBtn || _tabBtns[0]);
 }
 function goAccts() {
   document.getElementById("app").style.display = "none";
@@ -2277,6 +2280,14 @@ function fmtWeekRange(weekStart) {
   return s.getDate()+' '+M[s.getMonth()]+' – '+e.getDate()+' '+M[e.getMonth()]+' '+s.getFullYear();
 }
 
+function _getDiaryExpandedWeeks() {
+  try { return new Set(JSON.parse(localStorage.getItem('nq_expanded_weeks') || '[]')); }
+  catch(e) { return new Set(); }
+}
+function _saveDiaryExpandedWeeks(set) {
+  localStorage.setItem('nq_expanded_weeks', JSON.stringify([...set]));
+}
+
 function renderDiary() {
   const body = document.getElementById('journal-body');
   if (!body) return;
@@ -2290,10 +2301,17 @@ function renderDiary() {
   const weeks = [...weekSet].sort((a,b) => b.localeCompare(a));
   const totalTrades = acctTrades().length;
   document.getElementById('journal-lbl').textContent = weeks.length + ' semanas · ' + totalTrades + ' trades';
-  body.innerHTML = weeks.map(ws => renderWeekCard(ws, ws === todayWeek)).join('');
+  const expanded = _getDiaryExpandedWeeks();
+  // Se não há estado guardado, abrir a semana mais recente por defeito
+  const useDefault = expanded.size === 0;
+  body.innerHTML = weeks.map((ws, i) => {
+    const isCurrent = ws === todayWeek;
+    const isOpen = useDefault ? i === 0 : expanded.has(ws);
+    return renderWeekCard(ws, isCurrent, isOpen);
+  }).join('');
 }
 
-function renderWeekCard(weekStart, isCurrent) {
+function renderWeekCard(weekStart, isCurrent, isOpen) {
   const trades = acctTrades();
   const days = getWeekDays(weekStart);
   const weekTrades = trades.filter(t => days.includes(t.date));
@@ -2301,7 +2319,6 @@ function renderWeekCard(weekStart, isCurrent) {
   const tradeDays = new Set(weekTrades.map(t => t.date)).size;
   const pnlColor = weekPnl > 0 ? 'var(--green)' : weekPnl < 0 ? 'var(--red)' : 'var(--hint)';
   const pnlStr = weekTrades.length ? ((weekPnl>=0?'+':'')+'$'+weekPnl.toFixed(2)) : '—';
-  const isOpen = isCurrent;
   return '<div class="diary-week-card'+(isCurrent?' current':'')+(isOpen?' open':'') +'" id="wk-'+weekStart+'">' +
     '<div class="week-hdr" onclick="toggleWeekCard(\''+weekStart+'\')">' +
       '<span class="week-dates">'+fmtWeekRange(weekStart)+'</span>' +
@@ -2318,7 +2335,11 @@ function renderWeekCard(weekStart, isCurrent) {
   '</div>';
 }
 function toggleWeekCard(ws) {
-  const el = document.getElementById('wk-'+ws); if (el) el.classList.toggle('open');
+  const el = document.getElementById('wk-'+ws); if (!el) return;
+  el.classList.toggle('open');
+  const expanded = _getDiaryExpandedWeeks();
+  if (el.classList.contains('open')) { expanded.add(ws); } else { expanded.delete(ws); }
+  _saveDiaryExpandedWeeks(expanded);
 }
 
 // ─── Weekly Prep ──────────────────────────────────────────────────
@@ -2941,6 +2962,7 @@ function showTab(id, btn) {
   if (id === "dashboard") renderDashboard();
   if (id === "journal") renderDiary();
   if (id === "reports") renderReports();
+  localStorage.setItem("nq_active_tab", id);
 }
 
 // ═══════════════════════════════════════════
