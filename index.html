@@ -942,13 +942,13 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
           <div class="ps-collapse-hdr" onclick="togglePSCollapse('ps-col-geo',this)">
             <div class="ps-collapse-title">
               <span class="ps-collapse-filled" id="ps-col-geo-dot"></span>
-              🌍 Geopolítica
+              🌍 News & Geopolítica
             </div>
             <span class="ps-collapse-arrow" id="ps-col-geo-arrow">▼</span>
           </div>
           <div class="ps-collapse-body" id="ps-col-geo" style="max-height:0;overflow:hidden">
             <div style="padding-top:4px">
-              <textarea class="ps-ta" id="ps-geopolitics" style="min-height:52px" placeholder="Ex: Iran conflict a pressionar oil, risk-off sentiment no Asia session..."></textarea>
+              <textarea class="ps-ta" id="ps-geopolitics" style="min-height:52px" placeholder="Ex: Conflitos geopolíticos, decisões políticas (tarifas, sanções), notícias macro inesperadas, qualquer headline que mova o sentiment do dia..."></textarea>
             </div>
           </div>
 
@@ -2352,7 +2352,7 @@ function buildWeeklyPrepSection(weekStart) {
     '<div class="wp-grid">' +
       buildSubsec('cot','COT Report','📊') +
       buildSubsec('profile','Profile Framing Semanal','📈') +
-      buildSubsec('geo','Geopolítica & Macro','🌍') +
+      buildSubsec('geo','News & Geopolítica & Macro','🌍') +
     '</div>' +
     '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
       '<span style="font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em">Bias semanal:</span>' +
@@ -2539,8 +2539,8 @@ function buildDiaryDayDetail(date) {
         '<button class="ps-predef-event" onclick="ddrAddMacroEventManual(\''+date+'\')">+ Manual</button>' +
       '</div>' +
       macroEvtHtml +
-      '<div class="ddr-field-lbl" style="margin-top:10px">Geopolítica</div>' +
-      '<textarea class="ps-ta" id="ddr-geo-'+date+'" style="min-height:48px" placeholder="Geopolítica relevante para NQ...">'+escHtml(ctx.geopolitics||'')+'</textarea>' +
+      '<div class="ddr-field-lbl" style="margin-top:10px">News & Geopolítica</div>' +
+      '<textarea class="ps-ta" id="ddr-geo-'+date+'" style="min-height:48px" placeholder="Ex: Conflitos geopolíticos, decisões políticas (tarifas, sanções), notícias macro inesperadas...">'+escHtml(ctx.geopolitics||'')+'</textarea>' +
     '</div>' +
   '</div>' +
   // Game Plan
@@ -3428,7 +3428,7 @@ function openDocModal() {
   if (ctx.sentiment_narrative) macroHtml += kv('Sentiment / Vol', '') + ta(ctx.sentiment_narrative);
   if (ctx.capital_flow) macroHtml += kv('Capital Flow', '') + ta(ctx.capital_flow);
   if (ctx.dxy_vix_narrative) macroHtml += kv('DXY · VIX · US2Y', '') + ta(ctx.dxy_vix_narrative);
-  if (ctx.geopolitics) macroHtml += kv('Geopolítica', '') + ta(ctx.geopolitics);
+  if (ctx.geopolitics) macroHtml += kv('News & Geopolítica', '') + ta(ctx.geopolitics);
   if (ctx.macroEvents?.length) {
     macroHtml += '<div style="margin-top:8px">';
     ctx.macroEvents.forEach(ev => {
@@ -4045,6 +4045,108 @@ function svgCumLine(trades, W, H) {
   </svg>`;
 }
 
+function initEquityCanvas(trades) {
+  const canvas = document.getElementById('equity-canvas');
+  if (!canvas) return;
+  // Group by date
+  const dm = {};
+  trades.forEach(t => { if (!dm[t.date]) dm[t.date] = 0; dm[t.date] += t.pnl; });
+  const dates = Object.keys(dm).sort();
+  if (!dates.length) return;
+  let cum = 0;
+  // Start point at 0 (no date), then one point per day
+  const dataPoints = [{ date: null, cumPnl: 0, dayPnl: 0 }];
+  dates.forEach(date => { cum += dm[date]; dataPoints.push({ date, cumPnl: cum, dayPnl: dm[date] }); });
+  if (dataPoints.length < 2) return;
+
+  const H = 120;
+  const W = canvas.offsetWidth || canvas.parentElement.offsetWidth || 400;
+  canvas.width = W; canvas.height = H;
+  const ctx2d = canvas.getContext('2d');
+  const pad = { t: 16, b: 12, l: 8, r: 8 };
+  const cumVals = dataPoints.map(p => p.cumPnl);
+  const mn = Math.min(...cumVals), mx = Math.max(...cumVals), rng = mx - mn || 1;
+  const px = i => pad.l + (i / (dataPoints.length - 1)) * (W - pad.l - pad.r);
+  const py = v => H - pad.b - ((v - mn) / rng) * (H - pad.t - pad.b);
+  const lastV = dataPoints[dataPoints.length - 1].cumPnl;
+  const lineColorHex = lastV >= 0 ? '#1fd17a' : '#f04f4f';
+  const points = dataPoints.map((p, i) => ({ x: px(i), y: py(p.cumPnl), date: p.date, cumPnl: p.cumPnl, dayPnl: p.dayPnl }));
+
+  function drawCurve(highlightIdx) {
+    ctx2d.clearRect(0, 0, W, H);
+    // Zero line
+    ctx2d.save();
+    ctx2d.setLineDash([3, 3]);
+    ctx2d.strokeStyle = '#2c3450';
+    ctx2d.lineWidth = 1;
+    ctx2d.beginPath(); ctx2d.moveTo(pad.l, py(0)); ctx2d.lineTo(W - pad.r, py(0)); ctx2d.stroke();
+    ctx2d.restore();
+    // Fill
+    const grad = ctx2d.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, lineColorHex + '33'); grad.addColorStop(1, lineColorHex + '03');
+    ctx2d.beginPath();
+    points.forEach((p, i) => i === 0 ? ctx2d.moveTo(p.x, p.y) : ctx2d.lineTo(p.x, p.y));
+    ctx2d.lineTo(points[points.length - 1].x, H); ctx2d.lineTo(points[0].x, H); ctx2d.closePath();
+    ctx2d.fillStyle = grad; ctx2d.fill();
+    // Line
+    ctx2d.beginPath();
+    points.forEach((p, i) => i === 0 ? ctx2d.moveTo(p.x, p.y) : ctx2d.lineTo(p.x, p.y));
+    ctx2d.strokeStyle = lineColorHex; ctx2d.lineWidth = 1.5; ctx2d.stroke();
+    // Last dot + label
+    const lp = points[points.length - 1];
+    ctx2d.beginPath(); ctx2d.arc(lp.x, lp.y, 3, 0, Math.PI * 2); ctx2d.fillStyle = lineColorHex; ctx2d.fill();
+    ctx2d.fillStyle = lineColorHex; ctx2d.font = '9px "IBM Plex Mono",monospace';
+    ctx2d.textAlign = 'right'; ctx2d.fillText((lastV >= 0 ? '+' : '') + '$' + lastV.toFixed(0), lp.x, lp.y - 8);
+    // Highlight
+    if (highlightIdx != null && highlightIdx >= 0 && highlightIdx < points.length) {
+      const hp = points[highlightIdx];
+      const hc = hp.cumPnl >= 0 ? '#1fd17a' : '#f04f4f';
+      ctx2d.beginPath(); ctx2d.arc(hp.x, hp.y, 4.5, 0, Math.PI * 2);
+      ctx2d.strokeStyle = '#dde2f0'; ctx2d.lineWidth = 1.5; ctx2d.stroke();
+      ctx2d.beginPath(); ctx2d.arc(hp.x, hp.y, 3, 0, Math.PI * 2); ctx2d.fillStyle = hc; ctx2d.fill();
+    }
+  }
+  drawCurve(null);
+
+  const tooltip = document.getElementById('equity-tooltip');
+  canvas.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (W / rect.width);
+    const my = (e.clientY - rect.top) * (H / rect.height);
+    let closest = -1, minDist = Infinity;
+    points.forEach((p, i) => { const d = Math.hypot(p.x - mx, p.y - my); if (d < minDist) { minDist = d; closest = i; } });
+    if (closest >= 0 && minDist <= 20 && points[closest].date) {
+      const pt = points[closest];
+      const cumCol = pt.cumPnl >= 0 ? 'var(--green)' : 'var(--red)';
+      const dayCol = pt.dayPnl >= 0 ? 'var(--green)' : 'var(--red)';
+      const [y, m, d] = pt.date.split('-');
+      tooltip.innerHTML =
+        '<div style="color:var(--sub);font-size:9px;letter-spacing:.04em;margin-bottom:6px">' + d + '/' + m + '/' + y + '</div>' +
+        '<div style="display:flex;justify-content:space-between;gap:14px;font-size:10px;margin-bottom:3px">' +
+          '<span style="color:var(--sub)">Acumulado</span>' +
+          '<span style="color:' + cumCol + ';font-weight:600">' + (pt.cumPnl >= 0 ? '+' : '') + '$' + pt.cumPnl.toFixed(2) + '</span>' +
+        '</div>' +
+        '<div style="display:flex;justify-content:space-between;gap:14px;font-size:10px">' +
+          '<span style="color:var(--sub)">Dia</span>' +
+          '<span style="color:' + dayCol + ';font-weight:600">' + (pt.dayPnl >= 0 ? '+' : '') + '$' + pt.dayPnl.toFixed(2) + '</span>' +
+        '</div>';
+      tooltip.style.display = 'block';
+      const par = canvas.parentElement;
+      const parRect = par.getBoundingClientRect();
+      const tooltipW = 162;
+      let tx = e.clientX - parRect.left + 14;
+      if (tx + tooltipW > par.offsetWidth) tx = e.clientX - parRect.left - tooltipW - 14;
+      tooltip.style.left = tx + 'px';
+      tooltip.style.top = (e.clientY - parRect.top - 10) + 'px';
+      drawCurve(closest);
+    } else {
+      tooltip.style.display = 'none';
+      drawCurve(null);
+    }
+  });
+  canvas.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; drawCurve(null); });
+}
+
 function setDashMode(mode, btn) {
   dashMode = mode;
   document.querySelectorAll('.dash-mode-btn').forEach(b => b.classList.remove('on'));
@@ -4166,7 +4268,10 @@ function renderDashboard() {
   const chartsHTML = `<div class="dash-charts">
     <div class="dash-chart-card">
       <div class="dash-chart-title">Equity Acumulada (P&amp;L)</div>
-      ${svgCumLine(trades)}
+      <div style="position:relative;overflow:visible">
+        <canvas id="equity-canvas" style="width:100%;display:block;height:120px;cursor:crosshair"></canvas>
+        <div id="equity-tooltip" style="display:none;position:absolute;background:var(--s2);border:1px solid var(--b2);border-radius:6px;padding:8px 12px;pointer-events:none;z-index:50;min-width:140px;box-shadow:0 4px 12px rgba(0,0,0,.3);font-family:var(--mono)"></div>
+      </div>
     </div>
     <div class="dash-chart-card">
       <div class="dash-chart-title">P&amp;L Diário</div>
@@ -4236,6 +4341,7 @@ function renderDashboard() {
 
   body.innerHTML = modeToggle + periodBar + metricsHTML + chartsHTML +
     `<div class="dash-bottom">${calCard}${recentCard}</div>`;
+  initEquityCanvas(trades);
 }
 
 // ═══════════════════════════════════════════
@@ -5011,7 +5117,7 @@ function showWeekFullPrep(weekStart) {
   };
   addSubsec(wp.cot_screenshots, wp.cot_notes, 'COT Report', '📊');
   addSubsec(wp.profile_screenshots, wp.profile_notes, 'Profile Framing Semanal', '📈');
-  addSubsec(wp.geo_screenshots, wp.geo_notes, 'Geopolítica & Macro', '🌍');
+  addSubsec(wp.geo_screenshots, wp.geo_notes, 'News & Geopolítica & Macro', '🌍');
   if (wp.weekly_bias) {
     const bc = getBiasColor(wp.weekly_bias);
     wpHtml += '<div style="margin-top:4px">' + kv('Bias semanal', '') + '<span style="font-family:var(--mono);font-size:12px;font-weight:600;color:' + bc + '">' + wp.weekly_bias + '</span></div>';
