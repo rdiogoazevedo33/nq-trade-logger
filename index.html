@@ -538,6 +538,15 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .ctx-modal-bg.open{display:flex}
 .ctx-modal{background:var(--s1);border:1px solid var(--b1);border-radius:16px;width:min(520px,95vw);max-height:85vh;overflow-y:auto;padding:20px}
 .ctx-modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+/* Confirm delete modal */
+.confirm-modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:600;align-items:center;justify-content:center}
+.confirm-modal-bg.open{display:flex}
+.confirm-modal{background:var(--s1);border:1px solid var(--b1);border-radius:14px;width:min(380px,92vw);padding:24px}
+.confirm-modal-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:10px}
+.confirm-modal-body{font-size:13px;color:var(--sub);margin-bottom:22px;line-height:1.5}
+.confirm-modal-actions{display:flex;gap:8px;justify-content:flex-end}
+.rconf-del-btn{background:transparent;border:none;color:var(--hint);cursor:pointer;padding:2px 5px;border-radius:4px;font-size:12px;line-height:1;flex-shrink:0;transition:color .13s}
+.rconf-del-btn:hover{color:var(--red)}
 .ctx-sec{margin-bottom:11px}
 .ctx-lbl{font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
 .ctx-val{font-size:12px;font-family:var(--mono);color:var(--text)}
@@ -765,6 +774,18 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
           <button onclick="closeCtxModal()" style="background:transparent;border:none;color:var(--hint);font-size:18px;cursor:pointer;line-height:1">✕</button>
         </div>
         <div id="ctx-modal-body"></div>
+      </div>
+    </div>
+
+    <!-- CONFIRM DELETE CONFLUÊNCIA MODAL -->
+    <div class="confirm-modal-bg" id="conf-del-modal-bg" onclick="if(event.target===this)cancelDeleteCustomConf()">
+      <div class="confirm-modal">
+        <div class="confirm-modal-title">Apagar confluência?</div>
+        <div class="confirm-modal-body" id="conf-del-modal-body"></div>
+        <div class="confirm-modal-actions">
+          <button class="btn btn-sm" style="background:var(--s3);border:1px solid var(--b2);color:var(--sub)" onclick="cancelDeleteCustomConf()">Cancelar</button>
+          <button class="btn btn-sm" style="background:var(--red);border:1px solid var(--red);color:#fff" onclick="confirmDeleteCustomConf()">Apagar</button>
+        </div>
       </div>
     </div>
 
@@ -1882,6 +1903,9 @@ function buildConfs(containerId, rawConfs, chipClass, srClass, srBtnClass, toggl
         html += '<button class="' + srBtnBase + (curSR === "S" ? " act" : "") + '" data-sr="S" onclick="' + setSRFn + '(this)">' + srL0 + '</button>';
         html += '<button class="' + srBtnBase + (curSR === "R" ? " act" : "") + '" data-sr="R" onclick="' + setSRFn + '(this)">' + srL1 + '</button>';
         html += '</div>';
+      }
+      if (g === "Custom" && chipClass === "rconf-chip") {
+        html += '<button class="rconf-del-btn" title="Apagar confluência" onclick="event.stopPropagation();rvDeleteCustomConf(\'' + c.id + '\')">✕</button>';
       }
       html += '</div>';
     });
@@ -5020,6 +5044,32 @@ function rvSaveNewConf() {
   const t = dayTrades(rvDate)[rvIdx];
   if (t) buildConfs("rv-conf-list", t.confluences || "[]", "rconf-chip", "rsr-btn", "rsr-btn", "rvToggleConf", "rvSetSR");
   toast("Confluência guardada ✓", "ok");
+}
+
+let _delConfId = null;
+function rvDeleteCustomConf(id) {
+  const c = CMAP[id]; if (!c) return;
+  _delConfId = id;
+  document.getElementById("conf-del-modal-body").textContent =
+    "Tens a certeza que queres apagar '" + c.label + "'? Esta acção não pode ser desfeita.";
+  document.getElementById("conf-del-modal-bg").classList.add("open");
+}
+function cancelDeleteCustomConf() {
+  _delConfId = null;
+  document.getElementById("conf-del-modal-bg").classList.remove("open");
+}
+function confirmDeleteCustomConf() {
+  const id = _delConfId; if (!id) return;
+  cancelDeleteCustomConf();
+  customConfs = customConfs.filter(c => c.id !== id);
+  const confIdx = CONFS.findIndex(c => c.id === id);
+  if (confIdx !== -1) CONFS.splice(confIdx, 1);
+  delete CMAP[id];
+  localStorage.setItem("nq10_cc", JSON.stringify(customConfs));
+  sbPushKey("nq10_cc", customConfs);
+  const t = dayTrades(rvDate)[rvIdx];
+  if (t) buildConfs("rv-conf-list", t.confluences || "[]", "rconf-chip", "rsr-btn", "rsr-btn", "rvToggleConf", "rvSetSR");
+  toast("Confluência apagada", "ok");
 }
 
 function loadCustomConfs() {
