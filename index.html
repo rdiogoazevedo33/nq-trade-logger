@@ -1748,7 +1748,9 @@ const CONFS = [
   { id: "lvn",     label: "LVN",                        color: "#34d399", sr: true,  group: "Volume Profile" },
   { id: "poc",     label: "POC",                        color: "#818cf8", sr: true,  group: "Volume Profile" },
   { id: "vsi",     label: "Vol. Stacked Imbalance",     color: "#fbbf24", sr: true,  group: "Volume Profile" },
-  { id: "fa",      label: "Failed Auction (VAL/VAH)",   color: "#fb923c", sr: true,  group: "Volume Profile" },
+  { id: "fa",      label: "Failed Auction (VAL/VAH)",   color: "#fb923c", sr: true,  srLabels: ["VAL","VAH"], group: "Volume Profile" },
+  { id: "hvb",     label: "High Volume Breakout",       color: "#f0a832", sr: false, group: "Volume Profile" },
+  { id: "bvr",     label: "Break Value & Retest",       color: "#18c9b0", sr: true,  srLabels: ["VAL","VAH"], group: "Volume Profile" },
   { id: "vwap",    label: "VWAP Bounce",                color: "#9b72f5", sr: false, group: "Outros" },
   { id: "delta",   label: "Delta Anomaly",              color: "#a78bfa", sr: false, group: "Outros" },
 ];
@@ -1876,8 +1878,9 @@ function buildConfs(containerId, rawConfs, chipClass, srClass, srBtnClass, toggl
       html += '<div class="' + lblCls + '"><span class="' + dotCls + '" style="background:' + c.color + '"></span>' + c.label + '</div>';
       if (c.sr) {
         html += '<div class="' + srRow + '" onclick="event.stopPropagation()">';
-        html += '<button class="' + srBtnBase + (curSR === "S" ? " act" : "") + '" data-sr="S" onclick="' + setSRFn + '(this)">S</button>';
-        html += '<button class="' + srBtnBase + (curSR === "R" ? " act" : "") + '" data-sr="R" onclick="' + setSRFn + '(this)">R</button>';
+        const [srL0 = "S", srL1 = "R"] = c.srLabels || [];
+        html += '<button class="' + srBtnBase + (curSR === "S" ? " act" : "") + '" data-sr="S" onclick="' + setSRFn + '(this)">' + srL0 + '</button>';
+        html += '<button class="' + srBtnBase + (curSR === "R" ? " act" : "") + '" data-sr="R" onclick="' + setSRFn + '(this)">' + srL1 + '</button>';
         html += '</div>';
       }
       html += '</div>';
