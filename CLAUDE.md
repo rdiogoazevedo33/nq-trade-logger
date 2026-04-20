@@ -15,7 +15,7 @@ Web app de journaling profissional para trading de futuros NQ (Nasdaq Micro Futu
 **Plataforma de orderflow:** Deepcharts
 **Análise macro:** MRKT.AI, ForexFactory, COT Reports, FedWatch
 
-**URL live:** https://tiny-twilight-a74761.netlify.app/
+**URL live:** https://nq-trade-logger.netlify.app/
 **Repositório:** https://github.com/rdiogoazevedo33/nq-trade-logger
 
 ---
