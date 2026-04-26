@@ -406,38 +406,6 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .ps-collapse-arrow.open{transform:rotate(180deg)}
 .ps-collapse-body{overflow:hidden;transition:max-height .22s ease}
 
-/* EDGE EXPLORER */
-.ee-filter-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:9px 13px;margin-bottom:14px}
-.ee-filter-lbl{font-size:10px;font-family:var(--mono);color:var(--hint)}
-.ee-pill{font-family:var(--mono);font-size:11px;padding:4px 11px;border-radius:6px;border:1px solid var(--b1);background:var(--s3);color:var(--sub);cursor:pointer;transition:all .13s}
-.ee-pill.on{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--s3))}
-.ee-min-in{font-family:var(--mono);font-size:11px;background:var(--s3);border:1px solid var(--b1);border-radius:6px;color:var(--text);padding:4px 8px;outline:none;width:55px}
-.ee-min-in:focus{border-color:var(--accent)}
-.ee-sec-title{font-size:11px;font-family:var(--mono);font-weight:600;color:var(--text);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--b1)}
-.ee-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px}
-.ee-table th{font-family:var(--mono);font-size:10px;color:var(--hint);text-align:left;padding:6px 8px;border-bottom:1px solid var(--b1);font-weight:500;white-space:nowrap}
-.ee-table th.r{text-align:right}
-.ee-table td{padding:7px 8px;border-bottom:1px solid color-mix(in srgb,var(--b1) 50%,transparent);font-family:var(--mono);font-size:11px;vertical-align:middle}
-.ee-table td.r{text-align:right}
-.ee-table tr:hover td{background:var(--s2)}
-.ee-table tr.insuff td{opacity:.4}
-.ee-row-pos{background:color-mix(in srgb,var(--green) 5%,transparent)}
-.ee-row-neg{background:color-mix(in srgb,var(--red) 5%,transparent)}
-.ee-hm-wrap{overflow-x:auto;margin-bottom:16px}
-.ee-hm{border-collapse:collapse;font-size:11px;font-family:var(--mono);min-width:500px}
-.ee-hm th{padding:5px 8px;font-size:10px;color:var(--hint);font-weight:500;white-space:nowrap;border-bottom:1px solid var(--b1)}
-.ee-hm td{padding:6px 8px;text-align:center;border:1px solid var(--b1);min-width:56px;cursor:default;font-size:11px;font-weight:600}
-.ee-hm td.hm-empty{background:var(--s2);color:var(--hint);font-weight:400;font-size:10px}
-.ee-hm td.hm-hi{background:color-mix(in srgb,var(--green) 25%,var(--s2));color:#e0fff0}
-.ee-hm td.hm-mid{background:color-mix(in srgb,var(--green) 12%,var(--s2));color:var(--green)}
-.ee-hm td.hm-neut{background:var(--s2);color:var(--sub)}
-.ee-hm td.hm-lo{background:color-mix(in srgb,var(--red) 12%,var(--s2));color:var(--red)}
-.ee-hm td.hm-vlo{background:color-mix(in srgb,var(--red) 25%,var(--s2));color:#ffe0e0}
-.ee-hm td.hm-insuff{background:var(--s3);color:var(--hint);font-size:9px;font-weight:400}
-.ee-setup-card{background:var(--s1);border:1px solid var(--b1);border-radius:11px;padding:13px;margin-bottom:8px}
-.ee-setup-label{font-size:12px;font-weight:600;color:var(--text);margin-bottom:6px}
-.ee-conf-bar{height:5px;border-radius:3px;background:var(--b1);margin-top:8px;overflow:hidden}
-.ee-conf-bar-fill{height:100%;border-radius:3px;background:var(--accent)}
 
 /* DAY REVIEW SUMMARY (calendar day header) */
 .day-summary{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:14px 16px;margin-bottom:14px}
@@ -728,13 +696,11 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
       </span>
       <span id="save-lbl" style="font-size:10px;font-family:var(--mono);color:var(--hint)"></span>
       <button class="btn btn-ghost btn-sm" onclick="goAccts()">← contas</button>
-      <button class="btn btn-green btn-sm" onclick="exportCSV()">↓ CSV Dia</button>
       <div style="position:relative" id="settings-wrap">
         <button class="btn btn-ghost btn-sm" onclick="toggleSettingsMenu()" title="Definições">⚙</button>
         <div id="settings-menu" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:6px;z-index:500;min-width:180px;box-shadow:0 8px 24px #0006">
           <button class="settings-menu-item" onclick="exportAllData();toggleSettingsMenu()">↓ Backup (JSON)</button>
           <label class="settings-menu-item" style="cursor:pointer">↑ Restaurar (JSON)<input type="file" accept=".json" style="display:none" onchange="importAllData(event);toggleSettingsMenu()"></label>
-          <button class="settings-menu-item" onclick="exportAllCSV();toggleSettingsMenu()">↓ CSV Completo</button>
         </div>
       </div>
       <button class="btn btn-ghost btn-sm" style="color:var(--red);border-color:var(--red)22" onclick="showClearAllModal()" title="Apagar trades importadas via CSV">🗑 Limpar</button>
@@ -797,20 +763,8 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
           <button class="rit-btn" onclick="setReportTab('detailed',this)">Detailed</button>
           <button class="rit-btn" onclick="setReportTab('winsloss',this)">Wins vs Losses</button>
           <button class="rit-btn" onclick="setReportTab('calendar',this)">Calendário</button>
-          <button class="rit-btn" onclick="setReportTab('edge',this)">🔍 Edge Explorer</button>
         </div>
         <div id="report-scope-row" style="display:flex;gap:5px;flex-wrap:wrap"></div>
-        <div style="display:flex;gap:8px;margin-left:auto">
-          <button class="btn btn-ghost btn-sm" style="color:var(--teal)" onclick="exportForAI()">⬇ Exportar para IA</button>
-          <button class="btn btn-ghost btn-sm" style="color:var(--purple)" onclick="analyzeEdgeWithClaude()">✦ Edge Finder</button>
-        </div>
-      </div>
-      <div id="claude-edge-panel" style="display:none;margin-bottom:12px;background:var(--s1);border:1px solid var(--purple);border-radius:14px;overflow:hidden">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--b1)">
-          <span style="font-size:10px;font-family:var(--mono);color:var(--purple);text-transform:uppercase;letter-spacing:.08em">✦ Claude — Edge Finder</span>
-          <button onclick="document.getElementById('claude-edge-panel').style.display='none'" style="background:transparent;border:none;color:var(--hint);cursor:pointer;font-size:14px">✕</button>
-        </div>
-        <div id="claude-edge-body" style="padding:16px;font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap;font-family:var(--sans)"></div>
       </div>
       <div id="reports-body"></div>
     </div>
@@ -2318,6 +2272,146 @@ function _saveDiaryExpandedWeeks(set) {
   localStorage.setItem('nq_expanded_weeks', JSON.stringify([...set]));
 }
 
+// ─── Exportar JSON para IA ────────────────────────────────────────
+
+function _buildAllConfsMap() {
+  const m = {};
+  CONFS.forEach(c => { m[c.id] = c; });
+  customConfs.forEach(c => { m[c.id] = c; });
+  return m;
+}
+
+function _buildTradeExport(t, allConfsMap) {
+  const confs = parseConfs(t.confluences);
+  const confluenceLabels = confs.map(c => (allConfsMap[c.id]?.label || c.id));
+  const confluencesSR = {};
+  confs.forEach(c => { if (c.sr) confluencesSR[c.id] = c.sr; });
+  const out = {
+    id: t.id,
+    direction: t.direction,
+    entry: t.entry,
+    exit: t.exit,
+    qty: t.qty,
+    pnl: t.pnl,
+    stop_ticks: t.stop_ticks ?? null,
+    tp_ticks: t.tp_ticks ?? null,
+    rr: t.rr ?? null,
+    r: t.r ?? null,
+    session: t.session || getSession(t.time) || null,
+    confluences: confluenceLabels,
+    rating: t.rating ?? null,
+    notes: t.notes || null,
+    mistakes_note: t.mistakes_note || null
+  };
+  if (Object.keys(confluencesSR).length) out.confluences_sr = confluencesSR;
+  return out;
+}
+
+function _buildDayExport(date, allConfsMap) {
+  const trades = acctTrades().filter(t => t.date === date);
+  const ps = psData[date] || {};
+  const D = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const d = new Date(date + 'T12:00:00');
+  const wins = trades.filter(t => t.pnl > 0);
+  const pnlDia = trades.reduce((s, t) => s + t.pnl, 0);
+
+  const pre_sessao = Object.keys(ps).length ? {
+    bias: ps.bias || null,
+    fed_narrative: ps.fed_narrative || null,
+    fed_context: ps.fed_context || null,
+    sentiment: ps.sentiment || null,
+    capital_flow: ps.capital_flow || null,
+    dxy_vix_us2y: ps.dxy_vix_us2y_narrative || null,
+    geopolitics: ps.geopolitics || null,
+    macro_events: (ps.macro_events || []).map(e => ({ name: e.name || e, impact: e.impact || null, note: e.note || null })),
+    game_plan: ps.narrative || null,
+    profile_framing: {
+      poc_daily: ps.poc_daily ?? null,
+      poc_weekly: ps.poc_weekly ?? null,
+      poc_composite: ps.poc_composite ?? null,
+      vah: ps.vah ?? null,
+      val: ps.val ?? null,
+      hvn_levels: (ps.hvn_levels || []).map(x => ({ price: x.price, note: x.note || null })),
+      lvn_levels: (ps.lvn_levels || []).map(x => ({ price: x.price, note: x.note || null })),
+      sr_levels: (ps.sr_levels || []).map(x => ({ price: x.price, type: x.type, note: x.note || null })),
+      delta_anomalies: (ps.delta_anomalies || []).map(x => ({ price: x.price, type: x.type, note: x.note || null })),
+      profile_notes: ps.profile_notes || null
+    }
+  } : null;
+
+  return {
+    date,
+    dia_semana: D[d.getDay()],
+    pre_sessao,
+    trades: trades.map(t => _buildTradeExport(t, allConfsMap)),
+    resumo_dia: {
+      total_trades: trades.length,
+      pnl_dia: Math.round(pnlDia * 100) / 100,
+      win_rate: trades.length ? Math.round(wins.length / trades.length * 1000) / 1000 : null
+    }
+  };
+}
+
+function _downloadJSON(payload, filename) {
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+function exportWeekJSON(weekStart) {
+  if (!curAcct) return;
+  const allConfsMap = _buildAllConfsMap();
+  const days = getWeekDays(weekStart);
+  const wp = weeklyPrep[weekStart] || {};
+  const weekTrades = acctTrades().filter(t => days.includes(t.date));
+  const wins = weekTrades.filter(t => t.pnl > 0);
+  const pnlSemana = weekTrades.reduce((s, t) => s + t.pnl, 0);
+  const tradeDays = new Set(weekTrades.map(t => t.date)).size;
+
+  const payload = {
+    periodo: fmtWeekRange(weekStart),
+    exportDate: new Date().toISOString().split('T')[0],
+    account: curAcct.name,
+    preparacao_semanal: {
+      bias_semanal: wp.weekly_bias || null,
+      narrative_semanal: wp.weekly_narrative || null,
+      cot_report: wp.cot_notes || null,
+      news_geopolitica: wp.geo_notes || null,
+      weekly_fed: wp.weekly_fed || null,
+      weekly_poc: wp.weekly_poc ? parseFloat(wp.weekly_poc) : null,
+      weekly_vah: wp.weekly_vah ? parseFloat(wp.weekly_vah) : null,
+      weekly_val: wp.weekly_val ? parseFloat(wp.weekly_val) : null,
+      weekly_hvn_lvn: wp.weekly_hvn_lvn || null,
+      weekly_delta: wp.delta_notes || null,
+      weekly_composite_poc: wp.weekly_composite_poc ? parseFloat(wp.weekly_composite_poc) : null,
+      weekly_events: wp.weekly_events || null
+    },
+    dias: days.map(d => _buildDayExport(d, allConfsMap)),
+    resumo_semana: {
+      total_trades: weekTrades.length,
+      pnl_semana: Math.round(pnlSemana * 100) / 100,
+      win_rate: weekTrades.length ? Math.round(wins.length / weekTrades.length * 1000) / 1000 : null,
+      dias_operados: tradeDays
+    }
+  };
+
+  _downloadJSON(payload, 'semana-' + weekStart + '.json');
+  toast('Semana exportada (' + weekTrades.length + ' trades)', 'ok');
+}
+
+function exportDayJSON(date) {
+  if (!curAcct) return;
+  const allConfsMap = _buildAllConfsMap();
+  const payload = _buildDayExport(date, allConfsMap);
+  payload.exportDate = new Date().toISOString().split('T')[0];
+  payload.account = curAcct.name;
+  _downloadJSON(payload, 'dia-' + date + '.json');
+  toast('Dia exportado (' + payload.trades.length + ' trades)', 'ok');
+}
+
 function renderDiary() {
   const body = document.getElementById('journal-body');
   if (!body) return;
@@ -2356,6 +2450,7 @@ function renderWeekCard(weekStart, isCurrent, isOpen) {
       (weekTrades.length ? '<span class="week-pnl-lbl" style="color:'+pnlColor+'">'+pnlStr+'</span>' : '') +
       '<span class="week-meta-lbl">'+tradeDays+'d · '+weekTrades.length+'T</span>' +
       '<button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 10px;margin-left:auto" onclick="event.stopPropagation();showWeekFullPrep(\''+weekStart+'\')" title="Ver preparação completa da semana">📋 Preparação</button>' +
+      '<button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 9px;color:var(--teal)" onclick="event.stopPropagation();exportWeekJSON(\''+weekStart+'\')" title="Exportar semana para IA">⬇ Semana</button>' +
       '<span class="week-chevron">▶</span>' +
     '</div>' +
     '<div class="week-body" id="wkb-'+weekStart+'">' +
@@ -2507,6 +2602,7 @@ function buildDiaryDayRow(date) {
       (planSnip ? '<span class="ddr-plan-snip">'+planSnip+'</span>' : '') +
       '<span class="ddr-pnl-lbl" style="color:'+pnlColor+'">'+pnlStr+'</span>' +
       '<span class="ddr-cnt">'+(trades.length?trades.length+'T':'')+'</span>' +
+      '<button style="background:transparent;border:1px solid var(--b1);border-radius:6px;color:var(--teal);font-size:10px;font-family:var(--mono);padding:2px 8px;cursor:pointer;flex-shrink:0" onclick="event.stopPropagation();exportDayJSON(\''+date+'\')" title="Exportar dia para IA">⬇ Dia</button>' +
       '<span class="ddr-chev">▶</span>' +
     '</div>' +
     '<div class="ddr-detail" id="ddd-'+date+'">' + buildDiaryDayDetail(date) + '</div>' +
@@ -3861,7 +3957,6 @@ function rvRenderGallery(ss) {
     '<div class="ss-wrap">' +
       '<img src="' + src + '" onclick="openImgOverlay(this.src)">' +
       '<button class="ss-del" onclick="rvRemovePrint(' + i + ')">✕</button>' +
-      '<button onclick="analyzeScreenshot(' + i + ',this)" style="position:absolute;bottom:6px;left:6px;background:rgba(91,143,255,.9);border:none;border-radius:6px;color:#fff;font-size:10px;font-family:var(--mono);padding:3px 8px;cursor:pointer;font-weight:600">🔍 Analisar</button>' +
     '</div>'
   ).join("") +
     '<div class="ss-zone" style="padding:14px;margin-top:4px"' + dropAttrs + ' onclick="document.getElementById(\'rv-img-in\').click()"><div style="font-size:11px;color:var(--hint);font-family:var(--mono)">+ Adicionar mais</div></div>';
@@ -3888,53 +3983,6 @@ function saveClaudeKey() {
   toast("API Key guardada ✓", "ok");
   const trds = dayTrades(rvDate); const t = trds[rvIdx];
   if (t) rvRenderGallery(t.screenshots || []);
-}
-async function analyzeScreenshot(i, btn) {
-  const trds = dayTrades(rvDate); const t = trds[rvIdx]; if (!t) return;
-  const src = t.screenshots?.[i]; if (!src) return;
-  const origText = btn.textContent;
-  btn.textContent = "⏳ A analisar..."; btn.disabled = true;
-  try {
-    let mediaType, b64;
-    if (src.startsWith('data:')) {
-      [, mediaType, b64] = src.match(/^data:([^;]+);base64,(.+)$/);
-    } else {
-      // URL do Storage — fazer fetch e converter para base64
-      const resp = await fetch(src);
-      const blob = await resp.blob();
-      const dataUrl = await new Promise(res => { const fr = new FileReader(); fr.onload = e => res(e.target.result); fr.readAsDataURL(blob); });
-      [, mediaType, b64] = dataUrl.match(/^data:([^;]+);base64,(.+)$/);
-    }
-    const data = await callAnthropicAPI({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 256,
-      messages: [{
-        role: "user",
-        content: [
-          { type: "image", source: { type: "base64", media_type: mediaType, data: b64 } },
-          { type: "text", text: "This is a futures trading chart (NQ/MNQ). Find any price levels marked for Entry, Stop Loss (SL/Stop) and Take Profit (TP/Target). Return ONLY a valid JSON object with exactly these fields: {\"entry\": number_or_null, \"stop\": number_or_null, \"tp\": number_or_null, \"direction\": \"Long\" or \"Short\" or null}. Use null for anything not clearly visible. No explanation, just JSON." }
-        ]
-      }]
-    });
-    const text = data.content?.[0]?.text || "";
-    const match = text.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error("Resposta inválida do Claude");
-    const result = JSON.parse(match[0]);
-    let filled = 0;
-    if (result.entry != null) { document.getElementById("rv-entry").value = result.entry; filled++; }
-    rvCalcRR();
-    if (result.direction) {
-      const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id);
-      if (idx !== -1) { all[idx].direction = result.direction; setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]); renderList(); }
-    }
-    toast(filled + " campo(s) preenchido(s) ✓", "ok");
-    saveReview(true);
-  } catch(e) {
-    toast("Erro: " + e.message, "err");
-    console.error("Claude Vision error:", e);
-  } finally {
-    btn.textContent = origText; btn.disabled = false;
-  }
 }
 function saveReview(silent = false) {
   const trds = dayTrades(rvDate); const t = trds[rvIdx]; if (!t) return;
@@ -5295,97 +5343,6 @@ function setRScope(v, btn) {
   renderReports();
 }
 
-function exportForAI() {
-  if (!curAcct) return;
-  const trades = acctTrades();
-  if (!trades.length) { toast("Sem trades para exportar", "err"); return; }
-
-  // Build all-confs map (base + custom)
-  const allConfsMap = {};
-  CONFS.forEach(c => { allConfsMap[c.id] = c; });
-  customConfs.forEach(c => { allConfsMap[c.id] = c; });
-
-  const exportedTrades = trades.map(t => {
-    const confs = parseConfs(t.confluences);
-    const confluenceLabels = confs.map(c => {
-      const def = allConfsMap[c.id];
-      if (!def) return c.id;
-      return def.label;
-    });
-    const confluencesSR = {};
-    confs.forEach(c => {
-      if (c.sr) confluencesSR[c.id] = c.sr;
-    });
-
-    const ps = psData[t.date] || {};
-    const wp = weeklyPrep[getMonday(t.date)] || {};
-
-    const macroEventNames = (ps.macro_events || []).map(e => e.name || e).filter(Boolean);
-
-    const out = {
-      id: t.id,
-      date: t.date,
-      direction: t.direction,
-      entry: t.entry,
-      exit: t.exit,
-      qty: t.qty,
-      pnl: t.pnl,
-      stop_ticks: t.stop_ticks,
-      tp_ticks: t.tp_ticks,
-      rr: t.rr,
-      r: t.r,
-      session: t.session || getSession(t.time),
-      time_slot: t.time_slot || getTimeSlot(t.time),
-      confluences: confluenceLabels,
-      rating: t.rating,
-      notes: t.notes || "",
-      mistakes_note: t.mistakes_note || "",
-      bias: ps.bias || "",
-      fed_narrative: ps.fed_narrative || "",
-      sentiment: ps.sentiment || "",
-      macro_events: macroEventNames,
-      game_plan: ps.narrative || "",
-      weekly_bias: wp.weekly_bias || "",
-      weekly_narrative: wp.weekly_narrative || ""
-    };
-    if (Object.keys(confluencesSR).length) out.confluences_sr = confluencesSR;
-    return out;
-  });
-
-  const wins = trades.filter(t => t.pnl > 0);
-  const totalPnl = trades.reduce((s, t) => s + t.pnl, 0);
-  const grossWin = wins.reduce((s, t) => s + t.pnl, 0);
-  const grossLoss = Math.abs(trades.filter(t => t.pnl < 0).reduce((s, t) => s + t.pnl, 0));
-  const avgR = trades.filter(t => t.r != null && !isNaN(t.r)).reduce((s, t, _, a) => s + t.r / a.length, 0);
-  const dates = trades.map(t => t.date).sort();
-
-  const payload = {
-    exportDate: new Date().toISOString().split('T')[0],
-    account: curAcct.name,
-    trades: exportedTrades,
-    summary: {
-      total_trades: trades.length,
-      win_rate: wins.length / trades.length,
-      total_pnl: Math.round(totalPnl * 100) / 100,
-      profit_factor: grossLoss > 0 ? Math.round(grossWin / grossLoss * 100) / 100 : null,
-      avg_r: Math.round(avgR * 100) / 100,
-      date_range: { from: dates[0] || "", to: dates[dates.length - 1] || "" }
-    }
-  };
-
-  const json = JSON.stringify(payload, null, 2);
-  const blob = new Blob([json], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "nq-export-" + payload.exportDate + ".json";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  toast("Exportado: " + exportedTrades.length + " trades", "ok");
-}
-
 function reportScopedT() {
   const now = new Date(), t = acctTrades();
   if (rScope==='all') return t;
@@ -5405,7 +5362,6 @@ function renderReports() {
   else if (activeReportTab==='winsloss') el.innerHTML = rptWinsLoss(t);
   else if (activeReportTab==='calendar') el.innerHTML = rptCalendar(t);
   else if (activeReportTab==='time') el.innerHTML = rptTime(t);
-  else if (activeReportTab==='edge') el.innerHTML = rptEdge(t);
 }
 
 function setTimeView(v, btn) {
@@ -5735,228 +5691,7 @@ function rptCalendar(t) {
   return '<div class="sec"><div class="sec-title">Calendário anual</div>' + html + '</div>';
 }
 
-// ═══════════════════════════════════════════
-// FASE 6 — EDGE EXPLORER
-// ═══════════════════════════════════════════
-let eeMinN = 5;
 
-function setEdgePeriod(v, btn) {
-  rScope = v;
-  document.querySelectorAll('.ee-pill[data-ep]').forEach(b => b.classList.remove('on'));
-  if (btn) btn.classList.add('on');
-  document.getElementById('reports-body').innerHTML = rptEdge(reportScopedT());
-}
-
-function eeStats(trades) {
-  if (!trades.length) return null;
-  const wins = trades.filter(t => t.pnl > 0);
-  const losses = trades.filter(t => t.pnl < 0);
-  const wr = wins.length / trades.length;
-  const avgWinR = wins.length ? wins.reduce((s,t)=>s+(t.r||0),0)/wins.length : 0;
-  const avgLossR = losses.length ? Math.abs(losses.reduce((s,t)=>s+(t.r||0),0)/losses.length) : 0;
-  const ev = wr * avgWinR - (1-wr) * avgLossR;
-  const totalPnl = trades.reduce((s,t)=>s+t.pnl,0);
-  const totalWins = wins.reduce((s,t)=>s+t.pnl,0);
-  const totalLoss = Math.abs(losses.reduce((s,t)=>s+t.pnl,0));
-  const pf = totalLoss > 0 ? totalWins/totalLoss : totalWins > 0 ? 99 : 0;
-  const avgR = trades.reduce((s,t)=>s+(t.r||0),0)/trades.length;
-  return { n: trades.length, wr, wins: wins.length, losses: losses.length, avgR, ev, totalPnl, pf };
-}
-
-function eeRow(label, st, minN, colorDot) {
-  if (!st || st.n < minN) {
-    return '<tr class="insuff"><td>' + label + '</td><td class="r" colspan="6" style="color:var(--hint);font-size:10px">amostra insuficiente (' + (st ? st.n : 0) + ' trades)</td></tr>';
-  }
-  const wrPct = (st.wr * 100).toFixed(0);
-  const wrColor = st.wr >= 0.65 ? 'var(--green)' : st.wr >= 0.5 ? 'var(--teal)' : st.wr < 0.4 ? 'var(--red)' : 'var(--sub)';
-  const evColor = st.ev > 0.2 ? 'var(--green)' : st.ev > 0 ? 'var(--teal)' : st.ev < 0 ? 'var(--red)' : 'var(--sub)';
-  const pnlColor = st.totalPnl >= 0 ? 'var(--green)' : 'var(--red)';
-  const rowCls = st.ev > 0.1 ? 'ee-row-pos' : st.ev < -0.1 ? 'ee-row-neg' : '';
-  const dot = colorDot ? '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + colorDot + ';margin-right:6px;flex-shrink:0"></span>' : '';
-  return '<tr class="' + rowCls + '">' +
-    '<td>' + dot + label + '</td>' +
-    '<td class="r" style="color:var(--hint)">' + st.n + '</td>' +
-    '<td class="r" style="color:' + wrColor + '">' + wrPct + '%</td>' +
-    '<td class="r" style="color:' + evColor + '">' + (st.ev >= 0 ? '+' : '') + st.ev.toFixed(2) + 'R</td>' +
-    '<td class="r" style="color:var(--sub)">' + (st.avgR >= 0 ? '+' : '') + st.avgR.toFixed(2) + 'R</td>' +
-    '<td class="r" style="color:' + pnlColor + '">' + (st.totalPnl >= 0 ? '+' : '') + '$' + st.totalPnl.toFixed(0) + '</td>' +
-    '<td class="r" style="color:var(--sub)">' + st.pf.toFixed(2) + '</td>' +
-    '</tr>';
-}
-
-function eeTable(title, rows) {
-  return '<div class="ee-sec-title">' + title + '</div>' +
-    '<div style="overflow-x:auto"><table class="ee-table">' +
-    '<thead><tr><th>Dimensão</th><th class="r">N</th><th class="r">Win Rate</th><th class="r">EV</th><th class="r">Avg R</th><th class="r">Total P&L</th><th class="r">PF</th></tr></thead>' +
-    '<tbody>' + rows + '</tbody></table></div>';
-}
-
-function hmClass(wr, n, minN) {
-  if (!n || n < minN) return 'hm-insuff';
-  if (wr >= 0.65) return 'hm-hi';
-  if (wr >= 0.55) return 'hm-mid';
-  if (wr >= 0.45) return 'hm-neut';
-  if (wr >= 0.35) return 'hm-lo';
-  return 'hm-vlo';
-}
-
-function buildHeatmap(title, rowDefs, colDefs, getCellTrades, minN) {
-  let html = '<div class="ee-sec-title">' + title + '</div><div class="ee-hm-wrap"><table class="ee-hm">';
-  html += '<thead><tr><th></th>' + colDefs.map(c => '<th>' + c.label + '</th>').join('') + '</tr></thead><tbody>';
-  rowDefs.forEach(row => {
-    html += '<tr><th style="text-align:left;padding:5px 8px;white-space:nowrap">' + row.label + '</th>';
-    colDefs.forEach(col => {
-      const trades = getCellTrades(row.key, col.key);
-      if (!trades || !trades.length) {
-        html += '<td class="hm-empty">—</td>';
-      } else if (trades.length < minN) {
-        html += '<td class="hm-insuff" title="' + trades.length + ' trades (insuficiente)">' + trades.length + '</td>';
-      } else {
-        const wr = trades.filter(t=>t.pnl>0).length/trades.length;
-        const wrPct = Math.round(wr*100);
-        const ev = eeStats(trades);
-        const cls = hmClass(wr, trades.length, minN);
-        const tip = trades.length + 'T · WR ' + wrPct + '% · EV ' + (ev ? (ev.ev>=0?'+':'')+ev.ev.toFixed(2)+'R' : '—');
-        html += '<td class="' + cls + '" title="' + tip + '">' + wrPct + '%</td>';
-      }
-    });
-    html += '</tr>';
-  });
-  html += '</tbody></table></div>';
-  return html;
-}
-
-function rptEdge(trades) {
-  if (!trades || !trades.length) {
-    return '<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">Importa trades e preenche confluências para ver o Edge Explorer</div></div>';
-  }
-  const minN = eeMinN;
-
-  // ── Filtro global ──
-  const filterHtml = '<div class="ee-filter-bar">' +
-    '<span class="ee-filter-lbl">Período:</span>' +
-    ['all','month','week'].map((v,i) => {
-      const labels = ['Tudo','30d','7d'];
-      return '<button class="ee-pill' + (rScope===v?' on':'') + '" data-ep="1" onclick="setEdgePeriod(\'' + v + '\',this)">' + labels[i] + '</button>';
-    }).join('') +
-    '<span class="ee-filter-lbl" style="margin-left:8px">Mín. trades/célula:</span>' +
-    '<input class="ee-min-in" type="number" value="' + minN + '" min="1" max="50" onchange="eeMinN=parseInt(this.value)||5;document.getElementById(\'reports-body\').innerHTML=rptEdge(reportScopedT())">' +
-    '</div>';
-
-  // ── Helpers ──
-  function getConfsFromTrade(t) { return parseConfs(t.confluences); }
-  function getCtx(d) { return psData[d] || {}; }
-
-  // ══ SECÇÃO 1 — POR DIMENSÃO ══
-
-  // Tabela 1 — Por confluência
-  const confGroups = {};
-  trades.forEach(t => {
-    getConfsFromTrade(t).forEach(c => {
-      if (!confGroups[c.id]) confGroups[c.id] = [];
-      confGroups[c.id].push(t);
-    });
-  });
-  const confData = CONFS.map(c => ({ c, st: eeStats(confGroups[c.id]||[]) }))
-    .sort((a,b) => {
-      const ea = a.st ? a.st.ev : -99, eb = b.st ? b.st.ev : -99;
-      return eb - ea;
-    });
-  const confRowsHtml = confData.map(({c, st}) => eeRow(c.label, st, minN, c.color)).join('');
-
-  // Tabela 2 — Por bias
-  const BIAS_ORDER = ['Bullish','Bearish','Consolidation/Ranging','Sem bias'];
-  const biasGroups = {};
-  BIAS_ORDER.forEach(k => { biasGroups[k] = []; });
-  trades.forEach(t => {
-    const b = getCtx(t.date).bias || 'Sem bias';
-    const key = BIAS_ORDER.includes(b) ? b : 'Sem bias';
-    biasGroups[key].push(t);
-  });
-  const biasRowsHtml = BIAS_ORDER.map(k => eeRow(k, eeStats(biasGroups[k]), minN, null)).join('');
-
-  // Tabela 3 — Por Fed
-  const FED_ORDER = ['Hawkish','Neutral to Hawkish','Neutral','Neutral to Dovish','Dovish','Não definido'];
-  const fedGroups = {};
-  FED_ORDER.forEach(k => { fedGroups[k] = []; });
-  trades.forEach(t => {
-    const f = getCtx(t.date).fed || 'Não definido';
-    const key = FED_ORDER.includes(f) ? f : 'Não definido';
-    fedGroups[key].push(t);
-  });
-  const fedRowsHtml = FED_ORDER.map(k => eeRow(k, eeStats(fedGroups[k]), minN, null)).join('');
-
-  const sec1 = '<div class="sec">' +
-    eeTable('Por Confluência', confRowsHtml) +
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">' +
-    '<div>' + eeTable('Por Bias do Dia', biasRowsHtml) + '</div>' +
-    '<div>' + eeTable('Por Fed Sentiment', fedRowsHtml) + '</div>' +
-    '</div>' +
-    '</div>';
-
-  // ══ SECÇÃO 2 — HEATMAPS ══
-
-  const BIAS_COLS = ['Bullish','Bearish','Consolidation/Ranging'].map(k=>({key:k,label:k}));
-  const CONF_ROWS = CONFS.map(c=>({key:c.id,label:c.label.split(' ')[0]}));
-
-  const hm2 = buildHeatmap(
-    'Confluência × Bias — Win Rate',
-    CONF_ROWS, BIAS_COLS,
-    (confId, biasKey) => trades.filter(t => {
-      const confs = getConfsFromTrade(t);
-      const b = getCtx(t.date).bias || 'Sem bias';
-      return confs.some(c=>c.id===confId) && b===biasKey;
-    }),
-    minN
-  );
-
-  const sec2 = '<div class="sec">' + hm2 + '</div>';
-
-  // ══ SECÇÃO 3 — TOP SETUPS ══
-  const combos = {};
-  trades.forEach(t => {
-    const bias = getCtx(t.date).bias || '';
-    const confs = getConfsFromTrade(t);
-    confs.forEach(c => {
-      const key = c.id + '|' + bias;
-      if (!combos[key]) combos[key] = { label: (CMAP[c.id]?.label||c.id) + (bias?' · '+bias:''), trades: [] };
-      combos[key].trades.push(t);
-    });
-  });
-  const comboArr = Object.values(combos)
-    .map(g => ({ label: g.label, st: eeStats(g.trades) }))
-    .filter(g => g.st && g.st.n >= minN)
-    .sort((a,b) => b.st.ev - a.st.ev);
-
-  function setupCard(item, isGood) {
-    const st = item.st;
-    const wrPct = Math.round(st.wr*100);
-    const conf = Math.min(st.n / 30, 1);
-    const accentColor = isGood ? 'var(--green)' : 'var(--red)';
-    return '<div class="ee-setup-card" style="border-color:' + (isGood?'color-mix(in srgb,var(--green) 30%,var(--b1))':'color-mix(in srgb,var(--red) 30%,var(--b1))') + '">' +
-      '<div class="ee-setup-label">' + item.label + '</div>' +
-      '<div style="display:flex;gap:12px;font-family:var(--mono);font-size:11px;flex-wrap:wrap">' +
-      '<span style="color:var(--hint)">' + st.n + ' trades</span>' +
-      '<span style="color:' + accentColor + '">WR ' + wrPct + '%</span>' +
-      '<span style="color:' + accentColor + '">EV ' + (st.ev>=0?'+':'') + st.ev.toFixed(2) + 'R</span>' +
-      '<span style="color:var(--sub)">Avg ' + (st.avgR>=0?'+':'') + st.avgR.toFixed(2) + 'R</span>' +
-      '</div>' +
-      '<div class="ee-conf-bar"><div class="ee-conf-bar-fill" style="width:' + Math.round(conf*100) + '%;background:' + accentColor + '" title="' + st.n + '/30 trades"></div></div>' +
-      '</div>';
-  }
-
-  const top3 = comboArr.slice(0,3).map(i=>setupCard(i,true)).join('') || '<div style="color:var(--hint);font-family:var(--mono);font-size:12px">Dados insuficientes</div>';
-  const bot3 = [...comboArr].reverse().slice(0,3).filter(i=>i.st.ev<0).map(i=>setupCard(i,false)).join('') || '<div style="color:var(--hint);font-family:var(--mono);font-size:12px">Nenhuma combinação negativa com amostra suficiente</div>';
-
-  const sec3 = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
-    '<div class="sec"><div class="ee-sec-title" style="color:var(--green)">🏆 Top 3 Setups com mais edge</div>' + top3 + '</div>' +
-    '<div class="sec"><div class="ee-sec-title" style="color:var(--red)">⚠ Top 3 Situações a evitar</div>' + bot3 + '</div>' +
-    '</div>';
-
-  const nota = '<div style="font-size:11px;font-family:var(--mono);color:var(--hint);text-align:center;padding:10px 0">Análise baseada em ' + trades.length + ' trades. Mínimo recomendado: 30 trades por condição para resultados estatisticamente válidos.</div>';
-
-  return filterHtml + sec1 + sec2 + sec3 + nota;
-}
 
 // --- FULLSCREEN TEXTAREA ---
 let _fsTaId = null;
