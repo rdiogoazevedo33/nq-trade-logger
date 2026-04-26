@@ -48,7 +48,7 @@ Web app de journaling profissional para trading de futuros NQ (Nasdaq Micro Futu
 ### Workflow diário completo
 ```
 DOMINGO/SEGUNDA:
-→ Preenche Macro & Profile Semanal na app
+→ Preenche Preparação Semanal no Diário (card de semana)
   - COT Reports, geopolítica, eventos semana
   - Volume Profile semanal, Delta semanal, Composite 3M
   - Bias semanal
@@ -77,6 +77,7 @@ FIM DO DIA:
 
 - **Frontend:** Vanilla HTML/CSS/JS — ficheiro único `index.html`
 - **Base de dados:** Supabase (PostgreSQL) + localStorage como fallback/cache
+- **Storage de ficheiros:** Supabase Storage — prints/screenshots de trades, sessões e weekly prep (URLs, não base64)
 - **Hosting:** Netlify com deploy automático a partir do GitHub
 - **Claude API:** Proxy seguro via Netlify Function (`netlify/functions/`)
 - **Fonts:** IBM Plex Mono + DM Sans (Google Fonts)
@@ -99,11 +100,14 @@ nq-trade-logger/
 
 ```javascript
 const SK_A  = "nq10_a"   // accounts
-const SK_T  = "nq10_t"   // trades (por conta e por data)
-const SK_PS = "nq10_ps"  // pre-session data
+const SK_T  = "nq10_t"   // trades (por conta)
+const SK_PS = "nq10_ps"  // pre-session data (por data)
+const SK_WP = "nq10_wp"  // weekly prep data (por semana — chave = Monday ISO date)
 ```
 
 Dados guardados em `localStorage` + sincronizados com Supabase via `sbPushKey()`.
+
+Weekly prep: `weeklyPrep[weekStart]` onde `weekStart` é a segunda-feira da semana em formato `YYYY-MM-DD`.
 
 ---
 
@@ -135,41 +139,27 @@ Dados guardados em `localStorage` + sincronizados com Supabase via `sbPushKey()`
   rating: number,             // 1-5 estrelas
   notes: string,              // trade recap (texto livre)
   notes_html: string,
-  screenshots: array,         // base64
+  screenshots: array,         // URLs Supabase Storage (não base64)
   mistakes_note: string,      // erros (texto livre, opcional)
   session_date: "YYYY-MM-DD"  // referência à tabela sessions
 }
 ```
 
-## Estrutura de dados — Pre-Session (sessions)
+## Estrutura de dados — Pre-Session (psData)
 
 ```javascript
 {
   date: "YYYY-MM-DD",
   account_id: string,
 
-  // ANÁLISE SEMANAL
-  weekly_cot: string,
-  weekly_geopolitics: string,
-  weekly_events: array,
-  weekly_fed: string,
-  weekly_poc: number,
-  weekly_vah: number,
-  weekly_val: number,
-  weekly_hvn_lvn: array,
-  weekly_delta: string,
-  weekly_composite_poc: number,
-  weekly_bias: string,
-  weekly_narrative: string,
-
   // ANÁLISE DIÁRIA
   bias: "Bullish"|"Bearish"|"Neutro"|"Cauteloso",
   fed_narrative: "Hawkish"|"Neutral to Hawkish"|"Neutral"|"Neutral to Dovish"|"Dovish",
   fed_context: string,
   sentiment: "Risk-On"|"Risk-Off"|"Neutro",
-  sentiment_narrative: string,
+  // sentiment_narrative REMOVIDA (simplificação)
   capital_flow: string,
-  dxy_vix_us2y_narrative: string,
+  dxy_vix_us2y_narrative: string,  // cobre DXY, VIX, US2Y e US10Y
   macro_events: array,        // [{name, impact, note}] — nota livre por evento
   geopolitics: string,
 
@@ -191,18 +181,52 @@ Dados guardados em `localStorage` + sincronizados com Supabase via `sbPushKey()`
 }
 ```
 
+## Estrutura de dados — Weekly Prep (weeklyPrep)
+
+```javascript
+weeklyPrep["YYYY-MM-DD"] = {  // chave = segunda-feira da semana
+  weekly_bias: string,         // bias semanal (texto livre ou badge)
+  weekly_cot: string,
+  weekly_geopolitics: string,
+  weekly_events: string,
+  weekly_fed: string,
+  weekly_poc: string,
+  weekly_vah: string,
+  weekly_val: string,
+  weekly_hvn_lvn: string,
+  weekly_delta: string,
+  weekly_composite_poc: string,
+  weekly_narrative: string,
+  // screenshots por secção (URLs Supabase Storage):
+  cot_screenshots: [url],
+  geo_screenshots: [url],
+  profile_screenshots: [url],
+  delta_screenshots: [url]
+}
+```
+
 ---
 
-## Tabs da aplicação (ordem)
+## Tabs da aplicação (ordem actual)
 
-1. **Dashboard** — métricas resumo + NQ Score + gráficos
-2. **Diário** — lista de dias com filtros (período, bias, resultado)
-3. **Trades** — lista de trades do dia selecionado
-4. **+ CSV** — importação drag & drop do Deepcharts
-5. **📰 Pré-sessão** — contexto diário (2 pilares)
-6. **Reports** — análise estatística com sub-tabs
-7. **Quant** — métricas quantitativas avançadas
-8. **Calendário** — vista mensal
+1. **Dashboard** — métricas resumo + NQ Score + calendário integrado + gráficos
+2. **Diário** — vista hierárquica Semana → Dia (cards de semana com Preparação + rows de dias)
+3. **+ CSV** — importação drag & drop do Deepcharts
+4. **Pré-sessão** — contexto diário (2 pilares: Profile Framing + Macro)
+5. **Reports** — análise estatística com sub-tabs
+
+> **Nota:** Não existem tabs separadas para "Trades", "Quant" ou "Calendário". O Calendário está integrado no Dashboard; métricas Quant são renderizadas dentro do Dashboard (`renderQuant()`). A lista de trades de um dia abre inline no Diário ou via modal de review.
+
+---
+
+## Diário — comportamento actual
+
+Vista hierárquica **Semana → Dia**. Função principal: `renderDiary()`.
+
+- **Card de semana:** mostra badge de bias semanal, thumbnails da preparação semanal, botão "📋 Preparação" para ver/editar a prep completa em modal (`showWeekFullPrep(weekStart)`)
+- **Row de dia:** expande inline para mostrar contexto pré-sessão (2 colunas: Profile Framing + Macro) + lista de trades do dia
+- Se sem pré-sessão: mostra "○ Sem pré-sessão — clica para preencher →"
+- Dados de diaryState (bias/fed/sentiment inline) guardados em `diaryState[date]`
 
 ---
 
@@ -258,7 +282,7 @@ O utilizador pode adicionar confluências customizadas via "+ Nova confluência"
 - **Overview** — métricas globais (30+ stats)
 - **Detailed** — breakdown por Days/Weeks/Months/Time/Confluence/Fed
 - **Wins vs Losses** — comparação e distribuição R-Multiple
-- **Calendário** — vista de calendário nos reports
+- **🔍 Edge Explorer** — EV/WR/PF por confluência, time slot, bias, Fed + cruzamentos
 
 ---
 
@@ -278,8 +302,8 @@ O utilizador pode adicionar confluências customizadas via "+ Nova confluência"
 - Bias do dia (Bullish/Bearish/Neutro/Cauteloso)
 - Fed Narrative (Hawkish → Dovish, 5 opções)
 - Fed Context (textarea)
-- Sentiment (Risk-On/Risk-Off/Neutro)
-- Sentiment narrative, Capital flow, DXY/VIX/US2Y narrativa, Geopolítica
+- Sentiment (Risk-On/Risk-Off/Neutro) — sem campo de narrativa separado
+- Capital flow, DXY/VIX/US2Y/US10Y narrativa (campo unificado), Geopolítica
 - Macro Events — lista dinâmica simplificada:
   - Eventos rápidos: NFP, CPI, FOMC, PCE, GDP, ISM, PPI, Retail Sales, Fed Chair Speaks, President Speaks, Average Hourly Earnings, etc.
   - Cada evento tem: nome, impacto (LOW/MED/HIGH) e nota livre (textarea pequena)
@@ -291,7 +315,7 @@ O utilizador pode adicionar confluências customizadas via "+ Nova confluência"
 ## Funcionalidades Claude API existentes
 
 - **✦ Edge Finder** — botão nos Reports, analisa edge por confluência
-- **✦ Analisar dia** — botão na aba Trades, analisa o dia atual
+- **✦ Analisar dia** — botão no review de trade/dia
 - **✦ Análise semanal** — overview semanal com padrões
 - Proxy via `netlify/functions/` — Claude API key não exposta no frontend
 
@@ -371,11 +395,24 @@ MNQ;2025-10-20 09:31:18;1;21450.75;21480.25;59.00
 | 3 | Dashboard + NQ Score | ✅ Completo |
 | 4 | Review: NQ Scale + Mistakes + Process Score | ✅ Completo |
 | 5 | Timestamps + time slot filters nos Reports | ✅ Completo |
-| — | Reestruturação Pré-sessão (2 pilares + semanal) | ✅ Completo |
-| — | Tweaks UI: review redesign, macro simplificado, diário+pré-sessão link, limpar tudo | ✅ Completo |
-| 6 | Edge Explorer manual (EV/WR/PF por confluência+hora+bias+Fed) | ⏳ Por fazer |
+| — | Reestruturação Pré-sessão (2 pilares) | ✅ Completo |
+| — | Diário hierárquico (Semana → Dia) + Preparação Semanal | ✅ Completo |
+| — | Tweaks UI: review redesign, macro simplificado, image zoom, limpar cloud | ✅ Completo |
+| 6 | Edge Explorer (EV/WR/PF por confluência × bias × time slot × Fed) | ✅ Completo |
+| — | Supabase Storage para prints (trades, sessões, weekly) — sem limite 2.8MB | ✅ Completo |
+| — | Saves individuais por trade/session no Supabase | ✅ Completo |
+| — | Sentiment simplificado — sem narrativa separada; DXY/VIX/US2Y/US10Y unificado | ✅ Completo |
+| — | Auto-entrar na última conta usada no arranque | ✅ Completo |
+| — | Botão fullscreen ⤢ em todas as textareas grandes | ✅ Completo |
+| — | Timeout e anti-loop em sbPullData/sbSaveSession/sbSaveTrade/sbPushKey | ✅ Completo |
 | 7 | IA Edge Finder — identificação A+ setups | ⏳ Por fazer |
 | 8 | Geração código Pine Script / Python | ⏳ Por fazer |
+
+---
+
+## Próxima tarefa prioritária
+
+**Fase 7 — IA Edge Finder** — análise Claude por cima do Edge Explorer para identificar A+ setups automaticamente com base nos dados de edge.
 
 ---
 
@@ -393,7 +430,7 @@ MNQ;2025-10-20 09:31:18;1;21450.75;21480.25;59.00
 8. **Português europeu** — todos os textos da UI em português europeu
 9. **Não quebrar funcionalidades existentes** — listar sempre ficheiros alterados
 10. **Migration SQL** — sempre incluir se alterar schema Supabase
-11. **Commits descritivos** — ex: "feat: Fase 6 Edge Explorer — breakdown por confluência"
+11. **Commits descritivos** — ex: "feat: Fase 7 IA Edge Finder — A+ setups"
 
 ---
 
@@ -409,12 +446,6 @@ Configurar em: Netlify Dashboard → Site Settings → Environment Variables
 
 ---
 
-## Próxima tarefa prioritária
-
-**Fase 6 — Edge Explorer** — criar sub-tab nos Reports (ver secção abaixo).
-
----
-
 ## Review de Trade — Layout actual
 
 **Painel esquerdo:** Símbolo, Direcção, Entry, Exit, Qty, PnL, Stop Loss (ticks + $), Take Profit (ticks + $), R-Multiple, Rating (estrelas), Confluências (chips + "+ Nova confluência").
@@ -426,32 +457,8 @@ Configurar em: Netlify Dashboard → Site Settings → Environment Variables
 - CL:  ticks × $10.00 × qty
 
 **Painel direito (de cima para baixo):**
-1. Prints do Setup (drag & drop, thumbnails com X)
+1. Prints do Setup (drag & drop, thumbnails com X; clique abre zoom overlay)
 2. Trade Recap (textarea livre)
 3. Erros — opcional (textarea pequena; se vazio, não aparece no view)
 
 **Confluências customizadas:** tabela Supabase `custom_confluences` (id, user_id, account_id, label, color, has_sr). Criadas via mini form inline no review.
-
----
-
-## Diário — comportamento actual
-
-Ao expandir um dia mostra no topo:
-- Badge Bias + Badge Fed + Badge Sentiment (da pré-sessão)
-- Primeiras 100 chars do Game Plan
-- Link "Ver pré-sessão completa →" (navega para tab Pré-sessão com esse dia)
-- Se sem pré-sessão: "○ Sem pré-sessão — clica para preencher →"
-
----
-
-## Fase 6 — Edge Explorer
-
-Criar nova sub-tab nos Reports com EV, Win Rate e Profit Factor por:
-- Confluência (cada uma das 10)
-- Time slot (pre-orb, orb, post-orb, afternoon)
-- Bias do dia (Bullish, Bearish, Neutro, Cauteloso)
-- Fed context (Hawkish, Neutral, Dovish)
-
-Cruzamentos: confluência × bias, confluência × time slot, time slot × bias, etc.
-Análise humana primeiro — IA por cima na Fase 7.
-Amostra mínima para confiar nos números: 30+ trades por condição.

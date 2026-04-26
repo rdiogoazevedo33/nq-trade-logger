@@ -800,7 +800,10 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
           <button class="rit-btn" onclick="setReportTab('edge',this)">🔍 Edge Explorer</button>
         </div>
         <div id="report-scope-row" style="display:flex;gap:5px;flex-wrap:wrap"></div>
-        <button class="btn btn-ghost btn-sm" style="color:var(--purple);margin-left:auto" onclick="analyzeEdgeWithClaude()">✦ Edge Finder</button>
+        <div style="display:flex;gap:8px;margin-left:auto">
+          <button class="btn btn-ghost btn-sm" style="color:var(--teal)" onclick="exportForAI()">⬇ Exportar para IA</button>
+          <button class="btn btn-ghost btn-sm" style="color:var(--purple)" onclick="analyzeEdgeWithClaude()">✦ Edge Finder</button>
+        </div>
       </div>
       <div id="claude-edge-panel" style="display:none;margin-bottom:12px;background:var(--s1);border:1px solid var(--purple);border-radius:14px;overflow:hidden">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--b1)">
@@ -5290,6 +5293,97 @@ function setRScope(v, btn) {
   document.querySelectorAll('#report-scope-row .scope-btn').forEach(b => b.classList.remove('on'));
   if (btn) btn.classList.add('on');
   renderReports();
+}
+
+function exportForAI() {
+  if (!curAcct) return;
+  const trades = acctTrades();
+  if (!trades.length) { toast("Sem trades para exportar", "err"); return; }
+
+  // Build all-confs map (base + custom)
+  const allConfsMap = {};
+  CONFS.forEach(c => { allConfsMap[c.id] = c; });
+  customConfs.forEach(c => { allConfsMap[c.id] = c; });
+
+  const exportedTrades = trades.map(t => {
+    const confs = parseConfs(t.confluences);
+    const confluenceLabels = confs.map(c => {
+      const def = allConfsMap[c.id];
+      if (!def) return c.id;
+      return def.label;
+    });
+    const confluencesSR = {};
+    confs.forEach(c => {
+      if (c.sr) confluencesSR[c.id] = c.sr;
+    });
+
+    const ps = psData[t.date] || {};
+    const wp = weeklyPrep[getMonday(t.date)] || {};
+
+    const macroEventNames = (ps.macro_events || []).map(e => e.name || e).filter(Boolean);
+
+    const out = {
+      id: t.id,
+      date: t.date,
+      direction: t.direction,
+      entry: t.entry,
+      exit: t.exit,
+      qty: t.qty,
+      pnl: t.pnl,
+      stop_ticks: t.stop_ticks,
+      tp_ticks: t.tp_ticks,
+      rr: t.rr,
+      r: t.r,
+      session: t.session || getSession(t.time),
+      time_slot: t.time_slot || getTimeSlot(t.time),
+      confluences: confluenceLabels,
+      rating: t.rating,
+      notes: t.notes || "",
+      mistakes_note: t.mistakes_note || "",
+      bias: ps.bias || "",
+      fed_narrative: ps.fed_narrative || "",
+      sentiment: ps.sentiment || "",
+      macro_events: macroEventNames,
+      game_plan: ps.narrative || "",
+      weekly_bias: wp.weekly_bias || "",
+      weekly_narrative: wp.weekly_narrative || ""
+    };
+    if (Object.keys(confluencesSR).length) out.confluences_sr = confluencesSR;
+    return out;
+  });
+
+  const wins = trades.filter(t => t.pnl > 0);
+  const totalPnl = trades.reduce((s, t) => s + t.pnl, 0);
+  const grossWin = wins.reduce((s, t) => s + t.pnl, 0);
+  const grossLoss = Math.abs(trades.filter(t => t.pnl < 0).reduce((s, t) => s + t.pnl, 0));
+  const avgR = trades.filter(t => t.r != null && !isNaN(t.r)).reduce((s, t, _, a) => s + t.r / a.length, 0);
+  const dates = trades.map(t => t.date).sort();
+
+  const payload = {
+    exportDate: new Date().toISOString().split('T')[0],
+    account: curAcct.name,
+    trades: exportedTrades,
+    summary: {
+      total_trades: trades.length,
+      win_rate: wins.length / trades.length,
+      total_pnl: Math.round(totalPnl * 100) / 100,
+      profit_factor: grossLoss > 0 ? Math.round(grossWin / grossLoss * 100) / 100 : null,
+      avg_r: Math.round(avgR * 100) / 100,
+      date_range: { from: dates[0] || "", to: dates[dates.length - 1] || "" }
+    }
+  };
+
+  const json = JSON.stringify(payload, null, 2);
+  const blob = new Blob([json], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "nq-export-" + payload.exportDate + ".json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast("Exportado: " + exportedTrades.length + " trades", "ok");
 }
 
 function reportScopedT() {
