@@ -833,7 +833,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
           <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
             <button class="ps-bias-btn bull" onclick="setPSBias('Bullish',this)">▲ Bullish</button>
             <button class="ps-bias-btn bear" onclick="setPSBias('Bearish',this)">▼ Bearish</button>
-            <button class="ps-bias-btn range" onclick="setPSBias('Consolidation/Ranging',this)">↔ Consolidation/Ranging</button>
+            <button class="ps-bias-btn range" onclick="setPSBias('Neutral',this)">↔ Neutral</button>
           </div>
 
           <!-- Eventos macro (expandido por default) -->
@@ -1797,13 +1797,13 @@ function calcProcessScore4(t) {
 function getBiasColor(bias) {
   if (bias === 'Bullish') return 'var(--green)';
   if (bias === 'Bearish') return 'var(--red)';
-  if (bias === 'Consolidation/Ranging') return 'var(--purple)';
+  if (bias === 'Consolidation/Ranging' || bias === 'Neutral' || bias === 'ranging' || bias === 'Ranging') return 'var(--purple)';
   return 'var(--sub)';
 }
 function getBiasBg(bias) {
   if (bias === 'Bullish') return '#071f0f';
   if (bias === 'Bearish') return '#1f0707';
-  if (bias === 'Consolidation/Ranging') return '#150d1f';
+  if (bias === 'Consolidation/Ranging' || bias === 'Neutral' || bias === 'ranging' || bias === 'Ranging') return '#150d1f';
   return 'var(--s3)';
 }
 
@@ -2464,8 +2464,9 @@ function toggleWeekCard(ws) {
 function buildWeeklyPrepSection(weekStart) {
   const wp = weeklyPrep[weekStart] || {};
   const bias = wp.weekly_bias || '';
-  const biasOpts = [{v:'Bullish',cls:'bull',lbl:'▲ Bullish'},{v:'Bearish',cls:'bear',lbl:'▼ Bearish'},{v:'Consolidation/Ranging',cls:'range',lbl:'◆ Ranging'}];
-  const biasBtns = biasOpts.map(b => '<button class="wp-bias-btn '+b.cls+(bias===b.v?' on':'')+'" onclick="setWPBias(\''+weekStart+'\',\''+b.v+'\',this)">'+b.lbl+'</button>').join('');
+  const biasOpts = [{v:'Bullish',cls:'bull',lbl:'▲ Bullish'},{v:'Bearish',cls:'bear',lbl:'▼ Bearish'},{v:'Neutral',cls:'range',lbl:'◆ Neutral'}];
+  const _neutralVals = ['Consolidation/Ranging','ranging','Ranging'];
+  const biasBtns = biasOpts.map(b => { const isOn = bias===b.v || (b.v==='Neutral' && _neutralVals.includes(bias)); return '<button class="wp-bias-btn '+b.cls+(isOn?' on':'')+'" onclick="setWPBias(\''+weekStart+'\',\''+b.v+'\',this)">'+b.lbl+'</button>'; }).join('');
   const buildSubsec = (section, title, icon) => {
     const shots = wp[section+'_screenshots'] || [];
     const abbr = section==='cot'?'cot':section==='profile'?'prof':'geo';
@@ -2619,10 +2620,12 @@ function buildDiaryDayDetail(date) {
   ).join('');
 
   // Macro & Fundamental — right col
-  const biasOpts = ['Bullish','Bearish','Consolidation/Ranging'];
+  const biasOpts = ['Bullish','Bearish','Neutral'];
+  const _neutralVals2 = ['Consolidation/Ranging','ranging','Ranging'];
   const biasBtns = biasOpts.map(v => {
     const cls = v==='Bullish'?'bull':v==='Bearish'?'bear':'range';
-    return '<button class="ps-bias-btn '+cls+(ds.bias===v?' on':'')+'" onclick="setDiaryBias(\''+date+'\',\''+v+'\',this)">'+v+'</button>';
+    const isOn = ds.bias===v || (v==='Neutral' && _neutralVals2.includes(ds.bias));
+    return '<button class="ps-bias-btn '+cls+(isOn?' on':'')+'" onclick="setDiaryBias(\''+date+'\',\''+v+'\',this)">'+v+'</button>';
   }).join('');
   const fedOpts = [{v:'Hawkish',cls:'hawk'},{v:'Neutral to Hawkish',cls:'nhawk'},{v:'Neutral',cls:'neut'},{v:'Neutral to Dovish',cls:'ndove'},{v:'Dovish',cls:'dove'}];
   const fedBtns = fedOpts.map(f => '<button class="fed-btn '+f.cls+(ds.fed===f.v?' on':'')+'" onclick="setDiaryFed(\''+date+'\',\''+f.v+'\',this)" style="font-size:10px;padding:4px 9px">'+f.v+'</button>').join('');
@@ -2883,7 +2886,7 @@ function renderJournal() {
   const total = days.reduce((s,d) => s+d.trades.length, 0);
   document.getElementById('journal-lbl').textContent = days.length+' dias · '+total+' trades';
 
-  const BIAS_C = { Bullish:'#1fd17a', Bearish:'#f04f4f', 'Consolidation/Ranging':'#9b72f5' };
+  const BIAS_C = { Bullish:'#1fd17a', Bearish:'#f04f4f', 'Consolidation/Ranging':'#9b72f5', Neutral:'#9b72f5', ranging:'#9b72f5', Ranging:'#9b72f5' };
   const FED_C  = { Hawkish:'#f04f4f', Dovish:'#1fd17a', Neutro:'#8892aa' };
 
   body.innerHTML = days.map(({ date, trades }) => {
@@ -3015,7 +3018,7 @@ function toggleJDay(date) {
 function openCtxModal(date) {
   const ctx = psData[date] || {};
   document.getElementById('ctx-modal-title').textContent = jFmtDate(date);
-  const BIAS_C = { Bullish:'#1fd17a', Bearish:'#f04f4f', 'Consolidation/Ranging':'#9b72f5' };
+  const BIAS_C = { Bullish:'#1fd17a', Bearish:'#f04f4f', 'Consolidation/Ranging':'#9b72f5', Neutral:'#9b72f5', ranging:'#9b72f5', Ranging:'#9b72f5' };
   const FED_C  = { Hawkish:'#f04f4f', Dovish:'#1fd17a', Neutro:'#8892aa' };
   const body = document.getElementById('ctx-modal-body');
   if (!Object.keys(ctx).length) {
@@ -3111,6 +3114,7 @@ function loadPSDate(d) {
   const picker = document.getElementById('ps-date-picker'); if (picker) picker.value = d;
   const ctx = psData[d] || {};
   psBias = ctx.bias || '';
+  if (['Consolidation/Ranging','ranging','Ranging'].includes(psBias)) psBias = 'Neutral';
   psFed = ctx.fed || '';
   psSentiment = ctx.sentiment || '';
   // Bias buttons
