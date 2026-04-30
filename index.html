@@ -815,14 +815,6 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
           </div>
           <input type="file" id="ps-file-input" accept="image/*" multiple style="display:none" onchange="psFilesSelected(this.files)">
 
-          <!-- Profile bias -->
-          <div class="ps-field-lbl" style="margin-top:12px">Estrutura do Profile</div>
-          <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
-            <button class="ps-pbias-btn bull" data-val="Bullish estrutura" onclick="setPSProfileBias('Bullish estrutura',this)">▲ Bullish estrutura</button>
-            <button class="ps-pbias-btn bear" data-val="Bearish estrutura" onclick="setPSProfileBias('Bearish estrutura',this)">▼ Bearish estrutura</button>
-            <button class="ps-pbias-btn neut" data-val="Neutro/Range" onclick="setPSProfileBias('Neutro/Range',this)">— Neutro/Range</button>
-          </div>
-
           <!-- Profile notes -->
           <div class="ps-field-lbl">Leitura do Profile</div>
           <div class="ta-fs-wrap">
@@ -3241,19 +3233,20 @@ function psFilesSelected(files) {
   const d = psDate || todayISO();
   ensurePSDate(d);
   if (!psData[d].profile_screenshots) psData[d].profile_screenshots = [];
+  const arr = Array.from(files);
+  document.getElementById('ps-file-input').value = '';
   let loaded = 0;
-  Array.from(files).forEach(file => {
+  arr.forEach(file => {
     const reader = new FileReader();
     reader.onload = async e => {
       const compressed = await compressImage(e.target.result, 1920, 0.92);
       const stored = await sbUploadPrint('sessions/'+d, compressed);
       psData[d].profile_screenshots.push(stored || compressed);
       loaded++;
-      if (loaded === files.length) { savePSData(d); renderPSScreenshots(d); }
+      if (loaded === arr.length) { savePSData(d); renderPSScreenshots(d); }
     };
     reader.readAsDataURL(file);
   });
-  document.getElementById('ps-file-input').value = '';
 }
 async function savePS() {
   // Guardar sempre em localStorage imediatamente — independente do estado de carregamento
@@ -5180,6 +5173,7 @@ function readImageFiles(filesOrBlobs, callback) {
 
 async function psDrop(e) {
   e.preventDefault();
+  e.stopPropagation();
   document.getElementById('ps-upload-zone').classList.remove('drag');
   const imgs = await getDropImages(e);
   if (imgs.length) psFilesSelected(imgs);
@@ -5187,6 +5181,7 @@ async function psDrop(e) {
 
 async function wpDrop(e, weekStart, section) {
   e.preventDefault();
+  e.stopPropagation();
   const zone = e.currentTarget; if (zone) zone.classList.remove('drag');
   const imgs = await getDropImages(e);
   if (imgs.length) wpFilesSelected(weekStart, section, imgs);
@@ -5194,6 +5189,7 @@ async function wpDrop(e, weekStart, section) {
 
 async function ddrDrop(e, date) {
   e.preventDefault();
+  e.stopPropagation();
   const zone = e.currentTarget; if (zone) zone.classList.remove('drag');
   const imgs = await getDropImages(e);
   if (imgs.length) ddrFilesSelected(date, imgs);
@@ -5201,6 +5197,7 @@ async function ddrDrop(e, date) {
 
 async function rvDrop(e) {
   e.preventDefault();
+  e.stopPropagation();
   const zone = e.currentTarget; if (zone) zone.classList.remove('drag');
   const imgs = await getDropImages(e);
   if (!imgs.length) return;
