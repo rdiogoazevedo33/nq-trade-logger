@@ -2613,11 +2613,6 @@ function buildDiaryDayDetail(date) {
   const ds = diaryState[date];
 
   // Profile Framing — left col
-  const pBiasOpts = ['Bullish','Bearish','Consolidation/Ranging'];
-  const pBiasBtns = pBiasOpts.map(v => {
-    const cls = v==='Bullish'?'bull':v==='Bearish'?'bear':'range';
-    return '<button class="ps-bias-btn '+cls+(ds.profileBias===v?' on':'')+'" onclick="setDiaryPBias(\''+date+'\',\''+v+'\',this)">'+v+'</button>';
-  }).join('');
   const profShots = ctx.profile_screenshots || [];
   const profThumbsHtml = profShots.map((src,i) =>
     '<div class="wp-thumb"><img src="'+src+'" alt="print" onclick="openImgOverlay(this.src)"><button class="wp-thumb-rm" onclick="ddrRemoveShot(\''+date+'\','+i+')">✕</button></div>'
@@ -2656,8 +2651,6 @@ function buildDiaryDayDetail(date) {
       '<input type="file" accept="image/*" multiple id="ddr-ss-in-'+date+'" style="display:none" onchange="ddrFilesSelected(\''+date+'\',this.files)">' +
       '<div class="wp-thumb-row" id="ddr-ss-grid-'+date+'">'+profThumbsHtml+'</div>' +
       '<div class="wp-upload-zone" onclick="document.getElementById(\'ddr-ss-in-'+date+'\').click()" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="ddrDrop(event,\''+date+'\')" style="padding:10px;margin-bottom:8px;font-size:10px">+ Print</div>' +
-      '<div class="ddr-field-lbl">Bias do profile</div>' +
-      '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">'+pBiasBtns+'</div>' +
       '<div class="ddr-field-lbl">Leitura do profile</div>' +
       '<div class="ta-fs-wrap">' +
       '<button class="ta-fs-btn" onclick="openFSModal(\'Leitura do Profile\',\'ddr-pnotes-'+date+'\')" title="Expandir">⤢</button>' +
