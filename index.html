@@ -881,7 +881,10 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
                 <button class="fed-btn ndove" data-val="Neutral to Dovish" onclick="setFed('Neutral to Dovish',this)">🔵 Neutral to Dovish</button>
                 <button class="fed-btn dove" data-val="Dovish" onclick="setFed('Dovish',this)">🟢 Dovish</button>
               </div>
-              <textarea class="ps-ta" id="ps-fed-ctx" style="min-height:52px;margin-bottom:14px" placeholder="Ex: Boa notícia de emprego mas Fed mantém posição neutral — inflação ainda acima do target. Mercado a priceiar cut em Junho..."></textarea>
+              <div class="ta-fs-wrap">
+                <button class="ta-fs-btn" onclick="openFSModal('Fed Contexto','ps-fed-ctx')" title="Expandir">⤢</button>
+                <textarea class="ps-ta" id="ps-fed-ctx" style="min-height:52px;margin-bottom:14px" placeholder="Ex: Boa notícia de emprego mas Fed mantém posição neutral — inflação ainda acima do target. Mercado a priceiar cut em Junho..."></textarea>
+              </div>
             </div>
           </div>
 
@@ -902,9 +905,15 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
                 <button class="ps-sent-btn" id="sent-neut" onclick="setPSSentiment('Neutro',this)">— Neutro</button>
               </div>
               <div class="ps-field-lbl">Capital Flow</div>
-              <textarea class="ps-ta" id="ps-capital-flow" style="min-height:44px;margin-bottom:10px" placeholder="Ex: USD fraco, bonds estáveis, rotação para growth, tech sector líder..."></textarea>
+              <div class="ta-fs-wrap">
+                <button class="ta-fs-btn" onclick="openFSModal('Capital Flow','ps-capital-flow')" title="Expandir">⤢</button>
+                <textarea class="ps-ta" id="ps-capital-flow" style="min-height:44px;margin-bottom:10px" placeholder="Ex: USD fraco, bonds estáveis, rotação para growth, tech sector líder..."></textarea>
+              </div>
               <div class="ps-field-lbl">DXY · VIX · US2Y · US10Y</div>
-              <textarea class="ps-ta" id="ps-dxy-vix-narrative" style="min-height:52px;margin-bottom:10px" placeholder="Ex: DXY a enfraquecer abaixo de 103, VIX em 18 (low vol), US2Y estável, US10Y a subir..."></textarea>
+              <div class="ta-fs-wrap">
+                <button class="ta-fs-btn" onclick="openFSModal('DXY · VIX · US2Y · US10Y','ps-dxy-vix-narrative')" title="Expandir">⤢</button>
+                <textarea class="ps-ta" id="ps-dxy-vix-narrative" style="min-height:52px;margin-bottom:10px" placeholder="Ex: DXY a enfraquecer abaixo de 103, VIX em 18 (low vol), US2Y estável, US10Y a subir..."></textarea>
+              </div>
             </div>
           </div>
 
@@ -918,7 +927,10 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
           </div>
           <div class="ps-collapse-body" id="ps-col-geo" style="max-height:0;overflow:hidden">
             <div style="padding-top:4px">
-              <textarea class="ps-ta" id="ps-geopolitics" style="min-height:52px" placeholder="Ex: Conflitos geopolíticos, decisões políticas (tarifas, sanções), notícias macro inesperadas, qualquer headline que mova o sentiment do dia..."></textarea>
+              <div class="ta-fs-wrap">
+                <button class="ta-fs-btn" onclick="openFSModal('News &amp; Geopolítica','ps-geopolitics')" title="Expandir">⤢</button>
+                <textarea class="ps-ta" id="ps-geopolitics" style="min-height:52px" placeholder="Ex: Conflitos geopolíticos, decisões políticas (tarifas, sanções), notícias macro inesperadas, qualquer headline que mova o sentiment do dia..."></textarea>
+              </div>
             </div>
           </div>
 
@@ -1132,6 +1144,16 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
             <textarea class="ps-ta" id="rv-mistakes-note" style="min-height:72px" placeholder="O que correu mal..."></textarea>
           </div>
         </div>
+        <!-- Possíveis Setups (só visível em trades negativos) -->
+        <div class="rv-section" id="rv-setups-section" style="display:none">
+          <div class="rv-sec-hdr">
+            <span class="rv-sec-title">💡 Possíveis Setups</span>
+          </div>
+          <div class="ta-fs-wrap">
+            <button class="ta-fs-btn" onclick="openFSModal('Possíveis Setups','rv-possible-setups')" title="Expandir">⤢</button>
+            <textarea class="ps-ta" id="rv-possible-setups" style="min-height:72px" placeholder="Que setups podias ter feito? Que oportunidade perdeste?"></textarea>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1191,11 +1213,12 @@ async function sbInit() {
     if (event === "SIGNED_IN") {
       setLoginMsg("");
       if (!_pullDataDone) {
-        // Só corre se sbPullData ainda não correu (evita loop em token refresh)
+        // Só corre se sbPullData ainda não correu — token refreshes têm _pullDataDone=true e não fazem re-render (evita apagar dados preenchidos)
         await sbPullData();
         fixTradeDirections(); // corre em background
+        showAcctScreen();
       }
-      showAcctScreen();
+      // Se _pullDataDone=true, a app já está a correr — ignorar evento (é apenas token refresh)
     }
     if (event === "SIGNED_OUT") {
       _pullDataDone = false; // reset para permitir pull na próxima autenticação
@@ -2479,7 +2502,7 @@ function buildWeeklyPrepSection(weekStart) {
       '<div class="wp-thumb-row" id="wp-'+abbr+'-thumbs-'+weekStart+'">'+thumbsHtml+'</div>' +
       '<div class="wp-upload-zone" onclick="document.getElementById(\'wp-'+abbr+'-in-'+weekStart+'\').click()" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="wpDrop(event,\''+weekStart+'\',\''+section+'\')">+ Adicionar print</div>' +
       '<div class="ta-fs-wrap">' +
-      '<button class="ta-fs-btn" onclick="openFSModal(\''+title+'\',\'wp-'+abbr+'-notes-'+weekStart+'\')" title="Expandir">⤢</button>' +
+      '<button class="ta-fs-btn" onclick="openFSModalWP(\''+weekStart+'\',\''+section+'\',\''+title+'\',\'wp-'+abbr+'-notes-'+weekStart+'\')" title="Expandir">⤢</button>' +
       '<textarea class="ps-ta" style="min-height:68px" id="wp-'+abbr+'-notes-'+weekStart+'" placeholder="'+getWPPlaceholder(section)+'">'+escHtml(wp[section+'_notes']||'')+'</textarea>' +
       '</div>' +
     '</div>';
@@ -3760,6 +3783,10 @@ function renderReview() {
   if (recapEl) recapEl.value = t.notes || t.notesHTML?.replace(/<[^>]+>/g,'') || "";
   const mistakesNoteEl = document.getElementById("rv-mistakes-note");
   if (mistakesNoteEl) mistakesNoteEl.value = t.mistakes_note || "";
+  const setupsSection = document.getElementById("rv-setups-section");
+  const setupsEl = document.getElementById("rv-possible-setups");
+  if (setupsSection) setupsSection.style.display = t.pnl < 0 ? "" : "none";
+  if (setupsEl) setupsEl.value = t.possible_setups || "";
   buildConfs("rv-conf-list", t.confluences || "[]", "rconf-chip", "rsr-btn", "rsr-btn", "rvToggleConf", "rvSetSR");
   rvRenderGallery(t.screenshots || []);
 }
@@ -3987,7 +4014,8 @@ function saveReview(silent = false) {
   const r = risk && risk > 0 ? parseFloat((all[idx].pnl / risk).toFixed(3)) : 0;
   const notes = document.getElementById("rv-recap")?.value || "";
   const mistakesNote = document.getElementById("rv-mistakes-note")?.value ?? (all[idx].mistakes_note || "");
-  const updated = { ...all[idx], entry, stop_ticks: stopTicks, tp_ticks: tpTicks, risk, rr, r, confluences: serConfs(confs), score: confs.length, notes, notesHTML: "", mistakes_note: mistakesNote };
+  const possibleSetups = document.getElementById("rv-possible-setups")?.value ?? (all[idx].possible_setups || "");
+  const updated = { ...all[idx], entry, stop_ticks: stopTicks, tp_ticks: tpTicks, risk, rr, r, confluences: serConfs(confs), score: confs.length, notes, notesHTML: "", mistakes_note: mistakesNote, possible_setups: possibleSetups };
   updated.process_score = calcProcessScore4(updated);
   all[idx] = updated;
   setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]);
@@ -5689,13 +5717,30 @@ function rptCalendar(t) {
 
 // --- FULLSCREEN TEXTAREA ---
 let _fsTaId = null;
-function openFSModal(title, taId) {
+function openFSModal(title, taId, photos) {
   const ta = document.getElementById(taId); if (!ta) return;
   _fsTaId = taId;
   document.getElementById("fs-modal-title").textContent = title;
   document.getElementById("fs-modal-ta").value = ta.value;
+  const photosEl = document.getElementById("fs-modal-photos");
+  if (photosEl) {
+    if (photos && photos.length > 0) {
+      photosEl.innerHTML = photos.map(src =>
+        '<img src="'+src+'" style="height:130px;object-fit:cover;border-radius:6px;cursor:pointer;border:1px solid var(--b1)" onclick="openImgOverlay(this.src)">'
+      ).join('');
+      photosEl.style.display = "flex";
+    } else {
+      photosEl.innerHTML = "";
+      photosEl.style.display = "none";
+    }
+  }
   document.getElementById("fs-modal").style.display = "flex";
   setTimeout(() => document.getElementById("fs-modal-ta").focus(), 60);
+}
+function openFSModalWP(weekStart, section, title, taId) {
+  const wp = weeklyPrep[weekStart] || {};
+  const photos = wp[section + '_screenshots'] || [];
+  openFSModal(title, taId, photos);
 }
 function closeFSModal() {
   const modal = document.getElementById("fs-modal"); if (!modal || modal.style.display === "none") return;
@@ -5724,6 +5769,7 @@ document.addEventListener("keydown", e => {
       <span class="fs-modal-title" id="fs-modal-title"></span>
       <button class="fs-modal-close" onclick="closeFSModal()">✕ Fechar</button>
     </div>
+    <div id="fs-modal-photos" style="display:none;padding:10px 16px;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--b1);overflow-y:auto;max-height:35vh;flex-shrink:0"></div>
     <textarea id="fs-modal-ta"></textarea>
   </div>
 </div>
