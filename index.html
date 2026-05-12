@@ -649,7 +649,12 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .fs-modal-title{font-size:13px;font-family:var(--mono);color:var(--text);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
 .fs-modal-close{background:transparent;border:1px solid var(--b1);color:var(--sub);cursor:pointer;font-size:13px;padding:5px 12px;border-radius:6px;font-family:var(--mono)}
 .fs-modal-close:hover{color:var(--text);border-color:var(--b2)}
-#fs-modal-ta{flex:1;background:var(--s2);color:var(--text);border:none;padding:20px 24px;font-family:var(--mono);font-size:13px;line-height:1.9;resize:none;outline:none;width:100%}
+.fs-modal-body{display:flex;flex:1;min-height:0;overflow:hidden}
+#fs-modal-photos{display:none;width:50%;overflow-y:auto;padding:16px;flex-direction:column;gap:10px;border-right:1px solid var(--b1);flex-shrink:0}
+#fs-modal-photos.has-photos{display:flex}
+#fs-modal-photos img{width:100%;max-height:260px;object-fit:contain;border-radius:8px;cursor:zoom-in;border:1px solid var(--b1);transition:opacity .13s}
+#fs-modal-photos img:hover{opacity:.85}
+#fs-modal-ta{flex:1;background:var(--s2);color:var(--text);border:none;padding:20px 24px;font-family:var(--mono);font-size:13px;line-height:1.9;resize:none;outline:none;min-width:0}
 </style>
 </head>
 <body>
@@ -818,7 +823,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
           <!-- Profile notes -->
           <div class="ps-field-lbl">Leitura do Profile</div>
           <div class="ta-fs-wrap">
-            <button class="ta-fs-btn" onclick="openFSModal('Leitura do Profile','ps-profile-notes')" title="Expandir">⤢</button>
+            <button class="ta-fs-btn" onclick="openFSModalPS('Leitura do Profile','ps-profile-notes')" title="Expandir">⤢</button>
             <textarea class="ps-ta" id="ps-profile-notes" style="min-height:120px" placeholder="Ex: POC em 24450, VAH em 24800. HVN forte em 24600 espero actue como suporte. LVN em 24350 zona de aceleração. Delta anomaly buy em 24580..."></textarea>
           </div>
         </div>
@@ -1132,16 +1137,6 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
           <div class="ta-fs-wrap">
             <button class="ta-fs-btn" onclick="openFSModal('Trade Recap','rv-recap')" title="Expandir">⤢</button>
             <textarea class="ps-ta" id="rv-recap" style="min-height:140px;font-size:13px;line-height:1.7" placeholder="Descreve o que viste — orderflow, porque entraste, lições..."></textarea>
-          </div>
-        </div>
-        <!-- Erros -->
-        <div class="rv-section">
-          <div class="rv-sec-hdr">
-            <span class="rv-sec-title">⚠ Erros (opcional)</span>
-          </div>
-          <div class="ta-fs-wrap">
-            <button class="ta-fs-btn" onclick="openFSModal('Erros','rv-mistakes-note')" title="Expandir">⤢</button>
-            <textarea class="ps-ta" id="rv-mistakes-note" style="min-height:72px" placeholder="O que correu mal..."></textarea>
           </div>
         </div>
         <!-- Possíveis Setups (só visível em trades negativos) -->
@@ -1875,9 +1870,6 @@ function buildConfs(containerId, rawConfs, chipClass, srClass, srBtnClass, toggl
         html += '<button class="' + srBtnBase + (curSR === "S" ? " act" : "") + '" data-sr="S" onclick="' + setSRFn + '(this)">' + srL0 + '</button>';
         html += '<button class="' + srBtnBase + (curSR === "R" ? " act" : "") + '" data-sr="R" onclick="' + setSRFn + '(this)">' + srL1 + '</button>';
         html += '</div>';
-      }
-      if (g === "Custom" && chipClass === "rconf-chip") {
-        html += '<button class="rconf-del-btn" title="Apagar confluência" onclick="event.stopPropagation();rvDeleteCustomConf(\'' + c.id + '\')">✕</button>';
       }
       html += '</div>';
     });
@@ -5717,6 +5709,9 @@ function rptCalendar(t) {
 
 // --- FULLSCREEN TEXTAREA ---
 let _fsTaId = null;
+let _fsModalPhotos = [];
+let _fsLightboxIdx = 0;
+
 function openFSModal(title, taId, photos) {
   const ta = document.getElementById(taId); if (!ta) return;
   _fsTaId = taId;
@@ -5725,17 +5720,24 @@ function openFSModal(title, taId, photos) {
   const photosEl = document.getElementById("fs-modal-photos");
   if (photosEl) {
     if (photos && photos.length > 0) {
-      photosEl.innerHTML = photos.map(src =>
-        '<img src="'+src+'" style="height:130px;object-fit:cover;border-radius:6px;cursor:pointer;border:1px solid var(--b1)" onclick="openImgOverlay(this.src)">'
+      _fsModalPhotos = photos;
+      photosEl.innerHTML = photos.map((src, i) =>
+        '<img src="'+src+'" onclick="openFSLightbox('+i+')">'
       ).join('');
-      photosEl.style.display = "flex";
+      photosEl.classList.add("has-photos");
     } else {
+      _fsModalPhotos = [];
       photosEl.innerHTML = "";
-      photosEl.style.display = "none";
+      photosEl.classList.remove("has-photos");
     }
   }
   document.getElementById("fs-modal").style.display = "flex";
   setTimeout(() => document.getElementById("fs-modal-ta").focus(), 60);
+}
+function openFSModalPS(title, taId) {
+  const d = psDate || todayISO();
+  const photos = (psData[d] || {}).profile_screenshots || [];
+  openFSModal(title, taId, photos);
 }
 function openFSModalWP(weekStart, section, title, taId) {
   const wp = weeklyPrep[weekStart] || {};
@@ -5754,7 +5756,39 @@ function closeFSModal() {
   modal.style.display = "none";
   _fsTaId = null;
 }
+
+function openFSLightbox(idx) {
+  _fsLightboxIdx = idx;
+  const lb = document.getElementById('fs-lightbox');
+  lb.style.display = 'flex';
+  renderFSLightbox();
+}
+function renderFSLightbox() {
+  const photos = _fsModalPhotos;
+  const img = document.getElementById('fs-lightbox-img');
+  const prev = document.getElementById('fs-lightbox-prev');
+  const next = document.getElementById('fs-lightbox-next');
+  if (img) img.src = photos[_fsLightboxIdx] || '';
+  const multi = photos.length > 1;
+  if (prev) prev.style.display = multi ? 'flex' : 'none';
+  if (next) next.style.display = multi ? 'flex' : 'none';
+}
+function closeFSLightbox() {
+  document.getElementById('fs-lightbox').style.display = 'none';
+}
+function fslNav(dir) {
+  const len = _fsModalPhotos.length; if (!len) return;
+  _fsLightboxIdx = (_fsLightboxIdx + dir + len) % len;
+  renderFSLightbox();
+}
+
 document.addEventListener("keydown", e => {
+  const lb = document.getElementById("fs-lightbox");
+  if (lb && lb.style.display !== "none") {
+    if (e.key === "Escape") { e.preventDefault(); closeFSLightbox(); return; }
+    if (e.key === "ArrowLeft")  { fslNav(-1); return; }
+    if (e.key === "ArrowRight") { fslNav(1);  return; }
+  }
   if (e.key === "Escape") {
     const m = document.getElementById("fs-modal");
     if (m && m.style.display === "flex") { e.preventDefault(); closeFSModal(); }
@@ -5769,9 +5803,19 @@ document.addEventListener("keydown", e => {
       <span class="fs-modal-title" id="fs-modal-title"></span>
       <button class="fs-modal-close" onclick="closeFSModal()">✕ Fechar</button>
     </div>
-    <div id="fs-modal-photos" style="display:none;padding:10px 16px;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--b1);overflow-y:auto;max-height:35vh;flex-shrink:0"></div>
-    <textarea id="fs-modal-ta"></textarea>
+    <div class="fs-modal-body">
+      <div id="fs-modal-photos"></div>
+      <textarea id="fs-modal-ta"></textarea>
+    </div>
   </div>
+</div>
+
+<!-- LIGHTBOX (dentro do fs-modal) -->
+<div id="fs-lightbox" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:9100;align-items:center;justify-content:center" onclick="if(event.target===this)closeFSLightbox()">
+  <button id="fs-lightbox-prev" onclick="fslNav(-1)" style="display:none;position:absolute;left:20px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:28px;width:52px;height:52px;border-radius:50%;cursor:pointer;align-items:center;justify-content:center">‹</button>
+  <img id="fs-lightbox-img" style="max-width:92vw;max-height:92vh;border-radius:10px;object-fit:contain;box-shadow:0 0 60px #000a" onclick="event.stopPropagation()">
+  <button id="fs-lightbox-next" onclick="fslNav(1)" style="display:none;position:absolute;right:20px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:28px;width:52px;height:52px;border-radius:50%;cursor:pointer;align-items:center;justify-content:center">›</button>
+  <button onclick="closeFSLightbox()" style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:16px;width:40px;height:40px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
 </div>
 
 <!-- DOC MODAL -->
