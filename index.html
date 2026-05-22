@@ -246,9 +246,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 /* Screenshots */
 .ss-zone{border:2px dashed var(--b2);border-radius:10px;padding:28px;text-align:center;cursor:pointer;transition:all .18s}
 .ss-zone:hover,.ss-zone.drag{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 5%,transparent)}
-.ss-wrap{position:relative;border-radius:9px;overflow:hidden;border:1px solid var(--b1);margin-bottom:8px}
-.ss-wrap img{width:100%;display:block;cursor:pointer}
-.ss-del{position:absolute;top:7px;right:7px;background:rgba(0,0,0,.75);border:none;color:#fff;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center}
+.ss-gallery-row{display:flex;flex-direction:row;gap:6px;overflow-x:auto;align-items:center;flex-wrap:nowrap;padding-bottom:4px;margin-bottom:6px}
+.ss-wrap{position:relative;border-radius:7px;overflow:hidden;border:1px solid var(--b1);flex-shrink:0;cursor:pointer;transition:border-color .15s}
+.ss-wrap:hover{border-color:var(--b2)}
+.ss-wrap img{width:80px;height:60px;object-fit:cover;display:block}
+.ss-del{position:absolute;top:2px;right:2px;background:#882200;border:none;color:#fff;border-radius:50%;width:16px;height:16px;cursor:pointer;font-size:8px;display:flex;align-items:center;justify-content:center;padding:0;line-height:1}
+.ss-num{position:absolute;bottom:2px;left:3px;background:rgba(0,0,0,.65);color:#fff;font-size:8px;font-family:var(--mono);border-radius:3px;padding:1px 3px;line-height:1.2;pointer-events:none}
 /* Review conf chips */
 .rconf-chip{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;border:1px solid var(--b1);background:var(--s2);cursor:pointer;user-select:none;transition:all .13s;gap:8px;margin-bottom:4px}
 .rconf-chip:hover{border-color:var(--b2)}
@@ -376,11 +379,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .ps-upload-zone{border:2px dashed var(--b2);border-radius:11px;padding:22px 16px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:10px}
 .ps-upload-zone:hover,.ps-upload-zone.drag{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 5%,transparent)}
 .ps-upload-zone-txt{font-size:11px;font-family:var(--mono);color:var(--hint)}
-.ps-thumb-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
-.ps-thumb{position:relative;border-radius:8px;overflow:hidden;border:1px solid var(--b1)}
-.ps-thumb img{width:100%;height:auto;display:block;cursor:pointer}
-.ps-thumb-rm{position:absolute;top:7px;right:7px;background:#000000bb;border:none;color:#fff;cursor:pointer;font-size:10px;border-radius:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;line-height:1}
-.ps-thumb-rm:hover{background:var(--red)}
+.ps-thumb-grid{display:flex;flex-direction:row;gap:6px;overflow-x:auto;align-items:center;flex-wrap:nowrap;padding-bottom:4px;margin-bottom:10px}
+.ps-thumb{position:relative;border-radius:6px;overflow:hidden;border:1px solid var(--b1);flex-shrink:0;cursor:pointer;transition:border-color .15s}
+.ps-thumb:hover{border-color:var(--b2)}
+.ps-thumb img{width:80px;height:60px;object-fit:cover;display:block}
+.ps-thumb-rm{position:absolute;top:2px;right:2px;background:#882200;border:none;color:#fff;cursor:pointer;font-size:8px;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;line-height:1;padding:0}
 
 /* PS PROFILE BIAS */
 .ps-pbias-btn{font-family:var(--mono);font-size:11px;padding:6px 11px;border-radius:7px;border:1px solid var(--b1);background:var(--s2);cursor:pointer;color:var(--sub);transition:all .15s}
@@ -576,12 +579,15 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 @media(max-width:640px){.wp-grid{grid-template-columns:1fr}}
 .wp-subsec{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:13px}
 .wp-subsec-ttl{font-size:11px;font-weight:600;margin-bottom:9px}
-.wp-upload-zone{border:1.5px dashed var(--b2);border-radius:8px;padding:12px;text-align:center;cursor:pointer;transition:all .17s;font-size:11px;color:var(--hint);font-family:var(--mono);margin-bottom:7px}
-.wp-upload-zone:hover,.wp-upload-zone.drag{border-color:var(--accent);color:var(--accent)}
-.wp-thumb-row{display:flex;flex-direction:column;gap:8px;margin-bottom:6px}
-.wp-thumb{position:relative;border-radius:7px;overflow:hidden;border:1px solid var(--b1)}
-.wp-thumb img{width:100%;height:auto;display:block;cursor:pointer}
-.wp-thumb-rm{position:absolute;top:7px;right:7px;background:rgba(0,0,0,.8);border:none;color:#fff;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:9px;display:flex;align-items:center;justify-content:center;line-height:1;padding:0}
+.wp-thumb-row{display:flex;flex-direction:row;gap:6px;overflow-x:auto;align-items:center;flex-wrap:nowrap;padding-bottom:4px;margin-bottom:6px}
+.wp-thumb-row.drag{border:1.5px dashed var(--accent);background:color-mix(in srgb,var(--accent) 5%,transparent);border-radius:8px}
+.wp-thumb{position:relative;border-radius:6px;overflow:hidden;border:1px solid var(--b1);flex-shrink:0;cursor:pointer;transition:border-color .15s}
+.wp-thumb:hover{border-color:var(--b2)}
+.wp-thumb img{width:80px;height:60px;object-fit:cover;display:block}
+.wp-thumb-rm{position:absolute;top:2px;right:2px;background:#882200;border:none;color:#fff;border-radius:50%;width:16px;height:16px;cursor:pointer;font-size:8px;display:flex;align-items:center;justify-content:center;line-height:1;padding:0}
+.wp-thumb-num{position:absolute;bottom:2px;left:3px;background:rgba(0,0,0,.65);color:#fff;font-size:8px;font-family:var(--mono);border-radius:3px;padding:1px 3px;line-height:1.2;pointer-events:none}
+.wp-thumb-add{flex-shrink:0;width:80px;height:60px;border-radius:6px;border:1.5px dashed var(--b2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;color:var(--hint);transition:all .15s;font-family:var(--mono)}
+.wp-thumb-add:hover{border-color:var(--accent);color:var(--accent)}
 .wp-bias-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px;align-items:center}
 .wp-bias-btn{font-family:var(--mono);font-size:11px;padding:5px 12px;border-radius:7px;border:1px solid var(--b1);background:var(--s2);cursor:pointer;color:var(--sub);transition:all .15s}
 .wp-bias-btn.bull.on{background:#071f0f;border-color:var(--green);color:var(--green)}
@@ -957,8 +963,76 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
         </div>
       </div>
 
+      <!-- REVISÃO PÓS-SESSÃO -->
+      <div style="border-top:1px solid var(--b1);margin:4px 0 10px"></div>
+      <div class="ps-collapse-hdr" onclick="togglePSCollapse('ps-col-posrev',this)" style="background:var(--s1);border:1px solid color-mix(in srgb,var(--amber) 30%,var(--b1));border-radius:10px;margin-bottom:0">
+        <div class="ps-collapse-title" style="color:var(--amber)">
+          <span class="ps-collapse-filled" id="ps-col-posrev-dot"></span>
+          🔎 Revisão Pós-Sessão
+        </div>
+        <span class="ps-collapse-arrow" id="ps-col-posrev-arrow">▼</span>
+      </div>
+      <div class="ps-collapse-body" id="ps-col-posrev" style="max-height:0;overflow:hidden">
+        <div style="background:var(--s1);border:1px solid color-mix(in srgb,var(--amber) 30%,var(--b1));border-top:none;border-radius:0 0 10px 10px;padding:14px 16px 16px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 16px">
+            <div>
+              <div class="ps-field-lbl">Bias foi correcto?</div>
+              <select class="finput" id="ps-posrev-bias-accuracy" onchange="toggleBiasErrorReason()">
+                <option value="">— Seleccionar</option>
+                <option value="Correcto">Correcto</option>
+                <option value="Parcial">Parcial</option>
+                <option value="Errado">Errado</option>
+              </select>
+            </div>
+            <div>
+              <div class="ps-field-lbl">Cenário concretizado</div>
+              <select class="finput" id="ps-posrev-scenario">
+                <option value="">— Seleccionar</option>
+                <option value="A — Bearish">A — Bearish</option>
+                <option value="B — Bullish">B — Bullish</option>
+                <option value="C — Mean Reversion">C — Mean Reversion</option>
+                <option value="Nenhum">Nenhum</option>
+              </select>
+            </div>
+            <div id="ps-posrev-err-reason-wrap" style="display:none">
+              <div class="ps-field-lbl">Motivo do erro</div>
+              <select class="finput" id="ps-posrev-bias-error-reason">
+                <option value="">— Seleccionar</option>
+                <option value="Macro alterou">Macro alterou</option>
+                <option value="Profile mal lido">Profile mal lido</option>
+                <option value="GEX enganou">GEX enganou</option>
+                <option value="Notícia inesperada">Notícia inesperada</option>
+                <option value="Outro">Outro</option>
+              </select>
+            </div>
+            <div>
+              <div class="ps-field-lbl">Pivot crítico respeitado?</div>
+              <select class="finput" id="ps-posrev-pivot-respected">
+                <option value="">— Seleccionar</option>
+                <option value="Sim">Sim</option>
+                <option value="Não">Não</option>
+              </select>
+            </div>
+            <div>
+              <div class="ps-field-lbl">Tipo de sessão</div>
+              <select class="finput" id="ps-posrev-session-type">
+                <option value="">— Seleccionar</option>
+                <option value="Trending">Trending</option>
+                <option value="Range">Range</option>
+                <option value="Chop">Chop</option>
+                <option value="Explosive">Explosive</option>
+              </select>
+            </div>
+            <div style="grid-column:span 2">
+              <div class="ps-field-lbl">O que o briefing não antecipou? <span style="color:var(--hint);font-weight:400">(opcional)</span></div>
+              <textarea class="ps-ta" id="ps-posrev-briefing-miss" maxlength="200" style="min-height:50px" placeholder="1-2 linhas máximo — opcional"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- SAVE (bottom) -->
-      <button class="btn btn-accent" style="width:100%;font-size:13px;padding:11px;margin-bottom:14px" onclick="savePS()">Guardar sessão</button>
+      <button class="btn btn-accent" style="width:100%;font-size:13px;padding:11px;margin-top:10px;margin-bottom:14px" onclick="savePS()">Guardar sessão</button>
 
       <!-- HISTORY -->
       <div class="sec"><div class="sec-title">Sessões anteriores</div><div id="ps-hist"></div></div>
@@ -2491,13 +2565,19 @@ function buildWeeklyPrepSection(weekStart) {
     const shots = wp[section+'_screenshots'] || [];
     const abbr = section==='cot'?'cot':section==='profile'?'prof':'geo';
     const thumbsHtml = shots.map((src,i) =>
-      '<div class="wp-thumb"><img src="'+src+'" alt="print" onclick="openImgOverlay(this.src)"><button class="wp-thumb-rm" onclick="wpRemoveShot(\''+weekStart+'\',\''+section+'\','+i+')">✕</button></div>'
+      '<div class="wp-thumb" onclick="wpOpenLightbox(\''+weekStart+'\',\''+section+'\','+i+')">' +
+      '<img src="'+src+'" alt="print">' +
+      '<span class="wp-thumb-num">'+(i+1)+'</span>' +
+      '<button class="wp-thumb-rm" onclick="event.stopPropagation();wpRemoveShot(\''+weekStart+'\',\''+section+'\','+i+')">×</button>' +
+      '</div>'
     ).join('');
     return '<div class="wp-subsec">' +
       '<div class="wp-subsec-ttl">'+icon+' '+title+'</div>' +
       '<input type="file" accept="image/*" multiple id="wp-'+abbr+'-in-'+weekStart+'" style="display:none" onchange="wpFilesSelected(\''+weekStart+'\',\''+section+'\',this.files)">' +
-      '<div class="wp-thumb-row" id="wp-'+abbr+'-thumbs-'+weekStart+'">'+thumbsHtml+'</div>' +
-      '<div class="wp-upload-zone" onclick="document.getElementById(\'wp-'+abbr+'-in-'+weekStart+'\').click()" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="wpDrop(event,\''+weekStart+'\',\''+section+'\')">+ Adicionar print</div>' +
+      '<div class="wp-thumb-row" id="wp-'+abbr+'-thumbs-'+weekStart+'" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="wpDrop(event,\''+weekStart+'\',\''+section+'\')">' +
+      thumbsHtml +
+      '<div class="wp-thumb-add" onclick="document.getElementById(\'wp-'+abbr+'-in-'+weekStart+'\').click()" title="Adicionar print">+</div>' +
+      '</div>' +
       '<div class="ta-fs-wrap">' +
       '<button class="ta-fs-btn" onclick="openFSModalWP(\''+weekStart+'\',\''+section+'\',\''+title+'\',\'wp-'+abbr+'-notes-'+weekStart+'\')" title="Expandir">⤢</button>' +
       '<textarea class="ps-ta" style="min-height:68px" id="wp-'+abbr+'-notes-'+weekStart+'" placeholder="'+getWPPlaceholder(section)+'">'+escHtml(wp[section+'_notes']||'')+'</textarea>' +
@@ -2581,8 +2661,13 @@ function renderWPThumbs(weekStart, section) {
   const el = document.getElementById('wp-'+abbr+'-thumbs-'+weekStart); if (!el) return;
   const shots = weeklyPrep[weekStart]?.[section+'_screenshots'] || [];
   el.innerHTML = shots.map((src,i) =>
-    '<div class="wp-thumb"><img src="'+src+'" alt="print" onclick="openImgOverlay(this.src)"><button class="wp-thumb-rm" onclick="wpRemoveShot(\''+weekStart+'\',\''+section+'\','+i+')">✕</button></div>'
-  ).join('');
+    '<div class="wp-thumb" onclick="wpOpenLightbox(\''+weekStart+'\',\''+section+'\','+i+')">' +
+    '<img src="'+src+'" alt="print">' +
+    '<span class="wp-thumb-num">'+(i+1)+'</span>' +
+    '<button class="wp-thumb-rm" onclick="event.stopPropagation();wpRemoveShot(\''+weekStart+'\',\''+section+'\','+i+')">×</button>' +
+    '</div>'
+  ).join('') +
+  '<div class="wp-thumb-add" onclick="document.getElementById(\'wp-'+abbr+'-in-'+weekStart+'\').click()" title="Adicionar print">+</div>';
 }
 
 // ─── Day Row ─────────────────────────────────────────────────────
@@ -2636,8 +2721,13 @@ function buildDiaryDayDetail(date) {
   // Profile Framing — left col
   const profShots = ctx.profile_screenshots || [];
   const profThumbsHtml = profShots.map((src,i) =>
-    '<div class="wp-thumb"><img src="'+src+'" alt="print" onclick="openImgOverlay(this.src)"><button class="wp-thumb-rm" onclick="ddrRemoveShot(\''+date+'\','+i+')">✕</button></div>'
-  ).join('');
+    '<div class="wp-thumb" onclick="psOpenLightbox(\''+date+'\','+i+')">' +
+    '<img src="'+src+'" alt="print">' +
+    '<span class="wp-thumb-num">'+(i+1)+'</span>' +
+    '<button class="wp-thumb-rm" onclick="event.stopPropagation();ddrRemoveShot(\''+date+'\','+i+')">×</button>' +
+    '</div>'
+  ).join('') +
+  '<div class="wp-thumb-add" onclick="document.getElementById(\'ddr-ss-in-'+date+'\').click()" title="Adicionar print">+</div>';
 
   // Macro & Fundamental — right col
   const biasOpts = ['Bullish','Bearish','Neutral'];
@@ -2672,8 +2762,7 @@ function buildDiaryDayDetail(date) {
       '<div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:10px">Profile Framing</div>' +
       '<div class="ddr-field-lbl">Prints do Deepcharts</div>' +
       '<input type="file" accept="image/*" multiple id="ddr-ss-in-'+date+'" style="display:none" onchange="ddrFilesSelected(\''+date+'\',this.files)">' +
-      '<div class="wp-thumb-row" id="ddr-ss-grid-'+date+'">'+profThumbsHtml+'</div>' +
-      '<div class="wp-upload-zone" onclick="document.getElementById(\'ddr-ss-in-'+date+'\').click()" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="ddrDrop(event,\''+date+'\')" style="padding:10px;margin-bottom:8px;font-size:10px">+ Print</div>' +
+      '<div class="wp-thumb-row" id="ddr-ss-grid-'+date+'" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="ddrDrop(event,\''+date+'\')">'+profThumbsHtml+'</div>' +
       '<div class="ddr-field-lbl">Leitura do profile</div>' +
       '<div class="ta-fs-wrap">' +
       '<button class="ta-fs-btn" onclick="openFSModalPSByDate(\'Leitura do Profile\',\'ddr-pnotes-'+date+'\',\''+date+'\')" title="Expandir">⤢</button>' +
@@ -2838,10 +2927,7 @@ function ddrFilesSelected(date, files) {
       loaded++;
       if (loaded === files.length) {
         savePSData(date);
-        const grid = document.getElementById('ddr-ss-grid-'+date);
-        if (grid) grid.innerHTML = psData[date].profile_screenshots.map((src,i) =>
-          '<div class="wp-thumb"><img src="'+src+'" alt="print" onclick="openImgOverlay(this.src)"><button class="wp-thumb-rm" onclick="ddrRemoveShot(\''+date+'\','+i+')">✕</button></div>'
-        ).join('');
+        renderDdrThumbs(date);
       }
     };
     reader.readAsDataURL(f);
@@ -2852,10 +2938,19 @@ function ddrRemoveShot(date, idx) {
   sbDeletePrint(psData[date].profile_screenshots[idx]);
   psData[date].profile_screenshots.splice(idx, 1);
   savePSData(date);
-  const grid = document.getElementById('ddr-ss-grid-'+date);
-  if (grid) grid.innerHTML = psData[date].profile_screenshots.map((src,i) =>
-    '<div class="wp-thumb"><img src="'+src+'" alt="print" onclick="openImgOverlay(this.src)"><button class="wp-thumb-rm" onclick="ddrRemoveShot(\''+date+'\','+i+')">✕</button></div>'
-  ).join('');
+  renderDdrThumbs(date);
+}
+function renderDdrThumbs(date) {
+  const grid = document.getElementById('ddr-ss-grid-'+date); if (!grid) return;
+  const shots = psData[date]?.profile_screenshots || [];
+  grid.innerHTML = shots.map((src,i) =>
+    '<div class="wp-thumb" onclick="psOpenLightbox(\''+date+'\','+i+')">' +
+    '<img src="'+src+'" alt="print">' +
+    '<span class="wp-thumb-num">'+(i+1)+'</span>' +
+    '<button class="wp-thumb-rm" onclick="event.stopPropagation();ddrRemoveShot(\''+date+'\','+i+')">×</button>' +
+    '</div>'
+  ).join('') +
+  '<div class="wp-thumb-add" onclick="document.getElementById(\'ddr-ss-in-'+date+'\').click()" title="Adicionar print">+</div>';
 }
 
 // ─── Save Diary Day PS ─────────────────────────────────────────────
@@ -3162,12 +3257,17 @@ function loadPSDate(d) {
   renderPSDeltaList(d);
   renderPSSDZoneList(d);
   renderPSSRList(d);
+  // Revisão pós-sessão
+  const posRevMap = {'ps-posrev-bias-accuracy':'bias_accuracy','ps-posrev-bias-error-reason':'bias_error_reason','ps-posrev-scenario':'scenario_concretised','ps-posrev-pivot-respected':'pivot_respected','ps-posrev-session-type':'session_type','ps-posrev-briefing-miss':'briefing_miss'};
+  Object.entries(posRevMap).forEach(([elId, key]) => { const el = document.getElementById(elId); if (el) el.value = ctx[key] || ''; });
+  toggleBiasErrorReason();
   // Collapsible dots (filled indicator)
   const setDot = (id, val) => { const el = document.getElementById(id); if (el) el.classList.toggle('show', !!val); };
   setDot('ps-col-events-dot', ctx.macroEvents?.length);
   setDot('ps-col-fed-dot', ctx.fed || ctx.fedCtx);
   setDot('ps-col-sent-dot', ctx.sentiment || ctx.sentiment_narrative || ctx.capital_flow || ctx.dxy_vix_narrative);
   setDot('ps-col-geo-dot', ctx.geopolitics);
+  setDot('ps-col-posrev-dot', ctx.bias_accuracy || ctx.scenario_concretised || ctx.pivot_respected || ctx.session_type);
   updatePSStatusBadge();
   renderPSHist();
 }
@@ -3194,6 +3294,11 @@ function setPSProfileBias(v, btn) {
   document.querySelectorAll('.ps-pbias-btn[data-val]').forEach(b => b.classList.remove('on'));
   if (psProfileBias) btn.classList.add('on');
 }
+function toggleBiasErrorReason() {
+  const acc = document.getElementById('ps-posrev-bias-accuracy')?.value;
+  const wrap = document.getElementById('ps-posrev-err-reason-wrap');
+  if (wrap) wrap.style.display = (acc === 'Errado' || acc === 'Parcial') ? '' : 'none';
+}
 
 // ─── Collapsible sections ─────────────────────
 function togglePSCollapse(id, hdr) {
@@ -3214,30 +3319,80 @@ function togglePSCollapse(id, hdr) {
 // ─── Profile Screenshots ─────────────────────
 function renderPSScreenshots(d) {
   const grid = document.getElementById('ps-screenshot-grid'); if (!grid) return;
+  const zone = document.getElementById('ps-upload-zone');
   const shots = (psData[d] || {}).profile_screenshots || [];
-  if (!shots.length) { grid.innerHTML = ''; return; }
+  if (!shots.length) {
+    grid.innerHTML = '';
+    if (zone) zone.style.display = '';
+    return;
+  }
+  if (zone) zone.style.display = 'none';
   grid.innerHTML = shots.map((src, i) =>
-    '<div class="ps-thumb">' +
-    '<img src="' + src + '" alt="print" onclick="openImgOverlay(this.src)">' +
-    '<button class="ps-thumb-rm" onclick="removePSScreenshot(\'' + d + '\',' + i + ')">✕</button>' +
+    '<div class="ps-thumb" onclick="psOpenLightbox(\'' + d + '\',' + i + ')">' +
+    '<img src="' + src + '" alt="print">' +
+    '<span class="wp-thumb-num">' + (i + 1) + '</span>' +
+    '<button class="ps-thumb-rm" onclick="event.stopPropagation();removePSScreenshot(\'' + d + '\',' + i + ')">×</button>' +
     '</div>'
-  ).join('');
+  ).join('') +
+  '<div class="wp-thumb-add" onclick="document.getElementById(\'ps-file-input\').click()" title="Adicionar print">+</div>';
 }
-function openImgOverlay(src) {
+function openLightbox(imgs, startIdx) {
+  if (!imgs || !imgs.length) return;
+  let idx = Math.max(0, Math.min(startIdx || 0, imgs.length - 1));
   const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:flex;align-items:center;justify-content:center';
   const img = document.createElement('img');
-  img.src = src;
-  img.style.cssText = 'max-width:95vw;max-height:95vh;border-radius:10px;box-shadow:0 0 40px #0008';
+  img.style.cssText = 'max-width:90vw;max-height:90vh;border-radius:10px;box-shadow:0 0 40px #0008;user-select:none';
+  const counter = document.createElement('div');
+  counter.style.cssText = 'position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:#fff;font-family:var(--mono);font-size:12px;background:rgba(0,0,0,.6);padding:4px 12px;border-radius:20px;pointer-events:none';
+  const btnStyle = 'position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);border:none;color:#fff;font-size:22px;width:44px;height:44px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;line-height:1';
+  const prevBtn = document.createElement('button');
+  prevBtn.innerHTML = '&#8592;';
+  prevBtn.style.cssText = btnStyle + ';left:18px';
+  const nextBtn = document.createElement('button');
+  nextBtn.innerHTML = '&#8594;';
+  nextBtn.style.cssText = btnStyle + ';right:18px';
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '✕';
+  closeBtn.style.cssText = 'position:absolute;top:16px;right:18px;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:15px;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s';
+  const update = () => {
+    img.src = imgs[idx];
+    counter.textContent = (idx + 1) + ' / ' + imgs.length;
+    prevBtn.style.opacity = idx > 0 ? '1' : '0.3';
+    nextBtn.style.opacity = idx < imgs.length - 1 ? '1' : '0.3';
+  };
+  const close = () => { overlay.remove(); document.removeEventListener('keydown', onKey); };
+  const onKey = e => {
+    if (e.key === 'Escape') close();
+    else if (e.key === 'ArrowLeft' && idx > 0) { idx--; update(); }
+    else if (e.key === 'ArrowRight' && idx < imgs.length - 1) { idx++; update(); }
+  };
+  prevBtn.onclick = e => { e.stopPropagation(); if (idx > 0) { idx--; update(); } };
+  nextBtn.onclick = e => { e.stopPropagation(); if (idx < imgs.length - 1) { idx++; update(); } };
+  closeBtn.onclick = e => { e.stopPropagation(); close(); };
+  overlay.onclick = close;
   img.onclick = e => e.stopPropagation();
   overlay.appendChild(img);
-  const close = () => { overlay.remove(); document.removeEventListener('keydown', onKey); };
-  const onKey = e => { if (e.key === 'Escape') close(); };
-  overlay.onclick = close;
+  if (imgs.length > 1) { overlay.appendChild(prevBtn); overlay.appendChild(nextBtn); overlay.appendChild(counter); }
+  overlay.appendChild(closeBtn);
   document.addEventListener('keydown', onKey);
   document.body.appendChild(overlay);
+  update();
 }
-function openPSImg(src) { openImgOverlay(src); }
+function openImgOverlay(src) { openLightbox([src], 0); }
+function openPSImg(src) { openLightbox([src], 0); }
+function wpOpenLightbox(weekStart, section, idx) {
+  const shots = weeklyPrep[weekStart]?.[section + '_screenshots'] || [];
+  openLightbox(shots, idx);
+}
+function psOpenLightbox(d, idx) {
+  const shots = (psData[d] || {}).profile_screenshots || [];
+  openLightbox(shots, idx);
+}
+function rvOpenLightbox(idx) {
+  const t = dayTrades(rvDate)[rvIdx];
+  openLightbox(t?.screenshots || [], idx);
+}
 function removePSScreenshot(d, i) {
   if (!psData[d]?.profile_screenshots) return;
   sbDeletePrint(psData[d].profile_screenshots[i]);
@@ -3290,7 +3445,14 @@ async function savePS() {
     macroEvents: collectMacroEvents(d),
     // backward compat fields
     justification: g('ps-profile-notes') || existing.justification || '',
-    score: existing.score || 50
+    score: existing.score || 50,
+    // revisão pós-sessão
+    bias_accuracy: g('ps-posrev-bias-accuracy'),
+    bias_error_reason: g('ps-posrev-bias-error-reason'),
+    scenario_concretised: g('ps-posrev-scenario'),
+    pivot_respected: g('ps-posrev-pivot-respected'),
+    session_type: g('ps-posrev-session-type'),
+    briefing_miss: g('ps-posrev-briefing-miss')
   };
   // update dots
   const setDot = (id, val) => { const el = document.getElementById(id); if (el) el.classList.toggle('show', !!val); };
@@ -3298,6 +3460,7 @@ async function savePS() {
   setDot('ps-col-fed-dot', psData[d].fed || psData[d].fedCtx);
   setDot('ps-col-sent-dot', psData[d].sentiment || psData[d].sentiment_narrative || psData[d].capital_flow || psData[d].dxy_vix_narrative);
   setDot('ps-col-geo-dot', psData[d].geopolitics);
+  setDot('ps-col-posrev-dot', psData[d].bias_accuracy || psData[d].scenario_concretised || psData[d].pivot_respected || psData[d].session_type);
   const ok = await savePSData(d);
   updatePSStatusBadge();
   renderPSHist();
@@ -3967,13 +4130,16 @@ function rvRenderGallery(ss) {
   const el = document.getElementById("rv-gallery"); if (!el) return;
   const dropAttrs = ' ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="rvDrop(event)"';
   if (!ss?.length) { el.innerHTML = '<div class="ss-zone"' + dropAttrs + ' onclick="document.getElementById(\'rv-img-in\').click()"><div style="font-size:20px;opacity:.2;margin-bottom:7px">📷</div><div style="font-size:12px;color:var(--hint);font-family:var(--mono)">Arrasta prints aqui ou clica para adicionar</div></div>'; return; }
-  el.innerHTML = ss.map((src, i) =>
-    '<div class="ss-wrap">' +
-      '<img src="' + src + '" onclick="openImgOverlay(this.src)">' +
-      '<button class="ss-del" onclick="rvRemovePrint(' + i + ')">✕</button>' +
-    '</div>'
-  ).join("") +
-    '<div class="ss-zone" style="padding:14px;margin-top:4px"' + dropAttrs + ' onclick="document.getElementById(\'rv-img-in\').click()"><div style="font-size:11px;color:var(--hint);font-family:var(--mono)">+ Adicionar mais</div></div>';
+  el.innerHTML = '<div class="ss-gallery-row"' + dropAttrs + '>' +
+    ss.map((src, i) =>
+      '<div class="ss-wrap" onclick="rvOpenLightbox(' + i + ')">' +
+        '<img src="' + src + '">' +
+        '<span class="ss-num">' + (i + 1) + '</span>' +
+        '<button class="ss-del" onclick="event.stopPropagation();rvRemovePrint(' + i + ')">×</button>' +
+      '</div>'
+    ).join('') +
+    '<div class="wp-thumb-add" onclick="document.getElementById(\'rv-img-in\').click()" title="Adicionar print">+</div>' +
+  '</div>';
 }
 
 // ═══════════════════════════════════════════

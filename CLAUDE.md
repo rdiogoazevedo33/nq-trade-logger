@@ -177,7 +177,15 @@ Weekly prep: `weeklyPrep[weekStart]` onde `weekStart` é a segunda-feira da sema
   profile_notes: string,
 
   // DOCUMENTO FINAL
-  narrative: string           // game plan do dia
+  narrative: string,          // game plan do dia
+
+  // REVISÃO PÓS-SESSÃO (guardada em sessions.data, colapsável no fundo da tab Pré-sessão)
+  bias_accuracy: "Correcto"|"Parcial"|"Errado",
+  bias_error_reason: "Macro alterou"|"Profile mal lido"|"GEX enganou"|"Notícia inesperada"|"Outro",  // só se bias_accuracy ≠ "Correcto"
+  scenario_concretised: "A — Bearish"|"B — Bullish"|"C — Mean Reversion"|"Nenhum",
+  pivot_respected: "Sim"|"Não",
+  session_type: "Trending"|"Range"|"Chop"|"Explosive",
+  briefing_miss: string       // max 200 chars, opcional
 }
 ```
 
@@ -386,6 +394,29 @@ MNQ;2025-10-20 09:31:18;1;21450.75;21480.25;59.00
 
 ---
 
+## Componente: Galeria Horizontal de Fotos
+
+Padrão aplicado em todas as secções com fotos (Weekly Prep, Pré-sessão, Diário, Review).
+
+**CSS classes:**
+- `.wp-thumb-row` — container flex horizontal, overflow-x auto, gap 6px
+- `.wp-thumb` — thumbnail 80×60px, object-fit cover, border var(--b1)
+- `.wp-thumb-rm` — botão × absoluto top-right, background #882200
+- `.wp-thumb-num` — badge numérico absoluto bottom-left, fundo #000000a6
+- `.wp-thumb-add` — botão "+" inline no fim da row, 80×60px dashed border
+- `.ss-gallery-row` — mesmo padrão para review screen (usa `.ss-wrap` + `.ss-num`)
+
+**Lightbox:** `openLightbox(imgs, startIdx)` — overlay com setas ← → e contador. `openImgOverlay(src)` chama `openLightbox([src], 0)`.
+
+**Funções contextuais:**
+- `wpOpenLightbox(weekStart, section, idx)` — weekly prep
+- `psOpenLightbox(date, idx)` — pre-session e diary day
+- `rvOpenLightbox(idx)` — review screen
+
+**Log:** Revisão pós-sessão + galeria COT — 22 Mai 2026
+
+---
+
 ## Fases do projeto
 
 | Fase | Descrição | Estado |
@@ -405,6 +436,7 @@ MNQ;2025-10-20 09:31:18;1;21450.75;21480.25;59.00
 | — | Auto-entrar na última conta usada no arranque | ✅ Completo |
 | — | Botão fullscreen ⤢ em todas as textareas grandes | ✅ Completo |
 | — | Timeout e anti-loop em sbPullData/sbSaveSession/sbSaveTrade/sbPushKey | ✅ Completo |
+| — | Revisão pós-sessão + galeria horizontal de fotos | ✅ Completo |
 | 7 | IA Edge Finder — identificação A+ setups | ⏳ Por fazer |
 | 8 | Geração código Pine Script / Python | ⏳ Por fazer |
 
