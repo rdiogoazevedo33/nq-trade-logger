@@ -666,6 +666,185 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .fsp-thumb:hover{opacity:.8}
 .fsp-thumb.active{border-color:var(--accent);opacity:1}
 #fs-modal-ta{flex:1;background:var(--s2);color:var(--text);border:none;padding:14px;font-family:var(--mono);font-size:14px;line-height:1.6;resize:none;outline:none;min-width:0;overflow-y:auto}
+
+/* ═══════════════════════════════════════════════════════════════
+   VISUAL POLISH — Aesthetic enhancements, layout/function intact
+═══════════════════════════════════════════════════════════════ */
+
+/* Thin custom scrollbar */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--hint)}
+*{scrollbar-width:thin;scrollbar-color:var(--b2) transparent}
+
+/* Topbar depth */
+.topbar{box-shadow:0 1px 0 var(--b1),0 2px 20px rgba(0,0,0,.35)}
+
+/* Brand icon glow on hover */
+.brand:hover .brand-ic{box-shadow:0 0 14px color-mix(in srgb,var(--accent) 45%,transparent);transition:box-shadow .2s}
+
+/* Active tab — text glow */
+.tab.on{text-shadow:0 0 10px color-mix(in srgb,var(--accent) 50%,transparent)}
+
+/* Modal backdrop blur */
+.overlay,.ctx-modal-bg,.confirm-modal-bg,.doc-modal-overlay{backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+
+/* Login card — deep shadow */
+.login-card{box-shadow:0 24px 80px rgba(0,0,0,.55),0 4px 20px rgba(0,0,0,.3)}
+
+/* Button — subtle lift on hover */
+.btn{transform:translateY(0);will-change:transform}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+
+/* Accent button — glow */
+.btn-accent{box-shadow:0 2px 12px color-mix(in srgb,var(--accent) 28%,transparent)}
+.btn-accent:hover{background:#4a7ef0;box-shadow:0 4px 22px color-mix(in srgb,var(--accent) 42%,transparent)}
+
+/* Green button — glow */
+.btn-green{box-shadow:0 2px 10px color-mix(in srgb,var(--green) 22%,transparent)}
+
+/* General card depth */
+.sec,.mcard,.diary-week-card,.jday-card{box-shadow:0 2px 8px rgba(0,0,0,.18)}
+
+/* Dashboard cards — accent gradient wash + depth */
+.dash-mcard{background:linear-gradient(175deg,color-mix(in srgb,var(--accent) 5%,var(--s1)),var(--s1) 55%);box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.dash-chart-card,.dash-cal-card,.dash-recent-card{box-shadow:0 2px 8px rgba(0,0,0,.18)}
+
+/* Dashboard period bar — glass look */
+.dash-period-bar{background:color-mix(in srgb,var(--s1) 90%,var(--accent) 10%);border-color:color-mix(in srgb,var(--b1) 80%,var(--accent) 20%)}
+
+/* NQ Score — soft glow on number */
+.dash-score-num{filter:drop-shadow(0 0 10px color-mix(in srgb,currentColor 30%,transparent))}
+
+/* P&L number glows */
+.tpnl-pos{text-shadow:0 0 8px color-mix(in srgb,var(--green) 30%,transparent)}
+.tpnl-neg{text-shadow:0 0 8px color-mix(in srgb,var(--red) 25%,transparent)}
+.rv-day-pnl,.rv-trade-pnl{filter:drop-shadow(0 0 6px color-mix(in srgb,currentColor 25%,transparent))}
+
+/* Input focus ring */
+.finput:focus,.ps-num-input:focus,.login-input:focus,.ps-ta:focus,.date-in:focus,.rv-inp:focus{box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 22%,transparent)}
+
+/* Trade rows — hover depth */
+.trow:hover{border-color:var(--b2);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+
+/* Account cards — lift on hover */
+.acard{will-change:transform}
+.acard-body:hover{transform:none}
+.acard:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.28);border-color:var(--b2)}
+
+/* Current week card — accent halo */
+.diary-week-card.current{box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 28%,transparent),0 4px 20px rgba(0,0,0,.25)}
+
+/* Week header hover — accent tint */
+.week-hdr:hover{background:color-mix(in srgb,var(--accent) 4%,var(--s1))}
+
+/* Day row header hover — accent tint */
+.ddr-hdr:hover{background:color-mix(in srgb,var(--accent) 3%,var(--s1))}
+
+/* Journal day card hover */
+.jday-card:hover:not(.open){border-color:var(--b2)}
+
+/* Toast — shadow */
+.toast{box-shadow:0 4px 24px rgba(0,0,0,.45)}
+.toast.ok{box-shadow:0 4px 24px color-mix(in srgb,var(--green) 25%,rgba(0,0,0,.3))}
+.toast.err{box-shadow:0 4px 24px color-mix(in srgb,var(--red) 25%,rgba(0,0,0,.3))}
+.toast.info{box-shadow:0 4px 24px color-mix(in srgb,var(--accent) 25%,rgba(0,0,0,.3))}
+
+/* Status badge pulse — more visible */
+.ps-status-badge.ready{box-shadow:0 0 0 0 #1fd17a00}
+@keyframes ps-pulse{0%,100%{box-shadow:0 0 0 0 #1fd17a00}55%{box-shadow:0 0 0 5px #1fd17a1a}}
+
+/* Bias buttons — glow when active */
+.ps-bias-btn.bull.on{box-shadow:0 0 10px color-mix(in srgb,var(--green) 20%,transparent)}
+.ps-bias-btn.bear.on{box-shadow:0 0 10px color-mix(in srgb,var(--red) 20%,transparent)}
+
+/* Weekly bias buttons */
+.wp-bias-btn.bull.on{box-shadow:0 0 10px color-mix(in srgb,var(--green) 18%,transparent)}
+.wp-bias-btn.bear.on{box-shadow:0 0 10px color-mix(in srgb,var(--red) 18%,transparent)}
+
+/* Session badge text glow */
+.sess-badge.pre-orb{text-shadow:0 0 6px color-mix(in srgb,var(--amber) 40%,transparent)}
+.sess-badge.orb{text-shadow:0 0 6px color-mix(in srgb,var(--accent) 40%,transparent)}
+.sess-badge.post-orb{text-shadow:0 0 6px color-mix(in srgb,var(--teal) 40%,transparent)}
+.sess-badge.afternoon{text-shadow:0 0 6px color-mix(in srgb,var(--purple) 40%,transparent)}
+
+/* Good/warn/bad badge glow */
+.good{box-shadow:0 0 6px color-mix(in srgb,var(--green) 18%,transparent)}
+.bad{box-shadow:0 0 6px color-mix(in srgb,var(--red) 18%,transparent)}
+
+/* Metric card value — slightly larger baseline */
+.mval{letter-spacing:-.01em}
+.dash-mval{letter-spacing:-.02em}
+.dash-score-num{letter-spacing:-.03em}
+
+/* Report inner tabs — pill style glow on active */
+.rit-btn.on{box-shadow:0 2px 10px color-mix(in srgb,var(--accent) 30%,transparent)}
+
+/* Scope/filter buttons — glow on active */
+.scope-btn.on,.dash-pbtn.on,.jfilter-btn.on{box-shadow:0 0 8px color-mix(in srgb,var(--accent) 25%,transparent)}
+
+/* Review top bar depth */
+.rv-top{box-shadow:0 1px 0 var(--b1),0 2px 14px rgba(0,0,0,.22)}
+
+/* Confluence chip — active glow */
+.cchip.on,.rconf-chip.on{box-shadow:0 0 6px color-mix(in srgb,var(--cc,var(--accent)) 18%,transparent)}
+
+/* Fullscreen modal — polished header */
+.fs-modal-hdr{background:color-mix(in srgb,var(--s2) 80%,var(--accent) 5%)}
+
+/* Modal box shadow */
+.mbox{box-shadow:0 24px 80px rgba(0,0,0,.5)}
+
+/* Overlay modal box */
+#lightbox-overlay{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+
+/* Empty state — slightly more prominent */
+.empty-state{background:color-mix(in srgb,var(--s1) 60%,transparent)}
+
+/* Dropzone — enhanced drag state glow */
+.dropzone.drag{box-shadow:0 0 0 2px var(--accent),0 4px 24px color-mix(in srgb,var(--accent) 20%,transparent)}
+
+/* nqscale bar — add glow to marker */
+.nqscale-marker{box-shadow:0 0 6px rgba(255,255,255,.3),0 0 0 2px rgba(255,255,255,.15)}
+
+/* Calendar day — current day stronger ring */
+.cday.today,.dash-cal-day.today-d{box-shadow:0 0 0 1px var(--accent),0 0 8px color-mix(in srgb,var(--accent) 20%,transparent)}
+
+/* Brand icon — glow on login/account screen */
+.as-icon{box-shadow:0 4px 20px color-mix(in srgb,var(--accent) 35%,transparent)}
+.brand-ic{transition:box-shadow .2s}
+
+/* Login/account screen — radial ambient glow background */
+#login-screen::before,#acct-screen::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 0%,color-mix(in srgb,var(--accent) 6%,transparent),transparent 70%);pointer-events:none;z-index:0}
+#login-screen>*,#acct-screen>*{position:relative;z-index:1}
+
+/* Account screen title — gradient text */
+.as-title{background:linear-gradient(135deg,var(--text) 40%,var(--sub));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* Topbar — subtle accent gradient at bottom */
+.topbar::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--accent) 20%,transparent),transparent);pointer-events:none}
+.topbar{position:relative}
+
+/* Section title — consistent uppercase weight */
+.sec-title{font-weight:500}
+
+/* Stat table — zebra rows */
+.stat-table tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--s2) 40%,transparent)}
+
+/* Dash recent row — hover accent left border */
+.dash-rt-row{border-left:2px solid transparent;transition:background .1s,border-color .15s}
+.dash-rt-row:hover{background:var(--s2);border-left-color:var(--accent)}
+
+/* Review running PnL item — hover accent */
+.rv-run-item:hover{background:var(--s2);border-left:2px solid var(--accent)}
+.rv-run-item{border-left:2px solid transparent}
+.rv-run-item.cur{border-left-color:var(--accent)}
+
+/* Improved overlay animation */
+.overlay{animation:none}
+@keyframes overlayIn{from{opacity:0}to{opacity:1}}
 </style>
 </head>
 <body>
