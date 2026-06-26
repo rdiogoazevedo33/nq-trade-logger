@@ -656,7 +656,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .fs-modal-close{background:transparent;border:1px solid var(--b1);color:var(--sub);cursor:pointer;font-size:13px;padding:5px 12px;border-radius:6px;font-family:var(--mono)}
 .fs-modal-close:hover{color:var(--text);border-color:var(--b2)}
 .fs-modal-body{display:flex;flex:1;min-height:0;overflow:hidden}
-#fs-modal-photos{display:none;width:55%;flex-direction:column;border-right:1px solid var(--b1);flex-shrink:0;background:var(--s1)}
+#fs-modal-photos{display:none;width:42%;flex-direction:column;border-right:1px solid var(--b1);flex-shrink:0;background:var(--s1)}
 #fs-modal-photos.has-photos{display:flex}
 .fsp-main{flex:1;display:flex;align-items:center;justify-content:center;padding:14px;overflow:hidden;min-height:0}
 .fsp-main img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;cursor:zoom-in;transition:opacity .13s}
@@ -666,6 +666,31 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .fsp-thumb:hover{opacity:.8}
 .fsp-thumb.active{border-color:var(--accent);opacity:1}
 #fs-modal-ta{flex:1;background:var(--s2);color:var(--text);border:none;padding:14px;font-family:var(--mono);font-size:14px;line-height:1.6;resize:none;outline:none;min-width:0;overflow-y:auto}
+@media(max-width:680px){.fs-modal-body{flex-direction:column}#fs-modal-photos.has-photos{width:100%;height:45%;border-right:none;border-bottom:1px solid var(--b1)}}
+
+/* REUSABLE IMAGE GALLERY (main + thumbnails) */
+.img-gallery{display:flex;flex-direction:column;gap:8px;width:100%;flex:1 1 100%;min-width:0}
+.img-gallery-main{background:#000;border:1px solid var(--b1);border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;min-height:80px}
+.img-gallery-main img{max-width:100%;width:auto;object-fit:contain;display:block;cursor:zoom-in;transition:opacity .13s}
+.img-gallery-main img:hover{opacity:.88}
+.img-gallery-thumbs{display:flex;gap:6px;overflow-x:auto;align-items:center;flex-wrap:nowrap;padding-bottom:4px}
+.img-gallery-thumb{position:relative;flex-shrink:0;border-radius:6px;overflow:hidden;border:2px solid transparent;cursor:pointer;transition:border-color .13s}
+.img-gallery-thumb:hover{border-color:var(--b2)}
+.img-gallery-thumb.active{border-color:var(--accent)}
+.img-gallery-thumb img{width:66px;height:50px;object-fit:cover;display:block}
+.img-gallery-thumb-rm{position:absolute;top:1px;right:1px;background:#882200;border:none;color:#fff;border-radius:50%;width:15px;height:15px;font-size:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1}
+.img-gallery-add{flex-shrink:0;width:66px;height:50px;border:1px dashed var(--b2);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--accent);cursor:pointer;font-size:18px;background:transparent;transition:all .13s}
+.img-gallery-add:hover{background:var(--s2);border-color:var(--accent)}
+
+/* CONFLUENCE — remove with inline confirmation */
+.conf-rm-wrap{display:none;align-items:center;gap:4px;flex-shrink:0}
+.cchip.on .conf-rm-wrap,.rconf-chip.on .conf-rm-wrap{display:flex}
+.conf-rm{font-family:var(--mono);font-size:12px;line-height:1;padding:2px 7px;border-radius:4px;border:1px solid var(--b1);background:transparent;color:var(--hint);cursor:pointer;transition:all .12s}
+.conf-rm:hover{border-color:var(--red);color:var(--red)}
+.conf-confirm{display:flex;align-items:center;gap:4px}
+.conf-confirm-q{font-family:var(--mono);font-size:10px;color:var(--amber)}
+.conf-confirm-yes{font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:4px;border:1px solid var(--red);background:#1f0707;color:var(--red);cursor:pointer}
+.conf-confirm-no{font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:4px;border:1px solid var(--b1);background:transparent;color:var(--sub);cursor:pointer}
 
 /* ═══════════════════════════════════════════════════════════════
    VISUAL POLISH — Aesthetic enhancements, layout/function intact
@@ -1009,13 +1034,6 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
             <div class="ps-upload-zone-txt">Arrasta o print do Deepcharts com os níveis marcados<br><span style="color:var(--hint);font-size:10px">ou clica para seleccionar (múltiplos)</span></div>
           </div>
           <input type="file" id="ps-file-input" accept="image/*" multiple style="display:none" onchange="psFilesSelected(this.files)">
-
-          <!-- Profile notes -->
-          <div class="ps-field-lbl">Leitura do Profile</div>
-          <div class="ta-fs-wrap">
-            <button class="ta-fs-btn" onclick="openFSModalPS('Leitura do Profile','ps-profile-notes')" title="Expandir">⤢</button>
-            <textarea class="ps-ta" id="ps-profile-notes" style="min-height:120px" placeholder="Ex: POC em 24450, VAH em 24800. HVN forte em 24600 espero actue como suporte. LVN em 24350 zona de aceleração. Delta anomaly buy em 24580..."></textarea>
-          </div>
         </div>
 
         <!-- PILAR 2: MACRO & FUNDAMENTAL -->
@@ -1137,76 +1155,8 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
         <div class="ps-gameplan-title">📋 Narrativa &amp; Game Plan do dia</div>
         <div class="ps-gameplan-sub">Resume tudo — o que o profile diz, o que o macro diz, qual o bias e porquê, o que procuras para entrar, o que invalida o setup</div>
         <div class="ta-fs-wrap">
-          <button class="ta-fs-btn" onclick="openFSModal('Narrativa &amp; Game Plan','ps-narrative')" title="Expandir">⤢</button>
+          <button class="ta-fs-btn" onclick="openFSModalPS('Narrativa &amp; Game Plan','ps-narrative')" title="Expandir">⤢</button>
           <textarea class="ps-ta" id="ps-narrative" style="min-height:120px" placeholder="Resume tudo — o que o profile diz, o que o macro diz, qual o bias e porquê, o que procuras para entrar, o que invalida o setup..."></textarea>
-        </div>
-      </div>
-
-      <!-- REVISÃO PÓS-SESSÃO -->
-      <div style="border-top:1px solid var(--b1);margin:4px 0 10px"></div>
-      <div class="ps-collapse-hdr" onclick="togglePSCollapse('ps-col-posrev',this)" style="background:var(--s1);border:1px solid color-mix(in srgb,var(--amber) 30%,var(--b1));border-radius:10px;margin-bottom:0">
-        <div class="ps-collapse-title" style="color:var(--amber)">
-          <span class="ps-collapse-filled" id="ps-col-posrev-dot"></span>
-          🔎 Revisão Pós-Sessão
-        </div>
-        <span class="ps-collapse-arrow" id="ps-col-posrev-arrow">▼</span>
-      </div>
-      <div class="ps-collapse-body" id="ps-col-posrev" style="max-height:0;overflow:hidden">
-        <div style="background:var(--s1);border:1px solid color-mix(in srgb,var(--amber) 30%,var(--b1));border-top:none;border-radius:0 0 10px 10px;padding:14px 16px 16px">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 16px">
-            <div>
-              <div class="ps-field-lbl">Bias foi correcto?</div>
-              <select class="finput" id="ps-posrev-bias-accuracy" onchange="toggleBiasErrorReason()">
-                <option value="">— Seleccionar</option>
-                <option value="Correcto">Correcto</option>
-                <option value="Parcial">Parcial</option>
-                <option value="Errado">Errado</option>
-              </select>
-            </div>
-            <div>
-              <div class="ps-field-lbl">Cenário concretizado</div>
-              <select class="finput" id="ps-posrev-scenario">
-                <option value="">— Seleccionar</option>
-                <option value="A — Bearish">A — Bearish</option>
-                <option value="B — Bullish">B — Bullish</option>
-                <option value="C — Mean Reversion">C — Mean Reversion</option>
-                <option value="Nenhum">Nenhum</option>
-              </select>
-            </div>
-            <div id="ps-posrev-err-reason-wrap" style="display:none">
-              <div class="ps-field-lbl">Motivo do erro</div>
-              <select class="finput" id="ps-posrev-bias-error-reason">
-                <option value="">— Seleccionar</option>
-                <option value="Macro alterou">Macro alterou</option>
-                <option value="Profile mal lido">Profile mal lido</option>
-                <option value="GEX enganou">GEX enganou</option>
-                <option value="Notícia inesperada">Notícia inesperada</option>
-                <option value="Outro">Outro</option>
-              </select>
-            </div>
-            <div>
-              <div class="ps-field-lbl">Pivot crítico respeitado?</div>
-              <select class="finput" id="ps-posrev-pivot-respected">
-                <option value="">— Seleccionar</option>
-                <option value="Sim">Sim</option>
-                <option value="Não">Não</option>
-              </select>
-            </div>
-            <div>
-              <div class="ps-field-lbl">Tipo de sessão</div>
-              <select class="finput" id="ps-posrev-session-type">
-                <option value="">— Seleccionar</option>
-                <option value="Trending">Trending</option>
-                <option value="Range">Range</option>
-                <option value="Chop">Chop</option>
-                <option value="Explosive">Explosive</option>
-              </select>
-            </div>
-            <div style="grid-column:span 2">
-              <div class="ps-field-lbl">O que o briefing não antecipou? <span style="color:var(--hint);font-weight:400">(opcional)</span></div>
-              <textarea class="ps-ta" id="ps-posrev-briefing-miss" maxlength="200" style="min-height:50px" placeholder="1-2 linhas máximo — opcional"></textarea>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -1393,7 +1343,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
             <span class="rv-sec-title">📝 Trade Recap</span>
           </div>
           <div class="ta-fs-wrap">
-            <button class="ta-fs-btn" onclick="openFSModal('Trade Recap','rv-recap')" title="Expandir">⤢</button>
+            <button class="ta-fs-btn" onclick="openFSModalRecap()" title="Expandir">⤢</button>
             <textarea class="ps-ta" id="rv-recap" style="min-height:140px;font-size:13px;line-height:1.7" placeholder="Descreve o que viste — orderflow, porque entraste, lições..."></textarea>
           </div>
         </div>
@@ -2129,10 +2079,35 @@ function buildConfs(containerId, rawConfs, chipClass, srClass, srBtnClass, toggl
         html += '<button class="' + srBtnBase + (curSR === "R" ? " act" : "") + '" data-sr="R" onclick="' + setSRFn + '(this)">' + srL1 + '</button>';
         html += '</div>';
       }
+      html += '<div class="conf-rm-wrap" onclick="event.stopPropagation()">' +
+        '<button class="conf-rm" onclick="confAskRemove(this)" title="Remover">×</button>' +
+        '<span class="conf-confirm" style="display:none">' +
+          '<span class="conf-confirm-q">Remover?</span>' +
+          '<button class="conf-confirm-yes" onclick="confDoRemove(this)">Confirmar</button>' +
+          '<button class="conf-confirm-no" onclick="confCancelRemove(this)">Cancelar</button>' +
+        '</span>' +
+      '</div>';
       html += '</div>';
     });
   });
   el.innerHTML = html;
+}
+// Confluence remove with inline confirmation
+function confAskRemove(btn) {
+  const wrap = btn.closest('.conf-rm-wrap'); if (!wrap) return;
+  btn.style.display = 'none';
+  const c = wrap.querySelector('.conf-confirm'); if (c) c.style.display = 'flex';
+}
+function confCancelRemove(btn) {
+  const wrap = btn.closest('.conf-rm-wrap'); if (!wrap) return;
+  const c = wrap.querySelector('.conf-confirm'); if (c) c.style.display = 'none';
+  const x = wrap.querySelector('.conf-rm'); if (x) x.style.display = '';
+}
+function confDoRemove(btn) {
+  const chip = btn.closest('.cchip,.rconf-chip'); if (!chip) return;
+  chip.classList.remove('on');
+  chip.querySelectorAll('.sr-btn,.rsr-btn').forEach(b => b.classList.remove('act'));
+  confCancelRemove(btn);
 }
 
 function getConfs(chipSel, srSel) {
@@ -2148,8 +2123,9 @@ function getConfs(chipSel, srSel) {
 // Modal conf toggles
 function toggleConf(chip, e) {
   if (e.target.classList.contains("sr-btn")) return;
-  chip.classList.toggle("on");
-  if (!chip.classList.contains("on")) chip.querySelectorAll(".sr-btn").forEach(b => b.classList.remove("act"));
+  if (e.target.closest(".conf-rm-wrap")) return;
+  if (chip.classList.contains("on")) return; // remoção só pelo × com confirmação
+  chip.classList.add("on");
 }
 function setSR(btn) {
   const chip = btn.closest(".cchip"); chip.classList.add("on");
@@ -2159,8 +2135,9 @@ function setSR(btn) {
 // Review conf toggles
 function rvToggleConf(chip, e) {
   if (e.target.classList.contains("rsr-btn")) return;
-  chip.classList.toggle("on");
-  if (!chip.classList.contains("on")) chip.querySelectorAll(".rsr-btn").forEach(b => b.classList.remove("act"));
+  if (e.target.closest(".conf-rm-wrap")) return;
+  if (chip.classList.contains("on")) return; // remoção só pelo × com confirmação
+  chip.classList.add("on");
 }
 function rvSetSR(btn) {
   const chip = btn.closest(".rconf-chip"); chip.classList.add("on");
@@ -2741,21 +2718,12 @@ function buildWeeklyPrepSection(weekStart) {
   const _neutralVals = ['Consolidation/Ranging','ranging','Ranging'];
   const biasBtns = biasOpts.map(b => { const isOn = bias===b.v || (b.v==='Neutral' && _neutralVals.includes(bias)); return '<button class="wp-bias-btn '+b.cls+(isOn?' on':'')+'" onclick="setWPBias(\''+weekStart+'\',\''+b.v+'\',this)">'+b.lbl+'</button>'; }).join('');
   const buildSubsec = (section, title, icon) => {
-    const shots = wp[section+'_screenshots'] || [];
     const abbr = section==='cot'?'cot':section==='profile'?'prof':'geo';
-    const thumbsHtml = shots.map((src,i) =>
-      '<div class="wp-thumb" onclick="wpOpenLightbox(\''+weekStart+'\',\''+section+'\','+i+')">' +
-      '<img src="'+src+'" alt="print">' +
-      '<span class="wp-thumb-num">'+(i+1)+'</span>' +
-      '<button class="wp-thumb-rm" onclick="event.stopPropagation();wpRemoveShot(\''+weekStart+'\',\''+section+'\','+i+')">×</button>' +
-      '</div>'
-    ).join('');
     return '<div class="wp-subsec">' +
       '<div class="wp-subsec-ttl">'+icon+' '+title+'</div>' +
       '<input type="file" accept="image/*" multiple id="wp-'+abbr+'-in-'+weekStart+'" style="display:none" onchange="wpFilesSelected(\''+weekStart+'\',\''+section+'\',this.files)">' +
-      '<div class="wp-thumb-row" id="wp-'+abbr+'-thumbs-'+weekStart+'" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="wpDrop(event,\''+weekStart+'\',\''+section+'\')">' +
-      thumbsHtml +
-      '<div class="wp-thumb-add" onclick="document.getElementById(\'wp-'+abbr+'-in-'+weekStart+'\').click()" title="Adicionar print">+</div>' +
+      '<div id="wp-'+abbr+'-thumbs-'+weekStart+'" style="margin-bottom:8px" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="wpDrop(event,\''+weekStart+'\',\''+section+'\')">' +
+      wpGalleryInner(weekStart, section) +
       '</div>' +
       '<div class="ta-fs-wrap">' +
       '<button class="ta-fs-btn" onclick="openFSModalWP(\''+weekStart+'\',\''+section+'\',\''+title+'\',\'wp-'+abbr+'-notes-'+weekStart+'\')" title="Expandir">⤢</button>' +
@@ -2835,18 +2803,24 @@ function wpRemoveShot(weekStart, section, idx) {
   weeklyPrep[weekStart][key].splice(idx, 1);
   saveWPData(); renderWPThumbs(weekStart, section);
 }
+function wpGalleryInner(weekStart, section) {
+  const shots = weeklyPrep[weekStart]?.[section+'_screenshots'] || [];
+  const abbr = section==='cot'?'cot':section==='profile'?'prof':'geo';
+  const addAttr = "document.getElementById('wp-"+abbr+"-in-"+weekStart+"').click()";
+  if (!shots.length) {
+    return '<div class="img-gallery-thumbs"><div class="img-gallery-add" onclick="'+addAttr+'" title="Adicionar print">+</div></div>';
+  }
+  return imgGalleryHTML(
+    'wpgal-'+abbr+'-'+weekStart, shots, 220,
+    "wpOpenLightbox('"+weekStart+"','"+section+"',parseInt(this.dataset.idx)||0)",
+    i => "wpRemoveShot('"+weekStart+"','"+section+"',"+i+")",
+    addAttr
+  );
+}
 function renderWPThumbs(weekStart, section) {
   const abbr = section==='cot'?'cot':section==='profile'?'prof':'geo';
   const el = document.getElementById('wp-'+abbr+'-thumbs-'+weekStart); if (!el) return;
-  const shots = weeklyPrep[weekStart]?.[section+'_screenshots'] || [];
-  el.innerHTML = shots.map((src,i) =>
-    '<div class="wp-thumb" onclick="wpOpenLightbox(\''+weekStart+'\',\''+section+'\','+i+')">' +
-    '<img src="'+src+'" alt="print">' +
-    '<span class="wp-thumb-num">'+(i+1)+'</span>' +
-    '<button class="wp-thumb-rm" onclick="event.stopPropagation();wpRemoveShot(\''+weekStart+'\',\''+section+'\','+i+')">×</button>' +
-    '</div>'
-  ).join('') +
-  '<div class="wp-thumb-add" onclick="document.getElementById(\'wp-'+abbr+'-in-'+weekStart+'\').click()" title="Adicionar print">+</div>';
+  el.innerHTML = wpGalleryInner(weekStart, section);
 }
 
 // ─── Day Row ─────────────────────────────────────────────────────
@@ -3421,7 +3395,7 @@ function loadPSDate(d) {
   else if (psSentiment === 'Risk-Off') { const b = document.getElementById('sent-roff'); if (b) b.classList.add('on-roff'); }
   else if (psSentiment === 'Neutro') { const b = document.getElementById('sent-neut'); if (b) b.classList.add('on-neut'); }
   // Textareas
-  const taMap = {'ps-fed-ctx':'fedCtx','ps-profile-notes':'profile_notes','ps-capital-flow':'capital_flow','ps-dxy-vix-narrative':'dxy_vix_narrative','ps-geopolitics':'geopolitics','ps-narrative':'narrative'};
+  const taMap = {'ps-fed-ctx':'fedCtx','ps-capital-flow':'capital_flow','ps-dxy-vix-narrative':'dxy_vix_narrative','ps-geopolitics':'geopolitics','ps-narrative':'narrative'};
   Object.entries(taMap).forEach(([id, key]) => { const el = document.getElementById(id); if (el) el.value = ctx[key] || ''; });
   // Profile bias buttons
   psProfileBias = ctx.profile_bias || '';
@@ -3436,34 +3410,30 @@ function loadPSDate(d) {
   renderPSDeltaList(d);
   renderPSSDZoneList(d);
   renderPSSRList(d);
-  // Revisão pós-sessão
-  const posRevMap = {'ps-posrev-bias-accuracy':'bias_accuracy','ps-posrev-bias-error-reason':'bias_error_reason','ps-posrev-scenario':'scenario_concretised','ps-posrev-pivot-respected':'pivot_respected','ps-posrev-session-type':'session_type','ps-posrev-briefing-miss':'briefing_miss'};
-  Object.entries(posRevMap).forEach(([elId, key]) => { const el = document.getElementById(elId); if (el) el.value = ctx[key] || ''; });
-  toggleBiasErrorReason();
   // Collapsible dots (filled indicator)
   const setDot = (id, val) => { const el = document.getElementById(id); if (el) el.classList.toggle('show', !!val); };
   setDot('ps-col-events-dot', ctx.macroEvents?.length);
   setDot('ps-col-fed-dot', ctx.fed || ctx.fedCtx);
   setDot('ps-col-sent-dot', ctx.sentiment || ctx.sentiment_narrative || ctx.capital_flow || ctx.dxy_vix_narrative);
   setDot('ps-col-geo-dot', ctx.geopolitics);
-  setDot('ps-col-posrev-dot', ctx.bias_accuracy || ctx.scenario_concretised || ctx.pivot_respected || ctx.session_type);
   updatePSStatusBadge();
   renderPSHist();
 }
 
 function setFed(v, btn) {
-  psFed = v;
+  psFed = (psFed === v) ? '' : v;
   document.querySelectorAll('.fed-btn[data-val]').forEach(b => b.classList.remove('on'));
-  btn.classList.add('on');
+  if (psFed) btn.classList.add('on');
 }
 function setPSBias(v, btn) {
-  psBias = v;
+  psBias = (psBias === v) ? '' : v;
   document.querySelectorAll('.ps-bias-btn').forEach(b => b.classList.remove('on'));
-  btn.classList.add('on');
+  if (psBias) btn.classList.add('on');
 }
 function setPSSentiment(v, btn) {
-  psSentiment = v;
+  psSentiment = (psSentiment === v) ? '' : v;
   document.querySelectorAll('.ps-sent-btn').forEach(b => b.classList.remove('on-ron','on-roff','on-neut'));
+  if (!psSentiment) return;
   if (v === 'Risk-On') btn.classList.add('on-ron');
   else if (v === 'Risk-Off') btn.classList.add('on-roff');
   else btn.classList.add('on-neut');
@@ -3506,14 +3476,12 @@ function renderPSScreenshots(d) {
     return;
   }
   if (zone) zone.style.display = 'none';
-  grid.innerHTML = shots.map((src, i) =>
-    '<div class="ps-thumb" onclick="psOpenLightbox(\'' + d + '\',' + i + ')">' +
-    '<img src="' + src + '" alt="print">' +
-    '<span class="wp-thumb-num">' + (i + 1) + '</span>' +
-    '<button class="ps-thumb-rm" onclick="event.stopPropagation();removePSScreenshot(\'' + d + '\',' + i + ')">×</button>' +
-    '</div>'
-  ).join('') +
-  '<div class="wp-thumb-add" onclick="document.getElementById(\'ps-file-input\').click()" title="Adicionar print">+</div>';
+  grid.innerHTML = imgGalleryHTML(
+    'psgal', shots, 380,
+    "psOpenLightbox('" + d + "',parseInt(this.dataset.idx)||0)",
+    i => "removePSScreenshot('" + d + "'," + i + ")",
+    "document.getElementById('ps-file-input').click()"
+  );
 }
 function openLightbox(imgs, startIdx) {
   if (!imgs || !imgs.length) return;
@@ -3618,20 +3586,11 @@ async function savePS() {
     dxy_vix_narrative: g('ps-dxy-vix-narrative'),
     geopolitics: g('ps-geopolitics'),
     narrative: g('ps-narrative'),
-    profile_notes: g('ps-profile-notes'),
     profile_bias: psProfileBias,
     profile_screenshots: existing.profile_screenshots || [],
     macroEvents: collectMacroEvents(d),
-    // backward compat fields
-    justification: g('ps-profile-notes') || existing.justification || '',
-    score: existing.score || 50,
-    // revisão pós-sessão
-    bias_accuracy: g('ps-posrev-bias-accuracy'),
-    bias_error_reason: g('ps-posrev-bias-error-reason'),
-    scenario_concretised: g('ps-posrev-scenario'),
-    pivot_respected: g('ps-posrev-pivot-respected'),
-    session_type: g('ps-posrev-session-type'),
-    briefing_miss: g('ps-posrev-briefing-miss')
+    score: existing.score || 50
+    // nota: campos de revisão pós-sessão preservados via ...existing (secção removida da UI)
   };
   // update dots
   const setDot = (id, val) => { const el = document.getElementById(id); if (el) el.classList.toggle('show', !!val); };
@@ -3639,7 +3598,6 @@ async function savePS() {
   setDot('ps-col-fed-dot', psData[d].fed || psData[d].fedCtx);
   setDot('ps-col-sent-dot', psData[d].sentiment || psData[d].sentiment_narrative || psData[d].capital_flow || psData[d].dxy_vix_narrative);
   setDot('ps-col-geo-dot', psData[d].geopolitics);
-  setDot('ps-col-posrev-dot', psData[d].bias_accuracy || psData[d].scenario_concretised || psData[d].pivot_respected || psData[d].session_type);
   const ok = await savePSData(d);
   updatePSStatusBadge();
   renderPSHist();
@@ -3791,7 +3749,7 @@ function renderPSHist() {
     return '<div class="ps-hist" onclick="loadPSDate(\'' + d + '\')" title="Clica para carregar esta sessão">' +
       '<div><div style="font-family:var(--mono);font-size:11px;color:var(--sub)">' + d + '</div>' + stLbl + '</div>' +
       (ctx.bias ? '<span style="font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 8px;border-radius:5px;color:' + bc + ';background:' + bg + ';border:1px solid ' + bc + '">' + ctx.bias + '</span>' : '<span style="color:var(--hint);font-size:10px;font-family:var(--mono)">—</span>') +
-      '<div style="font-size:11px;color:var(--sub);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">' + (ctx.narrative || ctx.profile_notes || ctx.justification || '—') + '</div>' +
+      '<div style="font-size:11px;color:var(--sub);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">' + (escHtml(ctx.narrative) || '—') + '</div>' +
       '<div style="text-align:right;font-family:var(--mono);font-size:12px;font-weight:600">' + (dt.length ? '<div style="color:' + pc + '">' + (pnl >= 0 ? '+' : '') + '$' + pnl.toFixed(2) + '</div><div style="font-size:10px;color:var(--hint)">' + dt.length + 'T</div>' : '<div style="color:var(--hint);font-size:10px">—</div>') + '</div>' +
       '</div>';
   }).join('');
@@ -4305,20 +4263,43 @@ function rvRemovePrint(i) {
   const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id); if (idx === -1) return;
   sbDeletePrint(all[idx].screenshots?.[i]); all[idx].screenshots?.splice(i, 1); setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]); rvRenderGallery(all[idx].screenshots || []);
 }
+// ─── Reusable image gallery (main image + thumbnail row) ─────────
+function imgGalleryHTML(galId, images, maxH, mainOnclick, removeAttrFn, addAttr, containerAttrs) {
+  const thumbs = images.map((src, i) =>
+    '<div class="img-gallery-thumb' + (i === 0 ? ' active' : '') + '" onclick="galSetMain(\'' + galId + '\',' + i + ')">' +
+      '<img src="' + src + '">' +
+      (removeAttrFn ? '<button class="img-gallery-thumb-rm" onclick="event.stopPropagation();' + removeAttrFn(i) + '">×</button>' : '') +
+    '</div>'
+  ).join('');
+  const add = addAttr ? '<div class="img-gallery-add" onclick="' + addAttr + '" title="Adicionar print">+</div>' : '';
+  return '<div class="img-gallery" id="' + galId + '"' + (containerAttrs || '') + '>' +
+    '<div class="img-gallery-main" style="max-height:' + maxH + 'px">' +
+      '<img src="' + images[0] + '" data-idx="0" style="max-height:' + maxH + 'px"' + (mainOnclick ? ' onclick="' + mainOnclick + '"' : '') + '>' +
+    '</div>' +
+    '<div class="img-gallery-thumbs">' + thumbs + add + '</div>' +
+  '</div>';
+}
+function galSetMain(galId, idx) {
+  const g = document.getElementById(galId); if (!g) return;
+  const thumbs = g.querySelectorAll('.img-gallery-thumb');
+  const main = g.querySelector('.img-gallery-main img');
+  const tImg = thumbs[idx] ? thumbs[idx].querySelector('img') : null;
+  if (!main || !tImg) return;
+  main.src = tImg.src; main.dataset.idx = idx;
+  thumbs.forEach((x, i) => x.classList.toggle('active', i === idx));
+}
+
 function rvRenderGallery(ss) {
   const el = document.getElementById("rv-gallery"); if (!el) return;
   const dropAttrs = ' ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="rvDrop(event)"';
   if (!ss?.length) { el.innerHTML = '<div class="ss-zone"' + dropAttrs + ' onclick="document.getElementById(\'rv-img-in\').click()"><div style="font-size:20px;opacity:.2;margin-bottom:7px">📷</div><div style="font-size:12px;color:var(--hint);font-family:var(--mono)">Arrasta prints aqui ou clica para adicionar</div></div>'; return; }
-  el.innerHTML = '<div class="ss-gallery-row"' + dropAttrs + '>' +
-    ss.map((src, i) =>
-      '<div class="ss-wrap" onclick="rvOpenLightbox(' + i + ')">' +
-        '<img src="' + src + '">' +
-        '<span class="ss-num">' + (i + 1) + '</span>' +
-        '<button class="ss-del" onclick="event.stopPropagation();rvRemovePrint(' + i + ')">×</button>' +
-      '</div>'
-    ).join('') +
-    '<div class="wp-thumb-add" onclick="document.getElementById(\'rv-img-in\').click()" title="Adicionar print">+</div>' +
-  '</div>';
+  el.innerHTML = imgGalleryHTML(
+    'rvgal', ss, 280,
+    'rvOpenLightbox(parseInt(this.dataset.idx)||0)',
+    i => 'rvRemovePrint(' + i + ')',
+    "document.getElementById('rv-img-in').click()",
+    dropAttrs
+  );
 }
 
 // ═══════════════════════════════════════════
@@ -6101,6 +6082,10 @@ function openFSModalPS(title, taId) {
   const d = psDate || todayISO();
   const photos = (psData[d] || {}).profile_screenshots || [];
   openFSModal(title, taId, photos);
+}
+function openFSModalRecap() {
+  const t = dayTrades(rvDate)[rvIdx];
+  openFSModal('Trade Recap', 'rv-recap', (t && t.screenshots) || []);
 }
 function openFSModalPSByDate(title, taId, date) {
   const photos = (psData[date] || {}).profile_screenshots || [];
