@@ -870,6 +870,31 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 /* Improved overlay animation */
 .overlay{animation:none}
 @keyframes overlayIn{from{opacity:0}to{opacity:1}}
+
+/* ═══════════════════════════════════════════════════════════════
+   PREP TAB — accordion blocks (Semana + Dia)
+═══════════════════════════════════════════════════════════════ */
+.prep-block{background:var(--s1);border:2px solid color-mix(in srgb,var(--accent) 8%,var(--b1));border-radius:14px;margin-bottom:22px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.35)}
+.prep-block-hdr{display:flex;align-items:center;gap:14px;padding:16px 22px;cursor:pointer;user-select:none;flex-wrap:wrap;transition:background .12s}
+.prep-block-hdr:hover{background:color-mix(in srgb,var(--accent) 4%,transparent)}
+.prep-block-title{font-size:1.1rem;font-weight:600;color:rgba(255,255,255,.9)}
+.prep-week-nav,.prep-day-nav{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap}
+.prep-week-range{font-family:var(--mono);font-size:12px;color:var(--sub);min-width:150px;text-align:center}
+.prep-block-chev{font-size:11px;color:var(--hint);transition:transform .2s;flex-shrink:0}
+.prep-block.open .prep-block-chev{transform:rotate(180deg)}
+.prep-block-body{display:none;padding:20px 22px;border-top:1px solid var(--b1)}
+.prep-block.open .prep-block-body{display:block}
+
+/* ═══════════════════════════════════════════════════════════════
+   VISUAL REFRESH — breathing room, cleaner cards & headers
+═══════════════════════════════════════════════════════════════ */
+.sec{padding:22px;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.35);border:2px solid color-mix(in srgb,var(--accent) 8%,var(--b1));margin-bottom:20px}
+.sec-title{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.35);font-weight:500}
+.wp-section-hdr{font-size:.7rem;letter-spacing:.12em;color:rgba(255,255,255,.35)}
+.tab{padding:8px 16px}
+.tab.on{background:transparent}
+.btn-accent{border-radius:8px}
+.ps-bias-btn,.wp-bias-btn,.fed-btn,.ps-sent-btn,.ps-pbias-btn{border-radius:20px;padding:5px 14px}
 </style>
 </head>
 <body>
@@ -929,8 +954,8 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
   <div class="tabs">
     <button class="tab on"  onclick="showTab('dashboard',this)">Dashboard</button>
     <button class="tab"     onclick="showTab('journal',this)">Diário</button>
+    <button class="tab"     onclick="showTab('prep',this)">Prep</button>
     <button class="tab"     onclick="showTab('import',this)">+ CSV</button>
-    <button class="tab"     onclick="showTab('presessao',this)">Pré-sessão</button>
     <button class="tab"     onclick="showTab('reports',this)">Reports</button>
   </div>
   <div class="content">
@@ -946,7 +971,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
         <span style="font-size:13px;font-weight:600">Diário de Trading</span>
         <div style="display:flex;align-items:center;gap:8px">
           <span style="font-size:11px;font-family:var(--mono);color:var(--hint)" id="journal-lbl"></span>
-          <button class="btn btn-accent btn-sm" onclick="showTab('import',document.querySelectorAll('.tab')[2])">+ CSV</button>
+          <button class="btn btn-accent btn-sm" onclick="showTab('import',document.querySelectorAll('.tab')[3])">+ CSV</button>
         </div>
       </div>
       <div id="journal-body"></div>
@@ -1004,22 +1029,49 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
       <div id="import-result"></div>
     </div>
 
-    <!-- PRÉ-SESSÃO -->
-    <div class="view" id="view-presessao">
+    <!-- PREP -->
+    <div class="view" id="view-prep">
 
-      <!-- HEADER BAR -->
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:11px 14px">
-        <div style="flex:1;min-width:0">
-          <div style="font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Sessão</div>
-          <input type="date" id="ps-date-picker" onchange="loadPSDate(this.value)">
+      <!-- BLOCK A: SEMANA -->
+      <div class="prep-block open" id="prep-block-semana">
+        <div class="prep-block-hdr" onclick="togglePrepBlock('semana')">
+          <div class="prep-block-title">📅 Preparação Semanal</div>
+          <div class="prep-week-nav" onclick="event.stopPropagation()">
+            <button class="cal-btn" onclick="prepNavWeek(-1)">‹</button>
+            <span class="prep-week-range" id="prep-week-range"></span>
+            <button class="cal-btn" onclick="prepNavWeek(1)">›</button>
+            <button class="btn btn-ghost btn-sm" onclick="prepThisWeek()">Esta semana</button>
+          </div>
+          <span class="prep-block-chev" id="prep-chev-semana">▾</span>
         </div>
-        <span class="ps-status-badge empty" id="ps-status-badge">○ Não preenchida</span>
-        <button class="btn btn-ghost btn-sm" onclick="openDocModal()" style="gap:5px">📄 Documento</button>
-        <button class="btn btn-accent btn-sm" onclick="savePS()" style="padding:7px 18px;font-size:12px">Guardar sessão</button>
+        <div class="prep-block-body" id="prep-body-semana">
+          <div id="prep-weekly-host"></div>
+          <div class="sec" id="prep-postweek-host" style="margin-top:18px"></div>
+        </div>
       </div>
 
-      <!-- 2-COLUMN LAYOUT -->
-      <div class="ps-layout">
+      <!-- BLOCK B: DIA -->
+      <div class="prep-block" id="prep-block-dia">
+        <div class="prep-block-hdr" onclick="togglePrepBlock('dia')">
+          <div class="prep-block-title">📊 Pré-Sessão</div>
+          <div class="prep-day-nav" onclick="event.stopPropagation()">
+            <button class="cal-btn" onclick="psNavDate(-1)">‹</button>
+            <input type="date" id="ps-date-picker" onchange="loadPSDate(this.value)">
+            <button class="cal-btn" onclick="psNavDate(1)">›</button>
+          </div>
+          <span class="prep-block-chev" id="prep-chev-dia">▾</span>
+        </div>
+        <div class="prep-block-body" id="prep-body-dia">
+
+          <!-- HEADER BAR -->
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;background:var(--s2);border:1px solid var(--b1);border-radius:12px;padding:11px 14px">
+            <span class="ps-status-badge empty" id="ps-status-badge">○ Não preenchida</span>
+            <button class="btn btn-ghost btn-sm" onclick="openDocModal()" style="margin-left:auto;gap:5px">📄 Documento</button>
+            <button class="btn btn-accent btn-sm" onclick="savePS()" style="padding:7px 18px;font-size:12px">Guardar sessão</button>
+          </div>
+
+          <!-- 2-COLUMN LAYOUT -->
+          <div class="ps-layout">
 
         <!-- PILAR 1: PROFILE FRAMING -->
         <div class="ps-pilar ps-pilar-profile">
@@ -1165,7 +1217,9 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 
       <!-- HISTORY -->
       <div class="sec"><div class="sec-title">Sessões anteriores</div><div id="ps-hist"></div></div>
-    </div>
+        </div><!-- end prep-block-body dia -->
+      </div><!-- end prep-block dia -->
+    </div><!-- end view-prep -->
   </div><!-- end .content -->
 </div><!-- end #app -->
 
@@ -1499,6 +1553,7 @@ async function sbPullData() {
     if (row.key === "nq10_cc")      { try { const v = row.value; if (Array.isArray(v)) { customConfs = v; localStorage.setItem("nq10_cc", JSON.stringify(customConfs)); } } catch(e){} }
     if (row.key === "nq10_wp")      { try { const v = row.value; if (v && typeof v === "object") weeklyPrep = v; } catch(e){} }
     if (row.key === "nq10_wp_imgs") { try { const v = row.value; if (v && typeof v === "object") wpImgs = v; } catch(e){} }
+    if (typeof row.key === "string" && row.key.startsWith("postWeek")) { try { localStorage.setItem(row.key, typeof row.value === "string" ? row.value : JSON.stringify(row.value)); } catch(e){} }
   });
 
   // Aplicar imagens legacy das sessões
@@ -2696,7 +2751,6 @@ function renderWeekCard(weekStart, isCurrent, isOpen) {
       '<span class="week-chevron">▶</span>' +
     '</div>' +
     '<div class="week-body" id="wkb-'+weekStart+'">' +
-      buildWeeklyPrepSection(weekStart) +
       '<div class="week-days">' + days.map(d => buildDiaryDayRow(d)).join('') + '</div>' +
     '</div>' +
   '</div>';
@@ -2907,7 +2961,7 @@ function buildDiaryDayDetail(date) {
   // Trades
   const trades = dayTrades(date);
   const tradesHtml = trades.length ? buildDdrTrades(date, trades)
-    : '<div class="ddr-empty">Sem trades neste dia · <button class="btn btn-ghost btn-sm" onclick="showTab(\'import\',document.querySelectorAll(\'.tab\')[2])">Importar CSV →</button></div>';
+    : '<div class="ddr-empty">Sem trades neste dia · <button class="btn btn-ghost btn-sm" onclick="showTab(\'import\',document.querySelectorAll(\'.tab\')[3])">Importar CSV →</button></div>';
 
   return '<div class="ddr-ps-cols">' +
     // LEFT
@@ -3271,8 +3325,11 @@ function renderJDayPSCtx(date) {
 
 function goToPSDate(date) {
   psDate = date;
-  showTab('presessao', document.querySelectorAll('.tab')[3]);
+  showTab('prep', document.querySelectorAll('.tab')[2]);
+  setPrepBlock('dia', true);
   loadPSDate(date);
+  const blk = document.getElementById('prep-block-dia');
+  if (blk) blk.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function toggleJDay(date) {
@@ -3290,7 +3347,7 @@ function openCtxModal(date) {
   const FED_C  = { Hawkish:'#f04f4f', Dovish:'#1fd17a', Neutro:'#8892aa' };
   const body = document.getElementById('ctx-modal-body');
   if (!Object.keys(ctx).length) {
-    body.innerHTML = '<div style="text-align:center;padding:32px 16px;color:var(--hint);font-family:var(--mono);font-size:12px">Sem contexto registado para este dia.<div style="margin-top:14px"><button class="btn btn-accent btn-sm" onclick="closeCtxModal();showTab(\'presessao\',document.querySelectorAll(\'.tab\')[4])">Adicionar contexto</button></div></div>';
+    body.innerHTML = '<div style="text-align:center;padding:32px 16px;color:var(--hint);font-family:var(--mono);font-size:12px">Sem contexto registado para este dia.<div style="margin-top:14px"><button class="btn btn-accent btn-sm" onclick="closeCtxModal();showTab(\'prep\',document.querySelectorAll(\'.tab\')[2])">Adicionar contexto</button></div></div>';
   } else {
     let h = '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px">';
     if (ctx.bias) { const c=BIAS_C[ctx.bias]||'#8892aa'; h+='<span class="jbadge" style="background:'+c+'18;color:'+c+';border:1px solid '+c+'44">'+ctx.bias+'</span>'; }
@@ -3340,11 +3397,135 @@ function showTab(id, btn) {
   document.querySelectorAll(".tab").forEach(t => t.classList.remove("on"));
   document.getElementById("view-" + id)?.classList.add("on");
   if (btn) btn.classList.add("on");
-  if (id === "presessao") { if (!psDate) psDate = todayISO(); initPS(); }
+  if (id === "prep") { if (!psDate) psDate = todayISO(); renderPrep(); }
   if (id === "dashboard") renderDashboard();
   if (id === "journal") renderDiary();
   if (id === "reports") renderReports();
   localStorage.setItem("nq_active_tab", id);
+}
+
+// ═══════════════════════════════════════════
+// PREP TAB (Semana + Dia)
+// ═══════════════════════════════════════════
+let prepWeek = "";
+let _prepInit = false;
+let pwBias = ""; // bias da revisão da semana (transiente)
+
+function renderPrep() {
+  if (!prepWeek) prepWeek = getMonday(todayISO());
+  if (!psDate) psDate = todayISO();
+  prepRenderWeekly();
+  prepRenderPostWeek();
+  updatePrepWeekRange();
+  initPS(); // carrega a pré-sessão na Block B (usa #ps-date-picker)
+  if (!_prepInit) {
+    // CHANGE 6 — por defeito: Semana expandida, Dia colapsada
+    setPrepBlock('semana', true);
+    setPrepBlock('dia', false);
+    _prepInit = true;
+  }
+}
+
+function setPrepBlock(which, open) {
+  const blk = document.getElementById('prep-block-' + which);
+  if (!blk) return;
+  blk.classList.toggle('open', !!open);
+}
+function togglePrepBlock(which) {
+  const blk = document.getElementById('prep-block-' + which);
+  if (!blk) return;
+  blk.classList.toggle('open');
+}
+
+function updatePrepWeekRange() {
+  const el = document.getElementById('prep-week-range');
+  if (el) el.textContent = fmtWeekRange(prepWeek);
+}
+function prepNavWeek(dir) {
+  const d = new Date(prepWeek + 'T12:00:00');
+  d.setDate(d.getDate() + dir * 7);
+  prepWeek = d.toISOString().split('T')[0];
+  prepRenderWeekly();
+  prepRenderPostWeek();
+  updatePrepWeekRange();
+}
+function prepThisWeek() {
+  prepWeek = getMonday(todayISO());
+  prepRenderWeekly();
+  prepRenderPostWeek();
+  updatePrepWeekRange();
+}
+
+// Block A — preparação semanal (reutiliza buildWeeklyPrepSection + lógica WP existente)
+function prepRenderWeekly() {
+  const host = document.getElementById('prep-weekly-host');
+  if (!host) return;
+  // wrapper com id wk-<weekStart> para os selectores existentes (setWPBias) funcionarem
+  host.innerHTML = '<div id="wk-' + prepWeek + '">' + buildWeeklyPrepSection(prepWeek) + '</div>';
+}
+
+// Block A — Revisão da Semana (pós-semana). Chaves: postWeek*_{weekKey} (ex: 2026-W26)
+function getISOWeekKey(mondayISO) {
+  const d = new Date(mondayISO + 'T12:00:00');
+  const dayNr = (d.getDay() + 6) % 7;        // Segunda=0
+  d.setDate(d.getDate() - dayNr + 3);        // Quinta-feira da semana ISO
+  const year = d.getFullYear();
+  const firstThu = new Date(year, 0, 4);
+  const firstDayNr = (firstThu.getDay() + 6) % 7;
+  firstThu.setDate(firstThu.getDate() - firstDayNr + 3);
+  const week = 1 + Math.round((d - firstThu) / (7 * 864e5));
+  return year + '-W' + String(week).padStart(2, '0');
+}
+function prepRenderPostWeek() {
+  const host = document.getElementById('prep-postweek-host');
+  if (!host) return;
+  const wk = getISOWeekKey(prepWeek);
+  const bias = localStorage.getItem('postWeekBiasCorrect_' + wk) || '';
+  const review = localStorage.getItem('postWeekReview_' + wk) || '';
+  const lessons = localStorage.getItem('postWeekLessons_' + wk) || '';
+  pwBias = bias;
+  const opts = [['Sim', 'bull'], ['Parcialmente', 'range'], ['Não', 'bear']];
+  const btns = opts.map(([v, cls]) => '<button class="wp-bias-btn ' + cls + (bias === v ? ' on' : '') + '" onclick="setPostWeekBias(\'' + v + '\',this)">' + v + '</button>').join('');
+  host.innerHTML =
+    '<div class="sec-title">Revisão da Semana' +
+      '<button class="btn btn-accent btn-sm" onclick="savePostWeek()">Guardar</button>' +
+    '</div>' +
+    '<div class="ps-field-lbl">Bias foi correcto?</div>' +
+    '<div class="wp-bias-row" style="margin-top:0;margin-bottom:14px">' + btns + '</div>' +
+    '<div class="ps-field-lbl">Review</div>' +
+    '<div class="ta-fs-wrap" style="margin-bottom:12px">' +
+      '<button class="ta-fs-btn" onclick="openFSModal(\'Review da semana\',\'pw-review\')" title="Expandir">⤢</button>' +
+      '<textarea class="ps-ta" id="pw-review" style="min-height:70px" placeholder="O que correu bem, o que falhou, lições da semana...">' + escHtml(review) + '</textarea>' +
+    '</div>' +
+    '<div class="ps-field-lbl">Lições aprendidas</div>' +
+    '<div class="ta-fs-wrap">' +
+      '<button class="ta-fs-btn" onclick="openFSModal(\'Lições aprendidas\',\'pw-lessons\')" title="Expandir">⤢</button>' +
+      '<textarea class="ps-ta" id="pw-lessons" style="min-height:70px" placeholder="O que farei diferente na próxima semana...">' + escHtml(lessons) + '</textarea>' +
+    '</div>';
+}
+function setPostWeekBias(v, btn) {
+  pwBias = (pwBias === v) ? '' : v;
+  document.querySelectorAll('#prep-postweek-host .wp-bias-btn').forEach(b => b.classList.remove('on'));
+  if (pwBias) btn.classList.add('on');
+}
+function savePostWeek() {
+  const wk = getISOWeekKey(prepWeek);
+  const review = document.getElementById('pw-review')?.value || '';
+  const lessons = document.getElementById('pw-lessons')?.value || '';
+  localStorage.setItem('postWeekBiasCorrect_' + wk, pwBias);
+  localStorage.setItem('postWeekReview_' + wk, review);
+  localStorage.setItem('postWeekLessons_' + wk, lessons);
+  sbPushKey('postWeekBiasCorrect_' + wk, pwBias);
+  sbPushKey('postWeekReview_' + wk, review);
+  sbPushKey('postWeekLessons_' + wk, lessons);
+  toast('Revisão da semana guardada ✓', 'ok');
+}
+
+// Block B — navegação de dia (setas ‹ ›)
+function psNavDate(dir) {
+  const d = new Date((psDate || todayISO()) + 'T12:00:00');
+  d.setDate(d.getDate() + dir);
+  loadPSDate(d.toISOString().split('T')[0]);
 }
 
 // ═══════════════════════════════════════════
@@ -3949,7 +4130,7 @@ function toggleSessCtx() {
 function renderSessCtx() {
   const el = document.getElementById('rv-sess-ctx'); if (!el) return;
   const ctx = psData[rvDate] || {};
-  if (!ctx.bias && !ctx.narrative && !ctx.poc_daily) { el.innerHTML = '<div style="color:var(--hint);font-family:var(--mono);font-size:11px">Sem contexto de sessão para este dia.<br><button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="closeReview();showTab(\'presessao\',document.querySelectorAll(\'.tab\')[3]);psDate=\'' + rvDate + '\';loadPSDate(\'' + rvDate + '\')">Preencher sessão →</button></div>'; return; }
+  if (!ctx.bias && !ctx.narrative && !ctx.poc_daily) { el.innerHTML = '<div style="color:var(--hint);font-family:var(--mono);font-size:11px">Sem contexto de sessão para este dia.<br><button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="closeReview();goToPSDate(\'' + rvDate + '\')">Preencher sessão →</button></div>'; return; }
   const bc = getBiasColor(ctx.bias);
   const bg = getBiasBg(ctx.bias);
   let h = '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">';
@@ -4611,7 +4792,7 @@ function renderDashboard() {
   const periodBar = `<div class="dash-period-bar">${periods.map(([p,l])=>`<button class="dash-pbtn${dashPeriod===p?" on":""}" onclick="setDashPeriod('${p}',this)">${l}</button>`).join("")}</div>`;
 
   if (!allTrades.length) {
-    body.innerHTML = modeToggle + periodBar + '<div class="empty-state" style="margin-top:30px"><div class="empty-icon">📊</div><div class="empty-text">Sem trades neste período. Importa um CSV para começar.</div><div style="margin-top:14px"><button class="btn btn-accent btn-sm" onclick="showTab(\'import\',document.querySelectorAll(\'.tab\')[2])">Importar CSV</button></div></div>';
+    body.innerHTML = modeToggle + periodBar + '<div class="empty-state" style="margin-top:30px"><div class="empty-icon">📊</div><div class="empty-text">Sem trades neste período. Importa um CSV para começar.</div><div style="margin-top:14px"><button class="btn btn-accent btn-sm" onclick="showTab(\'import\',document.querySelectorAll(\'.tab\')[3])">Importar CSV</button></div></div>';
     return;
   }
 
