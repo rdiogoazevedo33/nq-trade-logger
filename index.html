@@ -500,8 +500,8 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .jday-metric-lbl{font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase}
 .jday-body{display:none;border-top:1px solid var(--b1)}
 .jday-card.open .jday-body{display:block}
-.jtrade-hdr{display:grid;grid-template-columns:52px 48px 44px 120px 1fr 60px 100px 28px;gap:6px;padding:5px 16px;background:var(--s3);font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.04em}
-.jtrade-row{display:grid;grid-template-columns:52px 48px 44px 120px 1fr 60px 100px 28px;align-items:center;gap:6px;padding:8px 16px;border-bottom:1px solid var(--b1);font-family:var(--mono);font-size:11px;transition:background .1s;cursor:pointer}
+.jtrade-hdr{display:grid;grid-template-columns:86px 48px 44px 120px 1fr 60px 100px 28px;gap:6px;padding:5px 16px;background:var(--s3);font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.04em}
+.jtrade-row{display:grid;grid-template-columns:86px 48px 44px 120px 1fr 60px 100px 28px;align-items:center;gap:6px;padding:8px 16px;border-bottom:1px solid var(--b1);font-family:var(--mono);font-size:11px;transition:background .1s;cursor:pointer}
 .jtrade-row:hover{background:var(--s2)}
 .jtrade-row:last-child{border-bottom:none}
 /* Context modal */
@@ -521,7 +521,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .ctx-sec{margin-bottom:11px}
 .ctx-lbl{font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
 .ctx-val{font-size:12px;font-family:var(--mono);color:var(--text)}
-@media(max-width:640px){.jday-hdr{gap:8px}.jday-metrics{gap:8px}.jtrade-hdr,.jtrade-row{grid-template-columns:44px 40px 36px 100px 1fr 50px 80px 24px;font-size:10px}}
+@media(max-width:640px){.jday-hdr{gap:8px}.jday-metrics{gap:8px}.jtrade-hdr,.jtrade-row{grid-template-columns:74px 40px 36px 100px 1fr 50px 80px 24px;font-size:10px}}
 
 /* FASE 4 — Review enhancements */
 .rv-mistake-cat{font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;padding:8px 0 5px;border-bottom:1px solid var(--b1);margin-bottom:6px;margin-top:4px}
@@ -681,6 +681,16 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .img-gallery-thumb-rm{position:absolute;top:1px;right:1px;background:#882200;border:none;color:#fff;border-radius:50%;width:15px;height:15px;font-size:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1}
 .img-gallery-add{flex-shrink:0;width:66px;height:50px;border:1px dashed var(--b2);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--accent);cursor:pointer;font-size:18px;background:transparent;transition:all .13s}
 .img-gallery-add:hover{background:var(--s2);border-color:var(--accent)}
+
+/* Diário (vista de dia) — galeria Profile Framing preenche a altura do card */
+.ddr-ps-col:first-child{display:flex;flex-direction:column}
+.ddr-gallery-fill{flex:1;display:flex;flex-direction:column;min-height:240px;border-radius:8px}
+.ddr-gallery-fill.drag{outline:1.5px dashed var(--accent);outline-offset:2px;background:color-mix(in srgb,var(--accent) 5%,transparent)}
+.ddr-gallery-fill .img-gallery{flex:1;min-height:0}
+.ddr-gallery-fill .img-gallery-main{flex:1;min-height:200px}
+.ddr-gallery-fill .img-gallery-main img{width:100%;height:100%;max-height:100%;object-fit:contain}
+.ddr-gallery-empty{flex:1;min-height:240px;border:2px dashed var(--b2);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .18s}
+.ddr-gallery-empty:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 5%,transparent)}
 
 /* CONFLUENCE — remove with inline confirmation */
 .conf-rm-wrap{display:none;align-items:center;gap:4px;flex-shrink:0}
@@ -2069,6 +2079,12 @@ function fmtDuration(s) {
   const h = Math.floor(s/3600), min = Math.floor((s%3600)/60);
   return h + "h" + (min ? " " + min + " min" : "");
 }
+// Intervalo de horas entry-exit "HH:MM-HH:MM" a partir de entry_dt/exit_dt; "—" se faltar
+function tradeTimeRange(t) {
+  const tm = dt => { if (!dt) return null; const p = String(dt).replace("T", " ").split(" "); return (p[1] && /^\d{2}:\d{2}/.test(p[1])) ? p[1].slice(0,5) : null; };
+  const a = tm(t.entry_dt), b = tm(t.exit_dt);
+  return (a && b) ? a + "-" + b : "—";
+}
 function calcHoldTime(t) {
   if (t.hold_time_seconds != null && t.hold_time_seconds > 0) {
     const s = t.hold_time_seconds;
@@ -2958,16 +2974,8 @@ function buildDiaryDayDetail(date) {
   if (!diaryState[date]) diaryState[date] = { bias: ctx.bias||'', fed: ctx.fed||'', sentiment: ctx.sentiment||'', profileBias: ctx.profile_bias||'' };
   const ds = diaryState[date];
 
-  // Profile Framing — left col
-  const profShots = ctx.profile_screenshots || [];
-  const profThumbsHtml = profShots.map((src,i) =>
-    '<div class="wp-thumb" onclick="psOpenLightbox(\''+date+'\','+i+')">' +
-    '<img src="'+src+'" alt="print">' +
-    '<span class="wp-thumb-num">'+(i+1)+'</span>' +
-    '<button class="wp-thumb-rm" onclick="event.stopPropagation();ddrRemoveShot(\''+date+'\','+i+')">×</button>' +
-    '</div>'
-  ).join('') +
-  '<div class="wp-thumb-add" onclick="document.getElementById(\'ddr-ss-in-'+date+'\').click()" title="Adicionar print">+</div>';
+  // Profile Framing — left col (galeria principal + thumbnails, preenche o card)
+  const profGalleryHtml = buildDdrGallery(date);
 
   // Macro & Fundamental — right col
   const biasOpts = ['Bullish','Bearish','Neutral'];
@@ -3002,7 +3010,7 @@ function buildDiaryDayDetail(date) {
       '<div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:10px">Profile Framing</div>' +
       '<div class="ddr-field-lbl">Prints do Deepcharts</div>' +
       '<input type="file" accept="image/*" multiple id="ddr-ss-in-'+date+'" style="display:none" onchange="ddrFilesSelected(\''+date+'\',this.files)">' +
-      '<div class="wp-thumb-row" id="ddr-ss-grid-'+date+'" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="ddrDrop(event,\''+date+'\')">'+profThumbsHtml+'</div>' +
+      '<div class="ddr-gallery-fill" id="ddr-ss-grid-'+date+'" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="ddrDrop(event,\''+date+'\')">'+profGalleryHtml+'</div>' +
     '</div>' +
     // RIGHT
     '<div class="ddr-ps-col">' +
@@ -3071,7 +3079,7 @@ function buildDdrTrades(date, trades) {
       : '<span style="color:var(--hint)">—</span>';
     const dirC = t.direction==='Long'?'var(--green)':'var(--red)';
     return '<div class="jtrade-row" onclick="openReviewFromList(\''+date+'\','+idx+')">' +
-      '<span style="color:var(--sub)">'+(t.time?t.time.slice(0,5):'—')+'</span>' +
+      '<span style="color:var(--sub)">'+tradeTimeRange(t)+'</span>' +
       '<span style="background:var(--s3);padding:1px 5px;border-radius:4px;border:1px solid var(--b1)">'+(t.symbol||'NQ')+'</span>' +
       '<span style="color:'+dirC+';font-weight:600">'+(t.direction||'—')+'</span>' +
       '<span style="color:var(--sub)">@'+(t.entry||'—')+'→'+(t.exit||'—')+'</span>' +
@@ -3173,17 +3181,23 @@ function ddrRemoveShot(date, idx) {
   savePSData(date);
   renderDdrThumbs(date);
 }
+// Galeria do Diário (dia): imagem principal grande + thumbnails, preenche o card
+function buildDdrGallery(date) {
+  const shots = psData[date]?.profile_screenshots || [];
+  const addAttr = "document.getElementById('ddr-ss-in-"+date+"').click()";
+  if (!shots.length) {
+    return '<div class="ddr-gallery-empty" onclick="'+addAttr+'"><div style="font-size:20px;opacity:.2;margin-bottom:7px">📷</div><div style="font-size:12px;color:var(--hint);font-family:var(--mono)">Arrasta prints aqui ou clica para adicionar</div></div>';
+  }
+  return imgGalleryHTML(
+    'ddrgal-'+date, shots, 9999,
+    "psOpenLightbox('"+date+"',parseInt(this.dataset.idx)||0)",
+    i => "ddrRemoveShot('"+date+"',"+i+")",
+    addAttr
+  );
+}
 function renderDdrThumbs(date) {
   const grid = document.getElementById('ddr-ss-grid-'+date); if (!grid) return;
-  const shots = psData[date]?.profile_screenshots || [];
-  grid.innerHTML = shots.map((src,i) =>
-    '<div class="wp-thumb" onclick="psOpenLightbox(\''+date+'\','+i+')">' +
-    '<img src="'+src+'" alt="print">' +
-    '<span class="wp-thumb-num">'+(i+1)+'</span>' +
-    '<button class="wp-thumb-rm" onclick="event.stopPropagation();ddrRemoveShot(\''+date+'\','+i+')">×</button>' +
-    '</div>'
-  ).join('') +
-  '<div class="wp-thumb-add" onclick="document.getElementById(\'ddr-ss-in-'+date+'\').click()" title="Adicionar print">+</div>';
+  grid.innerHTML = buildDdrGallery(date);
 }
 
 // ─── Save Diary Day PS ─────────────────────────────────────────────
@@ -3308,7 +3322,7 @@ function renderJDayBody(date, trades) {
     const jSess = getSession(t.time);
     const jSessBadge = jSess ? sessionBadge(jSess) : '';
     return '<div class="jtrade-row" onclick="openReviewFromList(\''+date+'\','+idx+')">' +
-      '<span style="display:flex;flex-direction:column;gap:2px"><span style="color:var(--sub)">'+(t.time?t.time.slice(0,5):'—')+'</span>'+(jSessBadge?'<span>'+jSessBadge+'</span>':'')+'</span>' +
+      '<span style="display:flex;flex-direction:column;gap:2px"><span style="color:var(--sub)">'+tradeTimeRange(t)+'</span>'+(jSessBadge?'<span>'+jSessBadge+'</span>':'')+'</span>' +
       '<span style="background:var(--s3);padding:1px 5px;border-radius:4px;border:1px solid var(--b1)">'+(t.symbol||'NQ')+'</span>' +
       '<span style="color:'+dirC+';font-weight:600">'+(t.direction||'—')+'</span>' +
       '<span style="color:var(--sub)">@'+(t.entry||'—')+'→'+(t.exit||'—')+'</span>' +
