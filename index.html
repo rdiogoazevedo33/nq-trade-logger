@@ -1302,9 +1302,9 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
       </div>
       <div class="rv-fields">
         <div class="rv-row"><span class="rv-rlbl">Entry</span><input type="number" class="rv-inp" id="rv-entry" step="0.25" placeholder="—" oninput="rvCalcRR()"></div>
-        <div class="rv-row" id="rv-entrytime-row" style="display:none"><span class="rv-rlbl">Hora de Entrada</span><span id="rv-entry-time" style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text)">—</span></div>
+        <div class="rv-row" id="rv-entrytime-row"><span class="rv-rlbl">Hora de Entrada</span><span id="rv-entry-time" style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text)">—</span></div>
         <div class="rv-row"><span class="rv-rlbl">Exit</span><input type="number" class="rv-inp" id="rv-exit-disp" step="0.25" placeholder="—"></div>
-        <div class="rv-row" id="rv-dur-row" style="display:none"><span class="rv-rlbl">Duração</span><span id="rv-duration" style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text)">—</span></div>
+        <div class="rv-row" id="rv-dur-row"><span class="rv-rlbl">Duração</span><span id="rv-duration" style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text)">—</span></div>
         <div class="rv-row" style="flex-direction:column;align-items:stretch;gap:3px;padding:6px 0">
           <div style="display:flex;justify-content:space-between;align-items:center">
             <span class="rv-rlbl">Stop Loss (ticks)</span>
@@ -4243,24 +4243,20 @@ function renderReview() {
   document.getElementById("rv-entry").value = t.entry || "";
   const exitDisp = document.getElementById("rv-exit-disp");
   if (exitDisp) { exitDisp.value = t.exit || ""; exitDisp.readOnly = true; exitDisp.style.opacity = ".6"; }
-  // Hora de Entrada (HH:MM:SS) — do Entry DT ou time
+  // Hora de Entrada (HH:MM:SS) — do Entry DT ou time. Linha sempre visível ("—" para dados antigos)
   const entryTimeRow = document.getElementById("rv-entrytime-row");
   const entryTimeEl = document.getElementById("rv-entry-time");
   let entryTimeStr = "";
-  if (t.entry_dt && String(t.entry_dt).includes(" ")) entryTimeStr = String(t.entry_dt).replace("T"," ").split(" ")[1].slice(0,8);
+  if (t.entry_dt && String(t.entry_dt).replace("T"," ").includes(" ")) entryTimeStr = String(t.entry_dt).replace("T"," ").split(" ")[1].slice(0,8);
   else if (t.time) entryTimeStr = t.time.length <= 5 ? t.time : t.time.slice(0,8);
-  if (entryTimeRow && entryTimeEl) {
-    if (entryTimeStr) { entryTimeEl.textContent = entryTimeStr; entryTimeRow.style.display = ""; }
-    else entryTimeRow.style.display = "none";
-  }
-  // Duração — Exit DT − Entry DT
+  if (entryTimeRow) entryTimeRow.style.display = "";
+  if (entryTimeEl) entryTimeEl.textContent = entryTimeStr || "—";
+  // Duração — Exit DT − Entry DT. Linha sempre visível ("—" para dados antigos)
   const durRow = document.getElementById("rv-dur-row");
   const durEl = document.getElementById("rv-duration");
   const durStr = fmtDuration(tradeDurationSec(t));
-  if (durRow && durEl) {
-    if (durStr) { durEl.textContent = durStr; durRow.style.display = ""; }
-    else durRow.style.display = "none";
-  }
+  if (durRow) durRow.style.display = "";
+  if (durEl) durEl.textContent = durStr || "—";
   const stopTicksEl = document.getElementById("rv-stop-ticks");
   const tpTicksEl   = document.getElementById("rv-tp-ticks");
   if (stopTicksEl) stopTicksEl.value = t.stop_ticks || "";
