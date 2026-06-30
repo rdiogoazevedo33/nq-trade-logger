@@ -1007,7 +1007,6 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
           <button class="rit-btn on" onclick="setReportTab('overview',this)">Overview</button>
           <button class="rit-btn" onclick="setReportTab('detailed',this)">Detailed</button>
           <button class="rit-btn" onclick="setReportTab('winsloss',this)">Wins vs Losses</button>
-          <button class="rit-btn" onclick="setReportTab('calendar',this)">Calendário</button>
         </div>
         <div id="report-scope-row" style="display:flex;gap:5px;flex-wrap:wrap"></div>
       </div>
@@ -1023,7 +1022,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
         ondrop="onDrop(event)">
         <div class="dz-icon">📂</div>
         <div style="font-size:15px;font-weight:600;margin-bottom:6px">Arrasta o CSV do Deepcharts aqui</div>
-        <div style="font-size:12px;color:var(--hint);font-family:var(--mono)">Symbol;DT;Quantity;Entry;Exit;ProfitLoss</div>
+        <div style="font-size:12px;color:var(--hint);font-family:var(--mono)">Symbol;Quantity;Entry DT;Entry Price;Exit DT;Exit Price;ProfitLoss</div>
       </div>
       <input type="file" id="csv-in" accept=".csv,.txt" style="display:none" onchange="onCSVFile(event)">
       <div id="import-result"></div>
@@ -1303,7 +1302,9 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
       </div>
       <div class="rv-fields">
         <div class="rv-row"><span class="rv-rlbl">Entry</span><input type="number" class="rv-inp" id="rv-entry" step="0.25" placeholder="—" oninput="rvCalcRR()"></div>
+        <div class="rv-row" id="rv-entrytime-row" style="display:none"><span class="rv-rlbl">Hora de Entrada</span><span id="rv-entry-time" style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text)">—</span></div>
         <div class="rv-row"><span class="rv-rlbl">Exit</span><input type="number" class="rv-inp" id="rv-exit-disp" step="0.25" placeholder="—"></div>
+        <div class="rv-row" id="rv-dur-row" style="display:none"><span class="rv-rlbl">Duração</span><span id="rv-duration" style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text)">—</span></div>
         <div class="rv-row" style="flex-direction:column;align-items:stretch;gap:3px;padding:6px 0">
           <div style="display:flex;justify-content:space-between;align-items:center">
             <span class="rv-rlbl">Stop Loss (ticks)</span>
@@ -2045,6 +2046,29 @@ const MISTAKE_CATS = [
   { cat: "Execução / Timing", items: ["Entrei cedo demais","Entrei tarde demais","Saí cedo demais","Saí tarde demais","Stop muito apertado","Stop muito largo","Tamanho de posição errado"] },
   { cat: "Setup / Plano", items: ["Sem confluência suficiente","Entrei contra o bias do dia","Ignorei a regra do ORB","Entrei em zona de baixo volume","Overtraded (demasiadas trades no dia)"] }
 ];
+// Duração da trade (segundos) a partir de Entry DT / Exit DT, com fallbacks
+function tradeDurationSec(t) {
+  if (t && t.entry_dt && t.exit_dt) {
+    const a = new Date(String(t.entry_dt).replace(" ", "T"));
+    const b = new Date(String(t.exit_dt).replace(" ", "T"));
+    if (!isNaN(a) && !isNaN(b)) { const d = (b - a) / 1000; if (d >= 0) return d; }
+  }
+  if (t && t.hold_time_seconds != null && t.hold_time_seconds > 0) return t.hold_time_seconds;
+  if (t && t.time && t.exit_time) {
+    const toS = str => { const p = String(str).split(":").map(Number); return (p[0]||0)*3600+(p[1]||0)*60+(p[2]||0); };
+    const diff = toS(t.exit_time) - toS(t.time);
+    if (diff > 0) return diff;
+  }
+  return null;
+}
+function fmtDuration(s) {
+  if (s == null) return null;
+  s = Math.round(s);
+  if (s < 60) return s + " seg";
+  if (s < 3600) { const m = Math.floor(s/60), sec = s%60; return m + " min" + (sec ? " " + sec + " seg" : ""); }
+  const h = Math.floor(s/3600), min = Math.floor((s%3600)/60);
+  return h + "h" + (min ? " " + min + " min" : "");
+}
 function calcHoldTime(t) {
   if (t.hold_time_seconds != null && t.hold_time_seconds > 0) {
     const s = t.hold_time_seconds;
@@ -2191,8 +2215,13 @@ function setSR(btn) {
 function rvToggleConf(chip, e) {
   if (e.target.classList.contains("rsr-btn")) return;
   if (e.target.closest(".conf-rm-wrap")) return;
-  if (chip.classList.contains("on")) return; // remoção só pelo × com confirmação
-  chip.classList.add("on");
+  if (chip.classList.contains("on")) {
+    // clicar no corpo do chip desmarca; o × mantém o fluxo de confirmação separado
+    chip.classList.remove("on");
+    chip.querySelectorAll(".rsr-btn").forEach(b => b.classList.remove("act"));
+  } else {
+    chip.classList.add("on");
+  }
 }
 function rvSetSR(btn) {
   const chip = btn.closest(".rconf-chip"); chip.classList.add("on");
@@ -2341,9 +2370,10 @@ function parseCSV(text, fname) {
   const sep = lines[0].includes(";") ? ";" : ",";
   const hdrs = lines[0].split(sep).map(h => h.trim().toLowerCase().replace(/[^a-z0-9]/g, ""));
   const hm = {}; hdrs.forEach((h, i) => hm[h] = i);
-  const col = n => { const a = { symbol: ["symbol","sym"], dt: ["dt","date","datetime"], quantity: ["quantity","qty"], entry: ["entry","entryprice"], exit: ["exit","exitprice"], pnl: ["profitloss","pnl","profit","pl"] }; for (const k of (a[n] || [n])) { if (hm[k] !== undefined) return hm[k]; } return null; };
-  const ci = { sym: col("symbol"), dt: col("dt"), qty: col("quantity"), entry: col("entry"), exit: col("exit"), pnl: col("pnl") };
+  const col = n => { const a = { symbol: ["symbol","sym"], dt: ["dt","date","datetime"], entrydt: ["entrydt","dt","date","datetime"], exitdt: ["exitdt"], quantity: ["quantity","qty"], entry: ["entry","entryprice"], exit: ["exit","exitprice"], pnl: ["profitloss","pnl","profit","pl"] }; for (const k of (a[n] || [n])) { if (hm[k] !== undefined) return hm[k]; } return null; };
+  const ci = { sym: col("symbol"), dt: col("dt"), entrydt: col("entrydt"), exitdt: col("exitdt"), qty: col("quantity"), entry: col("entry"), exit: col("exit"), pnl: col("pnl") };
   if (ci.pnl === null) { toast("Coluna P&L não encontrada", "err"); return; }
+  const normDt = s => { s = (s || "").replace("T"," ").trim(); return s || null; };
   const parsed = lines.slice(1).map((line, idx) => {
     const cols = line.split(sep);
     const g = i => i !== null ? (cols[i]?.trim() || "") : "";
@@ -2352,13 +2382,16 @@ function parseCSV(text, fname) {
     const exit = parseFloat(g(ci.exit)) || null;
     const pnl = parseFloat(g(ci.pnl)) || 0;
     const dir = qty < 0 ? "Short" : "Long";
-    const dtRaw = g(ci.dt) || todayISO();
-    const dtParts = dtRaw.replace("T"," ").split(" ");
-    const dt = dtParts[0].split("T")[0];
-    const time = dtParts[1] ? dtParts[1].slice(0,8) : null;
+    const entry_dt = normDt(g(ci.entrydt)) || todayISO();
+    const exit_dt = normDt(g(ci.exitdt));
+    const dt = entry_dt.split(" ")[0].split("T")[0];
+    const eParts = entry_dt.split(" ");
+    const time = eParts[1] ? eParts[1].slice(0,8) : null;
+    const xParts = exit_dt ? exit_dt.split(" ") : [];
+    const exit_time = xParts[1] ? xParts[1].slice(0,8) : null;
     const time_slot = getTimeSlot(time);
     const session = getSession(time);
-    return { id: Date.now() + idx + Math.random(), csv_row: idx, date: dt, time: time, time_slot, session, symbol: (g(ci.sym) || "NQ").toUpperCase(), direction: dir, entry, exit, qty: Math.abs(qty), pnl, risk: null, stop: null, tp: null, rr: null, r: 0, confluences: "[]", score: 0, notes: "", notesHTML: "", screenshots: [], rating: 0 };
+    return { id: Date.now() + idx + Math.random(), csv_row: idx, date: dt, time: time, exit_time, entry_dt, exit_dt, time_slot, session, symbol: (g(ci.sym) || "NQ").toUpperCase(), direction: dir, entry, exit, qty: Math.abs(qty), pnl, risk: null, stop: null, tp: null, rr: null, r: 0, confluences: "[]", score: 0, notes: "", notesHTML: "", screenshots: [], rating: 0 };
   }).filter(t => !isNaN(t.pnl));
   if (!parsed.length) { toast("Sem trades válidas", "err"); return; }
   const byDay = {}; parsed.forEach(t => { if (!byDay[t.date]) byDay[t.date] = []; byDay[t.date].push(t); });
@@ -2970,11 +3003,6 @@ function buildDiaryDayDetail(date) {
       '<div class="ddr-field-lbl">Prints do Deepcharts</div>' +
       '<input type="file" accept="image/*" multiple id="ddr-ss-in-'+date+'" style="display:none" onchange="ddrFilesSelected(\''+date+'\',this.files)">' +
       '<div class="wp-thumb-row" id="ddr-ss-grid-'+date+'" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="ddrDrop(event,\''+date+'\')">'+profThumbsHtml+'</div>' +
-      '<div class="ddr-field-lbl">Leitura do profile</div>' +
-      '<div class="ta-fs-wrap">' +
-      '<button class="ta-fs-btn" onclick="openFSModalPSByDate(\'Leitura do Profile\',\'ddr-pnotes-'+date+'\',\''+date+'\')" title="Expandir">⤢</button>' +
-      '<textarea class="ps-ta" id="ddr-pnotes-'+date+'" style="min-height:80px" placeholder="Volume Profile RTH, POC/VAH/VAL, HVN/LVN, Delta...">'+escHtml(ctx.profile_notes||'')+'</textarea>' +
-      '</div>' +
     '</div>' +
     // RIGHT
     '<div class="ddr-ps-col">' +
@@ -3090,7 +3118,6 @@ function ddrAddMacroEvent(date, name) {
   if (!psData[date].macroEvents) psData[date].macroEvents = [];
   if (psData[date].macroEvents.some(e=>e.name===name)) { toast(name+' já adicionado','err'); return; }
   // Preserve unsaved textarea values before re-render
-  const pn = document.getElementById('ddr-pnotes-'+date); if(pn) { ensurePSDate(date); psData[date].profile_notes = pn.value; }
   const gn = document.getElementById('ddr-geo-'+date); if(gn) { psData[date].geopolitics = gn.value; }
   const na = document.getElementById('ddr-narrative-'+date); if(na) { psData[date].narrative = na.value; }
   psData[date].macroEvents.push({name, time:'', note:'', priority:isPriorityEvent(name)});
@@ -3105,7 +3132,6 @@ function ddrAddMacroEventManual(date) {
 function ddrRemoveMacroEvent(date, idx) {
   if (!psData[date]?.macroEvents) return;
   // Preserve unsaved textarea values
-  const pn = document.getElementById('ddr-pnotes-'+date); if(pn) { ensurePSDate(date); psData[date].profile_notes = pn.value; }
   const gn = document.getElementById('ddr-geo-'+date); if(gn) { psData[date].geopolitics = gn.value; }
   const na = document.getElementById('ddr-narrative-'+date); if(na) { psData[date].narrative = na.value; }
   psData[date].macroEvents.splice(idx, 1);
@@ -3173,12 +3199,12 @@ function saveDiaryDayPS(date) {
     fed: ds.fed || '',
     sentiment: ds.sentiment || '',
     profile_bias: ds.profileBias || '',
-    profile_notes: g('ddr-pnotes-'+date),
+    profile_notes: existing.profile_notes || '',
     geopolitics: g('ddr-geo-'+date),
     narrative: g('ddr-narrative-'+date),
     macroEvents: existing.macroEvents || [],
     profile_screenshots: existing.profile_screenshots || [],
-    justification: g('ddr-pnotes-'+date) || existing.justification || '',
+    justification: existing.justification || '',
     score: existing.score || 50
   };
   savePSData(date);
@@ -3534,7 +3560,7 @@ function psNavDate(dir) {
 
 function psStatus(ctx) {
   if (!ctx || !ctx.bias) return 'empty';
-  if (ctx.bias && ctx.profile_notes && ctx.narrative) return 'ready';
+  if (ctx.bias && ctx.narrative) return 'ready';
   return 'incomplete';
 }
 function psStatusLabel(st) {
@@ -4217,6 +4243,24 @@ function renderReview() {
   document.getElementById("rv-entry").value = t.entry || "";
   const exitDisp = document.getElementById("rv-exit-disp");
   if (exitDisp) { exitDisp.value = t.exit || ""; exitDisp.readOnly = true; exitDisp.style.opacity = ".6"; }
+  // Hora de Entrada (HH:MM:SS) — do Entry DT ou time
+  const entryTimeRow = document.getElementById("rv-entrytime-row");
+  const entryTimeEl = document.getElementById("rv-entry-time");
+  let entryTimeStr = "";
+  if (t.entry_dt && String(t.entry_dt).includes(" ")) entryTimeStr = String(t.entry_dt).replace("T"," ").split(" ")[1].slice(0,8);
+  else if (t.time) entryTimeStr = t.time.length <= 5 ? t.time : t.time.slice(0,8);
+  if (entryTimeRow && entryTimeEl) {
+    if (entryTimeStr) { entryTimeEl.textContent = entryTimeStr; entryTimeRow.style.display = ""; }
+    else entryTimeRow.style.display = "none";
+  }
+  // Duração — Exit DT − Entry DT
+  const durRow = document.getElementById("rv-dur-row");
+  const durEl = document.getElementById("rv-duration");
+  const durStr = fmtDuration(tradeDurationSec(t));
+  if (durRow && durEl) {
+    if (durStr) { durEl.textContent = durStr; durRow.style.display = ""; }
+    else durRow.style.display = "none";
+  }
   const stopTicksEl = document.getElementById("rv-stop-ticks");
   const tpTicksEl   = document.getElementById("rv-tp-ticks");
   if (stopTicksEl) stopTicksEl.value = t.stop_ticks || "";
@@ -5886,7 +5930,6 @@ function renderReports() {
   if (activeReportTab==='overview') el.innerHTML = rptOverview(t);
   else if (activeReportTab==='detailed') el.innerHTML = rptDetailed(t);
   else if (activeReportTab==='winsloss') el.innerHTML = rptWinsLoss(t);
-  else if (activeReportTab==='calendar') el.innerHTML = rptCalendar(t);
   else if (activeReportTab==='time') el.innerHTML = rptTime(t);
 }
 
@@ -6101,15 +6144,38 @@ function rptDetailed(t) {
   let confRows = Object.entries(byConf).sort((a,b)=>b[1].length-a[1].length).map(([k,v])=>rptStatRow(k,v)).join('');
   html += '<div class="sec"><div class="sec-title">Por confluência</div>'+(confRows?'<table style="'+TS+'">'+rptTableHeader()+'<tbody>'+confRows+'</tbody></table>':'<div style="color:var(--hint);font-size:12px;font-family:var(--mono)">Adiciona confluências às trades para ver este breakdown</div>')+'</div>';
 
-  const FED_LABELS = {hawk:'Hawkish',nhawk:'Neutro-Hawk',neut:'Neutro',ndove:'Neutro-Dove',dove:'Dovish'};
-  const byFed = {}; t.forEach(x => { const fed=psData[x.date]?.fed||null; if(!fed)return; const lbl=FED_LABELS[fed]||fed; if(!byFed[lbl])byFed[lbl]=[]; byFed[lbl].push(x); });
-  const fedOrder = ['Hawkish','Neutro-Hawk','Neutro','Neutro-Dove','Dovish'];
-  let fedRows = fedOrder.filter(k=>byFed[k]?.length).map(k=>rptStatRow(k,byFed[k])).join('');
-  html += '<div class="sec"><div class="sec-title">Por sentimento Fed</div>'+(fedRows?'<table style="'+TS+'">'+rptTableHeader()+'<tbody>'+fedRows+'</tbody></table>':'<div style="color:var(--hint);font-size:12px;font-family:var(--mono)">Define o sentimento Fed na Pré-Sessão para ver este breakdown</div>')+'</div>';
-
   const byBias = {}; t.forEach(x => { const b=psData[x.date]?.bias||null; if(!b)return; if(!byBias[b])byBias[b]=[]; byBias[b].push(x); });
   let biasRows = Object.entries(byBias).sort((a,b)=>b[1].length-a[1].length).map(([k,v])=>rptStatRow(k,v)).join('');
   html += '<div class="sec"><div class="sec-title">Por bias de mercado</div>'+(biasRows?'<table style="'+TS+'">'+rptTableHeader()+'<tbody>'+biasRows+'</tbody></table>':'<div style="color:var(--hint);font-size:12px;font-family:var(--mono)">Define o bias na Pré-Sessão para ver este breakdown</div>')+'</div>';
+
+  // ── POR BIAS × DIREÇÃO ──
+  const normBias = b => { if(!b) return null; if(/bull/i.test(b)) return 'Bullish'; if(/bear/i.test(b)) return 'Bearish'; return 'Neutral'; };
+  const biasDirOrder = [['Bullish','Long'],['Bullish','Short'],['Bearish','Long'],['Bearish','Short'],['Neutral','Long'],['Neutral','Short']];
+  const biasDirGroups = {};
+  t.forEach(x => { const nb=normBias(psData[x.date]?.bias); if(!nb||!x.direction) return; const key=nb+' + '+x.direction; if(!biasDirGroups[key])biasDirGroups[key]=[]; biasDirGroups[key].push(x); });
+  let biasDirRows = biasDirOrder.map(([b,d])=>{ const key=b+' + '+d; return biasDirGroups[key]?.length ? rptStatRow(key, biasDirGroups[key]) : ''; }).join('');
+  html += '<div class="sec"><div class="sec-title">Por bias × direção</div>'+(biasDirRows?'<table style="'+TS+'">'+rptTableHeader()+'<tbody>'+biasDirRows+'</tbody></table>':'<div style="color:var(--hint);font-size:12px;font-family:var(--mono)">Define o bias na Pré-Sessão para ver este breakdown</div>')+'</div>';
+
+  // ── POR DURAÇÃO DA TRADE ──
+  const durTrades = t.filter(x => tradeDurationSec(x) != null);
+  const avg = a => a.length ? a.reduce((s,v)=>s+v,0)/a.length : null;
+  const avgWinDur = avg(durTrades.filter(x=>x.pnl>0).map(tradeDurationSec));
+  const avgLossDur = avg(durTrades.filter(x=>x.pnl<=0).map(tradeDurationSec));
+  const DUR_BUCKETS = [['< 2 min',0,120],['2-5 min',120,300],['5-15 min',300,900],['15-30 min',900,1800],['> 30 min',1800,Infinity]];
+  const durBucketGroups = DUR_BUCKETS.map(()=>[]);
+  durTrades.forEach(x => { const d=tradeDurationSec(x); const i=DUR_BUCKETS.findIndex(([l,mn,mx])=>d>=mn&&d<mx); if(i>=0) durBucketGroups[i].push(x); });
+  let durBucketRows = DUR_BUCKETS.map((b,i)=> durBucketGroups[i].length ? rptStatRow(b[0], durBucketGroups[i]) : '').join('');
+  const durStatRow = (label, val, color) => '<div style="display:flex;justify-content:space-between;padding:7px 8px;border-bottom:1px solid var(--b1);font-family:var(--mono);font-size:12px"><span style="color:var(--hint)">'+label+'</span><span style="color:'+color+';font-weight:600">'+val+'</span></div>';
+  let durHtml = '<div class="sec"><div class="sec-title">Por duração da trade</div>';
+  if (durTrades.length) {
+    durHtml += durStatRow('Duração média (Wins)', avgWinDur!=null?fmtDuration(avgWinDur):'—', 'var(--green)');
+    durHtml += durStatRow('Duração média (Losses)', avgLossDur!=null?fmtDuration(avgLossDur):'—', 'var(--red)');
+    if (durBucketRows) durHtml += '<table style="'+TS+';margin-top:12px">'+rptTableHeader()+'<tbody>'+durBucketRows+'</tbody></table>';
+  } else {
+    durHtml += '<div style="color:var(--hint);font-size:12px;font-family:var(--mono)">Importa trades com Entry DT / Exit DT para ver este breakdown</div>';
+  }
+  durHtml += '</div>';
+  html += durHtml;
 
   return html;
 }
@@ -6176,48 +6242,6 @@ function rptWinsLoss(t) {
 
   return histHTML + statsHTML + topHTML;
 }
-
-// ─── CALENDAR (annual) ──────────────────────────────────────
-function rptCalendar(t) {
-  const dm = {}; t.forEach(x => { if(!dm[x.date])dm[x.date]=0; dm[x.date]+=x.pnl; });
-  const dates = Object.keys(dm); if(!dates.length) return '<div style="color:var(--hint);font-family:var(--mono)">Sem dados</div>';
-  const years = [...new Set(dates.map(d=>d.slice(0,4)))].sort().reverse();
-  let html = '';
-  years.forEach(yr => {
-    html += '<div style="margin-bottom:24px"><div style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">'+yr+'</div>';
-    html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">';
-    for (let m = 0; m < 12; m++) {
-      const first = new Date(yr, m, 1).getDay();
-      const daysInMonth = new Date(yr, m+1, 0).getDate();
-      let mPnl = 0; let mTrades = 0;
-      for (let d = 1; d <= daysInMonth; d++) {
-        const iso = yr+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-        if (dm[iso] !== undefined) { mPnl += dm[iso]; mTrades++; }
-      }
-      const mColor = mTrades===0?'var(--hint)':mPnl>0?'var(--green)':'var(--red)';
-      html += '<div style="background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:8px">';
-      html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">';
-      html += '<span style="font-family:var(--mono);font-size:9px;color:var(--hint);text-transform:uppercase;letter-spacing:.06em">'+MONTHS[m]+'</span>';
-      if (mTrades) html += '<span style="font-family:var(--mono);font-size:9px;font-weight:600;color:'+mColor+'">'+(mPnl>=0?'+':'')+'$'+Math.round(mPnl)+'</span>';
-      html += '</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px">';
-      ['D','S','T','Q','Q','S','S'].forEach(d => { html += '<div style="font-family:var(--mono);font-size:7px;color:var(--hint);text-align:center;padding:1px">'+d+'</div>'; });
-      for (let i = 0; i < first; i++) html += '<div></div>';
-      for (let d = 1; d <= daysInMonth; d++) {
-        const iso = yr+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-        const pnl = dm[iso];
-        const bg = pnl===undefined?'transparent':pnl>0?'#071f0f':pnl<0?'#1f0707':'var(--s3)';
-        const cl = pnl===undefined?'var(--hint)':pnl>0?'var(--green)':pnl<0?'var(--red)':'var(--sub)';
-        const tt = pnl!==undefined?iso+': '+(pnl>=0?'+':'')+pnl.toFixed(0):'';
-        html += '<div style="font-family:var(--mono);font-size:8px;text-align:center;padding:2px 1px;border-radius:2px;background:'+bg+';color:'+cl+'"'+(tt?' title="'+tt+'"':'')+'>'+d+'</div>';
-      }
-      html += '</div></div>';
-    }
-    html += '</div></div>';
-  });
-  return '<div class="sec"><div class="sec-title">Calendário anual</div>' + html + '</div>';
-}
-
-
 
 // --- FULLSCREEN TEXTAREA ---
 let _fsTaId = null;
