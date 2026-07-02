@@ -1211,6 +1211,14 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
         </div><!-- end pilar-2 -->
       </div><!-- end ps-layout -->
 
+      <!-- SETUP GRADE — Stacking Zones do dia -->
+      <div class="ps-gameplan-wrap">
+        <div class="ps-gameplan-title" style="color:var(--purple)">🎯 Setup Grade — Zonas do dia</div>
+        <div class="ps-gameplan-sub">Uma linha por zona de stacking identificada no briefing (A+/A/B+/B). O risk multiplier é calculado automaticamente pelo grade — A+ = 1.0 · A = 0.75 · B+ = 0.5 · B = 0.275.</div>
+        <div id="ps-zonegrade-list" style="margin-bottom:10px"></div>
+        <button class="btn btn-ghost btn-sm" onclick="addZoneGrade()">+ Adicionar zona</button>
+      </div>
+
       <!-- GAME PLAN (abaixo dos 2 pilares) -->
       <div class="ps-gameplan-wrap">
         <div class="ps-gameplan-title">📋 Narrativa &amp; Game Plan do dia</div>
@@ -1340,6 +1348,16 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
           <span class="rv-star" onclick="rvSetRating(4)">☆</span>
           <span class="rv-star" onclick="rvSetRating(5)">☆</span>
         </div>
+      </div>
+      <div class="rv-stars">
+        <span style="font-size:11px;font-family:var(--mono);color:var(--sub)">Setup Grade</span>
+        <select id="rv-setup-grade" onchange="rvSetGrade(this.value)" style="background:var(--s2);border:1px solid var(--b1);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;font-weight:700;padding:4px 10px;cursor:pointer">
+          <option value="">—</option>
+          <option value="A+">A+</option>
+          <option value="A">A</option>
+          <option value="B+">B+</option>
+          <option value="B">B</option>
+        </select>
       </div>
       <div class="rv-rbars">
         <div class="rv-rbar-lbl">R-Multiple</div>
@@ -1881,6 +1899,12 @@ const SK_A = "nq10_a", SK_T = "nq10_t", SK_PS = "nq10_ps", SK_WP = "nq10_wp";
 let accounts = [], curAcct = null, allT = {}, psData = {}, weeklyPrep = {};
 const diaryState = {}; // { date: { bias, fed, sentiment, profileBias } }
 let customConfs = [];
+
+// ─── Setup Grade (stacking-zone grading — BRAIN_RiskManagement.md) ───
+const ZONE_GRADES     = ['A+','A','B+','B'];
+const GRADE_RISK      = { 'A+': 1.0, 'A': 0.75, 'B+': 0.5, 'B': 0.275 }; // B = midpoint de 0.25–0.3
+const GRADE_RISK_LBL  = { 'A+': '1.0', 'A': '0.75', 'B+': '0.5', 'B': '0.275' };
+const GRADE_COLOR     = { 'A+': 'var(--green)', 'A': 'var(--accent)', 'B+': 'var(--amber)', 'B': 'var(--sub)' };
 let curDate = "", scope = "all", calY = 0, calM = 0, dashPeriod = "month", dashMode = "summary";
 let modalId = null, modalDayIds = [];
 let rvDate = "", rvIdx = 0;
@@ -3631,6 +3655,7 @@ function loadPSDate(d) {
   renderPSDeltaList(d);
   renderPSSDZoneList(d);
   renderPSSRList(d);
+  renderZoneGradeList(d);
   // Collapsible dots (filled indicator)
   const setDot = (id, val) => { const el = document.getElementById(id); if (el) el.classList.toggle('show', !!val); };
   setDot('ps-col-events-dot', ctx.macroEvents?.length);
@@ -3860,6 +3885,56 @@ function updatePSLevel(type, d, i, field, val) {
   const key = type + '_levels';
   if (!psData[d]?.[key]?.[i]) return;
   psData[d][key][i][field] = field === 'price' ? (parseFloat(val)||null) : val;
+}
+
+// ─── Setup Grade — Zonas de stacking (pré-sessão) ─────────────
+function renderZoneGradeList(d) {
+  const el = document.getElementById('ps-zonegrade-list'); if (!el) return;
+  const items = (psData[d] || {}).zone_grades || [];
+  if (!items.length) { el.innerHTML = '<div style="color:var(--hint);font-size:11px;font-family:var(--mono)">Sem zonas — clica "+ Adicionar zona"</div>'; return; }
+  const selStyle = 'background:var(--s2);border:1px solid var(--b1);border-radius:6px;font-family:var(--mono);font-size:12px;padding:5px 8px;cursor:pointer';
+  el.innerHTML = items.map((z, i) => {
+    const grade = ZONE_GRADES.includes(z.grade) ? z.grade : 'A+';
+    const dir = (z.direction === 'Bearish') ? 'Bearish' : 'Bullish';
+    const gc = GRADE_COLOR[grade] || 'var(--sub)';
+    return '<div class="ps-dyn-item" style="flex-wrap:wrap;gap:6px;align-items:center;border-left:3px solid ' + gc + ';padding-left:8px;margin-bottom:8px">' +
+      '<input type="text" class="note-in" style="flex:0 0 130px" value="' + escHtml(z.price_range || '') + '" placeholder="18420-18435" oninput="updateZoneGrade(\'' + d + '\',' + i + ',\'price_range\',this.value)">' +
+      '<select style="' + selStyle + ';color:' + gc + ';font-weight:700" onchange="updateZoneGrade(\'' + d + '\',' + i + ',\'grade\',this.value)">' +
+        ZONE_GRADES.map(g => '<option value="' + g + '"' + (g === grade ? ' selected' : '') + '>' + g + '</option>').join('') +
+      '</select>' +
+      '<select style="' + selStyle + ';color:var(--text)" onchange="updateZoneGrade(\'' + d + '\',' + i + ',\'direction\',this.value)">' +
+        ['Bullish','Bearish'].map(dv => '<option value="' + dv + '"' + (dv === dir ? ' selected' : '') + '>' + dv + '</option>').join('') +
+      '</select>' +
+      '<span style="font-family:var(--mono);font-size:11px;color:var(--sub);align-self:center;white-space:nowrap" title="Risk multiplier">R× ' + (GRADE_RISK_LBL[grade] || '—') + '</span>' +
+      '<input type="text" class="note-in" style="flex:1;min-width:130px" value="' + escHtml(z.rationale || '') + '" placeholder="Rationale (opcional)" oninput="updateZoneGrade(\'' + d + '\',' + i + ',\'rationale\',this.value)">' +
+      '<button class="ps-dyn-rmv" onclick="removeZoneGrade(\'' + d + '\',' + i + ')">✕</button>' +
+    '</div>';
+  }).join('');
+}
+function addZoneGrade() {
+  const d = psDate || todayISO();
+  ensurePSDate(d);
+  if (!psData[d].zone_grades) psData[d].zone_grades = [];
+  psData[d].zone_grades.push({ price_range: '', grade: 'A+', direction: 'Bullish', risk_multiplier: GRADE_RISK['A+'], rationale: '' });
+  renderZoneGradeList(d);
+  savePSData(d);
+}
+function removeZoneGrade(d, i) {
+  if (!psData[d]?.zone_grades) return;
+  psData[d].zone_grades.splice(i, 1);
+  renderZoneGradeList(d);
+  savePSData(d);
+}
+function updateZoneGrade(d, i, field, val) {
+  if (!psData[d]?.zone_grades?.[i]) return;
+  psData[d].zone_grades[i][field] = val;
+  if (field === 'grade') {
+    psData[d].zone_grades[i].risk_multiplier = GRADE_RISK[val] ?? null;
+    renderZoneGradeList(d); // re-render para actualizar cor + risk multiplier
+    savePSData(d);
+  } else if (field === 'direction') {
+    savePSData(d); // onchange dispara uma vez — persiste já (texto persiste via botão Guardar)
+  }
 }
 
 function renderPSDeltaList(d) {
@@ -4279,6 +4354,8 @@ function renderReview() {
   rvCalcFromTicks();
   rvCalcRR();
   rvRenderStars(t.rating || 0);
+  const gradeSel = document.getElementById("rv-setup-grade");
+  if (gradeSel) { gradeSel.value = t.setup_grade || ""; gradeSel.style.color = GRADE_COLOR[t.setup_grade] || "var(--text)"; }
   // Day context banner
   const ctxBanner = document.getElementById("rv-ctx-banner");
   if (ctxBanner && ctx) {
@@ -4482,6 +4559,11 @@ function rvSetRating(v) {
   rvRenderStars(v);
 }
 function rvRenderStars(v) { document.querySelectorAll(".rv-star").forEach((s, i) => { s.textContent = i < v ? "★" : "☆"; s.style.color = i < v ? "var(--amber)" : "var(--hint)"; }); }
+function rvSetGrade(v) {
+  const trds = dayTrades(rvDate); const t = trds[rvIdx]; if (!t) return;
+  const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id); if (idx !== -1) { all[idx].setup_grade = v || null; setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]); }
+  const sel = document.getElementById("rv-setup-grade"); if (sel) sel.style.color = GRADE_COLOR[v] || "var(--text)";
+}
 function rvTab(id, btn) { ["notes","prints","confs","mistakes"].forEach(t => { document.getElementById("rvt-" + t).style.display = t === id ? "block" : "none"; }); document.querySelectorAll(".rv-tab").forEach(b => b.classList.remove("on")); btn.classList.add("on"); }
 function rvfmt(cmd) { document.getElementById("rv-editor").focus(); document.execCommand(cmd); }
 function rvAddPrints(e) {
@@ -6157,6 +6239,11 @@ function rptDetailed(t) {
   const byBias = {}; t.forEach(x => { const b=psData[x.date]?.bias||null; if(!b)return; if(!byBias[b])byBias[b]=[]; byBias[b].push(x); });
   let biasRows = Object.entries(byBias).sort((a,b)=>b[1].length-a[1].length).map(([k,v])=>rptStatRow(k,v)).join('');
   html += '<div class="sec"><div class="sec-title">Por bias de mercado</div>'+(biasRows?'<table style="'+TS+'">'+rptTableHeader()+'<tbody>'+biasRows+'</tbody></table>':'<div style="color:var(--hint);font-size:12px;font-family:var(--mono)">Define o bias na Pré-Sessão para ver este breakdown</div>')+'</div>';
+
+  // ── POR SETUP GRADE ──
+  const byGrade = {}; t.forEach(x => { const g=x.setup_grade; if(!g)return; if(!byGrade[g])byGrade[g]=[]; byGrade[g].push(x); });
+  let gradeRows = ZONE_GRADES.filter(g=>byGrade[g]?.length).map(g=>rptStatRow(g, byGrade[g])).join('');
+  html += '<div class="sec"><div class="sec-title">Por Setup Grade</div>'+(gradeRows?'<table style="'+TS+'">'+rptTableHeader()+'<tbody>'+gradeRows+'</tbody></table>':'<div style="color:var(--hint);font-size:12px;font-family:var(--mono)">Define o Setup Grade nas trades (no review) para ver este breakdown</div>')+'</div>';
 
   // ── POR BIAS × DIREÇÃO ──
   const normBias = b => { if(!b) return null; if(/bull/i.test(b)) return 'Bullish'; if(/bear/i.test(b)) return 'Bearish'; return 'Neutral'; };
