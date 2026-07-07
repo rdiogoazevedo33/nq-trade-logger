@@ -143,6 +143,14 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .sr-btn[data-sr="S"].act{background:#061a0e;border-color:var(--green);color:var(--green)}
 .sr-btn[data-sr="R"].act{background:#1f0707;border-color:var(--red);color:var(--red)}
 .conf-group-label{font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;padding:8px 0 4px;border-bottom:1px solid var(--b1);margin-bottom:4px}
+/* Collapsible confluence groups */
+.conf-group{margin-bottom:6px}
+.conf-group-head{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+.conf-group-head:hover{color:var(--sub)}
+.conf-caret{transition:transform .15s;font-size:11px;opacity:.7}
+.conf-group.collapsed .conf-caret{transform:rotate(-90deg)}
+.conf-group-body{display:flex;flex-direction:column;gap:4px;padding-top:2px}
+.conf-group.collapsed .conf-group-body{display:none}
 
 /* CALENDAR */
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
@@ -1679,6 +1687,8 @@ async function sbPullData() {
   localStorage.setItem("nq10_wp", JSON.stringify(weeklyPrep));
   setSyncStatus("ok", sbUser?.email || "autenticado");
   renderAccts();
+  // Canonicaliza confluências custom legacy (Gamma Wall / Iceberg) após dados da cloud
+  migrateConfluences();
 }
 
 async function sbPushKey(key, value) {
@@ -2021,24 +2031,66 @@ function todayISO() { return new Date().toISOString().split("T")[0]; }
 loadData();
 sbInit();
 // load custom confluences after CONFS/CMAP are defined (called after script init below)
-setTimeout(loadCustomConfs, 0);
+setTimeout(() => { loadCustomConfs(); migrateConfluences(); }, 0);
 
 // ═══════════════════════════════════════════
 // CONFLUENCES
 // ═══════════════════════════════════════════
+// Ordem canónica dos 6 grupos da taxonomia de confluências
+const CONF_GROUP_ORDER = [
+  "Option Flow",
+  "Profile — Zona",
+  "DeepDOM — Liquidity Heatmap",
+  "Effort vs Result — Execução",
+  "Patterns",
+  "Custom",
+];
 const CONFS = [
-  { id: "dt-abs",  label: "Deep Trades + Absorption",   color: "#5b8fff", sr: false, group: "Deep Trades" },
-  { id: "dt-fol",  label: "Deep Trades + Follow Thru",  color: "#18c9b0", sr: false, group: "Deep Trades" },
-  { id: "dt-sr",   label: "Deep Trades S/R",            color: "#60a5fa", sr: true,  group: "Deep Trades" },
-  { id: "hvn",     label: "HVN",                        color: "#1fd17a", sr: true,  group: "Volume Profile" },
-  { id: "lvn",     label: "LVN",                        color: "#34d399", sr: true,  group: "Volume Profile" },
-  { id: "poc",     label: "POC",                        color: "#818cf8", sr: true,  group: "Volume Profile" },
-  { id: "vsi",     label: "Vol. Stacked Imbalance",     color: "#fbbf24", sr: true,  group: "Volume Profile" },
-  { id: "fa",      label: "Failed Auction (VAL/VAH)",   color: "#fb923c", sr: true,  srLabels: ["VAL","VAH"], group: "Volume Profile" },
-  { id: "hvb",     label: "High Volume Breakout",       color: "#f0a832", sr: false, group: "Volume Profile" },
-  { id: "bvr",     label: "Break Value & Retest",       color: "#18c9b0", sr: true,  srLabels: ["VAL","VAH"], group: "Volume Profile" },
-  { id: "vwap",    label: "VWAP Bounce",                color: "#9b72f5", sr: false, group: "Outros" },
-  { id: "delta",   label: "Delta Anomaly",              color: "#a78bfa", sr: false, group: "Outros" },
+  // 1 — OPTION FLOW
+  { id: "of-gamma", label: "Gamma Wall",                        color: "#9b72f5", sr: false, group: "Option Flow" },
+  { id: "of-hvl",   label: "HVL",                               color: "#a78bfa", sr: false, group: "Option Flow" },
+  { id: "of-put",   label: "Put Support",                       color: "#1fd17a", sr: false, group: "Option Flow" },
+  { id: "of-call",  label: "Call Resistance",                   color: "#f04f4f", sr: false, group: "Option Flow" },
+  { id: "of-range", label: "1D Range Extreme (Min/Max)",        color: "#f0a832", sr: false, group: "Option Flow" },
+
+  // 2 — PROFILE — ZONA
+  { id: "hvn",     label: "HVN",                                color: "#1fd17a", sr: true,  group: "Profile — Zona" },
+  { id: "lvn",     label: "LVN",                                color: "#34d399", sr: true,  group: "Profile — Zona" },
+  { id: "pz-vah",  label: "VAH",                                color: "#fb923c", sr: false, group: "Profile — Zona" },
+  { id: "pz-val",  label: "VAL",                                color: "#fdba74", sr: false, group: "Profile — Zona" },
+  { id: "poc",     label: "POC",                                color: "#818cf8", sr: true,  group: "Profile — Zona" },
+  { id: "vsi",     label: "Vol. Stacked Imbalance",            color: "#fbbf24", sr: true,  group: "Profile — Zona" },
+
+  // 3 — DEEPDOM — LIQUIDITY HEATMAP
+  { id: "dd-fresh",   label: "Fresh Liquidity",                          color: "#18c9b0", sr: false, group: "DeepDOM — Liquidity Heatmap" },
+  { id: "dd-persist", label: "Persistent/Reinforcement Liquidity Cluster", color: "#5b8fff", sr: false, group: "DeepDOM — Liquidity Heatmap" },
+  { id: "dd-spoof",   label: "Spoofing Detected",                        color: "#f04f4f", sr: false, group: "DeepDOM — Liquidity Heatmap" },
+  { id: "dd-iceberg", label: "Iceberg Order",                            color: "#60a5fa", sr: false, group: "DeepDOM — Liquidity Heatmap" },
+  { id: "dd-sweep",   label: "Book Sweeping",                            color: "#f0a832", sr: false, group: "DeepDOM — Liquidity Heatmap" },
+
+  // 4 — EFFORT VS RESULT — EXECUÇÃO
+  { id: "dt-abs",  label: "Absorption Confirmed",               color: "#5b8fff", sr: false, group: "Effort vs Result — Execução" },
+  { id: "ev-exh",  label: "Exhaustion Confirmed",               color: "#f0a832", sr: false, group: "Effort vs Result — Execução" },
+  { id: "dt-fol",  label: "Initiative Auction Confirmed",       color: "#18c9b0", sr: false, group: "Effort vs Result — Execução" },
+  { id: "dt-sr",   label: "Responsive Auction Confirmed",       color: "#60a5fa", sr: true,  group: "Effort vs Result — Execução" },
+  { id: "ev-cvd",  label: "CVD Divergence",                     color: "#a78bfa", sr: false, group: "Effort vs Result — Execução" },
+  { id: "ev-tape", label: "Speed of Tape Anomaly",              color: "#fbbf24", sr: false, group: "Effort vs Result — Execução" },
+  { id: "ev-imb",  label: "Orderflow Imbalance",                color: "#9b72f5", sr: false, group: "Effort vs Result — Execução" },
+  { id: "delta",   label: "Delta Anomaly",                      color: "#a78bfa", sr: false, group: "Effort vs Result — Execução" },
+
+  // 5 — PATTERNS
+  { id: "bvr-vah", label: "Break VAH & Retest",                 color: "#18c9b0", sr: false, group: "Patterns" },
+  { id: "bvr-val", label: "Break VAL & Retest",                 color: "#34d399", sr: false, group: "Patterns" },
+  { id: "fa-vah",  label: "Failed Auction VAH",                 color: "#fb923c", sr: false, group: "Patterns" },
+  { id: "fa-val",  label: "Failed Auction VAL",                 color: "#fdba74", sr: false, group: "Patterns" },
+  { id: "vwap",    label: "VWAP Bounce",                        color: "#9b72f5", sr: false, group: "Patterns" },
+  { id: "hvb",     label: "ORB/IVB Breakout",                   color: "#f0a832", sr: false, group: "Patterns" },
+  { id: "pat-buyreload",  label: "Buyer Reload",                color: "#1fd17a", sr: false, group: "Patterns" },
+  { id: "pat-sellreload", label: "Seller Reload",               color: "#f04f4f", sr: false, group: "Patterns" },
+
+  // LEGACY (não renderizados no painel — preservam trades históricas + agregação nos Reports)
+  { id: "fa",  label: "Failed Auction (VAL/VAH)", color: "#fb923c", sr: true, srLabels: ["VAL","VAH"], group: "Patterns", legacy: true },
+  { id: "bvr", label: "Break Value & Retest",     color: "#18c9b0", sr: true, srLabels: ["VAL","VAH"], group: "Patterns", legacy: true },
 ];
 const CMAP = {}; CONFS.forEach(c => CMAP[c.id] = c);
 
@@ -2177,10 +2229,21 @@ function buildConfs(containerId, rawConfs, chipClass, srClass, srBtnClass, toggl
   const sel = parseConfs(rawConfs);
   const selMap = {}; sel.forEach(c => selMap[c.id] = c.sr || null);
   const groups = {};
-  CONFS.forEach(c => { if (!groups[c.group]) groups[c.group] = []; groups[c.group].push(c); });
+  // Tags legacy só aparecem no painel se já estiverem seleccionadas nesta trade
+  // (assim não se oferecem para trades novas mas preservam-se em trades históricas ao re-gravar)
+  CONFS.forEach(c => { if (c.legacy && !selMap.hasOwnProperty(c.id)) return; if (!groups[c.group]) groups[c.group] = []; groups[c.group].push(c); });
+  // Ordem canónica + quaisquer grupos extra que apareçam (segurança)
+  const orderedGroups = CONF_GROUP_ORDER.filter(g => groups[g])
+    .concat(Object.keys(groups).filter(g => !CONF_GROUP_ORDER.includes(g)));
+  const headCls = chipClass === "cchip" ? "conf-group-label" : "rconf-group";
   let html = "";
-  Object.keys(groups).forEach(g => {
-    html += '<div class="' + (chipClass === "cchip" ? "conf-group-label" : "rconf-group") + '">' + g + '</div>';
+  orderedGroups.forEach(g => {
+    // Default: expandido se o grupo tem alguma tag seleccionada na trade actual, senão colapsado
+    const hasSel = groups[g].some(c => selMap.hasOwnProperty(c.id));
+    const collapsed = hasSel ? "" : " collapsed";
+    html += '<div class="conf-group' + collapsed + '">';
+    html += '<div class="' + headCls + ' conf-group-head" onclick="confGroupToggle(this)"><span>' + g + '</span><span class="conf-caret">▾</span></div>';
+    html += '<div class="conf-group-body">';
     groups[g].forEach(c => {
       const isOn = selMap.hasOwnProperty(c.id);
       const curSR = isOn ? selMap[c.id] : null;
@@ -2208,8 +2271,13 @@ function buildConfs(containerId, rawConfs, chipClass, srClass, srBtnClass, toggl
       '</div>';
       html += '</div>';
     });
+    html += '</div></div>'; // .conf-group-body + .conf-group
   });
   el.innerHTML = html;
+}
+function confGroupToggle(head) {
+  const grp = head.closest('.conf-group');
+  if (grp) grp.classList.toggle('collapsed');
 }
 // Confluence remove with inline confirmation
 function confAskRemove(btn) {
@@ -5793,6 +5861,60 @@ function loadCustomConfs() {
   });
 }
 
+// ── Migração da taxonomia de confluências (07/07/2026) ──────────────
+// Canonicaliza tags que existiam como CUSTOM ("Gamma Wall", "ICEBERG order")
+// para as novas tags base (of-gamma, dd-iceberg), remapeando os ids nas trades
+// históricas sem perda de dados. Idempotente: uma vez migradas as custom confs
+// desaparecem e a função passa a ser no-op. Renames com id igual (dt-abs, hvb,
+// bvr→…, dt-sr, delta, etc.) não precisam de transform — o label actualiza via CMAP.
+let _confMigRunning = false;
+async function migrateConfluences() {
+  if (_confMigRunning) return;
+  const LABEL_TO_BASE = {
+    "gamma wall": "of-gamma",
+    "iceberg order": "dd-iceberg",
+    "iceberg": "dd-iceberg",
+  };
+  const idRemap = {};
+  (customConfs || []).forEach(c => {
+    const key = String(c.label || "").trim().toLowerCase();
+    if (LABEL_TO_BASE[key] && CMAP[LABEL_TO_BASE[key]]) idRemap[c.id] = LABEL_TO_BASE[key];
+  });
+  if (!Object.keys(idRemap).length) return; // nada a migrar
+  _confMigRunning = true;
+  try {
+    const changed = [];
+    Object.keys(allT).forEach(accId => {
+      const arr = allT[accId]; if (!Array.isArray(arr)) return;
+      arr.forEach(t => {
+        const confs = parseConfs(t.confluences);
+        if (!confs.length) return;
+        let mod = false;
+        confs.forEach(c => { if (idRemap[c.id]) { c.id = idRemap[c.id]; mod = true; } });
+        if (mod) { t.confluences = serConfs(confs); changed.push([accId, t]); }
+      });
+    });
+    // Remove as custom confs canonicalizadas (evita botões/rows duplicados)
+    customConfs = (customConfs || []).filter(c => !idRemap[c.id]);
+    Object.keys(idRemap).forEach(oldId => {
+      const i = CONFS.findIndex(x => x.id === oldId); if (i !== -1) CONFS.splice(i, 1);
+      delete CMAP[oldId];
+    });
+    localStorage.setItem("nq10_cc", JSON.stringify(customConfs));
+    localStorage.setItem(SK_T, JSON.stringify(allT));
+    sbPushKey("nq10_cc", customConfs);
+    for (const [accId, t] of changed) { try { await sbSaveTrade(accId, t); } catch(e){} }
+    console.log("[NQ] migrateConfluences: " + changed.length + " trades migradas | " + Object.keys(idRemap).length + " custom confs canonicalizadas");
+    if (changed.length) {
+      if (typeof renderList === "function") renderList();
+      if (typeof renderDiary === "function") renderDiary();
+      if (typeof renderReports === "function") renderReports();
+    }
+  } finally {
+    _confMigRunning = false;
+  }
+}
+
 // ─── Image Drop Utilities ─────────────────────────────────────────
 function stripHTML(s) {
   const d = document.createElement('div'); d.innerHTML = s || ''; return d.textContent || d.innerText || '';
@@ -6232,9 +6354,24 @@ function rptDetailed(t) {
   let dirRows = Object.entries(dirs).sort((a,b)=>b[1].length-a[1].length).map(([k,v])=>rptStatRow(k,v)).join('');
   html += '<div class="sec"><div class="sec-title">Por direção</div><table style="'+TS+'">'+rptTableHeader()+'<tbody>'+dirRows+'</tbody></table></div>';
 
-  const byConf = {}; t.forEach(x => parseConfs(x.confluences).forEach(({id,sr}) => { const lbl=confLabel(id,sr); if(!byConf[lbl])byConf[lbl]=[]; byConf[lbl].push(x); }));
-  let confRows = Object.entries(byConf).sort((a,b)=>b[1].length-a[1].length).map(([k,v])=>rptStatRow(k,v)).join('');
-  html += '<div class="sec"><div class="sec-title">Por confluência</div>'+(confRows?'<table style="'+TS+'">'+rptTableHeader()+'<tbody>'+confRows+'</tbody></table>':'<div style="color:var(--hint);font-size:12px;font-family:var(--mono)">Adiciona confluências às trades para ver este breakdown</div>')+'</div>';
+  // Por confluência — agrupado pelas 6 categorias da taxonomia
+  const confByGroup = {}; // grupo -> { label -> trades[] }
+  t.forEach(x => parseConfs(x.confluences).forEach(({id,sr}) => {
+    const lbl = confLabel(id, sr);
+    const c = CMAP[id];
+    const grp = (c && c.group && CONF_GROUP_ORDER.includes(c.group)) ? c.group : "Custom";
+    if (!confByGroup[grp]) confByGroup[grp] = {};
+    if (!confByGroup[grp][lbl]) confByGroup[grp][lbl] = [];
+    confByGroup[grp][lbl].push(x);
+  }));
+  let confBody = '';
+  CONF_GROUP_ORDER.forEach(grp => {
+    const g = confByGroup[grp]; if (!g) return;
+    const rows = Object.entries(g).sort((a,b)=>b[1].length-a[1].length).map(([k,v])=>rptStatRow(k,v)).join('');
+    if (!rows) return;
+    confBody += '<tr><td colspan="7" style="padding:11px 8px 4px;font-family:var(--mono);font-size:10px;color:var(--hint);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--b1)">'+grp+'</td></tr>' + rows;
+  });
+  html += '<div class="sec"><div class="sec-title">Por confluência</div>'+(confBody?'<table style="'+TS+'">'+rptTableHeader()+'<tbody>'+confBody+'</tbody></table>':'<div style="color:var(--hint);font-size:12px;font-family:var(--mono)">Adiciona confluências às trades para ver este breakdown</div>')+'</div>';
 
   const byBias = {}; t.forEach(x => { const b=psData[x.date]?.bias||null; if(!b)return; if(!byBias[b])byBias[b]=[]; byBias[b].push(x); });
   let biasRows = Object.entries(byBias).sort((a,b)=>b[1].length-a[1].length).map(([k,v])=>rptStatRow(k,v)).join('');
