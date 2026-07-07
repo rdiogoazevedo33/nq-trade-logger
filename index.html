@@ -1837,7 +1837,7 @@ async function sbUploadPrint(folder, base64) {
   try {
     const res = await fetch(base64);
     const blob = await res.blob();
-    const ext = blob.type.includes('png') ? 'png' : 'jpg';
+    const ext = blob.type.includes('png') ? 'png' : blob.type.includes('webp') ? 'webp' : 'jpg';
     const path = `${sbUser.id}/${folder}/${Date.now()}.${ext}`;
     const { error: upErr } = await sb.storage.from('prints').upload(path, blob, { contentType: blob.type });
     if (upErr) { console.error('[NQ] sbUploadPrint ERRO:', upErr.message); return null; }
@@ -1942,8 +1942,11 @@ function persist() {
 }
 
 // ── Compressão de imagens ────────────────────────────────────────
-function compressImage(base64, maxWidth, quality) {
-  maxWidth = maxWidth || 800; quality = quality || 0.7;
+function compressImage(base64, maxWidth, quality, format) {
+  // Defaults tuned para legibilidade de charts orderflow (candles, footprint, deep trade bubbles)
+  // a 100% zoom. Storage é Supabase Storage (URLs assinadas), não base64 em localStorage/row,
+  // por isso não há o limite de 5-10MB que justificava a compressão agressiva anterior.
+  maxWidth = maxWidth || 2560; quality = quality || 0.95; format = format || 'image/webp';
   return new Promise(function(resolve) {
     const img = new Image();
     img.onload = function() {
@@ -1952,7 +1955,7 @@ function compressImage(base64, maxWidth, quality) {
       canvas.width = Math.round(img.width * ratio);
       canvas.height = Math.round(img.height * ratio);
       canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-      resolve(canvas.toDataURL('image/jpeg', quality));
+      resolve(canvas.toDataURL(format, quality));
     };
     img.onerror = function() { resolve(base64); };
     img.src = base64;
@@ -4640,7 +4643,7 @@ function rvAddPrints(e) {
   const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id); if (idx === -1) return;
   if (!all[idx].screenshots) all[idx].screenshots = [];
   let done = 0;
-  files.forEach(f => { const r = new FileReader(); r.onload = async ev => { const compressed = await compressImage(ev.target.result, 1920, 0.92); const stored = await sbUploadPrint('trades/'+String(t.id), compressed); all[idx].screenshots.push(stored || compressed); done++; if (done === files.length) { setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]); rvRenderGallery(all[idx].screenshots); toast(done + " print(s) guardado(s)", "ok"); } }; r.readAsDataURL(f); });
+  files.forEach(f => { const r = new FileReader(); r.onload = async ev => { const compressed = await compressImage(ev.target.result); const stored = await sbUploadPrint('trades/'+String(t.id), compressed); all[idx].screenshots.push(stored || compressed); done++; if (done === files.length) { setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]); rvRenderGallery(all[idx].screenshots); toast(done + " print(s) guardado(s)", "ok"); } }; r.readAsDataURL(f); });
   e.target.value = "";
 }
 function rvRemovePrint(i) {
