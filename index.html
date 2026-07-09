@@ -370,6 +370,17 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .macro-val-in{font-family:var(--mono);font-size:11px;background:var(--s3);border:1px solid var(--b1);border-radius:5px;color:var(--text);padding:3px 8px;outline:none;width:70px}
 .macro-val-in:focus{border-color:var(--accent)}
 .macro-val-in::placeholder{color:var(--hint)}
+
+/* FEAR & GREED GAUGE */
+.fg-wrap{display:flex;flex-direction:column;align-items:center;padding:6px 0 2px}
+.fg-gauge{position:relative;width:190px;height:95px;overflow:hidden}
+.fg-gauge-arc{position:absolute;top:0;left:0;width:190px;height:190px;border-radius:50%;background:conic-gradient(from 270deg at 50% 50%,var(--red) 0deg 36deg,var(--amber) 36deg 72deg,var(--sub) 72deg 108deg,var(--teal) 108deg 144deg,var(--green) 144deg 180deg,transparent 180deg 360deg)}
+.fg-gauge-needle{position:absolute;left:50%;bottom:0;width:2px;height:82px;background:var(--sub);transform-origin:bottom center;transform:translateX(-50%) rotate(0deg);transition:transform .25s ease,background .25s ease;border-radius:2px}
+.fg-gauge-pivot{position:absolute;left:50%;bottom:-5px;width:10px;height:10px;background:var(--text);border-radius:50%;transform:translateX(-50%)}
+.fg-readout{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap;justify-content:center}
+.fg-score{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--text)}
+.fg-label{font-family:var(--mono);font-size:11px;font-weight:600}
+.fg-tag{font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 9px;border-radius:5px;border:1px solid;background:var(--s3);display:none}
 .macro-impact-btn{font-family:var(--mono);font-size:10px;padding:3px 9px;border-radius:5px;border:1px solid var(--b1);background:transparent;color:var(--hint);cursor:pointer;transition:all .12s}
 .macro-impact-btn.bull.on{background:#071f0f;border-color:var(--green);color:var(--green)}
 .macro-impact-btn.bear.on{background:#1f0707;border-color:var(--red);color:var(--red)}
@@ -1118,34 +1129,6 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
             <button class="ps-bias-btn range" onclick="setPSBias('Neutral',this)">↔ Neutral</button>
           </div>
 
-          <!-- Eventos macro (expandido por default) -->
-          <div class="ps-collapse-hdr" onclick="togglePSCollapse('ps-col-events',this)">
-            <div class="ps-collapse-title">
-              <span class="ps-collapse-filled" id="ps-col-events-dot"></span>
-              📅 Eventos macro do dia
-            </div>
-            <span class="ps-collapse-arrow open" id="ps-col-events-arrow">▼</span>
-          </div>
-          <div class="ps-collapse-body" id="ps-col-events" style="max-height:2000px">
-            <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">
-              <span style="font-size:9px;font-family:var(--mono);color:var(--hint);align-self:center;margin-right:3px">Adicionar:</span>
-              <button class="ps-predef-event" onclick="addPSEventPredef('FOMC')">FOMC</button>
-              <button class="ps-predef-event" onclick="addPSEventPredef('CPI')">CPI</button>
-              <button class="ps-predef-event" onclick="addPSEventPredef('PPI')">PPI</button>
-              <button class="ps-predef-event" onclick="addPSEventPredef('NFP')">NFP</button>
-              <button class="ps-predef-event" onclick="addPSEventPredef('GDP')">GDP</button>
-              <button class="ps-predef-event" onclick="addPSEventPredef('PMI')">PMI</button>
-              <button class="ps-predef-event" onclick="addPSEventPredef('JOLTS')">JOLTS</button>
-              <button class="ps-predef-event" onclick="addPSEventPredef('Jobless Claims')">Jobless Claims</button>
-              <button class="ps-predef-event" onclick="addPSEventPredef('Retail Sales')">Retail Sales</button>
-              <button class="ps-predef-event" onclick="addPSEventPredef('Average Hourly Earnings')">Avg Hourly Earn.</button>
-              <button class="ps-predef-event" onclick="addPSEventPredef('Fed Chair Speaks')">Fed Chair Speaks</button>
-              <button class="ps-predef-event" onclick="addPSEventPredef('President Speaks')">President Speaks</button>
-              <button class="ps-predef-event" onclick="addMacroEvent()">+ Manual</button>
-            </div>
-            <div id="macro-events-list" style="margin-bottom:10px"></div>
-          </div>
-
           <!-- Fed (colapsado) -->
           <div class="ps-collapse-hdr" onclick="togglePSCollapse('ps-col-fed',this)">
             <div class="ps-collapse-title">
@@ -1170,49 +1153,81 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
             </div>
           </div>
 
-          <!-- Sentiment (colapsado) -->
-          <div class="ps-collapse-hdr" onclick="togglePSCollapse('ps-col-sent',this)">
+          <!-- Fear & Greed (expandido por default) -->
+          <div class="ps-collapse-hdr" onclick="togglePSCollapse('ps-col-fg',this)">
             <div class="ps-collapse-title">
-              <span class="ps-collapse-filled" id="ps-col-sent-dot"></span>
-              📊 Sentiment + Capital Flow + DXY/VIX/US10Y
+              <span class="ps-collapse-filled" id="ps-col-fg-dot"></span>
+              😨 Fear &amp; Greed
             </div>
-            <span class="ps-collapse-arrow" id="ps-col-sent-arrow">▼</span>
+            <span class="ps-collapse-arrow open" id="ps-col-fg-arrow">▼</span>
           </div>
-          <div class="ps-collapse-body" id="ps-col-sent" style="max-height:0;overflow:hidden">
+          <div class="ps-collapse-body" id="ps-col-fg" style="max-height:2000px">
             <div style="padding-top:4px">
-              <div class="ps-field-lbl">Sentiment de mercado</div>
-              <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
-                <button class="ps-sent-btn" id="sent-ron" onclick="setPSSentiment('Risk-On',this)">✦ Risk-On</button>
-                <button class="ps-sent-btn" id="sent-roff" onclick="setPSSentiment('Risk-Off',this)">✦ Risk-Off</button>
-                <button class="ps-sent-btn" id="sent-neut" onclick="setPSSentiment('Neutro',this)">— Neutro</button>
+              <div class="fg-wrap">
+                <div class="fg-gauge">
+                  <div class="fg-gauge-arc"></div>
+                  <div class="fg-gauge-needle" id="fg-needle"></div>
+                  <div class="fg-gauge-pivot"></div>
+                </div>
+                <div class="fg-readout">
+                  <span class="fg-score" id="fg-score-lbl">—</span>
+                  <span class="fg-label" id="fg-label-lbl">Sem score</span>
+                  <span class="fg-tag" id="fg-tag-badge"></span>
+                </div>
               </div>
-              <div class="ps-field-lbl">Capital Flow</div>
-              <div class="ta-fs-wrap">
-                <button class="ta-fs-btn" onclick="openFSModal('Capital Flow','ps-capital-flow')" title="Expandir">⤢</button>
-                <textarea class="ps-ta" id="ps-capital-flow" style="min-height:44px;margin-bottom:10px" placeholder="Ex: USD fraco, bonds estáveis, rotação para growth, tech sector líder..."></textarea>
+              <div style="display:flex;align-items:center;gap:8px;margin:12px 0 10px">
+                <span class="ps-field-lbl" style="margin:0">Score (0–100)</span>
+                <input type="number" class="finput" id="ps-fg-score" min="0" max="100" step="1" placeholder="32" style="width:80px" oninput="setFearGreedScore(this.value)">
               </div>
-              <div class="ps-field-lbl">DXY · VIX · US2Y · US10Y</div>
               <div class="ta-fs-wrap">
-                <button class="ta-fs-btn" onclick="openFSModal('DXY · VIX · US2Y · US10Y','ps-dxy-vix-narrative')" title="Expandir">⤢</button>
-                <textarea class="ps-ta" id="ps-dxy-vix-narrative" style="min-height:52px;margin-bottom:10px" placeholder="Ex: DXY a enfraquecer abaixo de 103, VIX em 18 (low vol), US2Y estável, US10Y a subir..."></textarea>
+                <button class="ta-fs-btn" onclick="openFSModal('Fear &amp; Greed — Racional','ps-fg-note')" title="Expandir">⤢</button>
+                <textarea class="ps-ta" id="ps-fg-note" style="min-height:44px" placeholder="Ex: 32, puxado por Safe Haven Demand e Put/Call em Extreme Fear; Momentum ainda Neutral"></textarea>
               </div>
             </div>
           </div>
 
-          <!-- Geopolitics (colapsado) -->
-          <div class="ps-collapse-hdr" onclick="togglePSCollapse('ps-col-geo',this)">
+          <!-- Capital Flow (colapsado) -->
+          <div class="ps-collapse-hdr" onclick="togglePSCollapse('ps-col-cf',this)">
             <div class="ps-collapse-title">
-              <span class="ps-collapse-filled" id="ps-col-geo-dot"></span>
-              🌍 News & Geopolítica
+              <span class="ps-collapse-filled" id="ps-col-cf-dot"></span>
+              💵 Capital Flow
             </div>
-            <span class="ps-collapse-arrow" id="ps-col-geo-arrow">▼</span>
+            <span class="ps-collapse-arrow" id="ps-col-cf-arrow">▼</span>
           </div>
-          <div class="ps-collapse-body" id="ps-col-geo" style="max-height:0;overflow:hidden">
+          <div class="ps-collapse-body" id="ps-col-cf" style="max-height:0;overflow:hidden">
             <div style="padding-top:4px">
               <div class="ta-fs-wrap">
-                <button class="ta-fs-btn" onclick="openFSModal('News &amp; Geopolítica','ps-geopolitics')" title="Expandir">⤢</button>
-                <textarea class="ps-ta" id="ps-geopolitics" style="min-height:52px" placeholder="Ex: Conflitos geopolíticos, decisões políticas (tarifas, sanções), notícias macro inesperadas, qualquer headline que mova o sentiment do dia..."></textarea>
+                <button class="ta-fs-btn" onclick="openFSModal('Capital Flow','ps-capital-flow')" title="Expandir">⤢</button>
+                <textarea class="ps-ta" id="ps-capital-flow" style="min-height:60px" placeholder="SPX overnight, NQ overnight, Ouro, US10Y, US2Y, VIX, DXY, mercados europeus, mercados asiáticos..."></textarea>
               </div>
+            </div>
+          </div>
+
+          <!-- News & MacroEconomics (expandido por default) -->
+          <div class="ps-collapse-hdr" onclick="togglePSCollapse('ps-col-events',this)">
+            <div class="ps-collapse-title">
+              <span class="ps-collapse-filled" id="ps-col-events-dot"></span>
+              🗞️ News &amp; MacroEconomics
+            </div>
+            <span class="ps-collapse-arrow open" id="ps-col-events-arrow">▼</span>
+          </div>
+          <div class="ps-collapse-body" id="ps-col-events" style="max-height:2000px">
+            <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">
+              <span style="font-size:9px;font-family:var(--mono);color:var(--hint);align-self:center;margin-right:3px">Adicionar:</span>
+              <button class="ps-predef-event" onclick="addPSEventPredef('FOMC')">FOMC</button>
+              <button class="ps-predef-event" onclick="addPSEventPredef('CPI')">CPI</button>
+              <button class="ps-predef-event" onclick="addPSEventPredef('PPI')">PPI</button>
+              <button class="ps-predef-event" onclick="addPSEventPredef('NFP')">NFP</button>
+              <button class="ps-predef-event" onclick="addPSEventPredef('GDP')">GDP</button>
+              <button class="ps-predef-event" onclick="addPSEventPredef('Retail Sales')">Retail Sales</button>
+              <button class="ps-predef-event" onclick="addPSEventPredef('PMI')">PMI</button>
+              <button class="ps-predef-event" onclick="addMacroEvent()">+ Manual</button>
+            </div>
+            <div id="macro-events-list" style="margin-bottom:10px"></div>
+            <div class="ps-field-lbl" style="margin-top:6px">News &amp; Geopolítica</div>
+            <div class="ta-fs-wrap">
+              <button class="ta-fs-btn" onclick="openFSModal('News &amp; Geopolítica','ps-geopolitics')" title="Expandir">⤢</button>
+              <textarea class="ps-ta" id="ps-geopolitics" style="min-height:52px" placeholder="Ex: Conflitos geopolíticos, decisões políticas (tarifas, sanções), notícias macro inesperadas, qualquer headline que mova o sentiment do dia..."></textarea>
             </div>
           </div>
 
@@ -1918,7 +1933,7 @@ const GRADE_COLOR     = { 'A+': 'var(--green)', 'A': 'var(--accent)', 'B+': 'var
 let curDate = "", scope = "all", calY = 0, calM = 0, dashPeriod = "month", dashMode = "summary";
 let modalId = null, modalDayIds = [];
 let rvDate = "", rvIdx = 0;
-let psBias = "", psFed = "", psSentiment = "", psDate = "", psProfileBias = "";
+let psBias = "", psFed = "", psFearGreed = null, psDate = "", psProfileBias = "";
 
 function loadData() {
   try { accounts = JSON.parse(localStorage.getItem(SK_A) || "[]"); } catch(e) { accounts = []; }
@@ -3700,18 +3715,16 @@ function loadPSDate(d) {
   psBias = ctx.bias || '';
   if (['Consolidation/Ranging','ranging','Ranging'].includes(psBias)) psBias = 'Neutral';
   psFed = ctx.fed || '';
-  psSentiment = ctx.sentiment || '';
+  psFearGreed = (ctx.fear_greed_score === 0 || ctx.fear_greed_score) ? ctx.fear_greed_score : null;
   // Bias buttons
   document.querySelectorAll('.ps-bias-btn').forEach(b => { b.classList.remove('on'); if (psBias && b.textContent.includes(psBias)) b.classList.add('on'); });
   // Fed buttons (data-val para correspondência exacta)
   document.querySelectorAll('.fed-btn[data-val]').forEach(b => { b.classList.remove('on'); if (psFed && b.dataset.val === psFed) b.classList.add('on'); });
-  // Sentiment buttons
-  document.querySelectorAll('.ps-sent-btn').forEach(b => b.classList.remove('on-ron', 'on-roff', 'on-neut'));
-  if (psSentiment === 'Risk-On') { const b = document.getElementById('sent-ron'); if (b) b.classList.add('on-ron'); }
-  else if (psSentiment === 'Risk-Off') { const b = document.getElementById('sent-roff'); if (b) b.classList.add('on-roff'); }
-  else if (psSentiment === 'Neutro') { const b = document.getElementById('sent-neut'); if (b) b.classList.add('on-neut'); }
+  // Fear & Greed
+  const fgScoreInput = document.getElementById('ps-fg-score'); if (fgScoreInput) fgScoreInput.value = psFearGreed ?? '';
+  renderFearGreedGauge(psFearGreed);
   // Textareas
-  const taMap = {'ps-fed-ctx':'fedCtx','ps-capital-flow':'capital_flow','ps-dxy-vix-narrative':'dxy_vix_narrative','ps-geopolitics':'geopolitics','ps-narrative':'narrative'};
+  const taMap = {'ps-fed-ctx':'fedCtx','ps-fg-note':'fear_greed_note','ps-capital-flow':'capital_flow','ps-geopolitics':'geopolitics','ps-narrative':'narrative'};
   Object.entries(taMap).forEach(([id, key]) => { const el = document.getElementById(id); if (el) el.value = ctx[key] || ''; });
   // Profile bias buttons
   psProfileBias = ctx.profile_bias || '';
@@ -3729,10 +3742,10 @@ function loadPSDate(d) {
   renderZoneGradeList(d);
   // Collapsible dots (filled indicator)
   const setDot = (id, val) => { const el = document.getElementById(id); if (el) el.classList.toggle('show', !!val); };
-  setDot('ps-col-events-dot', ctx.macroEvents?.length);
+  setDot('ps-col-events-dot', (ctx.macroEvents?.length) || ctx.geopolitics);
   setDot('ps-col-fed-dot', ctx.fed || ctx.fedCtx);
-  setDot('ps-col-sent-dot', ctx.sentiment || ctx.sentiment_narrative || ctx.capital_flow || ctx.dxy_vix_narrative);
-  setDot('ps-col-geo-dot', ctx.geopolitics);
+  setDot('ps-col-fg-dot', (ctx.fear_greed_score === 0 || ctx.fear_greed_score) || ctx.fear_greed_note);
+  setDot('ps-col-cf-dot', ctx.capital_flow);
   updatePSStatusBadge();
   renderPSHist();
 }
@@ -3747,13 +3760,58 @@ function setPSBias(v, btn) {
   document.querySelectorAll('.ps-bias-btn').forEach(b => b.classList.remove('on'));
   if (psBias) btn.classList.add('on');
 }
-function setPSSentiment(v, btn) {
-  psSentiment = (psSentiment === v) ? '' : v;
-  document.querySelectorAll('.ps-sent-btn').forEach(b => b.classList.remove('on-ron','on-roff','on-neut'));
-  if (!psSentiment) return;
-  if (v === 'Risk-On') btn.classList.add('on-ron');
-  else if (v === 'Risk-Off') btn.classList.add('on-roff');
-  else btn.classList.add('on-neut');
+// ─── Fear & Greed ─────────────────────
+function fgLabel(s) {
+  if (s == null) return 'Sem score';
+  if (s <= 24) return 'Extreme Fear';
+  if (s <= 44) return 'Fear';
+  if (s <= 55) return 'Neutral';
+  if (s <= 75) return 'Greed';
+  return 'Extreme Greed';
+}
+function fgTag(s) {
+  if (s == null) return '';
+  if (s < 40) return 'Risk-Off';
+  if (s > 60) return 'Risk-On';
+  return 'Neutro';
+}
+function fgColor(s) {
+  if (s == null) return 'var(--sub)';
+  if (s <= 24) return 'var(--red)';
+  if (s <= 44) return 'var(--amber)';
+  if (s <= 55) return 'var(--sub)';
+  if (s <= 75) return 'var(--teal)';
+  return 'var(--green)';
+}
+function setFearGreedScore(val) {
+  let s = parseInt(val, 10);
+  s = isNaN(s) ? null : Math.max(0, Math.min(100, s));
+  psFearGreed = s;
+  renderFearGreedGauge(s);
+}
+function renderFearGreedGauge(s) {
+  const needle = document.getElementById('fg-needle');
+  const scoreLbl = document.getElementById('fg-score-lbl');
+  const labelLbl = document.getElementById('fg-label-lbl');
+  const tagBadge = document.getElementById('fg-tag-badge');
+  if (!needle) return;
+  const clamped = (s == null) ? 50 : s;
+  const angle = (clamped - 50) * 1.8;
+  needle.style.transform = 'translateX(-50%) rotate(' + angle + 'deg)';
+  needle.style.background = fgColor(s);
+  if (scoreLbl) scoreLbl.textContent = (s == null) ? '—' : s;
+  if (labelLbl) { labelLbl.textContent = fgLabel(s); labelLbl.style.color = fgColor(s); }
+  if (tagBadge) {
+    const tag = fgTag(s);
+    if (!tag) { tagBadge.textContent = ''; tagBadge.style.display = 'none'; }
+    else {
+      tagBadge.style.display = '';
+      tagBadge.textContent = tag;
+      const c = tag === 'Risk-On' ? 'var(--green)' : tag === 'Risk-Off' ? 'var(--red)' : 'var(--sub)';
+      tagBadge.style.color = c;
+      tagBadge.style.borderColor = c;
+    }
+  }
 }
 function setPSProfileBias(v, btn) {
   psProfileBias = (psProfileBias === v) ? '' : v;
@@ -3897,10 +3955,10 @@ async function savePS() {
     bias: psBias,
     fed: psFed,
     fedCtx: g('ps-fed-ctx'),
-    sentiment: psSentiment,
-    sentiment_narrative: existing.sentiment_narrative || '',
+    fear_greed_score: psFearGreed,
+    fear_greed_note: g('ps-fg-note'),
+    sentiment: fgTag(psFearGreed) || existing.sentiment || '',
     capital_flow: g('ps-capital-flow'),
-    dxy_vix_narrative: g('ps-dxy-vix-narrative'),
     geopolitics: g('ps-geopolitics'),
     narrative: g('ps-narrative'),
     profile_bias: psProfileBias,
@@ -3911,10 +3969,10 @@ async function savePS() {
   };
   // update dots
   const setDot = (id, val) => { const el = document.getElementById(id); if (el) el.classList.toggle('show', !!val); };
-  setDot('ps-col-events-dot', psData[d].macroEvents?.length);
+  setDot('ps-col-events-dot', psData[d].macroEvents?.length || psData[d].geopolitics);
   setDot('ps-col-fed-dot', psData[d].fed || psData[d].fedCtx);
-  setDot('ps-col-sent-dot', psData[d].sentiment || psData[d].sentiment_narrative || psData[d].capital_flow || psData[d].dxy_vix_narrative);
-  setDot('ps-col-geo-dot', psData[d].geopolitics);
+  setDot('ps-col-fg-dot', (psData[d].fear_greed_score === 0 || psData[d].fear_greed_score) || psData[d].fear_greed_note);
+  setDot('ps-col-cf-dot', psData[d].capital_flow);
   const ok = await savePSData(d);
   updatePSStatusBadge();
   renderPSHist();
@@ -4135,7 +4193,7 @@ function renderMacroEvents(iso) {
   const el = document.getElementById("macro-events-list"); if (!el) return;
   const ctx = psData[iso];
   const events = ctx?.macroEvents || [];
-  if (!events.length) { el.innerHTML = '<div style="color:var(--hint);font-size:12px;font-family:var(--mono);padding:6px 0">Sem eventos registados — usa os botões rápidos acima ou "+ Manual"</div>'; return; }
+  if (!events.length) { el.innerHTML = '<div style="color:var(--hint);font-size:12px;font-family:var(--mono);padding:6px 0">Sem eventos red folder hoje</div>'; return; }
   el.innerHTML = events.map((ev, i) => buildMacroEventHTML(ev, i)).join("");
 }
 
@@ -4152,7 +4210,7 @@ function buildMacroEventHTML(ev, i) {
     '</div>' +
     '<div class="ta-fs-wrap">' +
     '<button class="ta-fs-btn" onclick="openFSModal(\'' + ev.name.replace(/'/g,"\\'") + '\',\'ps-mev-note-' + i + '\')" title="Expandir">⤢</button>' +
-    '<textarea class="ps-ta" id="ps-mev-note-' + i + '" style="min-height:52px;margin-top:7px" placeholder="Ex: Se abaixo 150k → USD fraco → potencial spike bullish NQ..." oninput="updateMacroEventNote(' + i + ',this.value)">' + noteVal + '</textarea>' +
+    '<textarea class="ps-ta" id="ps-mev-note-' + i + '" style="min-height:52px;margin-top:7px" placeholder="Consensus, cenário Beat/Miss/Inline e implicação para Fed & Nasdaq. Ex: Consensus 175k. Beat (>200k) → USD forte, Fed hawkish, NQ bearish. Miss (<150k) → USD fraco, cut pricing sobe, NQ bullish." oninput="updateMacroEventNote(' + i + ',this.value)">' + noteVal + '</textarea>' +
     '</div>' +
   '</div>';
 }
@@ -4250,6 +4308,8 @@ function openDocModal() {
   // Macro
   let macroHtml = '';
   if (ctx.fedCtx) macroHtml += kv('Contexto Fed', '') + ta(ctx.fedCtx);
+  if (ctx.fear_greed_score === 0 || ctx.fear_greed_score) macroHtml += kv('Fear & Greed', ctx.fear_greed_score + ' · ' + fgLabel(ctx.fear_greed_score));
+  if (ctx.fear_greed_note) macroHtml += ta(ctx.fear_greed_note);
   if (ctx.sentiment_narrative) macroHtml += kv('Sentiment / Vol', '') + ta(ctx.sentiment_narrative);
   if (ctx.capital_flow) macroHtml += kv('Capital Flow', '') + ta(ctx.capital_flow);
   if (ctx.dxy_vix_narrative) macroHtml += kv('DXY · VIX · US2Y', '') + ta(ctx.dxy_vix_narrative);

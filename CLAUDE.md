@@ -156,12 +156,13 @@ Weekly prep: `weeklyPrep[weekStart]` onde `weekStart` é a segunda-feira da sema
   bias: "Bullish"|"Bearish"|"Neutro"|"Cauteloso",
   fed_narrative: "Hawkish"|"Neutral to Hawkish"|"Neutral"|"Neutral to Dovish"|"Dovish",
   fed_context: string,
-  sentiment: "Risk-On"|"Risk-Off"|"Neutro",
-  // sentiment_narrative REMOVIDA (simplificação)
-  capital_flow: string,
-  dxy_vix_us2y_narrative: string,  // cobre DXY, VIX, US2Y e US10Y
-  macro_events: array,        // [{name, impact, note}] — nota livre por evento
-  geopolitics: string,
+  fear_greed_score: number,   // 0-100, gauge estilo CNN Fear & Greed
+  fear_greed_note: string,    // racional do score (texto livre)
+  sentiment: "Risk-On"|"Risk-Off"|"Neutro",  // AUTO-DERIVADO do fear_greed_score (não é botão manual): <40 Risk-Off, 40-60 Neutro, >60 Risk-On
+  // sentiment_narrative e dxy_vix_narrative REMOVIDOS da UI (legado, preservados só em sessões antigas)
+  capital_flow: string,        // campo único: SPX/NQ overnight, Ouro, US10Y, US2Y, VIX, DXY, mercados EU/Ásia
+  macro_events: array,        // [{name, time, note, priority}] — nota cobre Consensus/Beat-Miss-Inline/Implicação Fed & Nasdaq
+  geopolitics: string,         // News & Geopolítica — vive dentro da secção "News & MacroEconomics" junto aos eventos
 
   // PROFILE FRAMING DIÁRIO
   poc_daily: number,
@@ -307,16 +308,24 @@ O utilizador pode adicionar confluências customizadas via "+ Nova confluência"
 - Leitura do Profile (textarea livre)
 
 ### Pilar 2 — Macro & Fundamental
-- Bias do dia (Bullish/Bearish/Neutro/Cauteloso)
-- Fed Narrative (Hawkish → Dovish, 5 opções)
-- Fed Context (textarea)
-- Sentiment (Risk-On/Risk-Off/Neutro) — sem campo de narrativa separado
-- Capital flow, DXY/VIX/US2Y/US10Y narrativa (campo unificado), Geopolítica
-- Macro Events — lista dinâmica simplificada:
-  - Eventos rápidos: NFP, CPI, FOMC, PCE, GDP, ISM, PPI, Retail Sales, Fed Chair Speaks, President Speaks, Average Hourly Earnings, etc.
-  - Cada evento tem: nome, impacto (LOW/MED/HIGH) e nota livre (textarea pequena)
-  - Sem campos Actual/Forecast/Bullish/Bearish
-- Game Plan do dia (textarea grande — narrativa unificada)
+
+Ordem dos campos (topo → fundo): **Bias do dia → Fed Narrative + Contexto → Fear & Greed → Capital Flow → News & MacroEconomics**. Alinhado com a estrutura de briefing macro de 5 pilares (Fed Stance, Fear & Greed, Capital Flow, News & MacroEconomics, Bias).
+
+- **Bias do dia** (Bullish/Bearish/Neutro/Cauteloso) — botões, sempre visível no topo
+- **Fed Narrative + Contexto** (Hawkish → Dovish, 5 opções) + textarea de contexto — secção colapsável
+- **Fear & Greed** — secção colapsável (aberta por default), substitui por completo os antigos botões "Sentiment de Mercado":
+  - Gauge visual semi-circular estilo CNN Fear & Greed (5 bandas de cor: Extreme Fear → Fear → Neutral → Greed → Extreme Greed), agulha posicionada pelo score
+  - Input numérico de score (0-100) — campo `fear_greed_score`
+  - Label automático derivado do score: 0-24 Extreme Fear, 25-44 Fear, 45-55 Neutral, 56-75 Greed, 76-100 Extreme Greed (função `fgLabel()`)
+  - Badge Risk-On/Risk-Off/Neutro auto-computado a partir do score (não são botões manuais): <40 Risk-Off, 40-60 Neutro, >60 Risk-On (função `fgTag()`) — este valor é guardado no campo legado `sentiment` para manter compatibilidade com badges no Diário/Reports/CSV
+  - Textarea de racional — campo `fear_greed_note`
+- **Capital Flow** — secção colapsável, textarea única (fusão do antigo par Capital Flow + "DXY·VIX·US2Y·US10Y"); placeholder guia o checklist fixo de assets (SPX/NQ overnight, Ouro, US10Y, US2Y, VIX, DXY, mercados EU/Ásia)
+- **News & MacroEconomics** — secção colapsável (aberta por default), fusão de "Eventos Macro" + "News & Geopolítica":
+  - Botões rápidos reduzidos a eventos red-folder: FOMC, CPI, PPI, NFP, GDP, Retail Sales, PMI + "+ Manual" para casos extra
+  - Cada evento tem: nome, hora (opcional), prioridade auto-detectada, e nota livre cobrindo Consensus / cenário Beat-Miss-Inline / implicação para Fed & Nasdaq
+  - Estado vazio: "Sem eventos red folder hoje"
+  - Por baixo da lista de eventos: textarea de News & Geopolítica (contexto mais amplo, não ligado a um evento específico)
+- **Game Plan do dia** (fora dos 2 pilares, textarea grande — narrativa unificada) — inalterado
 
 ---
 
@@ -414,6 +423,7 @@ Padrão aplicado em todas as secções com fotos (Weekly Prep, Pré-sessão, Di�
 - `rvOpenLightbox(idx)` — review screen
 
 **Log:** Revisão pós-sessão + galeria COT — 22 Mai 2026
+**Log:** Reformulação Pilar 2 (Fear & Greed gauge substitui Sentiment; Capital Flow unificado; Eventos + Geopolítica fundidos em News & MacroEconomics) — 09 Jul 2026
 
 ---
 
@@ -437,6 +447,7 @@ Padrão aplicado em todas as secções com fotos (Weekly Prep, Pré-sessão, Di�
 | — | Botão fullscreen ⤢ em todas as textareas grandes | ✅ Completo |
 | — | Timeout e anti-loop em sbPullData/sbSaveSession/sbSaveTrade/sbPushKey | ✅ Completo |
 | — | Revisão pós-sessão + galeria horizontal de fotos | ✅ Completo |
+| — | Reformulação Pilar 2 — Fear & Greed gauge, Capital Flow unificado, News & MacroEconomics fundido | ✅ Completo |
 | 7 | IA Edge Finder — identificação A+ setups | ⏳ Por fazer |
 | 8 | Geração código Pine Script / Python | ⏳ Por fazer |
 
