@@ -1754,6 +1754,7 @@ async function sbPullData() {
   localStorage.setItem("nq10_t",  JSON.stringify(allT));
   localStorage.setItem("nq10_ps", JSON.stringify(psData));
   localStorage.setItem("nq10_wp", JSON.stringify(weeklyPrep));
+  cleanStaleRithmicMappings();
   setSyncStatus("ok", sbUser?.email || "autenticado");
   renderAccts();
   // Canonicaliza confluências custom legacy (Gamma Wall / Iceberg) após dados da cloud
@@ -2008,6 +2009,19 @@ function loadData() {
     accounts = [{ id: "lucid", name: "Lucid", emoji: "🔵" }, { id: "mff", name: "My Funded Futures", emoji: "🟢" }];
     persist();
   }
+  cleanStaleRithmicMappings();
+}
+function cleanStaleRithmicMappings() {
+  const validIds = new Set(accounts.map(a => a.id));
+  let changed = false;
+  Object.keys(rithmicAcctMap).forEach(k => {
+    if (!validIds.has(rithmicAcctMap[k])) { delete rithmicAcctMap[k]; changed = true; }
+  });
+  if (changed) {
+    localStorage.setItem(SK_RAM, JSON.stringify(rithmicAcctMap));
+    sbPushKey("nq10_ram", rithmicAcctMap);
+  }
+  return changed;
 }
 
 function persist() {
@@ -2489,6 +2503,9 @@ function deleteAcct(id, e) {
   const n = (Array.isArray(allT[id]) ? allT[id] : []).length;
   if (!confirm("Eliminar \"" + a.name + "\"?" + (n > 0 ? " Apaga " + n + " trades." : ""))) return;
   accounts = accounts.filter(x => x.id !== id); delete allT[id];
+  Object.keys(rithmicAcctMap).forEach(k => { if (rithmicAcctMap[k] === id) delete rithmicAcctMap[k]; });
+  localStorage.setItem(SK_RAM, JSON.stringify(rithmicAcctMap));
+  sbPushKey("nq10_ram", rithmicAcctMap);
   persist(); renderAccts();
 }
 
@@ -2706,16 +2723,24 @@ function handleRithmicFile(text, fname) {
   if (mapped === curAcct.id) { renderRithmicPreview(filled, fname); return; }
   if (mapped) {
     const mappedAcct = accounts.find(a => a.id === mapped);
-    document.getElementById("import-result").innerHTML =
-      '<div style="padding:16px;border:1px solid var(--amber);border-radius:12px;margin-top:14px;background:#2a1d05">' +
-      '<div style="font-weight:600;color:var(--amber);margin-bottom:6px">⚠ Conta diferente da seleccionada</div>' +
-      '<div style="font-size:12px;color:var(--sub);margin-bottom:12px">Este ficheiro é da conta Rithmic <b>' + escapeHtml(rithmicAccount) + '</b>, que está associada a <b>' + escapeHtml(mappedAcct ? mappedAcct.name : mapped) + '</b> — mas tens <b>' + escapeHtml(curAcct.name) + '</b> seleccionada. Nunca importo trades para a conta errada.</div>' +
-      '<div style="display:flex;gap:8px">' +
-      (mappedAcct ? '<button class="btn btn-sm btn-accent" onclick="switchToMappedAccount(\'' + mapped + '\')">Mudar para ' + escapeHtml(mappedAcct.name) + '</button>' : '') +
-      '<button class="btn btn-sm btn-ghost" onclick="cancelRithmicImport()">Cancelar</button></div></div>';
-    return;
+    if (mappedAcct) {
+      document.getElementById("import-result").innerHTML =
+        '<div style="padding:16px;border:1px solid var(--amber);border-radius:12px;margin-top:14px;background:#2a1d05">' +
+        '<div style="font-weight:600;color:var(--amber);margin-bottom:6px">⚠ Conta diferente da seleccionada</div>' +
+        '<div style="font-size:12px;color:var(--sub);margin-bottom:12px">Este ficheiro é da conta Rithmic <b>' + escapeHtml(rithmicAccount) + '</b>, que está associada a <b>' + escapeHtml(mappedAcct.name) + '</b> — mas tens <b>' + escapeHtml(curAcct.name) + '</b> seleccionada. Nunca importo trades para a conta errada.</div>' +
+        '<div style="display:flex;gap:8px">' +
+        '<button class="btn btn-sm btn-accent" onclick="switchToMappedAccount(\'' + mapped + '\')">Mudar para ' + escapeHtml(mappedAcct.name) + '</button>' +
+        '<button class="btn btn-sm btn-ghost" onclick="cancelRithmicImport()">Cancelar</button></div></div>';
+      return;
+    }
+    // Mapping points at an account_id that no longer exists (account was deleted
+    // elsewhere and cleanStaleRithmicMappings() hasn't run yet on this load) —
+    // it's not safe to show the mismatch dead-end, so drop it and ask again.
+    delete rithmicAcctMap[rithmicAccount];
+    localStorage.setItem(SK_RAM, JSON.stringify(rithmicAcctMap));
+    sbPushKey("nq10_ram", rithmicAcctMap);
   }
-  // Not mapped yet — ask once, remember the answer.
+  // Not mapped yet (or mapping was stale) — ask once, remember the answer.
   _rithmicPendingRaw = { filled, fname };
   document.getElementById("import-result").innerHTML =
     '<div style="padding:16px;border:1px solid var(--accent);border-radius:12px;margin-top:14px;background:#0d1626">' +
