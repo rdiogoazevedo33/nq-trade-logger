@@ -112,6 +112,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .finput:focus{border-color:var(--accent)}
 .finput::placeholder{color:var(--hint)}
 
+/* AI EXPORT */
+.export-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.export-lbl{font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.07em;display:flex;flex-direction:column;gap:4px}
+.export-charcount{font-size:10px;font-family:var(--mono);color:var(--hint);margin-left:auto}
+.export-preview{width:100%;min-height:420px;font-family:var(--mono);font-size:11px;line-height:1.6;background:var(--s2);border:1px solid var(--b1);border-radius:10px;color:var(--text);padding:12px 14px;outline:none;resize:vertical;white-space:pre-wrap}
+.export-preview:focus{border-color:var(--accent)}
+
 /* CALENDAR */
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
 .cal-hc{font-size:10px;font-family:var(--mono);color:var(--hint);text-align:center;padding:4px 0}
@@ -934,6 +941,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
           <button class="rit-btn on" onclick="setReportTab('overview',this)">Overview</button>
           <button class="rit-btn" onclick="setReportTab('detailed',this)">Detailed</button>
           <button class="rit-btn" onclick="setReportTab('winsloss',this)">Wins vs Losses</button>
+          <button class="rit-btn" onclick="setReportTab('export',this)">Export</button>
         </div>
         <div id="report-scope-row" style="display:flex;gap:5px;flex-wrap:wrap"></div>
       </div>
@@ -2377,140 +2385,10 @@ function _saveDiaryExpandedWeeks(set) {
   localStorage.setItem('nq_expanded_weeks', JSON.stringify([...set]));
 }
 
-// ─── Exportar JSON para IA ────────────────────────────────────────
-
 function _buildErrorCatalogMap() {
   const m = {};
   errorCatalog.forEach(c => { m[c.id] = c; });
   return m;
-}
-
-function _buildTradeExport(t, errCatalogMap) {
-  const primaryLabel = t.error_primary ? (errCatalogMap[t.error_primary]?.label || t.error_primary) : null;
-  const secondaryLabels = (t.error_secondary || []).map(id => errCatalogMap[id]?.label || id);
-  const out = {
-    id: t.id,
-    direction: t.direction,
-    entry: t.entry,
-    exit: t.exit,
-    qty: t.qty,
-    pnl: t.pnl,
-    stop_ticks: t.stop_ticks ?? null,
-    tp_ticks: t.tp_ticks ?? null,
-    rr: t.rr ?? null,
-    r: t.r ?? null,
-    session: t.session || getSession(t.time) || null,
-    grade: t.grade ?? null,
-    error_primary: primaryLabel,
-    error_secondary: secondaryLabels,
-    notes: t.notes || null
-  };
-  return out;
-}
-
-function _buildDayExport(date, errCatalogMap) {
-  const trades = acctTrades().filter(t => t.date === date);
-  const ps = psData[date] || {};
-  const D = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
-  const d = new Date(date + 'T12:00:00');
-  const wins = trades.filter(t => t.pnl > 0);
-  const pnlDia = trades.reduce((s, t) => s + t.pnl, 0);
-
-  const pre_sessao = Object.keys(ps).length ? {
-    bias: ps.bias || null,
-    fed_narrative: ps.fed_narrative || null,
-    fed_context: ps.fed_context || null,
-    sentiment: ps.sentiment || null,
-    capital_flow: ps.capital_flow || null,
-    dxy_vix_us2y: ps.dxy_vix_us2y_narrative || null,
-    geopolitics: ps.geopolitics || null,
-    macro_events: (ps.macro_events || []).map(e => ({ name: e.name || e, impact: e.impact || null, note: e.note || null })),
-    game_plan: ps.narrative || null,
-    profile_framing: {
-      poc_daily: ps.poc_daily ?? null,
-      poc_weekly: ps.poc_weekly ?? null,
-      poc_composite: ps.poc_composite ?? null,
-      vah: ps.vah ?? null,
-      val: ps.val ?? null,
-      hvn_levels: (ps.hvn_levels || []).map(x => ({ price: x.price, note: x.note || null })),
-      lvn_levels: (ps.lvn_levels || []).map(x => ({ price: x.price, note: x.note || null })),
-      sr_levels: (ps.sr_levels || []).map(x => ({ price: x.price, type: x.type, note: x.note || null })),
-      delta_anomalies: (ps.delta_anomalies || []).map(x => ({ price: x.price, type: x.type, note: x.note || null })),
-      profile_notes: ps.profile_notes || null
-    }
-  } : null;
-
-  return {
-    date,
-    dia_semana: D[d.getDay()],
-    pre_sessao,
-    trades: trades.map(t => _buildTradeExport(t, errCatalogMap)),
-    resumo_dia: {
-      total_trades: trades.length,
-      pnl_dia: Math.round(pnlDia * 100) / 100,
-      win_rate: trades.length ? Math.round(wins.length / trades.length * 1000) / 1000 : null
-    }
-  };
-}
-
-function _downloadJSON(payload, filename) {
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click();
-  document.body.removeChild(a); URL.revokeObjectURL(url);
-}
-
-function exportWeekJSON(weekStart) {
-  if (!curAcct) return;
-  const errCatalogMap = _buildErrorCatalogMap();
-  const days = getWeekDays(weekStart);
-  const wp = weeklyPrep[weekStart] || {};
-  const weekTrades = acctTrades().filter(t => days.includes(t.date));
-  const wins = weekTrades.filter(t => t.pnl > 0);
-  const pnlSemana = weekTrades.reduce((s, t) => s + t.pnl, 0);
-  const tradeDays = new Set(weekTrades.map(t => t.date)).size;
-
-  const payload = {
-    periodo: fmtWeekRange(weekStart),
-    exportDate: new Date().toISOString().split('T')[0],
-    account: curAcct.name,
-    preparacao_semanal: {
-      bias_semanal: wp.weekly_bias || null,
-      narrative_semanal: wp.weekly_narrative || null,
-      cot_report: wp.cot_notes || null,
-      news_geopolitica: wp.geo_notes || null,
-      weekly_fed: wp.weekly_fed || null,
-      weekly_poc: wp.weekly_poc ? parseFloat(wp.weekly_poc) : null,
-      weekly_vah: wp.weekly_vah ? parseFloat(wp.weekly_vah) : null,
-      weekly_val: wp.weekly_val ? parseFloat(wp.weekly_val) : null,
-      weekly_hvn_lvn: wp.weekly_hvn_lvn || null,
-      weekly_delta: wp.delta_notes || null,
-      weekly_composite_poc: wp.weekly_composite_poc ? parseFloat(wp.weekly_composite_poc) : null,
-      weekly_events: wp.weekly_events || null
-    },
-    dias: days.map(d => _buildDayExport(d, errCatalogMap)),
-    resumo_semana: {
-      total_trades: weekTrades.length,
-      pnl_semana: Math.round(pnlSemana * 100) / 100,
-      win_rate: weekTrades.length ? Math.round(wins.length / weekTrades.length * 1000) / 1000 : null,
-      dias_operados: tradeDays
-    }
-  };
-
-  _downloadJSON(payload, 'semana-' + weekStart + '.json');
-  toast('Semana exportada (' + weekTrades.length + ' trades)', 'ok');
-}
-
-function exportDayJSON(date) {
-  if (!curAcct) return;
-  const errCatalogMap = _buildErrorCatalogMap();
-  const payload = _buildDayExport(date, errCatalogMap);
-  payload.exportDate = new Date().toISOString().split('T')[0];
-  payload.account = curAcct.name;
-  _downloadJSON(payload, 'dia-' + date + '.json');
-  toast('Dia exportado (' + payload.trades.length + ' trades)', 'ok');
 }
 
 function renderDiary() {
@@ -2551,7 +2429,6 @@ function renderWeekCard(weekStart, isCurrent, isOpen) {
       (weekTrades.length ? '<span class="week-pnl-lbl" style="color:'+pnlColor+'">'+pnlStr+'</span>' : '') +
       '<span class="week-meta-lbl">'+tradeDays+'d · '+weekTrades.length+'T</span>' +
       '<button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 10px;margin-left:auto" onclick="event.stopPropagation();showWeekFullPrep(\''+weekStart+'\')" title="Ver preparação completa da semana">📋 Preparação</button>' +
-      '<button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 9px;color:var(--teal)" onclick="event.stopPropagation();exportWeekJSON(\''+weekStart+'\')" title="Exportar semana para IA">⬇ Semana</button>' +
       '<span class="week-chevron">▶</span>' +
     '</div>' +
     '<div class="week-body" id="wkb-'+weekStart+'">' +
@@ -2712,7 +2589,6 @@ function buildDiaryDayRow(date) {
       (planSnip ? '<span class="ddr-plan-snip">'+planSnip+'</span>' : '') +
       '<span class="ddr-pnl-lbl" style="color:'+pnlColor+'">'+pnlStr+'</span>' +
       '<span class="ddr-cnt">'+(trades.length?trades.length+'T':'')+'</span>' +
-      '<button style="background:transparent;border:1px solid var(--b1);border-radius:6px;color:var(--teal);font-size:10px;font-family:var(--mono);padding:2px 8px;cursor:pointer;flex-shrink:0" onclick="event.stopPropagation();exportDayJSON(\''+date+'\')" title="Exportar dia para IA">⬇ Dia</button>' +
       '<span class="ddr-chev">▶</span>' +
     '</div>' +
     '<div class="ddr-detail" id="ddd-'+date+'">' + buildDiaryDayDetail(date) + '</div>' +
@@ -4796,26 +4672,6 @@ function updateBackupLbl() {
   el.textContent = ts ? "backup " + ts : "";
 }
 
-function exportAllCSV() {
-  const all = acctTrades();
-  if (!all.length) return toast("Sem trades", "err");
-  const header = "Date;Time;Symbol;Direction;Entry;Exit;PnL;Stop_Ticks;TP_Ticks;Risk_USD;RR_Planned;R_Realized;Grade;Errors;Trade_Recap;Day_Bias;Fed_Narrative;Sentiment";
-  const errCatalogMap = _buildErrorCatalogMap();
-  const rows = all.map(x => {
-    const ctx = psData[x.date] || {};
-    const riskUSD = (x.stop_ticks && x.qty) ? (x.stop_ticks * 0.50 * x.qty).toFixed(2) : (x.risk || "");
-    const recap = stripHTML(x.notes || "").replace(/\n/g, " ");
-    const errIds = [x.error_primary, ...(x.error_secondary || [])].filter(Boolean);
-    const errors = errIds.map(id => errCatalogMap[id]?.label || id).join(" | ");
-    return [x.date, x.time||"", x.symbol||"", x.direction||"", x.entry||"", x.exit||"", x.pnl, x.stop_ticks||"", x.tp_ticks||"", riskUSD, x.rr||"", x.r||"", x.grade||"", errors, recap, ctx.bias||"", ctx.fed||"", ctx.sentiment||""].join(";");
-  });
-  const csv = [header, ...rows].join("\r\n");
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
-  a.download = (curAcct?.name||"trades")+"_all_"+new Date().toISOString().split("T")[0].replace(/-/g,"")+".csv";
-  a.click();
-  toast(all.length + " trades exportadas", "ok");
-}
 
 function importAllData(e) {
   const file = e.target.files[0]; if (!file) return;
@@ -5090,22 +4946,6 @@ function showWeekFullPrep(weekStart) {
   document.body.style.overflow = 'hidden';
 }
 
-function exportCSV() {
-  const t = dayTrades(curDate); if (!t.length) return toast("Sem trades", "err");
-  const ctx = psData[curDate] || {};
-  const header = "Date;Time;Symbol;Direction;Entry;Exit;PnL;Stop_Ticks;TP_Ticks;Risk_USD;RR_Planned;R_Realized;Grade;Errors;Trade_Recap;Day_Bias;Fed_Narrative;Sentiment";
-  const errCatalogMap = _buildErrorCatalogMap();
-  const rows = t.map(x => {
-    const riskUSD = (x.stop_ticks && x.qty) ? (x.stop_ticks * 0.50 * x.qty).toFixed(2) : (x.risk || "");
-    const recap = stripHTML(x.notes || "").replace(/\n/g, " ");
-    const errIds = [x.error_primary, ...(x.error_secondary || [])].filter(Boolean);
-    const errors = errIds.map(id => errCatalogMap[id]?.label || id).join(" | ");
-    return [x.date, x.time||"", x.symbol||"", x.direction||"", x.entry||"", x.exit||"", x.pnl, x.stop_ticks||"", x.tp_ticks||"", riskUSD, x.rr||"", x.r||"", x.grade||"", errors, recap, ctx.bias||"", ctx.fed||"", ctx.sentiment||""].join(";");
-  });
-  const csv = [header, ...rows].join("\r\n");
-  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download = (curAcct?.name||"trades")+"_"+curDate.replace(/-/g,"")+".csv"; a.click();
-  toast(t.length + " exportadas", "ok");
-}
 function toast(msg, type="ok") { const t = document.getElementById("toast"); t.textContent = msg; t.className = "toast " + type + " on"; setTimeout(() => t.classList.remove("on"), 2400); }
 
 // ═══════════════════════════════════════════
@@ -5145,8 +4985,223 @@ function reportScopedT() {
   return t.filter(x=>x.date===rScope);
 }
 
+// ═══════════════════════════════════════════
+// EXPORT — texto compacto para análise com IA
+// ═══════════════════════════════════════════
+let expPreset = 'week', expFrom = '', expTo = '', expAcctId = '', expInited = false;
+
+function applyExportPreset(preset) {
+  expPreset = preset;
+  const today = todayISO();
+  if (preset === 'week') {
+    expFrom = getMonday(today); expTo = today;
+  } else if (preset === 'lastweek') {
+    const mon = new Date(getMonday(today) + 'T12:00:00');
+    const from = new Date(mon); from.setDate(from.getDate() - 7);
+    const to = new Date(mon); to.setDate(to.getDate() - 1);
+    expFrom = from.toISOString().split('T')[0]; expTo = to.toISOString().split('T')[0];
+  } else if (preset === '30d') {
+    const from = new Date(today + 'T12:00:00'); from.setDate(from.getDate() - 29);
+    expFrom = from.toISOString().split('T')[0]; expTo = today;
+  } else if (preset === 'all') {
+    expFrom = ''; expTo = '';
+  }
+}
+
+function initExportDefaults() {
+  if (expInited) return;
+  expInited = true;
+  expAcctId = curAcct.id;
+  applyExportPreset('week');
+}
+
+function setExportPreset(preset) {
+  applyExportPreset(preset);
+  refreshExportBlock();
+}
+
+function onExportDateChange() {
+  const f = document.getElementById('exp-from'), t = document.getElementById('exp-to');
+  expFrom = f ? f.value : ''; expTo = t ? t.value : '';
+  expPreset = 'custom';
+  refreshExportBlock();
+}
+
+function onExportAcctChange() {
+  const sel = document.getElementById('exp-acct');
+  if (sel) expAcctId = sel.value;
+  refreshExportBlock();
+}
+
+function refreshExportBlock() {
+  document.getElementById('reports-body').innerHTML = rptExport();
+}
+
+function _inRange(d, from, to) {
+  return (!from || d >= from) && (!to || d <= to);
+}
+function fmtMoney(v) { return (v >= 0 ? '+' : '') + '$' + v.toFixed(2); }
+function fmtR(v) { return (v >= 0 ? '+' : '') + v.toFixed(2) + 'R'; }
+
+function _fmtExportTradeLine(t, errMap) {
+  const hora = (t.lisbon_entry_time || t.time || '').slice(0, 5);
+  const parts = [];
+  if (hora) parts.push(hora);
+  parts.push(t.direction || '—');
+  const entry = t.entry != null ? t.entry.toFixed(2) : '—';
+  const exit = t.exit != null ? t.exit.toFixed(2) : '—';
+  parts.push(entry + '→' + exit);
+  if (t.points != null) parts.push((t.points >= 0 ? '+' : '') + t.points.toFixed(2) + 'pts');
+  parts.push('P&L ' + fmtMoney(t.pnl));
+  if (t.grade) parts.push('Grade ' + t.grade);
+  const errIds = [t.error_primary, ...(t.error_secondary || [])].filter(Boolean);
+  if (errIds.length) parts.push('Erros: ' + errIds.map(id => errMap[id]?.label || id).join(', '));
+  if (t.rr != null) parts.push('R planeado 1:' + t.rr.toFixed(2));
+  if (t.r != null) parts.push('R realizado ' + fmtR(t.r));
+  return parts.join(' · ');
+}
+
+function buildAIExportText(accountId, dateFrom, dateTo) {
+  const acct = accounts.find(a => a.id === accountId);
+  const trades = (Array.isArray(allT[accountId]) ? allT[accountId] : []).filter(t => _inRange(t.date, dateFrom, dateTo));
+  const sessions = allPS[accountId] || {};
+  const tradesByDay = {};
+  trades.forEach(t => { (tradesByDay[t.date] = tradesByDay[t.date] || []).push(t); });
+  const dayHasRecap = d => { const s = sessions[d]; return !!(s && (String(s.recap_text || '').trim() || s.recap_bias_correct)); };
+  const sessionDays = Object.keys(sessions).filter(d => _inRange(d, dateFrom, dateTo) && dayHasRecap(d));
+  const days = [...new Set([...Object.keys(tradesByDay), ...sessionDays])].sort();
+
+  const errMap = _buildErrorCatalogMap();
+  const wins = trades.filter(t => t.pnl > 0);
+  const pnlTotal = trades.reduce((s, t) => s + t.pnl, 0);
+  const rrVals = trades.map(t => t.rr).filter(v => v != null);
+  const rVals = trades.map(t => t.r).filter(v => v != null);
+  const avgRR = rrVals.length ? rrVals.reduce((s, v) => s + v, 0) / rrVals.length : null;
+  const avgR = rVals.length ? rVals.reduce((s, v) => s + v, 0) / rVals.length : null;
+  const gradeCounts = {};
+  trades.forEach(t => { if (t.grade) gradeCounts[t.grade] = (gradeCounts[t.grade] || 0) + 1; });
+  const errCounts = {};
+  trades.forEach(t => { [t.error_primary, ...(t.error_secondary || [])].filter(Boolean).forEach(id => { errCounts[id] = (errCounts[id] || 0) + 1; }); });
+
+  const lines = [];
+
+  // ── Contexto ──
+  lines.push('Este é um export de um journal de trading discricionário/semi-automático em NQ/MNQ.');
+  lines.push('O journal mede aderência de execução: compara o resultado real com o que um setup já validado esperava. Não serve para descobrir regras novas a partir destes dados — não infiras confluências ou padrões novos; usa-o para diagnosticar onde a execução falhou (stops apertados, entradas sem confirmação, re-entradas emocionais, vencedores cortados cedo).');
+  lines.push('');
+  lines.push('Grades (medem quanto do valor disponível da trade foi capturado):');
+  TRADE_GRADES.forEach(g => lines.push(g + ' — ' + TRADE_GRADE_DESC[g]));
+  const activeErrs = errorCatalog.filter(c => c.active);
+  if (activeErrs.length) {
+    lines.push('');
+    lines.push('Códigos de erro activos (comportamento, não resultado):');
+    activeErrs.forEach(c => lines.push(c.label + (c.desc ? ' — ' + c.desc : '')));
+  }
+  lines.push('');
+
+  // ── Cabeçalho ──
+  const rangeLbl = (dateFrom || dateTo) ? (dateFrom || 'início') + ' – ' + (dateTo || 'hoje') : 'tudo';
+  lines.push('Intervalo: ' + rangeLbl);
+  lines.push('Conta: ' + (acct ? acct.name : accountId));
+  lines.push('Dias: ' + days.length);
+  lines.push('Trades: ' + trades.length);
+  if (trades.length) {
+    lines.push('P&L total: ' + fmtMoney(pnlTotal));
+    lines.push('Taxa de acerto: ' + (Math.round(wins.length / trades.length * 1000) / 10) + '%');
+    if (avgRR != null) lines.push('R médio planeado: 1:' + avgRR.toFixed(2));
+    if (avgR != null) lines.push('R médio realizado: ' + fmtR(avgR));
+    const gradeStr = TRADE_GRADES.filter(g => gradeCounts[g]).map(g => g + ' ' + gradeCounts[g]).join(', ');
+    if (gradeStr) lines.push('Grades: ' + gradeStr);
+    const errStr = Object.entries(errCounts).map(([id, n]) => (errMap[id]?.label || id) + ' ' + n).join(', ');
+    if (errStr) lines.push('Erros: ' + errStr);
+  }
+
+  // ── Por dia ──
+  days.forEach(d => {
+    lines.push('');
+    const dTrades = (tradesByDay[d] || []).slice().sort((a, b) => {
+      const ar = a.csv_row ?? Infinity, br = b.csv_row ?? Infinity;
+      if (ar !== br) return ar - br;
+      return (a.time || '').localeCompare(b.time || '');
+    });
+    const s = sessions[d] || {};
+    const dPnl = dTrades.reduce((sum, t) => sum + t.pnl, 0);
+    let head = d;
+    if (s.bias) head += ' · Bias: ' + s.bias;
+    if (s.recap_bias_correct) head += ' · Bias acertou: ' + s.recap_bias_correct;
+    if (dTrades.length) head += ' · P&L: ' + fmtMoney(dPnl) + ' (' + dTrades.length + (dTrades.length === 1 ? ' trade' : ' trades') + ')';
+    lines.push(head);
+    const limit = acct?.daily_loss_limit;
+    if (limit && limit > 0 && dPnl <= -limit) lines.push('⚠ Limite diário atingido ($' + limit + ')');
+
+    if (s.narrative && s.narrative.trim()) { lines.push(''); lines.push('Plano: ' + stripHTML(s.narrative).trim()); }
+
+    if (dTrades.length) {
+      lines.push('');
+      dTrades.forEach(t => {
+        lines.push(_fmtExportTradeLine(t, errMap));
+        if (t.notes && stripHTML(t.notes).trim()) lines.push('  Recap: ' + stripHTML(t.notes).trim());
+      });
+    }
+
+    if (s.recap_text && s.recap_text.trim()) { lines.push(''); lines.push('Recap da sessão: ' + stripHTML(s.recap_text).trim()); }
+  });
+
+  return lines.join('\n');
+}
+
+function rptExport() {
+  initExportDefaults();
+  const text = buildAIExportText(expAcctId, expFrom, expTo);
+  const acctOpts = accounts.map(a => '<option value="' + a.id + '"' + (a.id === expAcctId ? ' selected' : '') + '>' + a.emoji + ' ' + a.name + '</option>').join('');
+  const presets = [['week', 'Esta semana'], ['lastweek', 'Semana passada'], ['30d', 'Últimos 30 dias'], ['all', 'Tudo']];
+  const presetBtns = presets.map(([v, l]) => '<button class="scope-btn' + (expPreset === v ? ' on' : '') + '" onclick="setExportPreset(\'' + v + '\')">' + l + '</button>').join('');
+  return '<div class="sec">' +
+    '<div class="sec-title">Exportar para IA</div>' +
+    '<div class="export-row">' + presetBtns + '</div>' +
+    '<div class="export-row">' +
+      '<label class="export-lbl">De<input type="date" id="exp-from" class="finput" value="' + expFrom + '" onchange="onExportDateChange()"></label>' +
+      '<label class="export-lbl">Até<input type="date" id="exp-to" class="finput" value="' + expTo + '" onchange="onExportDateChange()"></label>' +
+      '<label class="export-lbl">Conta<select id="exp-acct" class="finput" style="width:180px;cursor:pointer" onchange="onExportAcctChange()">' + acctOpts + '</select></label>' +
+    '</div>' +
+    '<div class="export-row">' +
+      '<button class="btn btn-accent btn-sm" onclick="copyExportText()">📋 Copiar</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="downloadExportText()">⬇ Descarregar .txt</button>' +
+      '<span class="export-charcount">' + text.length + ' caracteres</span>' +
+    '</div>' +
+    '<textarea class="export-preview" id="exp-preview" readonly>' + escHtml(text) + '</textarea>' +
+  '</div>';
+}
+
+function copyExportText() {
+  const text = buildAIExportText(expAcctId, expFrom, expTo);
+  navigator.clipboard.writeText(text).then(
+    () => toast('Copiado (' + text.length + ' caracteres)', 'ok'),
+    () => toast('Não foi possível copiar', 'err')
+  );
+}
+
+function downloadExportText() {
+  const text = buildAIExportText(expAcctId, expFrom, expTo);
+  const acct = accounts.find(a => a.id === expAcctId);
+  const rangeSlug = (expFrom || expTo) ? (expFrom || 'inicio') + '_' + (expTo || 'hoje') : 'tudo';
+  const filename = 'export-' + (acct?.name || 'conta').replace(/\s+/g, '-').toLowerCase() + '-' + rangeSlug + '.txt';
+  const blob = new Blob([text], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  toast('Ficheiro descarregado', 'ok');
+}
+
 function renderReports() {
   if (!curAcct) return;
+  if (activeReportTab === 'export') {
+    document.getElementById('report-scope-row').innerHTML = '';
+    document.getElementById('reports-body').innerHTML = rptExport();
+    return;
+  }
   buildReportScope();
   const t = reportScopedT();
   const el = document.getElementById('reports-body');
