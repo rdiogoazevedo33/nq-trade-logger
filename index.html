@@ -187,6 +187,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 /* Right panel */
 .rv-right{display:flex;flex-direction:column;overflow:hidden}
 .rv-right-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px}
+.rv-right-body.rv-expanded{display:grid;grid-template-columns:1fr 340px;grid-template-rows:1fr;gap:16px;overflow:hidden}
+.rv-right-body.rv-expanded #rv-prints-card,.rv-right-body.rv-expanded #rv-erros-card{display:none}
+.rv-right-body.rv-expanded #rv-recap-card{display:flex;flex-direction:column;min-height:0}
+.rv-right-body.rv-expanded #rv-recap-card .rv-recap-ta{flex:1;min-height:0;overflow-y:auto}
+.rv-right-body #rv-recap-expand-prints{display:none}
+.rv-right-body.rv-expanded #rv-recap-expand-prints{display:block;overflow-y:auto}
+.rv-recap-expand-img{width:100%;border-radius:8px;margin-bottom:10px;cursor:pointer;border:1px solid var(--b1);display:block}
+.rv-rr-quick-row{display:flex;gap:6px;margin-top:8px}
+.rv-rr-quick-row .rv-unit-btn{flex:1;padding:6px 4px;border:1px solid var(--b1);border-radius:6px}
+.rv-rr-quick-row .rv-unit-btn:disabled{opacity:.35;cursor:not-allowed}
 .rv-section{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:14px}
 .rv-sec-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}
 .rv-sec-title{font-size:11px;font-family:var(--mono);color:var(--text);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
@@ -1208,24 +1218,44 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
       <div class="rv-fields" id="rv-readonly-fields"></div>
 
       <div class="rv-plan-block">
+        <div class="rv-plan-lbl" style="margin-bottom:8px">Grade</div>
+        <select id="rv-grade" onchange="rvSetGrade(this.value)" style="width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;font-weight:700;padding:6px 10px;cursor:pointer">
+          <option value="">—</option>
+          <option value="A+">A+</option>
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="F">F</option>
+        </select>
+        <div id="rv-grade-desc" class="rv-grade-desc"></div>
+      </div>
+
+      <div class="rv-plan-block">
         <div class="rv-plan-row">
           <span class="rv-plan-lbl">Stop planeado</span>
-          <div class="rv-unit-toggle" id="rv-stop-unit-toggle">
-            <button class="rv-unit-btn on" data-u="ticks" onclick="rvSetUnit('stop','ticks')">TICKS</button>
-            <button class="rv-unit-btn" data-u="dollar" onclick="rvSetUnit('stop','dollar')">$</button>
+          <div style="display:flex;align-items:center;gap:6px">
+            <button class="rv-unit-btn" onclick="rvTogglePresetEditor('stop')" title="Editar valores">⚙</button>
+            <div class="rv-unit-toggle" id="rv-stop-unit-toggle">
+              <button class="rv-unit-btn on" data-u="ticks" onclick="rvSetUnit('stop','ticks')">TICKS</button>
+              <button class="rv-unit-btn" data-u="dollar" onclick="rvSetUnit('stop','dollar')">$</button>
+            </div>
           </div>
         </div>
+        <div id="rv-stop-preset-editor" style="display:none;margin-bottom:8px"></div>
         <div id="rv-stop-input-wrap"></div>
       </div>
 
       <div class="rv-plan-block">
         <div class="rv-plan-row">
           <span class="rv-plan-lbl">Alvo planeado</span>
-          <div class="rv-unit-toggle" id="rv-tp-unit-toggle">
-            <button class="rv-unit-btn on" data-u="ticks" onclick="rvSetUnit('tp','ticks')">TICKS</button>
-            <button class="rv-unit-btn" data-u="dollar" onclick="rvSetUnit('tp','dollar')">$</button>
+          <div style="display:flex;align-items:center;gap:6px">
+            <button class="rv-unit-btn" onclick="rvTogglePresetEditor('tp')" title="Editar valores">⚙</button>
+            <div class="rv-unit-toggle" id="rv-tp-unit-toggle">
+              <button class="rv-unit-btn on" data-u="ticks" onclick="rvSetUnit('tp','ticks')">TICKS</button>
+              <button class="rv-unit-btn" data-u="dollar" onclick="rvSetUnit('tp','dollar')">$</button>
+            </div>
           </div>
         </div>
+        <div id="rv-tp-preset-editor" style="display:none;margin-bottom:8px"></div>
         <div id="rv-tp-input-wrap"></div>
       </div>
 
@@ -1235,20 +1265,27 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
       </div>
     </div>
     <div class="rv-right">
-      <div class="rv-right-body">
-        <div class="rv-section">
-          <div class="rv-sec-hdr"><span class="rv-sec-title">Grade</span></div>
-          <select id="rv-grade" onchange="rvSetGrade(this.value)" style="width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;font-weight:700;padding:6px 10px;cursor:pointer">
-            <option value="">—</option>
-            <option value="A+">A+</option>
-            <option value="A">A</option>
-            <option value="B">B</option>
-            <option value="F">F</option>
-          </select>
-          <div id="rv-grade-desc" class="rv-grade-desc"></div>
+      <div class="rv-right-body" id="rv-right-body">
+        <div class="rv-section" id="rv-prints-card">
+          <div class="rv-sec-hdr">
+            <span class="rv-sec-title">📸 Prints do Setup</span>
+            <button class="btn btn-accent btn-sm" onclick="document.getElementById('rv-img-in').click()">+ Adicionar</button>
+          </div>
+          <input type="file" id="rv-img-in" accept="image/*" multiple style="display:none" onchange="rvAddPrints(event)">
+          <div id="rv-gallery"></div>
         </div>
 
-        <div class="rv-section">
+        <div class="rv-section" id="rv-recap-card">
+          <div class="rv-sec-hdr">
+            <span class="rv-sec-title">📝 Trade Recap</span>
+            <button class="btn btn-ghost btn-sm" id="rv-recap-expand-btn" onclick="rvToggleRecapExpand()" title="Expandir">⤢</button>
+          </div>
+          <textarea class="rv-recap-ta" id="rv-recap" placeholder="Descreve o que viste — orderflow, porque entraste, lições..." oninput="rvAutoGrow(this)" onblur="rvSaveTradeFields()"></textarea>
+        </div>
+
+        <div id="rv-recap-expand-prints"></div>
+
+        <div class="rv-section" id="rv-erros-card">
           <div class="rv-sec-hdr">
             <span class="rv-sec-title">Erros</span>
             <button class="btn btn-ghost btn-sm" onclick="rvToggleErrorCatalogEditor()">⚙ Catálogo</button>
@@ -1258,20 +1295,6 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
           <select id="rv-error-primary" onchange="rvSetPrimaryError(this.value)" style="width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:6px 10px;cursor:pointer"></select>
           <div class="rv-field-sub" style="margin-top:12px">Secundários</div>
           <div id="rv-error-secondary" class="rv-err-chip-row"></div>
-        </div>
-
-        <div class="rv-section">
-          <div class="rv-sec-hdr"><span class="rv-sec-title">📝 Trade Recap</span></div>
-          <textarea class="rv-recap-ta" id="rv-recap" placeholder="Descreve o que viste — orderflow, porque entraste, lições..." oninput="rvAutoGrow(this)" onblur="rvSaveTradeFields()"></textarea>
-        </div>
-
-        <div class="rv-section">
-          <div class="rv-sec-hdr">
-            <span class="rv-sec-title">📸 Prints do Setup</span>
-            <button class="btn btn-accent btn-sm" onclick="document.getElementById('rv-img-in').click()">+ Adicionar</button>
-          </div>
-          <input type="file" id="rv-img-in" accept="image/*" multiple style="display:none" onchange="rvAddPrints(event)">
-          <div id="rv-gallery"></div>
         </div>
       </div>
     </div>
@@ -1413,6 +1436,7 @@ async function sbPullData() {
     if (row.key === "nq10_ps")      { try { const v = row.value; if (v && typeof v === "object") allPS = isLegacyFlatByDate(v) ? { lucid: v } : v; } catch(e){} }
     if (row.key === "nq10_ps_imgs") { try { const v = row.value; if (v && typeof v === "object") psImgs = v; } catch(e){} }
     if (row.key === "nq10_ec")      { try { const v = row.value; if (Array.isArray(v) && v.length) { errorCatalog = v; localStorage.setItem(SK_EC, JSON.stringify(errorCatalog)); } } catch(e){} }
+    if (row.key === "nq10_stp")     { try { const v = row.value; if (isValidStopTpPresets(v)) { stopTpPresets = v; localStorage.setItem(SK_STP, JSON.stringify(stopTpPresets)); } } catch(e){} }
     if (row.key === "nq10_wp")      { try { const v = row.value; if (v && typeof v === "object") allWP = isLegacyFlatByDate(v) ? { lucid: v } : v; } catch(e){} }
     if (row.key === "nq10_ram")     { try { const v = row.value; if (v && typeof v === "object") { rithmicAcctMap = v; localStorage.setItem("nq10_ram", JSON.stringify(rithmicAcctMap)); } } catch(e){} }
     if (row.key === "nq10_wp_imgs") { try { const v = row.value; if (v && typeof v === "object") wpImgs = v; } catch(e){} }
@@ -1751,7 +1775,7 @@ async function sbLogout() {
 // ═══════════════════════════════════════════
 // STORAGE
 // ═══════════════════════════════════════════
-const SK_A = "nq10_a", SK_T = "nq10_t", SK_PS = "nq10_ps", SK_WP = "nq10_wp", SK_RAM = "nq10_ram", SK_EC = "nq10_ec";
+const SK_A = "nq10_a", SK_T = "nq10_t", SK_PS = "nq10_ps", SK_WP = "nq10_wp", SK_RAM = "nq10_ram", SK_EC = "nq10_ec", SK_STP = "nq10_stp";
 let accounts = [], curAcct = null, allT = {}, psData = {}, weeklyPrep = {};
 let allPS = {}, allWP = {}; // { accountId: { date/weekStart: {...} } } — root, particionado por conta; psData/weeklyPrep são a "vista" da conta actual
 let rithmicAcctMap = {}; // { "<Rithmic Account column value>": "<app account_id>" }
@@ -1781,6 +1805,13 @@ const DEFAULT_ERROR_CATALOG = [
 ];
 let errorCatalog = [];
 
+// ─── Stop/Alvo planeados — listas de valores rápidos, editáveis ───
+const DEFAULT_STOP_TP_PRESETS = {
+  stop: { ticks: [40, 50, 60, 80, 100], dollar: [30, 35, 40, 45, 50] },
+  tp:   { ticks: [100, 150, 200, 250, 300], dollar: [60, 80, 100, 120, 150] }
+};
+let stopTpPresets = null;
+
 let curDate = "", scope = "all", calY = 0, calM = 0, dashPeriod = "month", dashMode = "summary";
 let rvDate = "", rvIdx = 0;
 let psBias = "", psFed = "", psFearGreed = null, psDate = "", psProfileBias = "";
@@ -1809,6 +1840,8 @@ function loadData() {
   try { rithmicAcctMap = JSON.parse(localStorage.getItem(SK_RAM) || "{}"); } catch(e) { rithmicAcctMap = {}; }
   try { errorCatalog = JSON.parse(localStorage.getItem(SK_EC) || "null") || []; } catch(e) { errorCatalog = []; }
   if (!Array.isArray(errorCatalog) || !errorCatalog.length) errorCatalog = DEFAULT_ERROR_CATALOG.map(c => ({ ...c }));
+  try { stopTpPresets = JSON.parse(localStorage.getItem(SK_STP) || "null"); } catch(e) { stopTpPresets = null; }
+  if (!isValidStopTpPresets(stopTpPresets)) stopTpPresets = JSON.parse(JSON.stringify(DEFAULT_STOP_TP_PRESETS));
   if (!accounts.length) {
     accounts = [{ id: "lucid", name: "Lucid", emoji: "🔵" }, { id: "mff", name: "My Funded Futures", emoji: "🟢" }];
     persist();
@@ -1818,6 +1851,13 @@ function loadData() {
 function saveErrorCatalog() {
   localStorage.setItem(SK_EC, JSON.stringify(errorCatalog));
   sbPushKey("nq10_ec", errorCatalog);
+}
+function isValidStopTpPresets(v) {
+  return !!(v && v.stop && v.tp && Array.isArray(v.stop.ticks) && Array.isArray(v.stop.dollar) && Array.isArray(v.tp.ticks) && Array.isArray(v.tp.dollar));
+}
+function saveStopTpPresets() {
+  localStorage.setItem(SK_STP, JSON.stringify(stopTpPresets));
+  sbPushKey("nq10_stp", stopTpPresets);
 }
 function cleanStaleRithmicMappings() {
   const validIds = new Set(accounts.map(a => a.id));
@@ -4323,6 +4363,7 @@ function rvNav(dir) {
 }
 
 let rvUnit = { stop: "ticks", tp: "ticks" };
+let rvRecapExpanded = false;
 
 function renderReview() {
   const trds = dayTrades(rvDate);
@@ -4349,6 +4390,10 @@ function renderReview() {
   rvUnit = { stop: "ticks", tp: "ticks" };
   document.querySelectorAll("#rv-stop-unit-toggle .rv-unit-btn").forEach(b => b.classList.toggle("on", b.dataset.u === "ticks"));
   document.querySelectorAll("#rv-tp-unit-toggle .rv-unit-btn").forEach(b => b.classList.toggle("on", b.dataset.u === "ticks"));
+  document.getElementById("rv-stop-preset-editor").style.display = "none";
+  document.getElementById("rv-tp-preset-editor").style.display = "none";
+
+  if (rvRecapExpanded) { rvRecapExpanded = false; document.getElementById("rv-right-body").classList.remove("rv-expanded"); rvSetExpandBtnLabel(); }
 
   document.getElementById("rv-readonly-fields").innerHTML = rvBuildReadonlyFields(t);
   rvRenderPlanInput("stop");
@@ -4365,6 +4410,7 @@ function renderReview() {
 
   const recapEl = document.getElementById("rv-recap");
   recapEl.value = t.notes || "";
+  recapEl.style.height = "";
   rvAutoGrow(recapEl);
 
   rvRenderGallery(t.screenshots || []);
@@ -4411,6 +4457,8 @@ function rvSetUnit(kind, unit) {
   document.querySelectorAll("#rv-" + kind + "-unit-toggle .rv-unit-btn").forEach(b => b.classList.toggle("on", b.dataset.u === unit));
   rvRenderPlanInput(kind);
   rvUpdateRCalc();
+  const editor = document.getElementById("rv-" + kind + "-preset-editor");
+  if (editor && editor.style.display !== "none") rvRenderPresetEditor(kind);
 }
 
 function rvRenderPlanInput(kind) {
@@ -4419,27 +4467,23 @@ function rvRenderPlanInput(kind) {
   const ticksField = kind === "stop" ? "stop_ticks" : "tp_ticks";
   const ticks = t[ticksField] || null;
   const tv = rvTickValue(t.symbol, t.qty);
-  if (rvUnit[kind] === "ticks") {
-    wrap.innerHTML =
-      '<input type="number" class="rv-inp" style="width:100%;text-align:left" id="rv-' + kind + '-ticks-in" min="0" step="1" placeholder="ticks" value="' + (ticks || "") + '" oninput="rvUpdateRCalc()" onblur="rvSaveTradeFields()">' +
-      '<div class="rv-plan-sub" id="rv-' + kind + '-sub">' + (ticks > 0 ? "= $" + (ticks * tv).toFixed(2) : "") + "</div>";
-  } else {
-    const dollarVal = ticks > 0 ? Math.round(ticks * tv * 100) / 100 : null;
-    const presets = [30, 35, 40, 45, 50];
-    const isPreset = presets.includes(dollarVal);
-    wrap.innerHTML =
-      '<select id="rv-' + kind + '-dsel" onchange="rvPlanDollarSelect(\'' + kind + '\')" style="width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:5px;color:var(--text);font-family:var(--mono);font-size:12px;padding:4px 7px;cursor:pointer">' +
-        '<option value="">—</option>' +
-        presets.map(p => '<option value="' + p + '"' + (dollarVal === p ? " selected" : "") + '>$' + p + "</option>").join("") +
-        '<option value="custom"' + (dollarVal != null && !isPreset ? " selected" : "") + ">Valor livre…</option>" +
-      "</select>" +
-      '<input type="number" class="rv-inp" style="width:100%;text-align:left;margin-top:6px;' + (dollarVal != null && !isPreset ? "" : "display:none") + '" id="rv-' + kind + '-dfree" min="0" step="1" placeholder="$" value="' + (dollarVal != null && !isPreset ? dollarVal : "") + '" oninput="rvUpdateRCalc()" onblur="rvSaveTradeFields()">' +
-      '<div class="rv-plan-sub" id="rv-' + kind + '-sub">' + (ticks > 0 ? ticks + " ticks" : "") + "</div>";
-  }
+  const unit = rvUnit[kind];
+  const presets = stopTpPresets[kind][unit];
+  const curVal = unit === "ticks" ? ticks : (ticks > 0 ? Math.round(ticks * tv * 100) / 100 : null);
+  const isPreset = curVal != null && presets.includes(curVal);
+  wrap.innerHTML =
+    '<select id="rv-' + kind + '-sel" onchange="rvPlanSelectChange(\'' + kind + '\')" style="width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:5px;color:var(--text);font-family:var(--mono);font-size:12px;padding:4px 7px;cursor:pointer">' +
+      '<option value="">—</option>' +
+      presets.map(p => '<option value="' + p + '"' + (curVal === p ? " selected" : "") + '>' + p + (unit === "dollar" ? "$" : " ticks") + "</option>").join("") +
+      '<option value="custom"' + (curVal != null && !isPreset ? " selected" : "") + ">Valor livre…</option>" +
+    "</select>" +
+    '<input type="number" class="rv-inp" style="width:100%;text-align:left;margin-top:6px;' + (curVal != null && !isPreset ? "" : "display:none") + '" id="rv-' + kind + '-free" min="0" step="1" placeholder="' + (unit === "dollar" ? "$" : "ticks") + '" value="' + (curVal != null && !isPreset ? curVal : "") + '" oninput="rvUpdateRCalc()" onblur="rvSaveTradeFields()">' +
+    '<div class="rv-plan-sub" id="rv-' + kind + '-sub">' + (unit === "ticks" ? (ticks > 0 ? "= $" + (ticks * tv).toFixed(2) : "") : (ticks > 0 ? ticks + " ticks" : "")) + "</div>" +
+    (kind === "tp" ? rvBuildRRButtons() : "");
 }
-function rvPlanDollarSelect(kind) {
-  const sel = document.getElementById("rv-" + kind + "-dsel");
-  const free = document.getElementById("rv-" + kind + "-dfree");
+function rvPlanSelectChange(kind) {
+  const sel = document.getElementById("rv-" + kind + "-sel");
+  const free = document.getElementById("rv-" + kind + "-free");
   if (sel.value === "custom") { free.style.display = ""; free.focus(); return; }
   free.style.display = "none"; free.value = "";
   rvUpdateRCalc();
@@ -4448,18 +4492,81 @@ function rvPlanDollarSelect(kind) {
 function rvReadPlanTicks(kind) {
   const t = dayTrades(rvDate)[rvIdx]; if (!t) return null;
   const tv = rvTickValue(t.symbol, t.qty);
-  if (rvUnit[kind] === "ticks") {
-    const el = document.getElementById("rv-" + kind + "-ticks-in");
-    const v = parseInt(el?.value) || null;
-    return v > 0 ? v : null;
-  }
-  const sel = document.getElementById("rv-" + kind + "-dsel");
-  const free = document.getElementById("rv-" + kind + "-dfree");
-  let dollarVal = null;
-  if (sel?.value === "custom") dollarVal = parseFloat(free?.value) || null;
-  else if (sel?.value) dollarVal = parseFloat(sel.value);
-  if (dollarVal == null || !tv) return null;
-  return Math.round(dollarVal / tv) || null;
+  const sel = document.getElementById("rv-" + kind + "-sel");
+  const free = document.getElementById("rv-" + kind + "-free");
+  let val = null;
+  if (sel?.value === "custom") val = parseFloat(free?.value) || null;
+  else if (sel?.value) val = parseFloat(sel.value);
+  if (val == null) return null;
+  if (rvUnit[kind] === "ticks") return Math.round(val) || null;
+  if (!tv) return null;
+  return Math.round(val / tv) || null;
+}
+
+// ─── Valores rápidos de Stop/Alvo — editáveis ─────────────────────
+function rvTogglePresetEditor(kind) {
+  const el = document.getElementById("rv-" + kind + "-preset-editor");
+  const showing = el.style.display !== "none";
+  el.style.display = showing ? "none" : "block";
+  if (!showing) rvRenderPresetEditor(kind);
+}
+function rvRenderPresetEditor(kind) {
+  const el = document.getElementById("rv-" + kind + "-preset-editor"); if (!el) return;
+  const unit = rvUnit[kind];
+  const list = stopTpPresets[kind][unit];
+  const suf = unit === "dollar" ? "$" : " ticks";
+  el.innerHTML =
+    '<div class="rv-err-chip-row" style="margin-bottom:8px">' +
+      list.map((v, i) => '<div class="rv-err-chip on" style="cursor:default">' + v + suf + ' <span style="cursor:pointer;margin-left:4px" onclick="rvRemovePreset(\'' + kind + '\',' + i + ')">×</span></div>').join("") +
+    "</div>" +
+    '<div style="display:flex;gap:6px">' +
+      '<input type="number" id="rv-' + kind + '-preset-new" class="rv-inp" style="flex:1;width:auto;text-align:left" placeholder="novo valor">' +
+      '<button class="btn btn-accent btn-sm" onclick="rvAddPreset(\'' + kind + '\')">+ Adicionar</button>' +
+    "</div>";
+}
+function rvAddPreset(kind) {
+  const inp = document.getElementById("rv-" + kind + "-preset-new");
+  const val = parseFloat(inp.value); if (!val || val <= 0) return;
+  const unit = rvUnit[kind];
+  const list = stopTpPresets[kind][unit];
+  if (!list.includes(val)) { list.push(val); list.sort((a, b) => a - b); }
+  saveStopTpPresets();
+  inp.value = "";
+  rvRenderPresetEditor(kind);
+  rvRenderPlanInput(kind);
+}
+function rvRemovePreset(kind, idx) {
+  const unit = rvUnit[kind];
+  stopTpPresets[kind][unit].splice(idx, 1);
+  saveStopTpPresets();
+  rvRenderPresetEditor(kind);
+  rvRenderPlanInput(kind);
+}
+
+// ─── Botões rápidos de RR (Alvo, a partir do Stop) ────────────────
+function rvBuildRRButtons() {
+  return '<div class="rv-rr-quick-row" id="rv-rr-quick-row">' +
+    [1, 2, 3, 4].map(m => '<button class="rv-unit-btn" id="rv-rr-btn-' + m + '" onclick="rvSetTpFromRR(' + m + ')">1:' + m + "</button>").join("") +
+    "</div>";
+}
+function rvUpdateRRButtonsState() {
+  const has = (rvReadPlanTicks("stop") || 0) > 0;
+  [1, 2, 3, 4].forEach(m => { const b = document.getElementById("rv-rr-btn-" + m); if (b) b.disabled = !has; });
+}
+function rvSetTpFromRR(mult) {
+  const trds = dayTrades(rvDate); const t = trds[rvIdx]; if (!t) return;
+  const stopTicks = rvReadPlanTicks("stop"); if (!stopTicks) return;
+  const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id); if (idx === -1) return;
+  const tv = rvTickValue(t.symbol, t.qty);
+  const tpTicks = Math.round(stopTicks * mult);
+  const risk = Math.round(stopTicks * tv * 100) / 100;
+  const rr = Math.round((tpTicks / stopTicks) * 100) / 100;
+  const r = risk > 0 ? Math.round((all[idx].pnl / risk) * 1000) / 1000 : null;
+  all[idx] = { ...all[idx], tp_ticks: tpTicks, risk, rr, r };
+  setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]);
+  rvRenderPlanInput("tp");
+  rvUpdateRCalc();
+  rvMarkSaved();
 }
 function rvUpdateRCalc() {
   const t = dayTrades(rvDate)[rvIdx]; if (!t) return;
@@ -4481,6 +4588,7 @@ function rvUpdateRCalc() {
       ? (ticks > 0 ? "= $" + (ticks * tv).toFixed(2) : "")
       : (ticks > 0 ? ticks + " ticks" : "");
   });
+  rvUpdateRRButtonsState();
 }
 function rvSaveTradeFields() {
   const trds = dayTrades(rvDate); const t = trds[rvIdx]; if (!t) return;
@@ -4501,7 +4609,38 @@ function rvMarkSaved() {
   const el = document.getElementById("rv-save-lbl");
   if (el) el.textContent = "guardado " + new Date().toLocaleTimeString("pt", { hour: "2-digit", minute: "2-digit" });
 }
-function rvAutoGrow(el) { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; }
+function rvAutoGrow(el) {
+  if (rvRecapExpanded) return; // no modo expandido a altura é fixa (grid) e o texto faz scroll interno
+  el.style.height = "auto"; el.style.height = el.scrollHeight + "px";
+}
+
+// ─── Modo expandido do Recap ───────────────────────────────────────
+function rvSetExpandBtnLabel() {
+  const btn = document.getElementById("rv-recap-expand-btn"); if (!btn) return;
+  btn.textContent = rvRecapExpanded ? "✕ Fechar" : "⤢";
+  btn.title = rvRecapExpanded ? "Fechar (Esc)" : "Expandir";
+}
+function rvToggleRecapExpand() {
+  rvRecapExpanded = !rvRecapExpanded;
+  const body = document.getElementById("rv-right-body");
+  const ta = document.getElementById("rv-recap");
+  body.classList.toggle("rv-expanded", rvRecapExpanded);
+  rvSetExpandBtnLabel();
+  if (rvRecapExpanded) {
+    if (ta) ta.style.height = "";
+    const t = dayTrades(rvDate)[rvIdx];
+    const ep = document.getElementById("rv-recap-expand-prints");
+    if (ep) ep.innerHTML = rvBuildExpandedPrintsHTML(t);
+    if (ta) ta.focus();
+  } else {
+    if (ta) rvAutoGrow(ta);
+  }
+}
+function rvBuildExpandedPrintsHTML(t) {
+  const shots = (t && t.screenshots) || [];
+  if (!shots.length) return '<div style="color:var(--hint);font-size:12px;font-family:var(--mono);text-align:center;padding:40px 0">Sem prints</div>';
+  return shots.map((src, i) => '<img src="' + src + '" class="rv-recap-expand-img" onclick="rvOpenLightbox(' + i + ')">').join("");
+}
 
 // ─── Grade ───────────────────────────────────────────────────────
 function rvSetGrade(v) {
@@ -6326,7 +6465,11 @@ document.addEventListener("keydown", e => {
     const m = document.getElementById("fs-modal");
     if (m && m.style.display === "flex") { e.preventDefault(); closeFSModal(); return; }
     const rv = document.getElementById("review");
-    if (rv && rv.classList.contains("open")) { e.preventDefault(); closeReview(); }
+    if (rv && rv.classList.contains("open")) {
+      e.preventDefault();
+      if (rvRecapExpanded) rvToggleRecapExpand();
+      else closeReview();
+    }
   }
 });
 </script>
