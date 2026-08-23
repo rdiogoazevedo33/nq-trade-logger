@@ -1,507 +1,172 @@
-# NQ Trade Logger — CLAUDE.md
-
-Lê este ficheiro completo antes de qualquer tarefa. É o briefing permanente do projeto.
-
----
-
-## O que é este projeto
-
-Web app de journaling profissional para trading de futuros NQ (Nasdaq Micro Futures) em prop firms (Lucid, My Funded Futures). O objetivo final é capturar trades com contexto de orderflow, descobrir edge estatístico, e gerar código de estratégia algorítmica.
-
-**Trader:** Diogo Azevedo
-**Prop firms:** Lucid, My Funded Futures
-**Instrumento:** MNQ/NQ (Nasdaq Micro/Mini Futures)
-**Estilo:** Macro-driven + Orderflow LTF execution (trend following)
-**Plataforma de orderflow:** Deepcharts
-**Análise macro:** MRKT.AI, ForexFactory, COT Reports, FedWatch
-
-**URL live:** https://tiny-twilight-a74761.netlify.app/
-**Repositório:** https://github.com/rdiogoazevedo33/nq-trade-logger
-
----
-
-## Filosofia de trading — 3 Camadas de Análise
-
-### Camada 1 — Macro & Profile Semanal (domingo/segunda)
-- COT Reports — posicionamento hedge funds (commercial vs non-commercial)
-- Geopolítica relevante para risk assets
-- Eventos do calendário semanal com expectativas
-- Fed narrative da semana
-- Volume Profile semanal: POC, VAH/VAL, HVN/LVN semanais
-- Delta Profile semanal: anomalias e absorção semana anterior
-- Composite Volume Profile 3M: contexto médio prazo
-- Bias semanal resultante
-
-### Camada 2 — Macro & Profile Diário (manhã pré-mercado)
-- Eventos do dia com expectativas e reacção esperada no NQ
-- Fed narrative se houver speaker ou dados
-- Volume Profile RTH: POC/VAH/VAL/HVN/LVN do dia anterior
-- Delta Profile diário: anomalias, absorção
-- S/R levels diários confirmados pelo semanal
-- Bias diário: confirmado ou alterado face ao semanal
-
-### Camada 3 — Execução LTF (durante e após sessão)
-- Espera 15min após market open (9:30-9:45 ET)
-- Confluências de orderflow na direcção do bias
-- Registo no fim do dia: confluências, notas, prints, Risk/TP/SL
-
-### Workflow diário completo
-```
-DOMINGO/SEGUNDA:
-→ Preenche Preparação Semanal no Diário (card de semana)
-  - COT Reports, geopolítica, eventos semana
-  - Volume Profile semanal, Delta semanal, Composite 3M
-  - Bias semanal
-
-MANHÃ PRÉ-MERCADO:
-→ Preenche Pré-sessão na app
-  - Profile Framing diário (POC/VAH/VAL/HVN/LVN)
-  - Macro diário (eventos, Fed, sentiment, capital flow)
-  - Game Plan do dia
-
-DURANTE SESSÃO:
-→ Opera no Deepcharts
-→ Espera 15min após open (9:30-9:45 ET)
-→ Entra na tendência com confluências de orderflow
-
-FIM DO DIA:
-→ Exporta CSV do Deepcharts
-→ Importa na app (tab + CSV)
-→ Para cada trade: preenche confluências, notas, prints, Risk/TP/SL
-→ Documento do dia fica completo (pré-sessão + trades juntos)
-```
-
----
-
-## Stack técnica
-
-- **Frontend:** Vanilla HTML/CSS/JS — ficheiro único `index.html`
-- **Base de dados:** Supabase (PostgreSQL) + localStorage como fallback/cache
-- **Storage de ficheiros:** Supabase Storage — prints/screenshots de trades, sessões e weekly prep (URLs, não base64)
-- **Hosting:** Netlify com deploy automático a partir do GitHub
-- **Claude API:** Proxy seguro via Netlify Function (`netlify/functions/`)
-- **Fonts:** IBM Plex Mono + DM Sans (Google Fonts)
-
-## Estrutura do repositório
-
-```
-nq-trade-logger/
-├── index.html              ← app completa (HTML/CSS/JS num único ficheiro)
-├── CLAUDE.md               ← este ficheiro
-├── netlify.toml            ← configuração Netlify
-├── netlify/
-│   └── functions/          ← proxy Claude API (API key não exposta no frontend)
-└── README.md
-```
-
----
-
-## Storage keys
-
-```javascript
-const SK_A  = "nq10_a"   // accounts
-const SK_T  = "nq10_t"   // trades (por conta)
-const SK_PS = "nq10_ps"  // pre-session data (por data)
-const SK_WP = "nq10_wp"  // weekly prep data (por semana — chave = Monday ISO date)
-```
-
-Dados guardados em `localStorage` + sincronizados com Supabase via `sbPushKey()`.
-
-Weekly prep: `weeklyPrep[weekStart]` onde `weekStart` é a segunda-feira da semana em formato `YYYY-MM-DD`.
-
----
-
-## Estrutura de dados — Trade
-
-```javascript
-{
-  id: string,
-  date: "YYYY-MM-DD",
-  time: "HH:MM",              // hora de entrada (ET)
-  exit_time: "HH:MM",         // hora de saída (ET)
-  time_slot: string,          // '09:30-10:00' | '10:00-10:30' | etc
-  session: string,            // 'pre-orb' | 'orb' | 'post-orb' | 'afternoon'
-  hold_time_seconds: number,
-  symbol: string,             // "MNQ1!"
-  direction: "Long"|"Short",
-  entry: number,
-  exit: number,
-  qty: number,
-  pnl: number,
-  stop: number,
-  tp: number,
-  stop_ticks: number,         // stop loss em ticks
-  tp_ticks: number,           // take profit em ticks
-  rr: number,                 // risk/reward ratio planeado
-  r: number,                  // R realizado (pnl/risk)
-  confluences: JSON,          // array de {id, sr}
-  score: number,              // nº de confluências
-  rating: number,             // 1-5 estrelas
-  notes: string,              // trade recap (texto livre)
-  notes_html: string,
-  screenshots: array,         // URLs Supabase Storage (não base64)
-  mistakes_note: string,      // erros (texto livre, opcional)
-  session_date: "YYYY-MM-DD"  // referência à tabela sessions
-}
-```
-
-## Estrutura de dados — Pre-Session (psData)
-
-```javascript
-{
-  date: "YYYY-MM-DD",
-  account_id: string,
-
-  // ANÁLISE DIÁRIA
-  bias: "Bullish"|"Bearish"|"Neutro"|"Cauteloso",
-  fed_narrative: "Hawkish"|"Neutral to Hawkish"|"Neutral"|"Neutral to Dovish"|"Dovish",
-  fed_context: string,
-  fear_greed_score: number,   // 0-100, gauge estilo CNN Fear & Greed
-  fear_greed_note: string,    // racional do score (texto livre)
-  sentiment: "Risk-On"|"Risk-Off"|"Neutro",  // AUTO-DERIVADO do fear_greed_score (não é botão manual): <40 Risk-Off, 40-60 Neutro, >60 Risk-On
-  // sentiment_narrative e dxy_vix_narrative REMOVIDOS da UI (legado, preservados só em sessões antigas)
-  capital_flow: string,        // campo único: SPX/NQ overnight, Ouro, US10Y, US2Y, VIX, DXY, mercados EU/Ásia
-  macro_events: array,        // [{name, time, note, priority}] — nota cobre Consensus/Beat-Miss-Inline/Implicação Fed & Nasdaq
-  geopolitics: string,         // News & Geopolítica — vive dentro da secção "News & MacroEconomics" junto aos eventos
-
-  // PROFILE FRAMING DIÁRIO
-  poc_daily: number,
-  poc_weekly: number,
-  poc_composite: number,
-  vah: number,
-  val: number,
-  hvn_levels: [{price, note}],
-  lvn_levels: [{price, note}],
-  delta_anomalies: [{price, type:"buy"|"sell", note}],
-  supply_demand: [{type:"supply"|"demand", from, to, note}],
-  sr_levels: [{price, type:"support"|"resistance", timeframe, note}],
-  profile_notes: string,
-
-  // DOCUMENTO FINAL
-  narrative: string,          // game plan do dia
-
-  // REVISÃO PÓS-SESSÃO (guardada em sessions.data, colapsável no fundo da tab Pré-sessão)
-  bias_accuracy: "Correcto"|"Parcial"|"Errado",
-  bias_error_reason: "Macro alterou"|"Profile mal lido"|"GEX enganou"|"Notícia inesperada"|"Outro",  // só se bias_accuracy ≠ "Correcto"
-  scenario_concretised: "A — Bearish"|"B — Bullish"|"C — Mean Reversion"|"Nenhum",
-  pivot_respected: "Sim"|"Não",
-  session_type: "Trending"|"Range"|"Chop"|"Explosive",
-  briefing_miss: string       // max 200 chars, opcional
-}
-```
-
-## Estrutura de dados — Weekly Prep (weeklyPrep)
-
-```javascript
-weeklyPrep["YYYY-MM-DD"] = {  // chave = segunda-feira da semana
-  weekly_bias: string,         // bias semanal (texto livre ou badge)
-  weekly_cot: string,
-  weekly_geopolitics: string,
-  weekly_events: string,
-  weekly_fed: string,
-  weekly_poc: string,
-  weekly_vah: string,
-  weekly_val: string,
-  weekly_hvn_lvn: string,
-  weekly_delta: string,
-  weekly_composite_poc: string,
-  weekly_narrative: string,
-  // screenshots por secção (URLs Supabase Storage):
-  cot_screenshots: [url],
-  geo_screenshots: [url],
-  profile_screenshots: [url],
-  delta_screenshots: [url]
-}
-```
-
----
-
-## Tabs da aplicação (ordem actual)
-
-1. **Dashboard** — métricas resumo + NQ Score + calendário integrado + gráficos
-2. **Diário** — vista hierárquica Semana → Dia (cards de semana com Preparação + rows de dias)
-3. **+ CSV** — importação drag & drop do Deepcharts
-4. **Pré-sessão** — contexto diário (2 pilares: Profile Framing + Macro)
-5. **Reports** — análise estatística com sub-tabs
-
-> **Nota:** Não existem tabs separadas para "Trades", "Quant" ou "Calendário". O Calendário está integrado no Dashboard; métricas Quant são renderizadas dentro do Dashboard (`renderQuant()`). A lista de trades de um dia abre inline no Diário ou via modal de review.
-
----
-
-## Diário — comportamento actual
-
-Vista hierárquica **Semana → Dia**. Função principal: `renderDiary()`.
-
-- **Card de semana:** mostra badge de bias semanal, thumbnails da preparação semanal, botão "📋 Preparação" para ver/editar a prep completa em modal (`showWeekFullPrep(weekStart)`)
-- **Row de dia:** expande inline para mostrar contexto pré-sessão (2 colunas: Profile Framing + Macro) + lista de trades do dia
-- Se sem pré-sessão: mostra "○ Sem pré-sessão — clica para preencher →"
-- Dados de diaryState (bias/fed/sentiment inline) guardados em `diaryState[date]`
-
----
-
-## Confluências (CONFS array)
-
-```javascript
-// Deep Trades
-{ id: "dt-abs",  label: "Deep Trades + Absorption",  color: "#5b8fff", sr: false }
-{ id: "dt-fol",  label: "Deep Trades + Follow Thru", color: "#18c9b0", sr: false }
-{ id: "dt-sr",   label: "Deep Trades S/R",           color: "#60a5fa", sr: true  }
-
-// Volume Profile
-{ id: "hvn",     label: "HVN",                       color: "#1fd17a", sr: true  }
-{ id: "lvn",     label: "LVN",                       color: "#34d399", sr: true  }
-{ id: "poc",     label: "POC",                       color: "#818cf8", sr: true  }
-{ id: "vsi",     label: "Vol. Stacked Imbalance",    color: "#fbbf24", sr: true  }
-{ id: "fa",      label: "Failed Auction (VAL/VAH)",  color: "#fb923c", sr: true  }
-
-// Outros
-{ id: "vwap",    label: "VWAP Bounce",               color: "#9b72f5", sr: false }
-{ id: "delta",   label: "Delta Anomaly",             color: "#a78bfa", sr: false }
-```
-
-Confluências com `sr: true` têm toggles S (Support) / R (Resistance).
-
-O utilizador pode adicionar confluências customizadas via "+ Nova confluência" no review de trade. Guardadas na tabela Supabase `custom_confluences` e aparecem junto às base.
-
----
-
-## Time slots e sessões
-
-```javascript
-// Time slots (buckets de 30min)
-'pre-orb'      // 09:00–09:30
-'09:30-10:00'  // ORB — Opening Range
-'10:00-10:30'
-'10:30-11:00'
-'11:00-11:30'
-'11:30-12:00'
-'12:00+'
-
-// Sessions (agrupamentos)
-'pre-orb'    // Pré-ORB (09:00–09:30)
-'orb'        // ORB (09:30–10:30)
-'post-orb'   // Pós-ORB (10:30–12:00)
-'afternoon'  // Tarde (12:00+)
-```
-
----
-
-## Reports — sub-tabs existentes
-
-- **Overview** — métricas globais (30+ stats)
-- **Detailed** — breakdown por Days/Weeks/Months/Time/Confluence/Fed
-- **Wins vs Losses** — comparação e distribuição R-Multiple
-- **🔍 Edge Explorer** — EV/WR/PF por confluência, time slot, bias, Fed + cruzamentos
-
----
-
-## Pré-sessão — 2 Pilares
-
-### Pilar 1 — Profile Framing
-- POC Diário, Semanal, 3M Composto
-- VAH, VAL
-- HVN levels (lista dinâmica)
-- LVN levels (lista dinâmica)
-- Delta Anomalies (lista dinâmica)
-- Supply/Demand Zones (lista dinâmica)
-- S/R Levels (lista dinâmica)
-- Leitura do Profile (textarea livre)
-
-### Pilar 2 — Macro & Fundamental
-
-Ordem dos campos (topo → fundo): **Bias do dia → Fed Narrative + Contexto → Fear & Greed → Capital Flow → News & MacroEconomics**. Alinhado com a estrutura de briefing macro de 5 pilares (Fed Stance, Fear & Greed, Capital Flow, News & MacroEconomics, Bias).
-
-- **Bias do dia** (Bullish/Bearish/Neutro/Cauteloso) — botões, sempre visível no topo
-- **Fed Narrative + Contexto** (Hawkish → Dovish, 5 opções) + textarea de contexto — secção colapsável
-- **Fear & Greed** — secção colapsável (aberta por default), substitui por completo os antigos botões "Sentiment de Mercado":
-  - Gauge visual semi-circular estilo CNN Fear & Greed (5 bandas de cor: Extreme Fear → Fear → Neutral → Greed → Extreme Greed), agulha posicionada pelo score
-  - Input numérico de score (0-100) — campo `fear_greed_score`
-  - Label automático derivado do score: 0-24 Extreme Fear, 25-44 Fear, 45-55 Neutral, 56-75 Greed, 76-100 Extreme Greed (função `fgLabel()`)
-  - Badge Risk-On/Risk-Off/Neutro auto-computado a partir do score (não são botões manuais): <40 Risk-Off, 40-60 Neutro, >60 Risk-On (função `fgTag()`) — este valor é guardado no campo legado `sentiment` para manter compatibilidade com badges no Diário/Reports/CSV
-  - Textarea de racional — campo `fear_greed_note`
-- **Capital Flow** — secção colapsável, textarea única (fusão do antigo par Capital Flow + "DXY·VIX·US2Y·US10Y"); placeholder guia o checklist fixo de assets (SPX/NQ overnight, Ouro, US10Y, US2Y, VIX, DXY, mercados EU/Ásia)
-- **News & MacroEconomics** — secção colapsável (aberta por default), fusão de "Eventos Macro" + "News & Geopolítica":
-  - Botões rápidos reduzidos a eventos red-folder: FOMC, CPI, PPI, NFP, GDP, Retail Sales, PMI + "+ Manual" para casos extra
-  - Cada evento tem: nome, hora (opcional), prioridade auto-detectada, e nota livre cobrindo Consensus / cenário Beat-Miss-Inline / implicação para Fed & Nasdaq
-  - Estado vazio: "Sem eventos red folder hoje"
-  - Por baixo da lista de eventos: textarea de News & Geopolítica (contexto mais amplo, não ligado a um evento específico)
-- **Game Plan do dia** (fora dos 2 pilares, textarea grande — narrativa unificada) — inalterado
-
----
-
-## Funcionalidades Claude API existentes
-
-- **✦ Edge Finder** — botão nos Reports, analisa edge por confluência
-- **✦ Analisar dia** — botão no review de trade/dia
-- **✦ Análise semanal** — overview semanal com padrões
-- Proxy via `netlify/functions/` — Claude API key não exposta no frontend
-
----
-
-## NQ Score — fórmula
-
-```javascript
-winScore    = winRate * 100
-pfScore     = Math.min(profitFactor / 3 * 100, 100)
-sharpeScore = Math.min(sharpe / 2 * 100, 100)
-nqScore     = (winScore * 0.35) + (pfScore * 0.35) + (sharpeScore * 0.30)
-
-// Labels por amostra:
-// < 10 trades:  "Amostra pequena ⚠"
-// 10-30 trades: "A desenvolver"
-// > 30 trades:  "Estável" (ou "Robusto" se score > 75)
-```
-
----
-
-## CSV format (Deepcharts)
-
-```
-Symbol;DT;Quantity;Entry;Exit;ProfitLoss
-MNQ;2025-10-20 09:31:18;1;21450.75;21480.25;59.00
-```
-
-- Separador: `;`
-- DT = timestamp completo (data + hora ET)
-- Quantity negativa = Short
-- Pode ter múltiplas linhas por trade (partial fills)
-- Hora mais cedo = entry time, hora mais tarde = exit time
-- Importação por drag & drop na tab `+ CSV`
-
----
-
-## Contas pré-definidas
-
-```javascript
-{ id: "lucid", name: "Lucid",             emoji: "🔵" }
-{ id: "mff",   name: "My Funded Futures", emoji: "🟢" }
-```
-
----
-
-## Design system
-
-```css
---bg:     #07080c
---s1:     #0d0f16   /* card background */
---s2:     #131720
---s3:     #191e2a
---b1:     #222840   /* border */
---b2:     #2c3450
---text:   #dde2f0
---sub:    #8892aa
---hint:   #4a5268
---green:  #1fd17a
---red:    #f04f4f
---amber:  #f0a832
---accent: #5b8fff
---purple: #9b72f5
---teal:   #18c9b0
---mono:   'IBM Plex Mono'
---sans:   'DM Sans'
-```
-
----
-
-## Componente: Galeria Horizontal de Fotos
-
-Padrão aplicado em todas as secções com fotos (Weekly Prep, Pré-sessão, Diário, Review).
-
-**CSS classes:**
-- `.wp-thumb-row` — container flex horizontal, overflow-x auto, gap 6px
-- `.wp-thumb` — thumbnail 80×60px, object-fit cover, border var(--b1)
-- `.wp-thumb-rm` — botão × absoluto top-right, background #882200
-- `.wp-thumb-num` — badge numérico absoluto bottom-left, fundo #000000a6
-- `.wp-thumb-add` — botão "+" inline no fim da row, 80×60px dashed border
-- `.ss-gallery-row` — mesmo padrão para review screen (usa `.ss-wrap` + `.ss-num`)
-
-**Lightbox:** `openLightbox(imgs, startIdx)` — overlay com setas ← → e contador. `openImgOverlay(src)` chama `openLightbox([src], 0)`.
-
-**Funções contextuais:**
-- `wpOpenLightbox(weekStart, section, idx)` — weekly prep
-- `psOpenLightbox(date, idx)` — pre-session e diary day
-- `rvOpenLightbox(idx)` — review screen
-
-**Log:** Revisão pós-sessão + galeria COT — 22 Mai 2026
-**Log:** Reformulação Pilar 2 (Fear & Greed gauge substitui Sentiment; Capital Flow unificado; Eventos + Geopolítica fundidos em News & MacroEconomics) — 09 Jul 2026
-
----
-
-## Fases do projeto
-
-| Fase | Descrição | Estado |
-|------|-----------|--------|
-| 1 | Reports — 30+ métricas | ✅ Completo |
-| 2 | Daily Journal por sessão | ✅ Completo |
-| 3 | Dashboard + NQ Score | ✅ Completo |
-| 4 | Review: NQ Scale + Mistakes + Process Score | ✅ Completo |
-| 5 | Timestamps + time slot filters nos Reports | ✅ Completo |
-| — | Reestruturação Pré-sessão (2 pilares) | ✅ Completo |
-| — | Diário hierárquico (Semana → Dia) + Preparação Semanal | ✅ Completo |
-| — | Tweaks UI: review redesign, macro simplificado, image zoom, limpar cloud | ✅ Completo |
-| 6 | Edge Explorer (EV/WR/PF por confluência × bias × time slot × Fed) | ✅ Completo |
-| — | Supabase Storage para prints (trades, sessões, weekly) — sem limite 2.8MB | ✅ Completo |
-| — | Saves individuais por trade/session no Supabase | ✅ Completo |
-| — | Sentiment simplificado — sem narrativa separada; DXY/VIX/US2Y/US10Y unificado | ✅ Completo |
-| — | Auto-entrar na última conta usada no arranque | ✅ Completo |
-| — | Botão fullscreen ⤢ em todas as textareas grandes | ✅ Completo |
-| — | Timeout e anti-loop em sbPullData/sbSaveSession/sbSaveTrade/sbPushKey | ✅ Completo |
-| — | Revisão pós-sessão + galeria horizontal de fotos | ✅ Completo |
-| — | Reformulação Pilar 2 — Fear & Greed gauge, Capital Flow unificado, News & MacroEconomics fundido | ✅ Completo |
-| 7 | IA Edge Finder — identificação A+ setups | ⏳ Por fazer |
-| 8 | Geração código Pine Script / Python | ⏳ Por fazer |
-
----
-
-## Próxima tarefa prioritária
-
-**Fase 7 — IA Edge Finder** — análise Claude por cima do Edge Explorer para identificar A+ setups automaticamente com base nos dados de edge.
-
----
-
-## Regras de desenvolvimento — NUNCA VIOLAR
-
-1. **Nunca criar ficheiros separados** — tudo vai no `index.html` (CSS, JS, HTML juntos)
-2. **Não usar frameworks** — vanilla JS apenas, sem React/Vue/etc
-3. **Não usar npm/node** — sem dependências externas além das já existentes
-4. **Preservar design system** — usar sempre as CSS variables, nunca hardcode cores
-5. **Supabase sync** — qualquer novo dado guardado em localStorage deve ser
-   sincronizado via `sbPushKey()`
-6. **Secrets seguros** — Claude API key e Supabase service key via Netlify Functions,
-   nunca expostos no frontend
-7. **RLS activo** — todas as tabelas têm user_id com políticas Row Level Security
-8. **Português europeu** — todos os textos da UI em português europeu
-9. **Não quebrar funcionalidades existentes** — listar sempre ficheiros alterados
-10. **Migration SQL** — sempre incluir se alterar schema Supabase
-11. **Commits descritivos** — ex: "feat: Fase 7 IA Edge Finder — A+ setups"
-
----
-
-## Environment Variables (Netlify)
-
-```
-ANTHROPIC_API_KEY    = sk-ant-...
-SUPABASE_URL         = https://xxx.supabase.co
-SUPABASE_SERVICE_KEY = eyJ...
-```
-
-Configurar em: Netlify Dashboard → Site Settings → Environment Variables
-
----
-
-## Review de Trade — Layout actual
-
-**Painel esquerdo:** Símbolo, Direcção, Entry, Exit, Qty, PnL, Stop Loss (ticks + $), Take Profit (ticks + $), R-Multiple, Rating (estrelas), Confluências (chips + "+ Nova confluência").
-
-**Cálculo ticks → $:**
-- MNQ: ticks × $0.50 × qty
-- NQ:  ticks × $5.00 × qty
-- MCL: ticks × $1.00 × qty
-- CL:  ticks × $10.00 × qty
-
-**Painel direito (de cima para baixo):**
-1. Prints do Setup (drag & drop, thumbnails com X; clique abre zoom overlay)
-2. Trade Recap (textarea livre)
-3. Erros — opcional (textarea pequena; se vazio, não aparece no view)
-
-**Confluências customizadas:** tabela Supabase `custom_confluences` (id, user_id, account_id, label, color, has_sr). Criadas via mini form inline no review.
+# NQ Trade Logger
+
+Personal trade journal for discretionary and semi-auto NQ/MNQ futures trading.
+Single-file vanilla web app. Rebuilt from scratch in August 2026.
+
+Live: https://tiny-twilight-a74761.netlify.app
+Repo: https://github.com/rdiogoazevedo33/nq-trade-logger
+
+## Purpose
+
+This journal measures EXECUTION ADHERENCE. It compares realised performance
+against the expected performance of an already-validated setup, and diagnoses
+where execution leaks it: stops too tight, entries without required orderflow
+confirmation, emotional re-entries, winners cut short.
+
+It does NOT discover edge. Any feature that mines logged trades for new
+if-then rules is out of scope — that is data mining on a small sample and
+produces noise. If asked for something that drifts into that, say so before
+implementing.
+
+Algorithmic trading is entirely out of scope for this app. There is no human
+decision to evaluate, and mixing the two P&L streams corrupts both.
+
+## Non-negotiable conventions
+
+- Everything lives in a single index.html — HTML, CSS and JS together.
+  Never create separate files.
+- Vanilla JS only. No frameworks, no React, no Vue, no npm, no bundler,
+  no build step.
+- Preserve the existing design system CSS variables: --bg, --accent, --green,
+  --red, --purple, --mono, --sans. Do not introduce a parallel palette.
+- Any new data written to localStorage MUST also sync to Supabase via
+  sbPushKey(). localStorage-only state is a bug, not a shortcut.
+- Code and comments in English. Responses to the user in European Portuguese.
+- Match existing patterns in the file. Read surrounding code before adding.
+
+## Stack
+
+Netlify (auto-deploy from main) + Supabase (Postgres + Storage).
+Netlify Function proxies the Anthropic API.
+Local repo: C:\Users\Utilizador\Documents\nq-trade-logger
+
+## Supabase
+
+Project: nq-trade-logger (ref zjwpfldjpcjigywbrxtw, eu-west-1)
+
+Schema verified live on 23/08/2026. Four tables, all with RLS enabled and
+all EMPTY at rebuild time — there is no legacy data to migrate.
+
+  trades       id, user_id, account_id, data (jsonb), screenshots (jsonb),
+               updated_at. PK (id, user_id)
+  sessions     date, user_id, data (jsonb), screenshots (jsonb), updated_at.
+               PK (date, user_id). NOTE: account_id is missing and must be added.
+  weekly_prep  week_start, user_id, account_id, screenshot/notes columns
+  user_data    key/value store (jsonb). Holds settings and the error catalogue.
+
+Trade and session fields live inside the jsonb `data` blob, so adding fields
+requires no schema migration.
+
+SAFETY RULES:
+- Before any direct write, confirm table and column names by live query.
+  Never assume from a spec file, from this document, or from memory.
+- Before any direct write, confirm the correct account_id. Lucid Trading and
+  My Funded Futures are separate accounts and have been confused before.
+  account_id separates prop firms — never discretionary from algo.
+- After any direct write, refresh the app. Without a refresh the app's own
+  sbPushKey overwrites the change with stale in-memory state.
+
+## Trade record
+
+From the Rithmic CSV, automatically:
+  date, entry time, exit time, duration, symbol, direction, entry price,
+  exit price, quantity, P&L, order number (for idempotent re-import)
+
+Entered manually:
+  planned stop, planned target, grade, error codes, recap text, screenshots
+
+Computed:
+  planned R, realised R
+
+## Rithmic CSV import
+
+Source: "Recent Orders" export. Format quirks:
+- Two sections in one file (Working Orders, Completed Orders) with DIFFERENT
+  headers, separated by blank lines. Parser must handle both.
+- It is an ORDERS export, not a trades export. Trades must be reconstructed
+  from order pairs.
+- There is NO P&L column and no floating profit. P&L is computed from fill
+  prices.
+- Timestamps are GMT and must be converted to ET.
+- Order Number is unique and stable — use it to prevent duplicate imports.
+- Partial fills are ambiguous (only "Qty To Fill" is present).
+- Cancelled limit orders are bracket targets. Not currently used.
+
+## Risk fields
+
+Planned stop and target can be entered in ticks OR in dollars.
+Dollar dropdown: 30 / 35 / 40 / 45 / 50, plus free entry.
+
+Conversion: MNQ is $0.50 per tick PER CONTRACT. Always use the contract
+quantity from the imported trade to convert — never assume 1 contract, or the
+R calculation breaks whenever size changes.
+
+## Grading
+
+Single four-grade scale, measuring how much of the trade's available value was
+captured. Dropdown, with the definition shown on selection.
+
+  A+  Reached 2R or more with clean execution throughout. Minimal drawdown,
+      entry at the intended level, management by plan, full move taken.
+  A   Good thesis and execution, but stopped out in profit before target.
+      It won, and the winner was cut.
+  B   Any stop loss, or any winner too short to bring value to the account.
+      Thesis quality does not lift a stopped trade out of B.
+  F   No process. Deserved stop, no organisation, no thesis. Gambling.
+
+There is no separate star rating. The grade already carries execution quality.
+
+## Error codes
+
+Behaviour, not outcome. A losing trade that was well executed carries no code;
+a winning trade that was badly managed does.
+
+One primary code per trade, secondary codes where genuinely distinct.
+A trade with no codes is a clean trade — there is no tag for that.
+
+Initial catalogue, user-editable and extensible from the UI:
+
+  BE_PREMATURO   Stop moved to break-even on a dollar trigger rather than a
+                 structural pivot failing
+  FOMO           Entered a trade recognised in the moment as lacking
+                 confluence, driven by frustration from prior trades
+  REVENGE        Entered to recover a loss rather than because the zone
+                 justified it
+
+Codes are never generated automatically. AI may suggest; the user confirms.
+
+## Pre-session
+
+Screenshots plus one free-text box for the pre-market plan.
+No structured confluence fields, no checkboxes, no grading widgets.
+
+## Session Recap
+
+One free-text box per trading day. By convention the text carries four blocks:
+Sessão · Erros · Setups Perdidos · Plano vs Sessão.
+
+Separately, a small yes/no flag recording whether the pre-market bias was
+correct — so it becomes countable. Prose cannot be counted.
+
+Also stored per day: P&L, trade count, whether the daily loss limit was hit.
+
+## Export
+
+A compact text export of trades, errors and session recaps for a chosen date
+range, for weekend review with AI. This is the primary analysis path — the
+in-app reports exist to surface metrics, not to replace it.
+
+## Deprecated — do not implement
+
+The numbered roadmap in previous versions of this file is dead as of
+14/08/2026. Specifically abandoned:
+
+- AI Edge Finder returning if-then rules by confluence and time of day
+- Pine Script codification and Python backtesting against Deepcharts data
+  (Deepcharts does not export tick data; validation happens in MultiCharts)
+- Confluence tagging (thirty tags, built for edge mining)
+- Notebook and Progress Tracker features
+- Star rating separate from grade
+
+If asked for work that depends on any of these, flag the conflict before
+starting.
