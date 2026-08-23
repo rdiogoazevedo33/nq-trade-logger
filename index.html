@@ -577,6 +577,16 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .ddr-save-bar{padding:9px 16px;border-bottom:1px solid var(--b1);display:flex;justify-content:flex-end;gap:8px;background:var(--s1)}
 .ddr-trades-wrap{padding:0}
 
+/* Session Recap */
+.ddr-recap-wrap{padding:14px 16px;border-top:1px solid var(--b1);background:var(--s2)}
+.ddr-recap-stats{display:flex;gap:16px;flex-wrap:wrap;padding:10px 12px;margin-bottom:14px;background:var(--s1);border:1px solid var(--b1);border-radius:9px}
+.ddr-recap-stat{display:flex;flex-direction:column;gap:2px}
+.ddr-recap-stat-val{font-family:var(--mono);font-size:13px;font-weight:700}
+.ddr-recap-stat-lbl{font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.07em}
+.ddr-recap-plan-ro{font-size:11px;color:var(--sub);line-height:1.5;white-space:pre-wrap;background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:9px 11px;max-height:220px;overflow-y:auto}
+.ddr-recap-plan-thumbs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.ddr-recap-plan-thumb{width:56px;height:42px;object-fit:cover;border-radius:5px;border:1px solid var(--b1);cursor:pointer}
+
 /* Macro events inside day detail */
 .ddr-mev{background:var(--s1);border:1px solid var(--b1);border-radius:9px;padding:9px 11px;margin-bottom:6px}
 .ddr-mev-head{display:flex;align-items:center;gap:6px;margin-bottom:5px}
@@ -917,17 +927,6 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
       <div id="journal-body"></div>
     </div>
 
-    <!-- CONTEXT MODAL -->
-    <div class="ctx-modal-bg" id="ctx-modal-bg" onclick="if(event.target===this)closeCtxModal()">
-      <div class="ctx-modal">
-        <div class="ctx-modal-hdr">
-          <span id="ctx-modal-title" style="font-size:14px;font-weight:600"></span>
-          <button onclick="closeCtxModal()" style="background:transparent;border:none;color:var(--hint);font-size:18px;cursor:pointer;line-height:1">✕</button>
-        </div>
-        <div id="ctx-modal-body"></div>
-      </div>
-    </div>
-
     <!-- REPORTS -->
     <div class="view" id="view-reports">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
@@ -997,176 +996,35 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
             <button class="btn btn-accent btn-sm" onclick="savePS()" style="padding:7px 18px;font-size:12px">Guardar sessão</button>
           </div>
 
-          <!-- 2-COLUMN LAYOUT -->
-          <div class="ps-layout">
-
-        <!-- PILAR 1: PROFILE FRAMING -->
-        <div class="ps-pilar ps-pilar-profile">
-          <div class="ps-pilar-title" style="color:var(--accent)">Pilar 1 — Profile Framing</div>
-          <div class="ps-pilar-sub">Deepcharts · Volume Profile RTH</div>
-
-          <!-- Upload prints -->
-          <div class="ps-field-lbl">Prints do Deepcharts</div>
-          <div class="ps-thumb-grid" id="ps-screenshot-grid"></div>
-          <div class="ps-upload-zone" id="ps-upload-zone" onclick="document.getElementById('ps-file-input').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="psDrop(event)">
-            <div style="font-size:20px;opacity:.3;margin-bottom:6px">📊</div>
-            <div class="ps-upload-zone-txt">Arrasta o print do Deepcharts com os níveis marcados<br><span style="color:var(--hint);font-size:10px">ou clica para seleccionar (múltiplos)</span></div>
-          </div>
-          <input type="file" id="ps-file-input" accept="image/*" multiple style="display:none" onchange="psFilesSelected(this.files)">
-        </div>
-
-        <!-- PILAR 2: MACRO & FUNDAMENTAL -->
-        <div class="ps-pilar ps-pilar-macro">
-          <div class="ps-pilar-title" style="color:var(--amber)">Pilar 2 — Macro &amp; Fundamental</div>
-          <div class="ps-pilar-sub">Contexto macroeconómico e fundamentais do dia</div>
-
-          <!-- Bias -->
-          <div class="ps-field-lbl">Bias Planeado</div>
-          <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
-            <button class="ps-bias-btn bull" onclick="setPSBias('Bullish',this)">▲ Bullish</button>
-            <button class="ps-bias-btn bear" onclick="setPSBias('Bearish',this)">▼ Bearish</button>
-            <button class="ps-bias-btn range" onclick="setPSBias('Neutral',this)">↔ Neutral</button>
-          </div>
-
-          <!-- Fed (colapsado) -->
-          <div class="ps-collapse-hdr" onclick="togglePSCollapse('ps-col-fed',this)">
-            <div class="ps-collapse-title">
-              <span class="ps-collapse-filled" id="ps-col-fed-dot"></span>
-              🏦 Fed Narrative + Contexto
-            </div>
-            <span class="ps-collapse-arrow" id="ps-col-fed-arrow">▼</span>
-          </div>
-          <div class="ps-collapse-body" id="ps-col-fed" style="max-height:0;overflow:hidden">
-            <div style="padding-top:4px">
-              <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">
-                <button class="fed-btn hawk" data-val="Hawkish" onclick="setFed('Hawkish',this)">🔴 Hawkish</button>
-                <button class="fed-btn nhawk" data-val="Neutral to Hawkish" onclick="setFed('Neutral to Hawkish',this)">🟠 Neutral to Hawkish</button>
-                <button class="fed-btn neut" data-val="Neutral" onclick="setFed('Neutral',this)">⚪ Neutral</button>
-                <button class="fed-btn ndove" data-val="Neutral to Dovish" onclick="setFed('Neutral to Dovish',this)">🔵 Neutral to Dovish</button>
-                <button class="fed-btn dove" data-val="Dovish" onclick="setFed('Dovish',this)">🟢 Dovish</button>
-              </div>
-              <div class="ta-fs-wrap">
-                <button class="ta-fs-btn" onclick="openFSModal('Fed Contexto','ps-fed-ctx')" title="Expandir">⤢</button>
-                <textarea class="ps-ta" id="ps-fed-ctx" style="min-height:52px;margin-bottom:14px" placeholder="Ex: Boa notícia de emprego mas Fed mantém posição neutral — inflação ainda acima do target. Mercado a priceiar cut em Junho..."></textarea>
-              </div>
-            </div>
-          </div>
-
-          <!-- Fear & Greed (expandido por default) -->
-          <div class="ps-collapse-hdr" onclick="togglePSCollapse('ps-col-fg',this)">
-            <div class="ps-collapse-title">
-              <span class="ps-collapse-filled" id="ps-col-fg-dot"></span>
-              😨 Fear &amp; Greed
-            </div>
-            <span class="ps-collapse-arrow open" id="ps-col-fg-arrow">▼</span>
-          </div>
-          <div class="ps-collapse-body" id="ps-col-fg" style="max-height:2000px">
-            <div style="padding-top:4px">
-              <div class="ta-fs-wrap" style="margin-bottom:12px">
-                <button class="ta-fs-btn" onclick="openFSModal('Fear &amp; Greed — Racional','ps-fg-note')" title="Expandir">⤢</button>
-                <textarea class="ps-ta" id="ps-fg-note" style="min-height:44px" placeholder="Ex: 32, puxado por Safe Haven Demand e Put/Call em Extreme Fear; Momentum ainda Neutral"></textarea>
-              </div>
-              <div class="fg-wrap">
-                <div class="fg-gauge">
-                  <div class="fg-gauge-arc"></div>
-                  <div class="fg-gauge-needle" id="fg-needle"></div>
-                  <div class="fg-gauge-pivot"></div>
-                </div>
-                <div class="fg-readout">
-                  <span class="fg-score" id="fg-score-lbl">—</span>
-                  <span class="fg-label" id="fg-label-lbl">Sem score</span>
-                  <span class="fg-tag" id="fg-tag-badge"></span>
-                </div>
-              </div>
-              <div style="display:flex;align-items:center;gap:8px;margin:12px 0 0">
-                <span class="ps-field-lbl" style="margin:0">Score (0–100)</span>
-                <input type="number" class="finput" id="ps-fg-score" min="0" max="100" step="1" placeholder="32" style="width:80px" oninput="setFearGreedScore(this.value)">
-              </div>
-            </div>
-          </div>
-
-          <!-- Capital Flow (colapsado) -->
-          <div class="ps-collapse-hdr" onclick="togglePSCollapse('ps-col-cf',this)">
-            <div class="ps-collapse-title">
-              <span class="ps-collapse-filled" id="ps-col-cf-dot"></span>
-              💵 Capital Flow
-            </div>
-            <span class="ps-collapse-arrow" id="ps-col-cf-arrow">▼</span>
-          </div>
-          <div class="ps-collapse-body" id="ps-col-cf" style="max-height:0;overflow:hidden">
-            <div style="padding-top:4px">
-              <div class="ps-field-lbl">Assets (Up / Down / Flat)</div>
-              <div class="cf-tag-row" id="ps-cf-tags"></div>
-              <div class="ta-fs-wrap">
-                <button class="ta-fs-btn" onclick="openFSModal('Capital Flow','ps-capital-flow')" title="Expandir">⤢</button>
-                <textarea class="ps-ta" id="ps-capital-flow" style="min-height:60px" placeholder="SPX overnight, NQ overnight, Ouro, US10Y, US2Y, VIX, DXY, mercados europeus, mercados asiáticos..."></textarea>
-              </div>
-            </div>
-          </div>
-
-          <!-- News & Geopolítica (expandido por default) -->
-          <div class="ps-collapse-hdr" onclick="togglePSCollapse('ps-col-geo',this)">
-            <div class="ps-collapse-title">
-              <span class="ps-collapse-filled" id="ps-col-geo-dot"></span>
-              🌍 News &amp; Geopolítica
-            </div>
-            <span class="ps-collapse-arrow open" id="ps-col-geo-arrow">▼</span>
-          </div>
-          <div class="ps-collapse-body" id="ps-col-geo" style="max-height:2000px">
-            <div style="padding-top:4px">
-              <div class="ta-fs-wrap">
-                <button class="ta-fs-btn" onclick="openFSModal('News &amp; Geopolítica','ps-geopolitics')" title="Expandir">⤢</button>
-                <textarea class="ps-ta" id="ps-geopolitics" style="min-height:52px" placeholder="Ex: Conflitos geopolíticos, decisões políticas (tarifas, sanções), notícias macro inesperadas, qualquer headline que mova o sentiment do dia..."></textarea>
-              </div>
-            </div>
-          </div>
-
-          <!-- News & MacroEconomics (expandido por default) -->
-          <div class="ps-collapse-hdr" onclick="togglePSCollapse('ps-col-events',this)">
-            <div class="ps-collapse-title">
-              <span class="ps-collapse-filled" id="ps-col-events-dot"></span>
-              🗞️ News &amp; MacroEconomics
-            </div>
-            <span class="ps-collapse-arrow open" id="ps-col-events-arrow">▼</span>
-          </div>
-          <div class="ps-collapse-body" id="ps-col-events" style="max-height:2000px">
-            <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">
-              <span style="font-size:9px;font-family:var(--mono);color:var(--hint);align-self:center;margin-right:3px">Adicionar:</span>
-              <button class="ps-predef-event" onclick="addPSEventPredef('CPI')">CPI</button>
-              <button class="ps-predef-event" onclick="addPSEventPredef('Unemployment Rate')">Unemployment Rate</button>
-              <button class="ps-predef-event" onclick="addPSEventPredef('NFP')">NFP</button>
-              <button class="ps-predef-event" onclick="addPSEventPredef('ISM Manufacturing PMI')">ISM Manufacturing PMI</button>
-              <button class="ps-predef-event" onclick="addPSEventPredef('ISM Services PMI')">ISM Services PMI</button>
-              <button class="ps-predef-event" onclick="addPSEventPredef('Average Hourly Earnings')">Average Hourly Earnings</button>
-              <button class="ps-predef-event" onclick="addPSEventPredef('FOMC')">FOMC</button>
-              <button class="ps-predef-event" onclick="addPSEventPredef('PPI')">PPI</button>
-              <button class="ps-predef-event" onclick="addPSEventPredef('Retail Sales')">Retail Sales</button>
-              <button class="ps-predef-event" onclick="addPSEventPredef('JOLTS')">JOLTS</button>
-              <button class="ps-predef-event" onclick="addPSEventPredef('GDP')">GDP</button>
-              <button class="ps-predef-event" onclick="addPSEventPredef('PCE Price Index')">PCE Price Index</button>
-              <button class="ps-predef-event" onclick="addMacroEvent()">+ Manual</button>
-            </div>
-            <div id="macro-events-list"></div>
-          </div>
-
-        </div><!-- end pilar-2 -->
-      </div><!-- end ps-layout -->
-
-      <!-- SETUP GRADE — Stacking Zones do dia -->
+          <!-- PRINTS -->
       <div class="ps-gameplan-wrap">
-        <div class="ps-gameplan-title" style="color:var(--purple)">🎯 Setup Grade — Zonas do dia</div>
-        <div class="ps-gameplan-sub">Uma linha por zona de stacking identificada no briefing (A+/A/B+/B). O risk multiplier é calculado automaticamente pelo grade — A+ = 1.0 · A = 0.75 · B+ = 0.5 · B = 0.275.</div>
-        <div id="ps-zonegrade-list" style="margin-bottom:10px"></div>
-        <button class="btn btn-ghost btn-sm" onclick="addZoneGrade()">+ Adicionar zona</button>
+        <div class="ps-gameplan-title" style="color:var(--accent)">📊 Prints</div>
+        <div class="ps-gameplan-sub">Deepcharts, MenthorQ ou outros — múltiplos prints do briefing pré-mercado</div>
+        <div class="ps-thumb-grid" id="ps-screenshot-grid"></div>
+        <div class="ps-upload-zone" id="ps-upload-zone" onclick="document.getElementById('ps-file-input').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="psDrop(event)">
+          <div style="font-size:20px;opacity:.3;margin-bottom:6px">📊</div>
+          <div class="ps-upload-zone-txt">Arrasta os prints do briefing<br><span style="color:var(--hint);font-size:10px">ou clica para seleccionar (múltiplos)</span></div>
+        </div>
+        <input type="file" id="ps-file-input" accept="image/*" multiple style="display:none" onchange="psFilesSelected(this.files)">
       </div>
 
-      <!-- GAME PLAN (abaixo dos 2 pilares) -->
+      <!-- BIAS DO DIA -->
       <div class="ps-gameplan-wrap">
-        <div class="ps-gameplan-title">📋 Narrativa &amp; Game Plan do dia</div>
-        <div class="ps-gameplan-sub">Resume tudo — o que o profile diz, o que o macro diz, qual o bias e porquê, o que procuras para entrar, o que invalida o setup</div>
+        <div class="ps-gameplan-title" style="color:var(--amber)">Bias do dia</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="ps-bias-btn bull" onclick="setPSBias('Bullish',this)">▲ Bullish</button>
+          <button class="ps-bias-btn bear" onclick="setPSBias('Bearish',this)">▼ Bearish</button>
+          <button class="ps-bias-btn range" onclick="setPSBias('Neutral',this)">↔ Neutral</button>
+        </div>
+      </div>
+
+      <!-- PLANO PRÉ-MERCADO -->
+      <div class="ps-gameplan-wrap">
+        <div class="ps-gameplan-title">📋 Plano pré-mercado</div>
+        <div class="ps-gameplan-sub">Cola aqui o output do briefing pré-mercado</div>
         <div class="ta-fs-wrap">
-          <button class="ta-fs-btn" onclick="openFSModalPS('Narrativa &amp; Game Plan','ps-narrative')" title="Expandir">⤢</button>
-          <textarea class="ps-ta" id="ps-narrative" style="min-height:120px" placeholder="Resume tudo — o que o profile diz, o que o macro diz, qual o bias e porquê, o que procuras para entrar, o que invalida o setup..."></textarea>
+          <button class="ta-fs-btn" onclick="openFSModalPS('Plano pré-mercado','ps-narrative')" title="Expandir">⤢</button>
+          <textarea class="ps-ta" id="ps-narrative" style="min-height:200px" placeholder="Cola aqui o plano pré-mercado..."></textarea>
         </div>
       </div>
 
@@ -1177,22 +1035,6 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
       <div class="sec"><div class="sec-title">Sessões anteriores</div><div id="ps-hist"></div></div>
         </div><!-- end prep-block-body dia -->
       </div><!-- end prep-block dia -->
-
-      <!-- BLOCK C: PÓS-SESSÃO -->
-      <div class="prep-block" id="prep-block-pos">
-        <div class="prep-block-hdr" onclick="togglePrepBlock('pos')">
-          <div class="prep-block-title">🌙 Pós-Sessão</div>
-          <div class="prep-day-nav" onclick="event.stopPropagation()">
-            <button class="cal-btn" onclick="posNavDate(-1)">‹</button>
-            <input type="date" id="pos-date-picker" onchange="loadPosDate(this.value)">
-            <button class="cal-btn" onclick="posNavDate(1)">›</button>
-          </div>
-          <span class="prep-block-chev" id="prep-chev-pos">▾</span>
-        </div>
-        <div class="prep-block-body" id="prep-body-pos">
-          <div id="pos-session-host"></div>
-        </div>
-      </div>
     </div><!-- end view-prep -->
   </div><!-- end .content -->
 </div><!-- end #app -->
@@ -1779,13 +1621,7 @@ const SK_A = "nq10_a", SK_T = "nq10_t", SK_PS = "nq10_ps", SK_WP = "nq10_wp", SK
 let accounts = [], curAcct = null, allT = {}, psData = {}, weeklyPrep = {};
 let allPS = {}, allWP = {}; // { accountId: { date/weekStart: {...} } } — root, particionado por conta; psData/weeklyPrep são a "vista" da conta actual
 let rithmicAcctMap = {}; // { "<Rithmic Account column value>": "<app account_id>" }
-const diaryState = {}; // { date: { bias, fed, sentiment, profileBias } }
-
-// ─── Setup Grade — Pré-sessão zone grading (BRAIN_RiskManagement.md) ───
-const ZONE_GRADES     = ['A+','A','B+','B'];
-const GRADE_RISK      = { 'A+': 1.0, 'A': 0.75, 'B+': 0.5, 'B': 0.275 }; // B = midpoint de 0.25–0.3
-const GRADE_RISK_LBL  = { 'A+': '1.0', 'A': '0.75', 'B+': '0.5', 'B': '0.275' };
-const GRADE_COLOR     = { 'A+': 'var(--green)', 'A': 'var(--accent)', 'B+': 'var(--amber)', 'B': 'var(--sub)' };
+const diaryState = {}; // { date: { bias } }
 
 // ─── Trade Grade — execution-adherence grading (trade detail panel) ───
 const TRADE_GRADES = ['A+', 'A', 'B', 'F'];
@@ -1814,15 +1650,7 @@ let stopTpPresets = null;
 
 let curDate = "", scope = "all", calY = 0, calM = 0, dashPeriod = "month", dashMode = "summary";
 let rvDate = "", rvIdx = 0;
-let psBias = "", psFed = "", psFearGreed = null, psDate = "", psProfileBias = "";
-let psCapitalFlowTags = {};
-let posDate = "", posBiasRealizado = "";
-const CAPITAL_FLOW_ASSETS = [
-  { id: 'dxy', label: 'DXY' }, { id: 'vix', label: 'VIX' },
-  { id: 'us10y', label: 'US10Y' }, { id: 'us2y', label: 'US2Y' },
-  { id: 'europe', label: 'Europa' }, { id: 'asia', label: 'Ásia' },
-  { id: 'gold', label: 'Ouro' }, { id: 'spx_on', label: 'SPX overnight' }, { id: 'nq_on', label: 'NQ overnight' }
-];
+let psBias = "", psDate = "";
 
 // Estado antigo de psData/weeklyPrep era plano por data/semana (sem conta).
 // Detecta esse formato pelas chaves de topo pareceram-se com datas ISO e
@@ -2092,6 +1920,7 @@ function renderAccts() {
       '<div class="acard-actions">' +
         '<button class="acard-btn" onclick="renameAcct(\'' + a.id + '\',event)">✏ Renomear</button>' +
         '<button class="acard-btn" onclick="changeEmoji(\'' + a.id + '\',event)">😀</button>' +
+        '<button class="acard-btn" onclick="setDailyLossLimit(\'' + a.id + '\',event)" title="Limite de perda diário">💰' + (a.daily_loss_limit ? ' $' + a.daily_loss_limit : '') + '</button>' +
         '<button class="acard-btn del" onclick="deleteAcct(\'' + a.id + '\',event)">✕</button>' +
       '</div></div>';
   }).join("") + '<div class="acct-add" onclick="addAcct()">+ Adicionar conta</div>';
@@ -2140,6 +1969,15 @@ function changeEmoji(id, e) {
   const a = accounts.find(x => x.id === id); if (!a) return;
   const em = prompt("Novo emoji:", a.emoji); if (!em?.trim()) return;
   a.emoji = em.trim().slice(0, 2); persist(); renderAccts();
+}
+function setDailyLossLimit(id, e) {
+  e.stopPropagation();
+  const a = accounts.find(x => x.id === id); if (!a) return;
+  const v = prompt("Limite de perda diário ($, vazio para remover):", a.daily_loss_limit || "");
+  if (v === null) return;
+  const n = parseFloat(v);
+  a.daily_loss_limit = (v.trim() && !isNaN(n) && n > 0) ? n : null;
+  persist(); renderAccts();
 }
 function deleteAcct(id, e) {
   e.stopPropagation();
@@ -2859,10 +2697,11 @@ function buildDiaryDayRow(date) {
 
   let badges = '';
   if (ctx.bias) { const bc=getBiasColor(ctx.bias),bg=getBiasBg(ctx.bias); badges+='<span class="jbadge" style="background:'+bg+';color:'+bc+';border:1px solid '+bc+'44">'+ctx.bias+'</span>'; }
-  if (ctx.fed) { const fc=ctx.fed.includes('Hawkish')?'var(--red)':ctx.fed.includes('Dovish')?'var(--green)':'var(--sub)'; badges+='<span class="jbadge" style="color:'+fc+';border:1px solid '+fc+'44">'+ctx.fed.split(' to ')[0]+'</span>'; }
-  (ctx.macroEvents||[]).filter(e=>e.priority).forEach(e => {
-    badges+='<span class="jbadge" style="background:#1f070710;color:var(--red);border:1px solid #f04f4f33">'+e.name+'</span>';
-  });
+  if (ctx.recap_bias_correct) {
+    const rc = ctx.recap_bias_correct;
+    const rcC = rc==='Sim'?'var(--green)':rc==='Não'?'var(--red)':'var(--amber)';
+    badges+='<span class="jbadge" style="color:'+rcC+';border:1px solid '+rcC+'44">Bias '+rc+'</span>';
+  }
 
   const planSnip = ctx.narrative ? escHtml(ctx.narrative.slice(0,60)+(ctx.narrative.length>60?'…':'')) : '';
 
@@ -2888,13 +2727,13 @@ function toggleDiaryDay(date) {
 
 function buildDiaryDayDetail(date) {
   const ctx = psData[date] || {};
-  if (!diaryState[date]) diaryState[date] = { bias: ctx.bias||'', fed: ctx.fed||'', sentiment: ctx.sentiment||'', profileBias: ctx.profile_bias||'' };
+  if (!diaryState[date]) diaryState[date] = { bias: ctx.bias||'' };
   const ds = diaryState[date];
 
-  // Profile Framing — left col (galeria principal + thumbnails, preenche o card)
+  // Prints — left col (galeria principal + thumbnails, preenche o card)
   const profGalleryHtml = buildDdrGallery(date);
 
-  // Macro & Fundamental — right col
+  // Bias do dia — right col
   const biasOpts = ['Bullish','Bearish','Neutral'];
   const _neutralVals2 = ['Consolidation/Ranging','ranging','Ranging'];
   const biasBtns = biasOpts.map(v => {
@@ -2902,19 +2741,6 @@ function buildDiaryDayDetail(date) {
     const isOn = ds.bias===v || (v==='Neutral' && _neutralVals2.includes(ds.bias));
     return '<button class="ps-bias-btn '+cls+(isOn?' on':'')+'" onclick="setDiaryBias(\''+date+'\',\''+v+'\',this)">'+v+'</button>';
   }).join('');
-  const fedOpts = [{v:'Hawkish',cls:'hawk'},{v:'Neutral to Hawkish',cls:'nhawk'},{v:'Neutral',cls:'neut'},{v:'Neutral to Dovish',cls:'ndove'},{v:'Dovish',cls:'dove'}];
-  const fedBtns = fedOpts.map(f => '<button class="fed-btn '+f.cls+(ds.fed===f.v?' on':'')+'" onclick="setDiaryFed(\''+date+'\',\''+f.v+'\',this)" style="font-size:10px;padding:4px 9px">'+f.v+'</button>').join('');
-  const sentBtns = [
-    ['Risk-On','on-ron'],['Risk-Off','on-roff'],['Neutro','on-neut']
-  ].map(([v,cls]) => '<button class="ps-sent-btn'+(ds.sentiment===v?' '+cls:'')+'" onclick="setDiarySentiment(\''+date+'\',\''+v+'\',this)">'+v+'</button>').join('');
-
-  // Macro events
-  const macroEvts = ctx.macroEvents || [];
-  const PREDEF = ['NFP','CPI','FOMC','PCE','GDP','ISM','PPI','Retail Sales','Fed Chair Speaks','AHE'];
-  const predefBtns = PREDEF.map(name => macroEvts.some(e=>e.name===name) ? '' :
-    '<button class="ps-predef-event" onclick="ddrAddMacroEvent(\''+date+'\',\''+name+'\')">'+name+'</button>'
-  ).join('');
-  const macroEvtHtml = '<div id="ddr-mev-'+date+'">' + buildDdrMacroEvents(date) + '</div>';
 
   // Trades
   const trades = dayTrades(date);
@@ -2924,35 +2750,19 @@ function buildDiaryDayDetail(date) {
   return '<div class="ddr-ps-cols">' +
     // LEFT
     '<div class="ddr-ps-col">' +
-      '<div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:10px">Profile Framing</div>' +
-      '<div class="ddr-field-lbl">Prints do Deepcharts</div>' +
+      '<div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:10px">Prints</div>' +
       '<input type="file" accept="image/*" multiple id="ddr-ss-in-'+date+'" style="display:none" onchange="ddrFilesSelected(\''+date+'\',this.files)">' +
       '<div class="ddr-gallery-fill" id="ddr-ss-grid-'+date+'" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="ddrDrop(event,\''+date+'\')">'+profGalleryHtml+'</div>' +
     '</div>' +
     // RIGHT
     '<div class="ddr-ps-col">' +
-      '<div style="font-size:11px;font-weight:700;color:var(--purple);margin-bottom:10px">Macro & Fundamental</div>' +
-      '<div class="ddr-field-lbl">Bias do dia</div>' +
-      '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">'+biasBtns+'</div>' +
-      '<div class="ddr-field-lbl">Fed Narrative</div>' +
-      '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">'+fedBtns+'</div>' +
-      '<div class="ddr-field-lbl">Sentiment</div>' +
-      '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px">'+sentBtns+'</div>' +
-      '<div class="ddr-field-lbl">Eventos Macro</div>' +
-      '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:7px">'+predefBtns+
-        '<button class="ps-predef-event" onclick="ddrAddMacroEventManual(\''+date+'\')">+ Manual</button>' +
+      '<div style="font-size:11px;font-weight:700;color:var(--purple);margin-bottom:10px">Bias do dia</div>' +
+      '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px">'+biasBtns+'</div>' +
+      '<div class="ddr-field-lbl">Plano pré-mercado</div>' +
+      '<div class="ta-fs-wrap">' +
+      '<button class="ta-fs-btn" onclick="openFSModal(\'Plano pré-mercado\',\'ddr-narrative-'+date+'\')" title="Expandir">⤢</button>' +
+      '<textarea class="ps-ta" id="ddr-narrative-'+date+'" style="min-height:150px" placeholder="Cola aqui o plano pré-mercado...">'+escHtml(ctx.narrative||'')+'</textarea>' +
       '</div>' +
-      macroEvtHtml +
-      '<div class="ddr-field-lbl" style="margin-top:10px">News & Geopolítica</div>' +
-      '<textarea class="ps-ta" id="ddr-geo-'+date+'" style="min-height:48px" placeholder="Ex: Conflitos geopolíticos, decisões políticas (tarifas, sanções), notícias macro inesperadas...">'+escHtml(ctx.geopolitics||'')+'</textarea>' +
-    '</div>' +
-  '</div>' +
-  // Game Plan
-  '<div class="ddr-game-plan">' +
-    '<div class="ddr-field-lbl">Game Plan do dia</div>' +
-    '<div class="ta-fs-wrap">' +
-    '<button class="ta-fs-btn" onclick="openFSModal(\'Game Plan\',\'ddr-narrative-'+date+'\')" title="Expandir">⤢</button>' +
-    '<textarea class="ps-ta" id="ddr-narrative-'+date+'" style="min-height:90px" placeholder="Resume tudo — profile, macro, bias, o que procuras, o que invalida o setup...">'+escHtml(ctx.narrative||'')+'</textarea>' +
     '</div>' +
   '</div>' +
   // Save bar
@@ -2961,25 +2771,154 @@ function buildDiaryDayDetail(date) {
     '<button class="btn btn-accent btn-sm" onclick="saveDiaryDayPS(\''+date+'\')">Guardar pré-sessão</button>' +
   '</div>' +
   // Trades
-  '<div class="ddr-trades-wrap">' + tradesHtml + '</div>';
+  '<div class="ddr-trades-wrap">' + tradesHtml + '</div>' +
+  // Session Recap
+  buildSessionRecap(date);
 }
 
-function buildDdrMacroEvents(date) {
-  const evts = (psData[date]||{}).macroEvents || [];
-  if (!evts.length) return '<div style="color:var(--hint);font-size:11px;font-family:var(--mono);padding:4px 0">Sem eventos — clica nos botões acima para adicionar</div>';
-  return evts.map((ev, i) =>
-    '<div class="ddr-mev">' +
-    '<div class="ddr-mev-head">' +
-      '<span style="font-family:var(--mono);font-size:11px;font-weight:600">'+escHtml(ev.name)+'</span>' +
-      (ev.priority ? '<span class="ddr-high-badge">HIGH</span>' : '') +
-      '<button onclick="ddrRemoveMacroEvent(\''+date+'\','+i+')" style="background:transparent;border:none;color:var(--hint);cursor:pointer;font-size:12px;margin-left:auto;flex-shrink:0">✕</button>' +
-    '</div>' +
-    '<div class="ta-fs-wrap">' +
-    '<button class="ta-fs-btn" onclick="openFSModal(\''+ev.name.replace(/'/g,"\\'")+'\',\'ddr-mev-note-'+date+'-'+i+'\')" title="Expandir">⤢</button>' +
-    '<textarea class="ps-ta" id="ddr-mev-note-'+date+'-'+i+'" style="min-height:40px" placeholder="Nota sobre este evento..." oninput="ddrUpdateMacroNote(\''+date+'\','+i+',this.value)">'+escHtml(ev.note||'')+'</textarea>' +
-    '</div>' +
-    '</div>'
+// ─── Session Recap ───────────────────────────────────────────────
+function buildSessionRecap(date) {
+  const ctx = psData[date] || {};
+  const planPrints = ctx.profile_screenshots || [];
+  const planThumbs = planPrints.length ? '<div class="ddr-recap-plan-thumbs">' + planPrints.map((src,i) =>
+    '<img class="ddr-recap-plan-thumb" src="'+src+'" onclick="psOpenLightbox(\''+date+'\','+i+')">'
+  ).join('') + '</div>' : '';
+  const biasHtml = ctx.bias ? '<span class="jbadge" style="background:'+getBiasBg(ctx.bias)+';color:'+getBiasColor(ctx.bias)+';border:1px solid '+getBiasColor(ctx.bias)+'44;margin-bottom:8px;display:inline-block">'+ctx.bias+'</span><br>' : '';
+  const planText = ctx.narrative ? escHtml(ctx.narrative) : '<span style="color:var(--hint)">Sem plano pré-mercado registado</span>';
+
+  const biasCorrectBtns = [['Sim','bull'],['Não','bear'],['Parcial','caut']].map(([v,cls]) =>
+    '<button class="ps-bias-btn '+cls+(ctx.recap_bias_correct===v?' on':'')+'" onclick="setRecapBiasCorrect(\''+date+'\',\''+v+'\',this)">'+v+'</button>'
   ).join('');
+
+  const recapGallery = buildDdrRecapGallery(date);
+
+  return '<div class="ddr-recap-wrap" id="ddr-recap-'+date+'">' +
+    '<div style="font-size:11px;font-weight:700;color:var(--teal);margin-bottom:10px">📝 Session Recap</div>' +
+    renderDaySessionStats(date) +
+    '<div class="ddr-ps-cols" style="border:1px solid var(--b1);border-radius:10px;overflow:hidden;margin-bottom:12px">' +
+      '<div class="ddr-ps-col">' +
+        '<div class="ddr-field-lbl">Plano pré-mercado (leitura)</div>' +
+        planThumbs +
+        '<div class="ddr-recap-plan-ro">' + biasHtml + planText + '</div>' +
+      '</div>' +
+      '<div class="ddr-ps-col">' +
+        '<div class="ddr-field-lbl">Bias Acertou</div>' +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">' + biasCorrectBtns + '</div>' +
+        '<div class="ddr-field-lbl">Recap</div>' +
+        '<div class="ta-fs-wrap">' +
+        '<button class="ta-fs-btn" onclick="openFSModal(\'Session Recap\',\'ddr-recap-text-'+date+'\')" title="Expandir">⤢</button>' +
+        '<textarea class="ps-ta" id="ddr-recap-text-'+date+'" style="min-height:150px" placeholder="Sessão / Erros / Setups Perdidos / Plano vs Sessão..." onblur="saveRecapText(\''+date+'\')">'+escHtml(ctx.recap_text||'')+'</textarea>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="ddr-field-lbl">Prints da sessão (opcional)</div>' +
+    '<input type="file" accept="image/*" multiple id="ddr-recap-ss-in-'+date+'" style="display:none" onchange="ddrRecapFilesSelected(\''+date+'\',this.files)">' +
+    '<div id="ddr-recap-ss-grid-'+date+'" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="ddrRecapDrop(event,\''+date+'\')">' + recapGallery + '</div>' +
+  '</div>';
+}
+
+function computeDayStats(date) {
+  const trades = dayTrades(date);
+  const pnl = trades.reduce((s,t) => s+t.pnl, 0);
+  const grades = {};
+  trades.forEach(t => { if (t.grade) grades[t.grade] = (grades[t.grade]||0)+1; });
+  const errMap = errCatMap();
+  const errCounts = {};
+  trades.forEach(t => {
+    [t.error_primary, ...(t.error_secondary||[])].filter(Boolean).forEach(id => { errCounts[id] = (errCounts[id]||0)+1; });
+  });
+  const errors = Object.entries(errCounts).map(([id,count]) => ({ label: errMap[id]?.label || id, count }));
+  const limit = curAcct?.daily_loss_limit || null;
+  const lossLimitHit = (limit && limit > 0) ? (pnl <= -limit) : null;
+  return { pnl, count: trades.length, grades, errors, lossLimitHit, limit };
+}
+
+function renderDaySessionStats(date) {
+  const s = computeDayStats(date);
+  const pnlColor = s.pnl > 0 ? 'var(--green)' : s.pnl < 0 ? 'var(--red)' : 'var(--sub)';
+  const gradeStr = Object.keys(s.grades).length ? Object.entries(s.grades).map(([g,n])=>g+(n>1?' ×'+n:'')).join(', ') : '—';
+  const errStr = s.errors.length ? s.errors.map(e=>e.label+(e.count>1?' ×'+e.count:'')).join(', ') : '—';
+  let html = '<div class="ddr-recap-stats">' +
+    '<div class="ddr-recap-stat"><span class="ddr-recap-stat-val" style="color:'+pnlColor+'">'+(s.pnl>=0?'+':'')+'$'+s.pnl.toFixed(2)+'</span><span class="ddr-recap-stat-lbl">P&L do dia</span></div>' +
+    '<div class="ddr-recap-stat"><span class="ddr-recap-stat-val">'+s.count+'</span><span class="ddr-recap-stat-lbl">Trades</span></div>' +
+    '<div class="ddr-recap-stat"><span class="ddr-recap-stat-val" style="font-size:12px">'+gradeStr+'</span><span class="ddr-recap-stat-lbl">Grades</span></div>' +
+    '<div class="ddr-recap-stat"><span class="ddr-recap-stat-val" style="font-size:12px;color:'+(s.errors.length?'var(--red)':'var(--hint)')+'">'+errStr+'</span><span class="ddr-recap-stat-lbl">Erros</span></div>';
+  if (s.lossLimitHit !== null) {
+    html += '<div class="ddr-recap-stat"><span class="ddr-recap-stat-val" style="color:'+(s.lossLimitHit?'var(--red)':'var(--green)')+'">'+(s.lossLimitHit?'⚠ Atingido':'✓ OK')+'</span><span class="ddr-recap-stat-lbl">Limite diário ($'+s.limit+')</span></div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function setRecapBiasCorrect(date, val, btn) {
+  ensurePSDate(date);
+  psData[date].recap_bias_correct = psData[date].recap_bias_correct === val ? '' : val;
+  document.querySelectorAll('#ddr-recap-'+date+' .ps-bias-btn').forEach(b=>b.classList.remove('on'));
+  if (psData[date].recap_bias_correct) btn.classList.add('on');
+  savePSData(date);
+}
+function saveRecapText(date) {
+  ensurePSDate(date);
+  const el = document.getElementById('ddr-recap-text-'+date); if (!el) return;
+  psData[date].recap_text = el.value;
+  savePSData(date);
+}
+
+// ─── Session Recap prints ──────────────────────────────────────────
+function ddrRecapFilesSelected(date, files) {
+  if (!files?.length) return;
+  ensurePSDate(date);
+  if (!psData[date].recap_screenshots) psData[date].recap_screenshots = [];
+  let loaded = 0;
+  Array.from(files).forEach(f => {
+    const reader = new FileReader();
+    reader.onload = async e => {
+      const compressed = await compressImage(e.target.result, 1920, 0.92);
+      const stored = await sbUploadPrint('sessions/'+date+'/recap', compressed);
+      psData[date].recap_screenshots.push(stored || compressed);
+      loaded++;
+      if (loaded === files.length) {
+        savePSData(date);
+        renderDdrRecapThumbs(date);
+      }
+    };
+    reader.readAsDataURL(f);
+  });
+}
+async function ddrRecapDrop(e, date) {
+  e.preventDefault();
+  e.stopPropagation();
+  const zone = e.currentTarget; if (zone) zone.classList.remove('drag');
+  const imgs = await getDropImages(e);
+  if (imgs.length) ddrRecapFilesSelected(date, imgs);
+}
+function ddrRemoveRecapShot(date, idx) {
+  if (!psData[date]?.recap_screenshots) return;
+  sbDeletePrint(psData[date].recap_screenshots[idx]);
+  psData[date].recap_screenshots.splice(idx, 1);
+  savePSData(date);
+  renderDdrRecapThumbs(date);
+}
+function buildDdrRecapGallery(date) {
+  const shots = psData[date]?.recap_screenshots || [];
+  const addAttr = "document.getElementById('ddr-recap-ss-in-"+date+"').click()";
+  if (!shots.length) {
+    return '<div class="ddr-gallery-empty" style="min-height:120px" onclick="'+addAttr+'"><div style="font-size:20px;opacity:.2;margin-bottom:7px">📷</div><div style="font-size:12px;color:var(--hint);font-family:var(--mono)">Arrasta prints aqui ou clica para adicionar</div></div>';
+  }
+  return imgGalleryHTML(
+    'ddrrecapgal-'+date, shots, 220,
+    "recapOpenLightbox('"+date+"',parseInt(this.dataset.idx)||0)",
+    i => "ddrRemoveRecapShot('"+date+"',"+i+")",
+    addAttr
+  );
+}
+function renderDdrRecapThumbs(date) {
+  const grid = document.getElementById('ddr-recap-ss-grid-'+date); if (!grid) return;
+  grid.innerHTML = buildDdrRecapGallery(date);
+}
+function recapOpenLightbox(date, idx) {
+  const shots = (psData[date] || {}).recap_screenshots || [];
+  openLightbox(shots, idx);
 }
 
 function buildDdrTrades(date, trades) {
@@ -3012,61 +2951,6 @@ function setDiaryBias(date, val, btn) {
   document.querySelectorAll('#ddr-'+date+' .ddr-ps-cols .ddr-ps-col:last-child .ps-bias-btn').forEach(b=>b.classList.remove('on'));
   if (diaryState[date].bias) btn.classList.add('on');
 }
-function setDiaryPBias(date, val, btn) {
-  if (!diaryState[date]) diaryState[date] = {};
-  diaryState[date].profileBias = diaryState[date].profileBias===val ? '' : val;
-  document.querySelectorAll('#ddr-'+date+' .ddr-ps-cols .ddr-ps-col:first-child .ps-bias-btn').forEach(b=>b.classList.remove('on'));
-  if (diaryState[date].profileBias) btn.classList.add('on');
-}
-function setDiaryFed(date, val, btn) {
-  if (!diaryState[date]) diaryState[date] = {};
-  diaryState[date].fed = diaryState[date].fed===val ? '' : val;
-  document.querySelectorAll('#ddd-'+date+' .fed-btn').forEach(b=>b.classList.remove('on'));
-  if (diaryState[date].fed) btn.classList.add('on');
-}
-function setDiarySentiment(date, val, btn) {
-  if (!diaryState[date]) diaryState[date] = {};
-  diaryState[date].sentiment = diaryState[date].sentiment===val ? '' : val;
-  document.querySelectorAll('#ddd-'+date+' .ps-sent-btn').forEach(b=>b.classList.remove('on-ron','on-roff','on-neut'));
-  if (diaryState[date].sentiment) {
-    const cls = val==='Risk-On'?'on-ron':val==='Risk-Off'?'on-roff':'on-neut';
-    btn.classList.add(cls);
-  }
-}
-
-// ─── Diary Day Macro Events ────────────────────────────────────────
-function ddrAddMacroEvent(date, name) {
-  ensurePSDate(date);
-  if (!psData[date].macroEvents) psData[date].macroEvents = [];
-  if (psData[date].macroEvents.some(e=>e.name===name)) { toast(name+' já adicionado','err'); return; }
-  // Preserve unsaved textarea values before re-render
-  const gn = document.getElementById('ddr-geo-'+date); if(gn) { psData[date].geopolitics = gn.value; }
-  const na = document.getElementById('ddr-narrative-'+date); if(na) { psData[date].narrative = na.value; }
-  psData[date].macroEvents.push({name, time:'', note:'', priority:isPriorityEvent(name)});
-  savePSData(date);
-  const detail = document.getElementById('ddd-'+date);
-  if (detail) detail.innerHTML = buildDiaryDayDetail(date);
-}
-function ddrAddMacroEventManual(date) {
-  const name = prompt('Nome do evento (ex: CPI, NFP, FOMC):'); if (!name?.trim()) return;
-  ddrAddMacroEvent(date, name.trim());
-}
-function ddrRemoveMacroEvent(date, idx) {
-  if (!psData[date]?.macroEvents) return;
-  // Preserve unsaved textarea values
-  const gn = document.getElementById('ddr-geo-'+date); if(gn) { psData[date].geopolitics = gn.value; }
-  const na = document.getElementById('ddr-narrative-'+date); if(na) { psData[date].narrative = na.value; }
-  psData[date].macroEvents.splice(idx, 1);
-  savePSData(date);
-  const detail = document.getElementById('ddd-'+date);
-  if (detail) detail.innerHTML = buildDiaryDayDetail(date);
-}
-function ddrUpdateMacroNote(date, idx, note) {
-  if (!psData[date]?.macroEvents?.[idx]) return;
-  psData[date].macroEvents[idx].note = note;
-  // debounce save via existing auto-save on PS save
-}
-
 // ─── Diary Day Screenshot upload ──────────────────────────────────
 function ddrFilesSelected(date, files) {
   if (!files?.length) return;
@@ -3124,16 +3008,8 @@ function saveDiaryDayPS(date) {
     ...existing,
     date,
     bias: ds.bias || '',
-    fed: ds.fed || '',
-    sentiment: ds.sentiment || '',
-    profile_bias: ds.profileBias || '',
-    profile_notes: existing.profile_notes || '',
-    geopolitics: g('ddr-geo-'+date),
     narrative: g('ddr-narrative-'+date),
-    macroEvents: existing.macroEvents || [],
-    profile_screenshots: existing.profile_screenshots || [],
-    justification: existing.justification || '',
-    score: existing.score || 50
+    profile_screenshots: existing.profile_screenshots || []
   };
   savePSData(date);
   toast('Pré-sessão guardada ✓','ok');
@@ -3147,126 +3023,6 @@ function saveDiaryDayPS(date) {
   }
 }
 
-function renderJournal() {
-  const body = document.getElementById('journal-body');
-  const days = getJDays();
-  if (!days.length) {
-    const empty = !acctTrades().length;
-    body.innerHTML = '<div class="empty-state" style="margin-top:8px">'+
-      '<div class="empty-icon">'+(empty?'📋':'🔍')+'</div>'+
-      '<div class="empty-text">'+(empty?'Ainda não tens trades importadas.':'Sem dias com os filtros actuais.')+'</div>'+
-      (empty?'<div style="margin-top:12px"><button class="btn btn-accent btn-sm" onclick="showTab(\'import\',document.querySelectorAll(\'.tab\')[3])">Importar CSV</button></div>':'')+'</div>';
-    document.getElementById('journal-lbl').textContent = '';
-    return;
-  }
-  const total = days.reduce((s,d) => s+d.trades.length, 0);
-  document.getElementById('journal-lbl').textContent = days.length+' dias · '+total+' trades';
-
-  const BIAS_C = { Bullish:'#1fd17a', Bearish:'#f04f4f', 'Consolidation/Ranging':'#9b72f5', Neutral:'#9b72f5', ranging:'#9b72f5', Ranging:'#9b72f5' };
-  const FED_C  = { Hawkish:'#f04f4f', Dovish:'#1fd17a', Neutro:'#8892aa' };
-
-  body.innerHTML = days.map(({ date, trades }) => {
-    const ctx = psData[date] || {};
-    const pnl = trades.reduce((s,t) => s+t.pnl, 0);
-    const pos = pnl >= 0;
-    const wins = trades.filter(t => t.pnl > 0).length;
-    const wr = trades.length ? Math.round(wins/trades.length*100) : 0;
-    const gW = trades.filter(t=>t.pnl>0).reduce((s,t)=>s+t.pnl,0);
-    const gL = Math.abs(trades.filter(t=>t.pnl<0).reduce((s,t)=>s+t.pnl,0));
-    const pf = gL > 0 ? (gW/gL).toFixed(2) : (gW > 0 ? '∞' : '—');
-    const rs = trades.filter(t => t.risk && t.risk > 0).map(t => t.pnl/t.risk);
-    const avgR = rs.length ? rs.reduce((s,r)=>s+r,0)/rs.length : null;
-    const errTrades = trades.filter(t => t.error_primary || (t.error_secondary && t.error_secondary.length));
-
-    let badges = '';
-    if (ctx.bias) { const c=BIAS_C[ctx.bias]||'#8892aa'; badges+='<span class="jbadge" style="background:'+c+'18;color:'+c+';border:1px solid '+c+'44">'+ctx.bias+'</span>'; }
-    if (ctx.fed)  { const c=FED_C[ctx.fed]||'#8892aa';   badges+='<span class="jbadge" style="background:'+c+'18;color:'+c+';border:1px solid '+c+'44">'+ctx.fed+'</span>'; }
-    if (errTrades.length > 0) {
-      badges+='<span class="jbadge" style="background:#1f070718;color:var(--red);border:1px solid #f04f4f44">⚠ '+errTrades.length+' trade'+(errTrades.length>1?'s':'')+' com erro</span>';
-    }
-
-    return '<div class="jday-card" id="jdc-'+date+'">' +
-      '<div class="jday-hdr">' +
-        '<div><div class="jday-date-txt">'+jFmtDate(date)+'</div><div class="jday-badges">'+badges+'</div></div>' +
-        '<div class="jday-pnl" style="color:'+(pos?'var(--green)':'var(--red)')+'">'+((pnl>=0?'+':'')+'$'+pnl.toFixed(2))+'</div>' +
-        '<div>'+miniCurve(trades,120,40,pos)+'</div>' +
-        '<div class="jday-metrics">' +
-          '<div class="jday-metric"><div class="jday-metric-val">'+wr+'%</div><div class="jday-metric-lbl">Win Rate</div></div>' +
-          '<div class="jday-metric"><div class="jday-metric-val">'+trades.length+'</div><div class="jday-metric-lbl">Trades</div></div>' +
-          '<div class="jday-metric"><div class="jday-metric-val">'+pf+'</div><div class="jday-metric-lbl">Prof Factor</div></div>' +
-          '<div class="jday-metric"><div class="jday-metric-val">'+(avgR!=null?avgR.toFixed(2)+'R':'—')+'</div><div class="jday-metric-lbl">Avg R</div></div>' +
-          '<div class="jday-metric"><div class="jday-metric-val" style="color:'+(errTrades.length?'var(--red)':'var(--hint)')+'">'+errTrades.length+'</div><div class="jday-metric-lbl">Erros</div></div>' +
-        '</div>' +
-      '</div>' +
-      '<div style="padding:6px 16px 10px;background:var(--s2);border-top:1px solid var(--b1)">' +
-        '<div style="font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;margin-bottom:4px">NQ Scale — R médio</div>' +
-        nqScale(avgR, false) +
-      '</div>' +
-      '<div style="display:flex;gap:7px;padding:9px 16px;border-top:1px solid var(--b1);background:var(--s2)">' +
-        '<button class="btn btn-ghost btn-sm" id="jbtn-'+date+'" onclick="toggleJDay(\''+date+'\')">▸ Ver trades</button>' +
-        '<button class="btn btn-ghost btn-sm" onclick="openReview(\''+date+'\')">↗ Review</button>' +
-      '</div>' +
-      '<div class="jday-body" id="jdb-'+date+'">' + renderJDayPSCtx(date) + renderJDayBody(date, trades) + '</div>' +
-    '</div>';
-  }).join('');
-}
-
-function renderJDayBody(date, trades) {
-  if (!trades.length) return '';
-  const sorted = [...trades].sort((a,b) => { const ar=a.csv_row??Infinity,br=b.csv_row??Infinity; if(ar!==br)return ar-br; return (a.time||'99:99').localeCompare(b.time||'99:99'); });
-  const hdr = '<div class="jtrade-hdr"><span>Hora</span><span>Símbolo</span><span>Dir</span><span>Entry→Exit</span><span>P&L</span><span>R</span><span>NQ Scale</span><span>Grade/Erros</span><span></span></div>';
-  return hdr + sorted.map((t, idx) => {
-    const pc = t.pnl > 0 ? 'var(--green)' : t.pnl < 0 ? 'var(--red)' : 'var(--sub)';
-    const rc = t.risk && t.risk > 0 ? t.pnl/t.risk : (t.r && t.r !== 0 ? t.r : null);
-    const rStr = rc != null ? rc.toFixed(2)+'R' : '—';
-    const rc2 = rc != null ? rc : null;
-    const rColor = rc2 == null ? 'var(--hint)' : rc2 >= 1 ? 'var(--green)' : rc2 >= 0 ? 'var(--amber)' : 'var(--red)';
-    const dirC = t.direction === 'Long' ? 'var(--green)' : 'var(--red)';
-    const jSess = getSession(t.time);
-    const jSessBadge = jSess ? sessionBadge(jSess) : '';
-    return '<div class="jtrade-row" onclick="openReviewFromList(\''+date+'\','+idx+')">' +
-      '<span style="display:flex;flex-direction:column;gap:2px"><span style="color:var(--sub)">'+tradeTimeRange(t)+'</span>'+(jSessBadge?'<span>'+jSessBadge+'</span>':'')+'</span>' +
-      '<span style="background:var(--s3);padding:1px 5px;border-radius:4px;border:1px solid var(--b1)">'+(t.symbol||'NQ')+'</span>' +
-      '<span style="color:'+dirC+';font-weight:600">'+(t.direction||'—')+'</span>' +
-      '<span style="color:var(--sub)">@'+(t.entry||'—')+'→'+(t.exit||'—')+'</span>' +
-      '<span style="color:'+pc+';font-weight:600">'+((t.pnl>=0?'+':'')+'$'+t.pnl.toFixed(2))+'</span>' +
-      '<span style="color:'+rColor+'">'+rStr+'</span>' +
-      '<span>'+nqScale(rc2,true)+'</span>' +
-      '<span style="display:flex;gap:3px;flex-wrap:wrap">'+tradeGradeErrorBadges(t)+'</span>' +
-      '<span style="cursor:pointer;color:var(--hint);text-align:center" onclick="event.stopPropagation();openReviewFromList(\''+date+'\','+idx+')">↗</span>' +
-    '</div>';
-  }).join('');
-}
-
-function renderJDayPSCtx(date) {
-  const ctx = psData[date] || {};
-  const hasBias = ctx.bias;
-  const hasFed  = ctx.fed;
-  const hasSent = ctx.sentiment;
-  const hasPlan = ctx.narrative;
-  const tabIdx  = 3; // pré-sessão tab index
-  if (!hasBias && !hasFed && !hasSent && !hasPlan) {
-    return '<div style="padding:9px 16px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:8px">' +
-      '<span style="font-size:11px;color:var(--hint);font-family:var(--mono)">○ Sem pré-sessão para este dia</span>' +
-      '<button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="goToPSDate(\''+date+'\')">Preencher →</button>' +
-    '</div>';
-  }
-  const biasC = getBiasColor(ctx.bias);
-  const biasBg = getBiasBg(ctx.bias);
-  const fedC = ctx.fed?.includes('Hawkish')?'var(--red)':ctx.fed?.includes('Dovish')?'var(--green)':'var(--sub)';
-  const sentC = ctx.sentiment==='Risk-On'?'var(--green)':ctx.sentiment==='Risk-Off'?'var(--red)':'var(--sub)';
-  const planSnippet = hasPlan ? ctx.narrative.slice(0,100) + (ctx.narrative.length>100?'…':'') : '';
-  return '<div style="padding:9px 16px 11px;border-bottom:1px solid var(--b1);background:var(--s2)">' +
-    '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:' + (planSnippet?'7':'0') + 'px">' +
-      (hasBias ? '<span style="font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 8px;border-radius:5px;color:'+biasC+';background:'+biasBg+';border:1px solid '+biasC+'">'+ctx.bias+'</span>' : '') +
-      (hasFed  ? '<span style="font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 8px;border-radius:5px;color:'+fedC+';border:1px solid '+fedC+'44">'+ctx.fed+'</span>' : '') +
-      (hasSent ? '<span style="font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 8px;border-radius:5px;color:'+sentC+';border:1px solid '+sentC+'44">'+ctx.sentiment+'</span>' : '') +
-      '<button class="btn btn-ghost btn-sm" style="margin-left:auto;font-size:10px" onclick="goToPSDate(\''+date+'\')">Ver pré-sessão →</button>' +
-    '</div>' +
-    (planSnippet ? '<div style="font-size:11px;color:var(--sub);line-height:1.5;font-family:var(--mono)">'+planSnippet+'</div>' : '') +
-  '</div>';
-}
-
 function goToPSDate(date) {
   psDate = date;
   showTab('prep', document.querySelectorAll('.tab')[2]);
@@ -3274,63 +3030,6 @@ function goToPSDate(date) {
   loadPSDate(date);
   const blk = document.getElementById('prep-block-dia');
   if (blk) blk.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-function toggleJDay(date) {
-  const card = document.getElementById('jdc-'+date);
-  const btn  = document.getElementById('jbtn-'+date);
-  if (!card) return;
-  const open = card.classList.toggle('open');
-  if (btn) btn.textContent = open ? '▾ Fechar' : '▸ Ver trades';
-}
-
-function openCtxModal(date) {
-  const ctx = psData[date] || {};
-  document.getElementById('ctx-modal-title').textContent = jFmtDate(date);
-  const BIAS_C = { Bullish:'#1fd17a', Bearish:'#f04f4f', 'Consolidation/Ranging':'#9b72f5', Neutral:'#9b72f5', ranging:'#9b72f5', Ranging:'#9b72f5' };
-  const FED_C  = { Hawkish:'#f04f4f', Dovish:'#1fd17a', Neutro:'#8892aa' };
-  const body = document.getElementById('ctx-modal-body');
-  if (!Object.keys(ctx).length) {
-    body.innerHTML = '<div style="text-align:center;padding:32px 16px;color:var(--hint);font-family:var(--mono);font-size:12px">Sem contexto registado para este dia.<div style="margin-top:14px"><button class="btn btn-accent btn-sm" onclick="closeCtxModal();showTab(\'prep\',document.querySelectorAll(\'.tab\')[2])">Adicionar contexto</button></div></div>';
-  } else {
-    let h = '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px">';
-    if (ctx.bias) { const c=BIAS_C[ctx.bias]||'#8892aa'; h+='<span class="jbadge" style="background:'+c+'18;color:'+c+';border:1px solid '+c+'44">'+ctx.bias+'</span>'; }
-    if (ctx.fed)  { const c=FED_C[ctx.fed]||'#8892aa';   h+='<span class="jbadge" style="background:'+c+'18;color:'+c+';border:1px solid '+c+'44">'+ctx.fed+'</span>'; }
-    if (ctx.score != null) {
-      const sl = ctx.score >= 60 ? 'Risk-On' : ctx.score <= 40 ? 'Risk-Off' : 'Neutro';
-      const sc = ctx.score >= 60 ? 'var(--green)' : ctx.score <= 40 ? 'var(--red)' : 'var(--amber)';
-      h+='<span class="jbadge" style="color:'+sc+';background:'+sc+'18;border:1px solid '+sc+'44">Score '+ctx.score+' · '+sl+'</span>';
-    }
-    h += '</div>';
-    if (ctx.vix!=null||ctx.spxDelta!=null||ctx.dxy!=null) {
-      h += '<div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px">';
-      if (ctx.vix!=null)      h+='<div><div class="ctx-lbl">VIX</div><div class="ctx-val">'+ctx.vix+(ctx.vixRegime?' ('+ctx.vixRegime+')':"")+'</div></div>';
-      if (ctx.spxDelta!=null) h+='<div><div class="ctx-lbl">SPX Δ%</div><div class="ctx-val">'+(ctx.spxDelta>0?'+':'')+parseFloat(ctx.spxDelta).toFixed(2)+'%</div></div>';
-      if (ctx.dxy!=null)      h+='<div><div class="ctx-lbl">DXY</div><div class="ctx-val">'+parseFloat(ctx.dxy).toFixed(2)+'</div></div>';
-      h += '</div>';
-    }
-    const txt = (lbl, val) => val ? '<div class="ctx-sec"><div class="ctx-lbl">'+lbl+'</div><div style="font-size:12px;color:var(--sub);white-space:pre-wrap;line-height:1.5">'+val+'</div></div>' : '';
-    h += txt('Fundamentação', ctx.justification);
-    h += txt('Contexto Fed', ctx.fedCtx);
-    h += txt('Manchetes', ctx.headlines);
-    if (ctx.macroEvents?.length) {
-      h += '<div class="ctx-sec"><div class="ctx-lbl" style="margin-bottom:6px">Eventos Macro</div><div style="border:1px solid var(--b1);border-radius:8px;overflow:hidden">';
-      h += '<div style="display:grid;grid-template-columns:50px 1fr 70px 70px;gap:6px;padding:5px 10px;background:var(--s3);font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase"><span>Hora</span><span>Evento</span><span>Actual</span><span>NQ Impact</span></div>';
-      ctx.macroEvents.forEach(e => {
-        const ic = e.impact==='Positivo'?'var(--green)':e.impact==='Negativo'?'var(--red)':'var(--amber)';
-        h += '<div style="display:grid;grid-template-columns:50px 1fr 70px 70px;gap:6px;padding:6px 10px;border-top:1px solid var(--b1);font-size:11px;font-family:var(--mono)"><span style="color:var(--hint)">'+(e.time||'—')+'</span><span>'+(e.name||'')+'</span><span style="color:var(--sub)">'+(e.actual||e.forecast||'—')+'</span><span style="color:'+ic+'">'+(e.impact||'—')+'</span></div>';
-      });
-      h += '</div></div>';
-    }
-    body.innerHTML = h;
-  }
-  document.getElementById('ctx-modal-bg').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeCtxModal() {
-  document.getElementById('ctx-modal-bg').classList.remove('open');
-  document.body.style.overflow = '';
 }
 
 // ═══════════════════════════════════════════
@@ -3362,12 +3061,9 @@ function renderPrep() {
   prepRenderPostWeek();
   updatePrepWeekRange();
   initPS(); // carrega a pré-sessão na Block B (usa #ps-date-picker)
-  initPosSession(); // carrega a pós-sessão na Block C (usa #pos-date-picker)
   if (!_prepInit) {
-    // CHANGE 6 — por defeito: Semana expandida, Dia colapsada
     setPrepBlock('semana', true);
     setPrepBlock('dia', false);
-    setPrepBlock('pos', false);
     _prepInit = true;
   }
 }
@@ -3510,202 +3206,20 @@ function loadPSDate(d) {
   const ctx = psData[d] || {};
   psBias = ctx.bias || '';
   if (['Consolidation/Ranging','ranging','Ranging'].includes(psBias)) psBias = 'Neutral';
-  psFed = ctx.fed || '';
-  psFearGreed = (ctx.fear_greed_score === 0 || ctx.fear_greed_score) ? ctx.fear_greed_score : null;
   // Bias buttons
   document.querySelectorAll('.ps-bias-btn').forEach(b => { b.classList.remove('on'); if (psBias && b.textContent.includes(psBias)) b.classList.add('on'); });
-  // Fed buttons (data-val para correspondência exacta)
-  document.querySelectorAll('.fed-btn[data-val]').forEach(b => { b.classList.remove('on'); if (psFed && b.dataset.val === psFed) b.classList.add('on'); });
-  // Fear & Greed
-  const fgScoreInput = document.getElementById('ps-fg-score'); if (fgScoreInput) fgScoreInput.value = psFearGreed ?? '';
-  renderFearGreedGauge(psFearGreed);
-  // Capital Flow tags
-  psCapitalFlowTags = { ...(ctx.capital_flow_tags || {}) };
-  renderCapitalFlowTags();
-  // Textareas
-  const taMap = {'ps-fed-ctx':'fedCtx','ps-fg-note':'fear_greed_note','ps-capital-flow':'capital_flow','ps-geopolitics':'geopolitics','ps-narrative':'narrative'};
-  Object.entries(taMap).forEach(([id, key]) => { const el = document.getElementById(id); if (el) el.value = ctx[key] || ''; });
-  // Profile bias buttons
-  psProfileBias = ctx.profile_bias || '';
-  document.querySelectorAll('.ps-pbias-btn[data-val]').forEach(b => { b.classList.remove('on'); if (psProfileBias && b.dataset.val === psProfileBias) b.classList.add('on'); });
-  // Profile screenshots
+  // Plano pré-mercado
+  const na = document.getElementById('ps-narrative'); if (na) na.value = ctx.narrative || '';
+  // Prints
   renderPSScreenshots(d);
-  // Macro events
-  renderMacroEvents(d);
-  // Dynamic level lists
-  renderPSLevelList('hvn', d);
-  renderPSLevelList('lvn', d);
-  renderPSDeltaList(d);
-  renderPSSDZoneList(d);
-  renderPSSRList(d);
-  renderZoneGradeList(d);
-  // Collapsible dots (filled indicator)
-  const setDot = (id, val) => { const el = document.getElementById(id); if (el) el.classList.toggle('show', !!val); };
-  setDot('ps-col-events-dot', ctx.macroEvents?.length);
-  setDot('ps-col-geo-dot', ctx.geopolitics);
-  setDot('ps-col-fed-dot', ctx.fed || ctx.fedCtx);
-  setDot('ps-col-fg-dot', (ctx.fear_greed_score === 0 || ctx.fear_greed_score) || ctx.fear_greed_note);
-  setDot('ps-col-cf-dot', ctx.capital_flow || Object.values(ctx.capital_flow_tags || {}).some(Boolean));
   updatePSStatusBadge();
   renderPSHist();
 }
 
-// ═══════════════════════════════════════════
-// PÓS-SESSÃO (Block C)
-// ═══════════════════════════════════════════
-function initPosSession() {
-  posDate = posDate || todayISO();
-  const picker = document.getElementById('pos-date-picker');
-  if (picker) picker.value = posDate;
-  loadPosDate(posDate);
-}
-function posNavDate(dir) {
-  const d = new Date((posDate || todayISO()) + 'T12:00:00');
-  d.setDate(d.getDate() + dir);
-  loadPosDate(d.toISOString().split('T')[0]);
-}
-function loadPosDate(d) {
-  if (!d) d = todayISO();
-  posDate = d;
-  const picker = document.getElementById('pos-date-picker'); if (picker) picker.value = d;
-  renderPosSession(d);
-}
-function renderPosSession(d) {
-  const host = document.getElementById('pos-session-host'); if (!host) return;
-  ensurePSDate(d);
-  const ctx = psData[d] || {};
-  posBiasRealizado = ctx.bias_realizado || '';
-  const bBtn = (v, cls, lbl) => '<button class="ps-bias-btn ' + cls + (posBiasRealizado === v ? ' on' : '') + '" onclick="setPosBiasRealizado(\'' + v + '\',this)">' + lbl + '</button>';
-  let html = '<div class="pos-session-card">' +
-    '<div class="ps-field-lbl">Bias Realizado</div>' +
-    '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
-      bBtn('Bullish', 'bull', '▲ Bullish') + bBtn('Bearish', 'bear', '▼ Bearish') + bBtn('Neutral', 'range', '↔ Neutral') +
-    '</div>' +
-  '</div>';
-  const evts = ctx.macroEvents || [];
-  if (evts.length) {
-    html += '<div class="pos-session-card">' +
-      '<div class="ps-field-lbl" style="margin-bottom:10px">Reações aos eventos do dia</div>' +
-      '<div id="pos-macro-events-list">' + evts.map((ev, i) => buildMacroEventHTML(ev, i, d)).join('') + '</div>' +
-    '</div>';
-  }
-  // secção extensível — espaço reservado para futuras secções de pós-sessão
-  html += '<div class="pos-session-card" id="pos-session-extend"></div>';
-  host.innerHTML = html;
-}
-function setPosBiasRealizado(v, btn) {
-  const d = posDate || todayISO();
-  ensurePSDate(d);
-  posBiasRealizado = (posBiasRealizado === v) ? '' : v;
-  psData[d].bias_realizado = posBiasRealizado;
-  document.querySelectorAll('#pos-session-host .ps-bias-btn').forEach(b => b.classList.remove('on'));
-  if (posBiasRealizado) btn.classList.add('on');
-  savePSData(d);
-}
-
-function setFed(v, btn) {
-  psFed = (psFed === v) ? '' : v;
-  document.querySelectorAll('.fed-btn[data-val]').forEach(b => b.classList.remove('on'));
-  if (psFed) btn.classList.add('on');
-}
 function setPSBias(v, btn) {
   psBias = (psBias === v) ? '' : v;
   document.querySelectorAll('.ps-bias-btn').forEach(b => b.classList.remove('on'));
   if (psBias) btn.classList.add('on');
-}
-// ─── Fear & Greed ─────────────────────
-function fgLabel(s) {
-  if (s == null) return 'Sem score';
-  if (s <= 24) return 'Extreme Fear';
-  if (s <= 44) return 'Fear';
-  if (s <= 55) return 'Neutral';
-  if (s <= 75) return 'Greed';
-  return 'Extreme Greed';
-}
-function fgTag(s) {
-  if (s == null) return '';
-  if (s < 40) return 'Risk-Off';
-  if (s > 60) return 'Risk-On';
-  return 'Neutro';
-}
-function fgColor(s) {
-  if (s == null) return 'var(--sub)';
-  if (s <= 24) return 'var(--red)';
-  if (s <= 44) return 'var(--amber)';
-  if (s <= 55) return 'var(--sub)';
-  if (s <= 75) return 'var(--teal)';
-  return 'var(--green)';
-}
-function setFearGreedScore(val) {
-  let s = parseInt(val, 10);
-  s = isNaN(s) ? null : Math.max(0, Math.min(100, s));
-  psFearGreed = s;
-  renderFearGreedGauge(s);
-}
-function renderFearGreedGauge(s) {
-  const needle = document.getElementById('fg-needle');
-  const scoreLbl = document.getElementById('fg-score-lbl');
-  const labelLbl = document.getElementById('fg-label-lbl');
-  const tagBadge = document.getElementById('fg-tag-badge');
-  if (!needle) return;
-  const clamped = (s == null) ? 50 : s;
-  const angle = (clamped - 50) * 1.8;
-  needle.style.transform = 'translateX(-50%) rotate(' + angle + 'deg)';
-  needle.style.background = fgColor(s);
-  if (scoreLbl) scoreLbl.textContent = (s == null) ? '—' : s;
-  if (labelLbl) { labelLbl.textContent = fgLabel(s); labelLbl.style.color = fgColor(s); }
-  if (tagBadge) {
-    const tag = fgTag(s);
-    if (!tag) { tagBadge.textContent = ''; tagBadge.style.display = 'none'; }
-    else {
-      tagBadge.style.display = '';
-      tagBadge.textContent = tag;
-      const c = tag === 'Risk-On' ? 'var(--green)' : tag === 'Risk-Off' ? 'var(--red)' : 'var(--sub)';
-      tagBadge.style.color = c;
-      tagBadge.style.borderColor = c;
-    }
-  }
-}
-function setPSProfileBias(v, btn) {
-  psProfileBias = (psProfileBias === v) ? '' : v;
-  document.querySelectorAll('.ps-pbias-btn[data-val]').forEach(b => b.classList.remove('on'));
-  if (psProfileBias) btn.classList.add('on');
-}
-function toggleBiasErrorReason() {
-  const acc = document.getElementById('ps-posrev-bias-accuracy')?.value;
-  const wrap = document.getElementById('ps-posrev-err-reason-wrap');
-  if (wrap) wrap.style.display = (acc === 'Errado' || acc === 'Parcial') ? '' : 'none';
-}
-// ─── Capital Flow tags ─────────────────────
-function renderCapitalFlowTags() {
-  const el = document.getElementById('ps-cf-tags'); if (!el) return;
-  el.innerHTML = CAPITAL_FLOW_ASSETS.map(a => {
-    const v = psCapitalFlowTags[a.id] || '';
-    const btn = (val, lbl, cls) => '<button class="macro-impact-btn ' + cls + (v === val ? ' on' : '') + '" onclick="setCapitalFlowTag(\'' + a.id + '\',\'' + val + '\',this)">' + lbl + '</button>';
-    return '<div class="cf-tag-item"><span class="cf-tag-lbl">' + a.label + '</span><div style="display:flex;gap:3px">' +
-      btn('Up', '▲', 'bull') + btn('Down', '▼', 'bear') + btn('Flat', '↔', 'neut') +
-    '</div></div>';
-  }).join('');
-}
-function setCapitalFlowTag(id, val, btn) {
-  psCapitalFlowTags[id] = (psCapitalFlowTags[id] === val) ? '' : val;
-  renderCapitalFlowTags();
-}
-
-// ─── Collapsible sections ─────────────────────
-function togglePSCollapse(id, hdr) {
-  const body = document.getElementById(id); if (!body) return;
-  const arrow = hdr.querySelector('.ps-collapse-arrow');
-  const isOpen = body.style.maxHeight !== '0px' && body.style.maxHeight !== '';
-  if (isOpen) {
-    body.style.maxHeight = '0px';
-    body.style.overflow = 'hidden';
-    if (arrow) arrow.classList.remove('open');
-  } else {
-    body.style.maxHeight = '2000px';
-    body.style.overflow = 'visible';
-    if (arrow) arrow.classList.add('open');
-  }
 }
 
 // ─── Profile Screenshots ─────────────────────
@@ -3815,212 +3329,23 @@ async function savePS() {
   if (_psSaving) { toast('A guardar, aguarda um momento...', 'err'); return; }
   const d = psDate || todayISO();
   const existing = psData[d] || {};
-  const n = v => { const f = parseFloat(v); return isNaN(f) ? null : f; };
   const g = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
   psData[d] = {
     ...existing,
     date: d,
     bias: psBias,
-    fed: psFed,
-    fedCtx: g('ps-fed-ctx'),
-    fear_greed_score: psFearGreed,
-    fear_greed_note: g('ps-fg-note'),
-    sentiment: fgTag(psFearGreed) || existing.sentiment || '',
-    capital_flow: g('ps-capital-flow'),
-    capital_flow_tags: { ...psCapitalFlowTags },
-    geopolitics: g('ps-geopolitics'),
     narrative: g('ps-narrative'),
-    profile_bias: psProfileBias,
-    profile_screenshots: existing.profile_screenshots || [],
-    macroEvents: collectMacroEvents(d),
-    score: existing.score || 50
-    // nota: campos de revisão pós-sessão preservados via ...existing (secção removida da UI)
+    profile_screenshots: existing.profile_screenshots || []
   };
-  // update dots
-  const setDot = (id, val) => { const el = document.getElementById(id); if (el) el.classList.toggle('show', !!val); };
-  setDot('ps-col-events-dot', psData[d].macroEvents?.length);
-  setDot('ps-col-geo-dot', psData[d].geopolitics);
-  setDot('ps-col-fed-dot', psData[d].fed || psData[d].fedCtx);
-  setDot('ps-col-fg-dot', (psData[d].fear_greed_score === 0 || psData[d].fear_greed_score) || psData[d].fear_greed_note);
-  setDot('ps-col-cf-dot', psData[d].capital_flow || Object.values(psData[d].capital_flow_tags || {}).some(Boolean));
   const ok = await savePSData(d);
   updatePSStatusBadge();
   renderPSHist();
   if (ok !== false) toast('Sessão guardada ✓', 'ok');
 }
 
-// ─── Dynamic Level Lists ─────────────────────
 function ensurePSDate(d) {
-  if (!psData[d]) psData[d] = { date: d, bias: '', fed: '', macroEvents: [] };
+  if (!psData[d]) psData[d] = { date: d, bias: '' };
 }
-function renderPSLevelList(type, d) {
-  const el = document.getElementById('ps-' + type + '-list'); if (!el) return;
-  const ctx = psData[d] || {};
-  const items = ctx[type + '_levels'] || [];
-  if (!items.length) { el.innerHTML = ''; return; }
-  el.innerHTML = items.map((item, i) =>
-    '<div class="ps-dyn-item">' +
-    '<input type="number" class="price-in" value="' + (item.price||'') + '" placeholder="Preço" step="0.25" oninput="updatePSLevel(\'' + type + '\',\'' + d + '\',' + i + ',\'price\',this.value)">' +
-    '<input type="text" class="note-in" value="' + (item.note||'') + '" placeholder="Nota (opcional)" oninput="updatePSLevel(\'' + type + '\',\'' + d + '\',' + i + ',\'note\',this.value)">' +
-    '<button class="ps-dyn-rmv" onclick="removePSLevel(\'' + type + '\',\'' + d + '\',' + i + ')">✕</button>' +
-    '</div>'
-  ).join('');
-}
-function addPSLevel(type) {
-  const d = psDate || todayISO();
-  ensurePSDate(d);
-  const key = type + '_levels';
-  if (!psData[d][key]) psData[d][key] = [];
-  psData[d][key].push({ price: null, note: '' });
-  renderPSLevelList(type, d);
-}
-function removePSLevel(type, d, i) {
-  const key = type + '_levels';
-  if (!psData[d]?.[key]) return;
-  psData[d][key].splice(i, 1);
-  savePSData(d); renderPSLevelList(type, d);
-}
-function updatePSLevel(type, d, i, field, val) {
-  const key = type + '_levels';
-  if (!psData[d]?.[key]?.[i]) return;
-  psData[d][key][i][field] = field === 'price' ? (parseFloat(val)||null) : val;
-}
-
-// ─── Setup Grade — Zonas de stacking (pré-sessão) ─────────────
-function renderZoneGradeList(d) {
-  const el = document.getElementById('ps-zonegrade-list'); if (!el) return;
-  const items = (psData[d] || {}).zone_grades || [];
-  if (!items.length) { el.innerHTML = '<div style="color:var(--hint);font-size:11px;font-family:var(--mono)">Sem zonas — clica "+ Adicionar zona"</div>'; return; }
-  const selStyle = 'background:var(--s2);border:1px solid var(--b1);border-radius:6px;font-family:var(--mono);font-size:12px;padding:5px 8px;cursor:pointer';
-  el.innerHTML = items.map((z, i) => {
-    const grade = ZONE_GRADES.includes(z.grade) ? z.grade : 'A+';
-    const dir = (z.direction === 'Bearish') ? 'Bearish' : 'Bullish';
-    const gc = GRADE_COLOR[grade] || 'var(--sub)';
-    return '<div class="ps-dyn-item" style="flex-wrap:wrap;gap:6px;align-items:center;border-left:3px solid ' + gc + ';padding-left:8px;margin-bottom:8px">' +
-      '<input type="text" class="note-in" style="flex:0 0 130px" value="' + escHtml(z.price_range || '') + '" placeholder="18420-18435" oninput="updateZoneGrade(\'' + d + '\',' + i + ',\'price_range\',this.value)">' +
-      '<select style="' + selStyle + ';color:' + gc + ';font-weight:700" onchange="updateZoneGrade(\'' + d + '\',' + i + ',\'grade\',this.value)">' +
-        ZONE_GRADES.map(g => '<option value="' + g + '"' + (g === grade ? ' selected' : '') + '>' + g + '</option>').join('') +
-      '</select>' +
-      '<select style="' + selStyle + ';color:var(--text)" onchange="updateZoneGrade(\'' + d + '\',' + i + ',\'direction\',this.value)">' +
-        ['Bullish','Bearish'].map(dv => '<option value="' + dv + '"' + (dv === dir ? ' selected' : '') + '>' + dv + '</option>').join('') +
-      '</select>' +
-      '<span style="font-family:var(--mono);font-size:11px;color:var(--sub);align-self:center;white-space:nowrap" title="Risk multiplier">R× ' + (GRADE_RISK_LBL[grade] || '—') + '</span>' +
-      '<input type="text" class="note-in" style="flex:1;min-width:130px" value="' + escHtml(z.rationale || '') + '" placeholder="Rationale (opcional)" oninput="updateZoneGrade(\'' + d + '\',' + i + ',\'rationale\',this.value)">' +
-      '<button class="ps-dyn-rmv" onclick="removeZoneGrade(\'' + d + '\',' + i + ')">✕</button>' +
-    '</div>';
-  }).join('');
-}
-function addZoneGrade() {
-  const d = psDate || todayISO();
-  ensurePSDate(d);
-  if (!psData[d].zone_grades) psData[d].zone_grades = [];
-  psData[d].zone_grades.push({ price_range: '', grade: 'A+', direction: 'Bullish', risk_multiplier: GRADE_RISK['A+'], rationale: '' });
-  renderZoneGradeList(d);
-  savePSData(d);
-}
-function removeZoneGrade(d, i) {
-  if (!psData[d]?.zone_grades) return;
-  psData[d].zone_grades.splice(i, 1);
-  renderZoneGradeList(d);
-  savePSData(d);
-}
-function updateZoneGrade(d, i, field, val) {
-  if (!psData[d]?.zone_grades?.[i]) return;
-  psData[d].zone_grades[i][field] = val;
-  if (field === 'grade') {
-    psData[d].zone_grades[i].risk_multiplier = GRADE_RISK[val] ?? null;
-    renderZoneGradeList(d); // re-render para actualizar cor + risk multiplier
-    savePSData(d);
-  } else if (field === 'direction') {
-    savePSData(d); // onchange dispara uma vez — persiste já (texto persiste via botão Guardar)
-  }
-}
-
-function renderPSDeltaList(d) {
-  const el = document.getElementById('ps-delta-list'); if (!el) return;
-  const items = (psData[d] || {}).delta_anomalies || [];
-  if (!items.length) { el.innerHTML = ''; return; }
-  el.innerHTML = items.map((item, i) =>
-    '<div class="ps-dyn-item">' +
-    '<input type="number" class="price-in" value="' + (item.price||'') + '" placeholder="Preço" step="0.25" oninput="updatePSDelta(\'' + d + '\',' + i + ',\'price\',this.value)">' +
-    '<select oninput="updatePSDelta(\'' + d + '\',' + i + ',\'type\',this.value)">' +
-    '<option value="buy"' + (item.type==='buy'?' selected':'') + '>Buy (absorção)</option>' +
-    '<option value="sell"' + (item.type==='sell'?' selected':'') + '>Sell (absorção)</option>' +
-    '</select>' +
-    '<input type="text" class="note-in" value="' + (item.note||'') + '" placeholder="Nota" oninput="updatePSDelta(\'' + d + '\',' + i + ',\'note\',this.value)">' +
-    '<button class="ps-dyn-rmv" onclick="removePSDelta(\'' + d + '\',' + i + ')">✕</button>' +
-    '</div>'
-  ).join('');
-}
-function addPSDelta() {
-  const d = psDate || todayISO(); ensurePSDate(d);
-  if (!psData[d].delta_anomalies) psData[d].delta_anomalies = [];
-  psData[d].delta_anomalies.push({ price: null, type: 'buy', note: '' });
-  renderPSDeltaList(d);
-}
-function removePSDelta(d, i) { psData[d].delta_anomalies.splice(i,1); savePSData(d); renderPSDeltaList(d); }
-function updatePSDelta(d, i, field, val) { if (!psData[d]?.delta_anomalies?.[i]) return; psData[d].delta_anomalies[i][field] = field==='price'?(parseFloat(val)||null):val; }
-
-function renderPSSDZoneList(d) {
-  const el = document.getElementById('ps-sdzone-list'); if (!el) return;
-  const items = (psData[d] || {}).supply_demand_zones || [];
-  if (!items.length) { el.innerHTML = ''; return; }
-  el.innerHTML = items.map((item, i) =>
-    '<div class="ps-dyn-item">' +
-    '<select oninput="updatePSSDZone(\'' + d + '\',' + i + ',\'type\',this.value)">' +
-    '<option value="supply"' + (item.type==='supply'?' selected':'') + '>Supply</option>' +
-    '<option value="demand"' + (item.type==='demand'?' selected':'') + '>Demand</option>' +
-    '</select>' +
-    '<input type="number" class="from-in" value="' + (item.from||'') + '" placeholder="De" step="0.25" oninput="updatePSSDZone(\'' + d + '\',' + i + ',\'from\',this.value)">' +
-    '<input type="number" class="to-in" value="' + (item.to||'') + '" placeholder="Até" step="0.25" oninput="updatePSSDZone(\'' + d + '\',' + i + ',\'to\',this.value)">' +
-    '<input type="text" class="note-in" value="' + (item.note||'') + '" placeholder="Nota" oninput="updatePSSDZone(\'' + d + '\',' + i + ',\'note\',this.value)">' +
-    '<button class="ps-dyn-rmv" onclick="removePSSDZone(\'' + d + '\',' + i + ')">✕</button>' +
-    '</div>'
-  ).join('');
-}
-function addPSSDZone() {
-  const d = psDate || todayISO(); ensurePSDate(d);
-  if (!psData[d].supply_demand_zones) psData[d].supply_demand_zones = [];
-  psData[d].supply_demand_zones.push({ type: 'supply', from: null, to: null, note: '' });
-  renderPSSDZoneList(d);
-}
-function removePSSDZone(d, i) { psData[d].supply_demand_zones.splice(i,1); savePSData(d); renderPSSDZoneList(d); }
-function updatePSSDZone(d, i, field, val) { if (!psData[d]?.supply_demand_zones?.[i]) return; psData[d].supply_demand_zones[i][field] = (field==='from'||field==='to')?(parseFloat(val)||null):val; }
-
-function renderPSSRList(d) {
-  const el = document.getElementById('ps-sr-list'); if (!el) return;
-  const items = (psData[d] || {}).sr_levels || [];
-  if (!items.length) { el.innerHTML = ''; return; }
-  el.innerHTML = items.map((item, i) =>
-    '<div class="ps-dyn-item">' +
-    '<input type="number" class="price-in" value="' + (item.price||'') + '" placeholder="Preço" step="0.25" oninput="updatePSSR(\'' + d + '\',' + i + ',\'price\',this.value)">' +
-    '<select oninput="updatePSSR(\'' + d + '\',' + i + ',\'type\',this.value)">' +
-    '<option value="support"' + (item.type==='support'?' selected':'') + '>Suporte</option>' +
-    '<option value="resistance"' + (item.type==='resistance'?' selected':'') + '>Resistência</option>' +
-    '</select>' +
-    '<select oninput="updatePSSR(\'' + d + '\',' + i + ',\'timeframe\',this.value)">' +
-    '<option value="D"' + (item.timeframe==='D'?' selected':'') + '>Daily</option>' +
-    '<option value="W"' + (item.timeframe==='W'?' selected':'') + '>Weekly</option>' +
-    '<option value="M"' + (item.timeframe==='M'?' selected':'') + '>Monthly</option>' +
-    '</select>' +
-    '<button class="ps-dyn-rmv" onclick="removePSSR(\'' + d + '\',' + i + ')">✕</button>' +
-    '</div>'
-  ).join('');
-}
-function addPSSR() {
-  const d = psDate || todayISO(); ensurePSDate(d);
-  if (!psData[d].sr_levels) psData[d].sr_levels = [];
-  psData[d].sr_levels.push({ price: null, type: 'support', timeframe: 'D' });
-  renderPSSRList(d);
-}
-function removePSSR(d, i) { psData[d].sr_levels.splice(i,1); savePSData(d); renderPSSRList(d); }
-function updatePSSR(d, i, field, val) { if (!psData[d]?.sr_levels?.[i]) return; psData[d].sr_levels[i][field] = field==='price'?(parseFloat(val)||null):val; }
-
-// Predefined event shortcuts
-function addPSEventPredef(name) {
-  addPSEventPredefFor(psDate || todayISO(), name);
-}
-
 function renderPSHist() {
   const el = document.getElementById('ps-hist'); if (!el) return;
   const dates = Object.keys(psData).sort().reverse().slice(0, 10);
@@ -4042,119 +3367,6 @@ function renderPSHist() {
       '</div>';
   }).join('');
 }
-
-// ═══════════════════════════════════════════
-// MACRO EVENTS
-// ═══════════════════════════════════════════
-const PRIORITY_EVENTS = ["FOMC", "Fed", "CPI", "Core CPI", "NFP", "Non-Farm", "GDP", "PCE", "ISM", "Jobless Claims", "PPI", "Interest Rate", "Unemployment"];
-
-function isPriorityEvent(title) {
-  return PRIORITY_EVENTS.some(e => title.toUpperCase().includes(e.toUpperCase()));
-}
-
-function renderMacroEvents(iso) {
-  const el = document.getElementById("macro-events-list"); if (!el) return;
-  const ctx = psData[iso];
-  const events = ctx?.macroEvents || [];
-  if (!events.length) { el.innerHTML = '<div style="color:var(--hint);font-size:12px;font-family:var(--mono);padding:6px 0">Sem eventos red folder hoje</div>'; return; }
-  el.innerHTML = events.map((ev, i) => buildMacroEventHTML(ev, i, iso)).join("");
-}
-
-// Card de evento: Step 1 (já criado) → Step 2 Beat/Miss/In-line → Step 3 reacções (imediata/abertura/sessão)
-function buildMacroEventHTML(ev, i, d) {
-  const bm = ev.beatMiss || '';
-  const bmBtn = (val, cls) => '<button class="macro-impact-btn ' + cls + (bm === val ? ' on' : '') + '" onclick="setMacroEventBeatMiss(\'' + d + '\',' + i + ',\'' + val + '\')">' + val + '</button>';
-  let html = '<div class="macro-event" id="mev-' + i + '">' +
-    '<div class="macro-event-head">' +
-      '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' +
-        '<span class="macro-event-name">' + ev.name + '</span>' +
-        (ev.time ? '<span class="macro-event-time">' + ev.time + '</span>' : '') +
-        (ev.priority ? '<span style="font-size:9px;font-family:var(--mono);font-weight:600;padding:1px 6px;border-radius:4px;background:#1f0707;color:var(--red);border:1px solid #2e0a0a">HIGH</span>' : '') +
-      '</div>' +
-      '<button onclick="removeMacroEvent(\'' + d + '\',' + i + ')" style="background:transparent;border:none;color:var(--hint);cursor:pointer;font-size:12px;flex-shrink:0">✕</button>' +
-    '</div>' +
-    '<div class="ps-bm-row"><span class="ps-bm-lbl">Resultado</span>' + bmBtn('Beat','bull') + bmBtn('Miss','bear') + bmBtn('In-line','neut') + '</div>';
-  if (bm) {
-    html += '<div class="mev-reactions">' +
-      buildMevReactionHTML(d, i, 'immediate', 'Reação Imediata (pré-market, ~15min pós-release)', ev.reactions?.immediate) +
-      buildMevReactionHTML(d, i, 'open', 'Reação Abertura (RTH, primeiros 15–30min)', ev.reactions?.open) +
-      buildMevReactionHTML(d, i, 'session', 'Direção Sessão (fecho RTH)', ev.reactions?.session) +
-    '</div>';
-  }
-  if (ev.note) html += '<div class="mev-legacy-note">Nota: ' + escHtml(ev.note) + '</div>';
-  html += '</div>';
-  return html;
-}
-function buildMevReactionHTML(d, i, key, label, r) {
-  r = r || {};
-  const dirBtn = (val, sym, cls) => '<button class="macro-impact-btn ' + cls + (r.dir === val ? ' on' : '') + '" onclick="setMevReactionDir(\'' + d + '\',' + i + ',\'' + key + '\',\'' + val + '\')">' + sym + '</button>';
-  const noteVal = (r.note || '').replace(/"/g, '&quot;');
-  return '<div class="mev-reaction-row">' +
-    '<div class="mev-reaction-lbl">' + label + '</div>' +
-    '<div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center">' +
-      dirBtn('Bullish','▲ Bullish','bull') + dirBtn('Bearish','▼ Bearish','bear') + dirBtn('Flat','↔ Flat','neut') +
-      '<input type="text" class="mev-note-in" placeholder="nota opcional" value="' + noteVal + '" oninput="setMevReactionNote(\'' + d + '\',' + i + ',\'' + key + '\',this.value)">' +
-    '</div>' +
-  '</div>';
-}
-
-function addPSEventPredefFor(d, name) {
-  ensurePSDate(d);
-  if (!psData[d].macroEvents) psData[d].macroEvents = [];
-  const exists = psData[d].macroEvents.some(e => e.name === name);
-  if (!exists) {
-    psData[d].macroEvents.push({ name, time: '', note: '', priority: isPriorityEvent(name), beatMiss: '', reactions: { immediate:{dir:'',note:''}, open:{dir:'',note:''}, session:{dir:'',note:''} } });
-    savePSData(d); renderMacroEvents(d);
-  } else toast(name + ' já adicionado', 'err');
-}
-
-function addMacroEvent() {
-  const d = psDate || todayISO();
-  const name = prompt("Nome do evento (ex: CPI, NFP, FOMC):"); if (!name?.trim()) return;
-  ensurePSDate(d);
-  if (!psData[d].macroEvents) psData[d].macroEvents = [];
-  psData[d].macroEvents.push({ name: name.trim(), time: "", note: "", priority: isPriorityEvent(name.trim()), beatMiss: '', reactions: { immediate:{dir:'',note:''}, open:{dir:'',note:''}, session:{dir:'',note:''} } });
-  savePSData(d); renderMacroEvents(d);
-}
-
-function removeMacroEvent(d, i) {
-  if (!psData[d]?.macroEvents) return;
-  psData[d].macroEvents.splice(i, 1);
-  savePSData(d);
-  if (d === psDate) renderMacroEvents(d);
-  if (d === posDate) renderPosSession(d);
-}
-
-function setMacroEventBeatMiss(d, i, val) {
-  const ev = psData[d]?.macroEvents?.[i]; if (!ev) return;
-  ev.beatMiss = (ev.beatMiss === val) ? '' : val;
-  if (!ev.reactions) ev.reactions = { immediate:{dir:'',note:''}, open:{dir:'',note:''}, session:{dir:'',note:''} };
-  savePSData(d);
-  if (d === psDate) renderMacroEvents(d);
-  if (d === posDate) renderPosSession(d);
-}
-function setMevReactionDir(d, i, key, val) {
-  const ev = psData[d]?.macroEvents?.[i]; if (!ev) return;
-  if (!ev.reactions) ev.reactions = {};
-  if (!ev.reactions[key]) ev.reactions[key] = { dir: '', note: '' };
-  ev.reactions[key].dir = (ev.reactions[key].dir === val) ? '' : val;
-  savePSData(d);
-  if (d === psDate) renderMacroEvents(d);
-  if (d === posDate) renderPosSession(d);
-}
-function setMevReactionNote(d, i, key, note) {
-  const ev = psData[d]?.macroEvents?.[i]; if (!ev) return;
-  if (!ev.reactions) ev.reactions = {};
-  if (!ev.reactions[key]) ev.reactions[key] = { dir: '', note: '' };
-  ev.reactions[key].note = note;
-  savePSData(d);
-}
-
-function collectMacroEvents(d) {
-  d = d || psDate || todayISO();
-  return psData[d]?.macroEvents || [];
-}
-
 
 // ═══════════════════════════════════════════
 // VIX REGIME (kept for Reports usage)
@@ -4179,11 +3391,9 @@ function openDocModal() {
   const dayName = DAYS[new Date(d + 'T12:00:00').getDay()] || '';
   const bc = getBiasColor(ctx.bias);
   const bg = getBiasBg(ctx.bias);
-  const sentC = ctx.sentiment==='Risk-On'?'var(--green)':ctx.sentiment==='Risk-Off'?'var(--red)':'var(--sub)';
 
   // Section helper
   const sec = (title, content) => content ? '<div style="margin-bottom:20px"><div class="doc-sec-title">' + title + '</div>' + content + '</div>' : '';
-  const kv = (lbl, val) => val ? '<div style="display:flex;gap:8px;margin-bottom:5px"><span style="font-family:var(--mono);font-size:10px;color:var(--hint);min-width:120px;flex-shrink:0">' + lbl + '</span><span style="font-family:var(--mono);font-size:11px;color:var(--text)">' + val + '</span></div>' : '';
   const badge = (v, c, bg2) => v ? '<span style="font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 9px;border-radius:5px;color:' + c + ';background:' + bg2 + ';border:1px solid ' + c + ';margin-right:6px">' + v + '</span>' : '';
   const ta = (v) => v ? '<div style="font-size:12px;color:var(--text);line-height:1.7;white-space:pre-wrap;background:var(--s2);padding:10px 12px;border-radius:8px;margin-top:5px">' + v + '</div>' : '';
 
@@ -4195,67 +3405,11 @@ function openDocModal() {
     html += '<div style="font-family:var(--mono);font-size:15px;font-weight:700;color:' + pc + ';margin-bottom:8px">' + (dayPnl>=0?'+':'')+'$'+dayPnl.toFixed(2) + ' · ' + trds.length + ' trades</div>';
   }
   html += '<div style="display:flex;flex-wrap:wrap;gap:6px">';
-  if (ctx.bias) html += badge('Planeado: ' + ctx.bias, bc, bg);
-  if (ctx.bias_realizado) html += badge('Realizado: ' + ctx.bias_realizado, getBiasColor(ctx.bias_realizado), getBiasBg(ctx.bias_realizado));
-  if (ctx.fed) html += badge(ctx.fed, 'var(--sub)', 'var(--s3)');
-  if (ctx.sentiment) html += badge(ctx.sentiment, sentC, 'var(--s3)');
+  if (ctx.bias) html += badge('Bias: ' + ctx.bias, bc, bg);
   html += '</div></div>';
 
-  // Profile Framing
-  let profHtml = '';
-  const poc = [ctx.poc_daily&&'Diário: '+ctx.poc_daily, ctx.poc_weekly&&'Semanal: '+ctx.poc_weekly, ctx.poc_3m&&'3M: '+ctx.poc_3m].filter(Boolean);
-  if (poc.length) profHtml += kv('POC', poc.join(' · '));
-  if (ctx.vah||ctx.val) profHtml += kv('VAH / VAL', [(ctx.vah?'VAH '+ctx.vah:''),(ctx.val?'VAL '+ctx.val:'')].filter(Boolean).join(' · '));
-  const renderList = (items, label, fmt) => {
-    if (!items?.length) return '';
-    return kv(label, items.map(fmt).join(', '));
-  };
-  profHtml += renderList(ctx.hvn_levels,'HVN', x => x.price+(x.note?' ('+x.note+')':''));
-  profHtml += renderList(ctx.lvn_levels,'LVN', x => x.price+(x.note?' ('+x.note+')':''));
-  profHtml += renderList(ctx.delta_anomalies,'Delta', x => x.price+' '+x.type+(x.note?' ('+x.note+')':''));
-  profHtml += renderList(ctx.supply_demand_zones,'S/D Zones', x => x.type+' '+x.from+'–'+x.to+(x.note?' ('+x.note+')':''));
-  profHtml += renderList(ctx.sr_levels,'S/R', x => x.price+' ('+x.type+' '+x.timeframe+')');
-  if (ctx.profile_notes) profHtml += ta(ctx.profile_notes);
-  html += sec('Pilar 1 — Profile Framing', profHtml);
-
-  // Macro
-  let macroHtml = '';
-  if (ctx.fedCtx) macroHtml += kv('Contexto Fed', '') + ta(ctx.fedCtx);
-  if (ctx.fear_greed_score === 0 || ctx.fear_greed_score) macroHtml += kv('Fear & Greed', ctx.fear_greed_score + ' · ' + fgLabel(ctx.fear_greed_score));
-  if (ctx.fear_greed_note) macroHtml += ta(ctx.fear_greed_note);
-  if (ctx.sentiment_narrative) macroHtml += kv('Sentiment / Vol', '') + ta(ctx.sentiment_narrative);
-  if (ctx.capital_flow || Object.values(ctx.capital_flow_tags||{}).some(Boolean)) {
-    const tagStr = CAPITAL_FLOW_ASSETS.map(a => ctx.capital_flow_tags?.[a.id] ? a.label+' '+(ctx.capital_flow_tags[a.id]==='Up'?'▲':ctx.capital_flow_tags[a.id]==='Down'?'▼':'↔') : null).filter(Boolean).join(' · ');
-    macroHtml += kv('Capital Flow', tagStr) + ta(ctx.capital_flow);
-  }
-  if (ctx.dxy_vix_narrative) macroHtml += kv('DXY · VIX · US2Y', '') + ta(ctx.dxy_vix_narrative);
-  if (ctx.geopolitics) macroHtml += kv('News & Geopolítica', '') + ta(ctx.geopolitics);
-  if (ctx.macroEvents?.length) {
-    macroHtml += '<div style="margin-top:8px">';
-    ctx.macroEvents.forEach(ev => {
-      macroHtml += '<div style="padding:6px 0;border-bottom:1px solid var(--b1);font-family:var(--mono);font-size:11px">';
-      macroHtml += '<div style="display:flex;gap:8px;align-items:center">';
-      macroHtml += '<span style="color:var(--sub);min-width:50px">'+(ev.time||'—')+'</span>';
-      macroHtml += '<span style="flex:1;font-weight:600">'+(ev.priority?'🔴 ':'')+ev.name+'</span>';
-      if (ev.beatMiss) macroHtml += '<span style="color:'+(ev.beatMiss==='Beat'?'var(--green)':ev.beatMiss==='Miss'?'var(--red)':'var(--sub)')+';font-weight:600">'+ev.beatMiss+'</span>';
-      macroHtml += '</div>';
-      if (ev.reactions) {
-        const rlabels = { immediate:'Imediata', open:'Abertura', session:'Sessão' };
-        const rline = Object.entries(rlabels).map(([k,lbl]) => {
-          const r = ev.reactions[k]; if (!r?.dir) return null;
-          const c = r.dir==='Bullish'?'var(--green)':r.dir==='Bearish'?'var(--red)':'var(--sub)';
-          return '<span style="color:var(--hint)">'+lbl+':</span> <span style="color:'+c+'">'+r.dir+(r.note?' ('+r.note+')':'')+'</span>';
-        }).filter(Boolean).join(' · ');
-        if (rline) macroHtml += '<div style="margin-top:3px;padding-left:58px">'+rline+'</div>';
-      }
-      macroHtml += '</div>';
-    });
-    macroHtml += '</div>';
-  }
-  html += sec('Pilar 2 — Macro & Fundamental', macroHtml);
-
   // Game Plan
-  if (ctx.narrative) html += sec('Narrativa & Game Plan', ta(ctx.narrative));
+  if (ctx.narrative) html += sec('Plano pré-mercado', ta(ctx.narrative));
 
   // Trades
   if (trds.length) {
@@ -4276,6 +3430,14 @@ function openDocModal() {
     html += sec('Trades do dia', tHtml);
   }
 
+  // Session Recap
+  if (ctx.recap_text || ctx.recap_bias_correct) {
+    let recapHtml = '';
+    if (ctx.recap_bias_correct) recapHtml += badge('Bias Acertou: ' + ctx.recap_bias_correct, ctx.recap_bias_correct==='Sim'?'var(--green)':ctx.recap_bias_correct==='Não'?'var(--red)':'var(--amber)', 'var(--s3)');
+    recapHtml += ta(ctx.recap_text);
+    html += sec('Session Recap', recapHtml);
+  }
+
   document.getElementById('doc-modal-body').innerHTML = html;
   document.getElementById('doc-modal').style.display = 'flex';
   document.body.style.overflow = 'hidden';
@@ -4283,58 +3445,6 @@ function openDocModal() {
 function closeDocModal() {
   document.getElementById('doc-modal').style.display = 'none';
   document.body.style.overflow = '';
-}
-
-// ═══════════════════════════════════════════
-// REVIEW — Session Context
-// ═══════════════════════════════════════════
-let sessCtxOpen = false;
-function toggleSessCtx() {
-  const el = document.getElementById('rv-sess-ctx');
-  const arrow = document.getElementById('rv-sess-ctx-arrow');
-  sessCtxOpen = !sessCtxOpen;
-  el.style.display = sessCtxOpen ? 'block' : 'none';
-  if (arrow) arrow.textContent = sessCtxOpen ? '▴' : '▾';
-  if (sessCtxOpen) renderSessCtx();
-}
-function renderSessCtx() {
-  const el = document.getElementById('rv-sess-ctx'); if (!el) return;
-  const ctx = psData[rvDate] || {};
-  if (!ctx.bias && !ctx.narrative && !ctx.poc_daily) { el.innerHTML = '<div style="color:var(--hint);font-family:var(--mono);font-size:11px">Sem contexto de sessão para este dia.<br><button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="closeReview();goToPSDate(\'' + rvDate + '\')">Preencher sessão →</button></div>'; return; }
-  const bc = getBiasColor(ctx.bias);
-  const bg = getBiasBg(ctx.bias);
-  let h = '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">';
-  if (ctx.bias) h += '<span style="font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;color:'+bc+';background:'+bg+';border:1px solid '+bc+'">'+ctx.bias+'</span>';
-  if (ctx.fed) h += '<span style="font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:4px;color:var(--sub);background:var(--s3);border:1px solid var(--b1)">'+ctx.fed+'</span>';
-  if (ctx.sentiment) { const sc=ctx.sentiment==='Risk-On'?'var(--green)':ctx.sentiment==='Risk-Off'?'var(--red)':'var(--sub)'; h+='<span style="font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:4px;color:'+sc+';background:var(--s3);border:1px solid '+sc+'44">'+ctx.sentiment+'</span>'; }
-  h += '</div>';
-  if (ctx.poc_daily||ctx.vah||ctx.val) {
-    h += '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:7px;font-family:var(--mono);font-size:10px">';
-    if (ctx.poc_daily) h += '<span style="color:var(--hint)">POC <b style="color:var(--text)">' + ctx.poc_daily + '</b></span>';
-    if (ctx.vah) h += '<span style="color:var(--hint)">VAH <b style="color:var(--green)">' + ctx.vah + '</b></span>';
-    if (ctx.val) h += '<span style="color:var(--hint)">VAL <b style="color:var(--red)">' + ctx.val + '</b></span>';
-    h += '</div>';
-  }
-  if (ctx.narrative) {
-    const short = ctx.narrative.slice(0, 150);
-    const more = ctx.narrative.length > 150;
-    h += '<div style="font-size:11px;color:var(--sub);line-height:1.6;margin-bottom:6px" id="rv-narr-text">' + short + (more?'<span id="rv-narr-more">... <button onclick="document.getElementById(\'rv-narr-text\').innerHTML=\'' + ctx.narrative.replace(/'/g,"\\'").replace(/\n/g,'<br>') + '\'" style="background:transparent;border:none;color:var(--accent);cursor:pointer;font-size:10px;font-family:var(--mono)">ver mais</button></span>':'') + '</div>';
-  }
-  if (ctx.macroEvents?.some(e=>e.actual)) {
-    h += '<div style="font-size:10px;font-family:var(--mono);color:var(--hint);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Eventos</div>';
-    ctx.macroEvents.filter(e=>e.name).forEach(ev => {
-      const impC = /bull/i.test(ev.impact)?'var(--green)':/bear/i.test(ev.impact)?'var(--red)':'var(--sub)';
-      h += '<div style="display:flex;gap:5px;align-items:center;font-size:10px;font-family:var(--mono);padding:2px 0"><span style="color:var(--hint)">' + (ev.time||'—') + '</span><span style="flex:1">' + ev.name + '</span>' + (ev.actual?'<span style="font-weight:600">'+ev.actual+'</span>':'') + (ev.impact?'<span style="color:'+impC+';font-weight:600">'+ev.impact+'</span>':'') + '</div>';
-    });
-  }
-  el.innerHTML = h;
-}
-function updateRvSessCtxDot() {
-  const ctx = psData[rvDate] || {};
-  const dot = document.getElementById('rv-sess-status-dot'); if (!dot) return;
-  const hasCtx = !!(ctx.bias || ctx.narrative || ctx.poc_daily);
-  dot.textContent = hasCtx ? '●' : '○';
-  dot.style.color = hasCtx ? 'var(--green)' : 'var(--hint)';
 }
 
 // ═══════════════════════════════════════════
