@@ -1068,8 +1068,8 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
         ondragleave="this.classList.remove('drag')"
         ondrop="onDrop(event)">
         <div class="dz-icon">📂</div>
-        <div style="font-size:15px;font-weight:600;margin-bottom:6px">Arrasta o CSV do Deepcharts aqui</div>
-        <div style="font-size:12px;color:var(--hint);font-family:var(--mono)">Symbol;Quantity;Entry DT;Entry Price;Exit DT;Exit Price;ProfitLoss</div>
+        <div style="font-size:15px;font-weight:600;margin-bottom:6px">Arrasta o export "Recent Orders" da Rithmic aqui</div>
+        <div style="font-size:12px;color:var(--hint);font-family:var(--mono)">Working Orders + Completed Orders · secções separadas por linha em branco</div>
       </div>
       <input type="file" id="csv-in" accept=".csv,.txt" style="display:none" onchange="onCSVFile(event)">
       <div id="import-result"></div>
@@ -1657,6 +1657,7 @@ async function sbPullData() {
     if (row.key === "nq10_ps_imgs") { try { const v = row.value; if (v && typeof v === "object") psImgs = v; } catch(e){} }
     if (row.key === "nq10_cc")      { try { const v = row.value; if (Array.isArray(v)) { customConfs = v; localStorage.setItem("nq10_cc", JSON.stringify(customConfs)); } } catch(e){} }
     if (row.key === "nq10_wp")      { try { const v = row.value; if (v && typeof v === "object") weeklyPrep = v; } catch(e){} }
+    if (row.key === "nq10_ram")     { try { const v = row.value; if (v && typeof v === "object") { rithmicAcctMap = v; localStorage.setItem("nq10_ram", JSON.stringify(rithmicAcctMap)); } } catch(e){} }
     if (row.key === "nq10_wp_imgs") { try { const v = row.value; if (v && typeof v === "object") wpImgs = v; } catch(e){} }
     if (typeof row.key === "string" && row.key.startsWith("postWeek")) { try { localStorage.setItem(row.key, typeof row.value === "string" ? row.value : JSON.stringify(row.value)); } catch(e){} }
   });
@@ -1973,8 +1974,9 @@ async function sbLogout() {
 // ═══════════════════════════════════════════
 // STORAGE
 // ═══════════════════════════════════════════
-const SK_A = "nq10_a", SK_T = "nq10_t", SK_PS = "nq10_ps", SK_WP = "nq10_wp";
+const SK_A = "nq10_a", SK_T = "nq10_t", SK_PS = "nq10_ps", SK_WP = "nq10_wp", SK_RAM = "nq10_ram";
 let accounts = [], curAcct = null, allT = {}, psData = {}, weeklyPrep = {};
+let rithmicAcctMap = {}; // { "<Rithmic Account column value>": "<app account_id>" }
 const diaryState = {}; // { date: { bias, fed, sentiment, profileBias } }
 let customConfs = [];
 
@@ -2001,6 +2003,7 @@ function loadData() {
   try { allT = JSON.parse(localStorage.getItem(SK_T) || "{}"); } catch(e) { allT = {}; }
   try { psData = JSON.parse(localStorage.getItem(SK_PS) || "{}"); } catch(e) { psData = {}; }
   try { weeklyPrep = JSON.parse(localStorage.getItem(SK_WP) || "{}"); } catch(e) { weeklyPrep = {}; }
+  try { rithmicAcctMap = JSON.parse(localStorage.getItem(SK_RAM) || "{}"); } catch(e) { rithmicAcctMap = {}; }
   if (!accounts.length) {
     accounts = [{ id: "lucid", name: "Lucid", emoji: "🔵" }, { id: "mff", name: "My Funded Futures", emoji: "🟢" }];
     persist();
@@ -2542,66 +2545,256 @@ function clearDay() {
 }
 
 // ═══════════════════════════════════════════
-// CSV IMPORT
+// RITHMIC "RECENT ORDERS" IMPORT
 // ═══════════════════════════════════════════
+// The "Update Time (GMTDT)" / "Create Time (GMTDT)" columns are GMT per
+// their own name. If the Rithmic platform's timezone setting ever changes,
+// this is the constant to update — everything downstream assumes GMT/UTC.
+const RITHMIC_EXPORT_TZ = "UTC";
+const RITHMIC_ROOT_POINT_VALUE = { MNQ: 2, NQ: 20 }; // $ per index point per contract
+
+let _rithmicPendingRaw = null; // { filled, fname } awaiting account-mapping confirmation
+
 function onDrop(e) { e.preventDefault(); document.getElementById("dropzone").classList.remove("drag"); const f = e.dataTransfer.files[0]; if (f) readCSV(f); }
 function onCSVFile(e) { const f = e.target.files[0]; if (f) readCSV(f); e.target.value = ""; }
 function readCSV(file) {
   const r = new FileReader();
-  r.onload = e => { try { parseCSV(e.target.result, file.name); } catch(err) { toast("Erro: " + err.message, "err"); } };
+  r.onload = e => {
+    try { handleRithmicFile(e.target.result, file.name); }
+    catch(err) {
+      console.error("[NQ] Rithmic import ERRO:", err);
+      document.getElementById("import-result").innerHTML =
+        '<div style="padding:16px;border:1px solid var(--red);border-radius:12px;margin-top:14px;background:#2a0d0d;color:var(--red);font-family:var(--mono);font-size:12px">✕ ' + escapeHtml(err.message) + '</div>';
+      toast("Erro ao importar: " + err.message, "err");
+    }
+  };
   r.readAsText(file);
 }
-function parseCSV(text, fname) {
-  const lines = text.trim().split(/\r?\n/).filter(l => l.trim());
-  if (lines.length < 2) { toast("CSV vazio", "err"); return; }
-  const sep = lines[0].includes(";") ? ";" : ",";
-  const hdrs = lines[0].split(sep).map(h => h.trim().toLowerCase().replace(/[^a-z0-9]/g, ""));
-  const hm = {}; hdrs.forEach((h, i) => hm[h] = i);
-  const col = n => { const a = { symbol: ["symbol","sym"], dt: ["dt","date","datetime"], entrydt: ["entrydt","dt","date","datetime"], exitdt: ["exitdt"], quantity: ["quantity","qty"], entry: ["entry","entryprice"], exit: ["exit","exitprice"], pnl: ["profitloss","pnl","profit","pl"] }; for (const k of (a[n] || [n])) { if (hm[k] !== undefined) return hm[k]; } return null; };
-  const ci = { sym: col("symbol"), dt: col("dt"), entrydt: col("entrydt"), exitdt: col("exitdt"), qty: col("quantity"), entry: col("entry"), exit: col("exit"), pnl: col("pnl") };
-  if (ci.pnl === null) { toast("Coluna P&L não encontrada", "err"); return; }
-  const normDt = s => { s = (s || "").replace("T"," ").trim(); return s || null; };
-  const parsed = lines.slice(1).map((line, idx) => {
-    const cols = line.split(sep);
-    const g = i => i !== null ? (cols[i]?.trim() || "") : "";
-    const qty = parseFloat(g(ci.qty)) || 1;
-    const entry = parseFloat(g(ci.entry)) || null;
-    const exit = parseFloat(g(ci.exit)) || null;
-    const pnl = parseFloat(g(ci.pnl)) || 0;
-    const dir = qty < 0 ? "Short" : "Long";
-    const entry_dt = normDt(g(ci.entrydt)) || todayISO();
-    const exit_dt = normDt(g(ci.exitdt));
-    const dt = entry_dt.split(" ")[0].split("T")[0];
-    const eParts = entry_dt.split(" ");
-    const time = eParts[1] ? eParts[1].slice(0,8) : null;
-    const xParts = exit_dt ? exit_dt.split(" ") : [];
-    const exit_time = xParts[1] ? xParts[1].slice(0,8) : null;
-    const time_slot = getTimeSlot(time);
-    const session = getSession(time);
-    return { id: Date.now() + idx + Math.random(), csv_row: idx, date: dt, time: time, exit_time, entry_dt, exit_dt, time_slot, session, symbol: (g(ci.sym) || "NQ").toUpperCase(), direction: dir, entry, exit, qty: Math.abs(qty), pnl, risk: null, stop: null, tp: null, rr: null, r: 0, confluences: "[]", score: 0, notes: "", notesHTML: "", screenshots: [], rating: 0 };
-  }).filter(t => !isNaN(t.pnl));
-  if (!parsed.length) { toast("Sem trades válidas", "err"); return; }
-  const byDay = {}; parsed.forEach(t => { if (!byDay[t.date]) byDay[t.date] = []; byDay[t.date].push(t); });
-  const dates = Object.keys(byDay).sort();
-  let html = '<div class="prev-wrap"><div class="prev-head"><div><div style="font-size:13px;font-weight:600">' + parsed.length + ' trades · ' + dates.length + ' dia(s)</div><div style="font-size:11px;color:var(--sub);font-family:var(--mono)">' + fname + '</div></div><button class="btn btn-green" onclick="confirmImport()">✓ Importar</button></div><div style="overflow-x:auto"><table class="ptab"><thead><tr><th>#</th><th>Data</th><th>Símbolo</th><th>Dir</th><th>Entry</th><th>Exit</th><th>P&L</th></tr></thead><tbody>';
-  let idx = 0;
-  dates.forEach(d => {
-    const dp = byDay[d], dpnl = dp.reduce((s, t) => s + t.pnl, 0);
-    const col = dpnl > 0 ? "var(--green)" : dpnl < 0 ? "var(--red)" : "var(--sub)";
-    html += '<tr class="day-sep"><td colspan="7">' + d + ' · <span style="color:' + col + '">' + (dpnl >= 0 ? "+" : "") + "$" + dpnl.toFixed(2) + '</span> · ' + dp.length + 'T</td></tr>';
-    dp.forEach(t => { idx++; html += '<tr><td style="color:var(--hint)">' + idx + '</td><td style="color:var(--sub)">' + t.date + '</td><td><span class="sym-badge">' + t.symbol + '</span></td><td style="color:' + (t.direction === "Long" ? "var(--green)" : "var(--red)") + '">' + t.direction + '</td><td>' + (t.entry || "—") + '</td><td>' + (t.exit || "—") + '</td><td class="' + (t.pnl > 0 ? "ppos" : t.pnl < 0 ? "pneg" : "") + '">' + (t.pnl >= 0 ? "+" : "") + "$" + t.pnl.toFixed(2) + '</td></tr>'; });
-  });
-  html += '</tbody></table></div></div>';
-  document.getElementById("import-result").innerHTML = html;
-  window._pending = parsed;
-  toast(parsed.length + " trades prontas", "info");
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
+
+// ─── Parsing: split the two sections, keep only Completed Orders ───
+function parseQuotedLine(line) {
+  return line.split(",").map(f => f.trim().replace(/^"|"$/g, ""));
 }
+function normHdr(h) { return h.trim().toLowerCase().replace(/[^a-z0-9]/g, ""); }
+
+function parseCompletedOrders(text) {
+  const rawLines = text.split(/\r?\n/);
+  const isLabel = (l, label) => l.trim().replace(/^"|"$/g, "") === label;
+  const completedIdx = rawLines.findIndex(l => isLabel(l, "Completed Orders"));
+  if (completedIdx === -1) throw new Error('Secção "Completed Orders" não encontrada no ficheiro — não parece ser um export "Recent Orders" da Rithmic.');
+  let hIdx = completedIdx + 1;
+  while (hIdx < rawLines.length && !rawLines[hIdx].trim()) hIdx++;
+  if (hIdx >= rawLines.length) throw new Error('Cabeçalho de "Completed Orders" não encontrado.');
+  const headerCols = parseQuotedLine(rawLines[hIdx]).map(normHdr);
+  const hm = {}; headerCols.forEach((h, i) => { hm[h] = i; });
+  const need = name => hm[name] !== undefined ? hm[name] : null;
+  const COLS = {
+    account: need("account"), status: need("status"), buysell: need("buysell"),
+    qty: need("qtytofill"), symbol: need("symbol"), pricetype: need("pricetype"),
+    avgfill: need("avgfillprice"), limitprice: need("limitprice"),
+    ordernum: need("ordernumber"), updatetime: need("updatetimegmtdt"), createtime: need("createtimegmtdt")
+  };
+  const required = ["account","status","buysell","qty","symbol","avgfill","ordernum","updatetime"];
+  const missing = required.filter(k => COLS[k] === null);
+  if (missing.length) throw new Error("Colunas em falta no cabeçalho de Completed Orders: " + missing.join(", "));
+
+  const dataLines = rawLines.slice(hIdx + 1).filter(l => l.trim());
+  const orders = dataLines.map(line => {
+    const c = parseQuotedLine(line);
+    const g = i => i !== null ? (c[i] || "").trim() : "";
+    return {
+      account: g(COLS.account), status: g(COLS.status), buysell: g(COLS.buysell),
+      qty: parseFloat(g(COLS.qty)) || 0, symbol: g(COLS.symbol), priceType: g(COLS.pricetype),
+      avgFillPrice: g(COLS.avgfill) ? parseFloat(g(COLS.avgfill)) : null,
+      orderNumber: g(COLS.ordernum), updateTimeGmt: g(COLS.updatetime), createTimeGmt: g(COLS.createtime)
+    };
+  }).filter(o => o.orderNumber);
+
+  const filled = orders.filter(o => o.status === "Filled");
+  if (!filled.length) throw new Error('Nenhuma ordem "Filled" encontrada em Completed Orders.');
+  filled.sort((a, b) => a.updateTimeGmt.localeCompare(b.updateTimeGmt));
+  return filled;
+}
+
+// ─── Reconstruct trades from a running-position walk over filled orders ───
+function rootSymbol(sym) { return (sym || "").toUpperCase().replace(/[FGHJKMNQUVXZ]\d{1,2}$/, ""); }
+function parseGmtToUtc(s) { return new Date(s.replace(" ", "T") + "Z"); } // RITHMIC_EXPORT_TZ = UTC
+function round2(n) { return Math.round(n * 100) / 100; }
+
+function buildTradesFromFilled(filled) {
+  let pos = 0, peak = 0, cur = null, openTrade = null;
+  const built = [];
+  for (const o of filled) {
+    const signed = o.buysell === "B" ? o.qty : o.buysell === "S" ? -o.qty : 0;
+    if (!signed) continue;
+    const before = pos; pos += signed;
+    if (before === 0 && pos !== 0) {
+      cur = { direction: signed > 0 ? "Long" : "Short", symbol: o.symbol, account: o.account, entryFills: [o], exitFills: [] };
+      peak = Math.abs(pos);
+      continue;
+    }
+    if (!cur) continue;
+    peak = Math.max(peak, Math.abs(pos));
+    const dirSign = cur.direction === "Long" ? 1 : -1;
+    if (Math.sign(signed) === dirSign) cur.entryFills.push(o); else cur.exitFills.push(o);
+    if (pos === 0) { cur.qtyMax = peak; built.push(finalizeTrade(cur)); cur = null; peak = 0; }
+  }
+  if (cur) { cur.qtyMax = peak; openTrade = finalizeTrade(cur, true); }
+  return { trades: built, openTrade };
+}
+function weightedAvg(fills) {
+  const q = fills.reduce((s, o) => s + o.qty, 0);
+  if (!q) return { qty: 0, price: null };
+  return { qty: q, price: fills.reduce((s, o) => s + o.avgFillPrice * o.qty, 0) / q };
+}
+function finalizeTrade(cur, isOpen) {
+  const entry = weightedAvg(cur.entryFills);
+  const exitW = isOpen ? { qty: 0, price: null } : weightedAvg(cur.exitFills);
+  const entryFirst = cur.entryFills[0];
+  const exitLast = cur.exitFills.length ? cur.exitFills[cur.exitFills.length - 1] : null;
+  const entryUtc = parseGmtToUtc(entryFirst.updateTimeGmt);
+  const exitUtc = exitLast ? parseGmtToUtc(exitLast.updateTimeGmt) : null;
+  const root = rootSymbol(cur.symbol);
+  const pointValue = RITHMIC_ROOT_POINT_VALUE[root];
+  const points = (exitW.price != null) ? (exitW.price - entry.price) * (cur.direction === "Long" ? 1 : -1) : null;
+  const pnl = (points != null && pointValue) ? points * pointValue * cur.qtyMax : null;
+  return {
+    orderNumber: entryFirst.orderNumber, account: cur.account, rawSymbol: cur.symbol, symbol: root,
+    direction: cur.direction, qty: cur.qtyMax, entryPrice: entry.price, exitPrice: exitW.price,
+    entryUtc, exitUtc, points, pnl, pointValue, unknownSymbol: !pointValue, isOpen: !!isOpen
+  };
+}
+
+// ─── Timezone display helpers ───
+function fmtInTZ(date, tz) {
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone: tz, year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit", second:"2-digit", hour12:false }).formatToParts(date);
+  const m = {}; parts.forEach(p => { if (p.type !== "literal") m[p.type] = p.value; });
+  if (m.hour === "24") m.hour = "00";
+  return { date: m.year + "-" + m.month + "-" + m.day, time: m.hour + ":" + m.minute + ":" + m.second };
+}
+function toTradeRecord(ft) {
+  const etEntry = fmtInTZ(ft.entryUtc, "America/New_York");
+  const etExit = ft.exitUtc ? fmtInTZ(ft.exitUtc, "America/New_York") : null;
+  const lisEntry = fmtInTZ(ft.entryUtc, "Europe/Lisbon");
+  const lisExit = ft.exitUtc ? fmtInTZ(ft.exitUtc, "Europe/Lisbon") : null;
+  return {
+    id: ft.orderNumber, order_number: ft.orderNumber, rithmic_account: ft.account,
+    date: etEntry.date, time: etEntry.time, exit_time: etExit ? etExit.time : null,
+    entry_utc: ft.entryUtc.toISOString(), exit_utc: ft.exitUtc ? ft.exitUtc.toISOString() : null,
+    lisbon_entry_time: lisEntry.time, lisbon_exit_time: lisExit ? lisExit.time : null,
+    duration_seconds: ft.exitUtc ? Math.round((ft.exitUtc - ft.entryUtc) / 1000) : null,
+    time_slot: getTimeSlot(etEntry.time), session: getSession(etEntry.time),
+    symbol: ft.symbol, direction: ft.direction, qty: ft.qty,
+    entry: ft.entryPrice != null ? round2(ft.entryPrice) : null,
+    exit: ft.exitPrice != null ? round2(ft.exitPrice) : null,
+    points: ft.points != null ? round2(ft.points) : null,
+    pnl: ft.pnl != null ? round2(ft.pnl) : 0,
+    unknownSymbol: ft.unknownSymbol,
+    risk: null, stop: null, tp: null, rr: null, r: 0,
+    confluences: "[]", score: 0, notes: "", notesHTML: "", screenshots: [], rating: 0
+  };
+}
+
+// ─── Entry point: parse, then gate on the Rithmic-account → app-account mapping ───
+function handleRithmicFile(text, fname) {
+  const filled = parseCompletedOrders(text);
+  const accts = [...new Set(filled.map(o => o.account))];
+  if (accts.length > 1) throw new Error("O ficheiro contém mais do que uma conta (" + accts.join(", ") + "). Importação cancelada — importa cada conta em separado.");
+  const rithmicAccount = accts[0];
+  const mapped = rithmicAcctMap[rithmicAccount];
+  if (mapped === curAcct.id) { renderRithmicPreview(filled, fname); return; }
+  if (mapped) {
+    const mappedAcct = accounts.find(a => a.id === mapped);
+    document.getElementById("import-result").innerHTML =
+      '<div style="padding:16px;border:1px solid var(--amber);border-radius:12px;margin-top:14px;background:#2a1d05">' +
+      '<div style="font-weight:600;color:var(--amber);margin-bottom:6px">⚠ Conta diferente da seleccionada</div>' +
+      '<div style="font-size:12px;color:var(--sub);margin-bottom:12px">Este ficheiro é da conta Rithmic <b>' + escapeHtml(rithmicAccount) + '</b>, que está associada a <b>' + escapeHtml(mappedAcct ? mappedAcct.name : mapped) + '</b> — mas tens <b>' + escapeHtml(curAcct.name) + '</b> seleccionada. Nunca importo trades para a conta errada.</div>' +
+      '<div style="display:flex;gap:8px">' +
+      (mappedAcct ? '<button class="btn btn-sm btn-accent" onclick="switchToMappedAccount(\'' + mapped + '\')">Mudar para ' + escapeHtml(mappedAcct.name) + '</button>' : '') +
+      '<button class="btn btn-sm btn-ghost" onclick="cancelRithmicImport()">Cancelar</button></div></div>';
+    return;
+  }
+  // Not mapped yet — ask once, remember the answer.
+  _rithmicPendingRaw = { filled, fname };
+  document.getElementById("import-result").innerHTML =
+    '<div style="padding:16px;border:1px solid var(--accent);border-radius:12px;margin-top:14px;background:#0d1626">' +
+    '<div style="font-weight:600;margin-bottom:6px">Confirmar conta</div>' +
+    '<div style="font-size:12px;color:var(--sub);margin-bottom:12px">Este ficheiro é da conta Rithmic <b style="color:var(--text)">' + escapeHtml(rithmicAccount) + '</b>. Pertence a <b style="color:var(--text)">' + escapeHtml(curAcct.name) + '</b> (conta seleccionada)?</div>' +
+    '<div style="display:flex;gap:8px">' +
+    '<button class="btn btn-sm btn-green" onclick="confirmRithmicAccountMapping(true)">Sim, é esta conta</button>' +
+    '<button class="btn btn-sm btn-ghost" onclick="confirmRithmicAccountMapping(false)">Não, cancelar</button></div></div>';
+}
+function confirmRithmicAccountMapping(accepted) {
+  const raw = _rithmicPendingRaw; _rithmicPendingRaw = null;
+  if (!raw) return;
+  if (!accepted) { document.getElementById("import-result").innerHTML = ""; toast("Importação cancelada", "info"); return; }
+  const rithmicAccount = raw.filled[0].account;
+  rithmicAcctMap[rithmicAccount] = curAcct.id;
+  localStorage.setItem(SK_RAM, JSON.stringify(rithmicAcctMap));
+  sbPushKey("nq10_ram", rithmicAcctMap);
+  renderRithmicPreview(raw.filled, raw.fname);
+}
+function switchToMappedAccount(id) {
+  document.getElementById("import-result").innerHTML = "";
+  selectAcct(id);
+  showTab("import", document.querySelectorAll(".tab")[3]);
+  toast("Conta trocada — volta a seleccionar o ficheiro", "info");
+}
+function cancelRithmicImport() {
+  _rithmicPendingRaw = null;
+  document.getElementById("import-result").innerHTML = "";
+  toast("Importação cancelada", "info");
+}
+
+// ─── Preview: reconstruct trades, flag duplicates, render table ───
+function renderRithmicPreview(filled, fname) {
+  const { trades: built, openTrade } = buildTradesFromFilled(filled);
+  const records = built.map(toTradeRecord);
+  const existingIds = new Set(acctTrades().map(t => String(t.id)));
+  records.forEach(t => { t.isDuplicate = existingIds.has(String(t.id)); });
+
+  const newOnes = records.filter(t => !t.isDuplicate && !t.unknownSymbol);
+  const dupCount = records.filter(t => t.isDuplicate).length;
+  const unknownCount = records.filter(t => t.unknownSymbol && !t.isDuplicate).length;
+  const totalPnl = newOnes.reduce((s, t) => s + t.pnl, 0);
+  const pnlColor = totalPnl > 0 ? "var(--green)" : totalPnl < 0 ? "var(--red)" : "var(--sub)";
+
+  let html = '<div class="prev-wrap"><div class="prev-head"><div>' +
+    '<div style="font-size:13px;font-weight:600">' + newOnes.length + ' trades novas · ' + dupCount + ' duplicadas' + (unknownCount ? ' · ' + unknownCount + ' símbolo desconhecido' : '') + '</div>' +
+    '<div style="font-size:11px;color:var(--sub);font-family:var(--mono)">' + escapeHtml(fname) + ' · Total P&L <span style="color:' + pnlColor + '">' + (totalPnl >= 0 ? "+" : "") + "$" + totalPnl.toFixed(2) + '</span></div></div>' +
+    '<button class="btn btn-green" onclick="confirmImport()"' + (newOnes.length ? '' : ' disabled') + '>✓ Importar ' + newOnes.length + '</button>' +
+    '</div><div style="overflow-x:auto"><table class="ptab"><thead><tr><th>Data</th><th>Entrada (Lisboa)</th><th>Saída (Lisboa)</th><th>Dir</th><th>Entry</th><th>Exit</th><th>Qty</th><th>Pontos</th><th>P&L</th><th>Estado</th></tr></thead><tbody>';
+
+  records.forEach(t => {
+    const dc = t.direction === "Long" ? "var(--green)" : "var(--red)";
+    const pc = t.pnl > 0 ? "ppos" : t.pnl < 0 ? "pneg" : "";
+    let status = '<span style="color:var(--sub)">nova</span>';
+    if (t.isDuplicate) status = '<span style="color:var(--amber)">duplicada</span>';
+    else if (t.unknownSymbol) status = '<span style="color:var(--red)">símbolo desconhecido (' + escapeHtml(t.symbol || t.rawSymbol || "?") + ')</span>';
+    const rowOpacity = (t.isDuplicate || t.unknownSymbol) ? 'opacity:.55' : '';
+    html += '<tr style="' + rowOpacity + '"><td style="color:var(--sub)">' + t.date + '</td><td>' + t.lisbon_entry_time + '</td><td>' + (t.lisbon_exit_time || "—") + '</td>' +
+      '<td style="color:' + dc + '">' + t.direction + '</td><td>' + (t.entry ?? "—") + '</td><td>' + (t.exit ?? "—") + '</td><td>' + t.qty + '</td>' +
+      '<td>' + (t.points != null ? (t.points >= 0 ? "+" : "") + t.points.toFixed(1) : "—") + '</td>' +
+      '<td class="' + pc + '">' + (t.pnl >= 0 ? "+" : "") + "$" + t.pnl.toFixed(2) + '</td><td>' + status + '</td></tr>';
+  });
+  html += '</tbody></table></div>';
+  if (openTrade) {
+    const ft = toTradeRecord(openTrade);
+    html += '<div style="padding:10px 16px;border-top:1px solid var(--b1);font-size:12px;color:var(--sub);font-family:var(--mono)">◐ Trade em aberto no fim do ficheiro (não guardada): ' + openTrade.direction + ' ' + openTrade.qty + 'x ' + openTrade.symbol + ' @ ' + (openTrade.entryPrice != null ? round2(openTrade.entryPrice) : "—") + ' desde ' + ft.lisbon_entry_time + ' (Lisboa)</div>';
+  }
+  html += '</div>';
+  document.getElementById("import-result").innerHTML = html;
+  window._pending = newOnes;
+  toast(newOnes.length + " trades novas prontas", "info");
+}
+
 function confirmImport() {
   const p = window._pending; if (!p?.length) return;
   setAcctTrades([...acctTrades(), ...p]);
   if (sbUser) p.forEach(trade => sbSaveTrade(curAcct.id, trade));
   window._pending = null;
-  curDate = p[0].date; const sessDateEl2 = document.getElementById("sess-date"); if (sessDateEl2) sessDateEl2.value = curDate;
+  curDate = p[p.length - 1].date; const sessDateEl2 = document.getElementById("sess-date"); if (sessDateEl2) sessDateEl2.value = curDate;
   document.getElementById("import-result").innerHTML = '<div style="text-align:center;padding:20px;color:var(--green);font-family:var(--mono);font-size:13px;border:1px solid #0a2e18;border-radius:12px;margin-top:14px;background:#071f0f">✓ ' + p.length + ' trades importadas</div>';
   renderSessBar(); renderList();
   toast(p.length + " importadas!", "ok");
