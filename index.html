@@ -108,49 +108,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .ppos{color:var(--green);font-weight:600}.pneg{color:var(--red);font-weight:600}
 .sym-badge{background:var(--s3);border:1px solid var(--b1);border-radius:5px;padding:2px 6px}
 
-/* MODAL */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;overflow-y:auto;padding:16px}
-.mbox{max-width:820px;margin:0 auto;background:var(--s1);border:1px solid var(--b1);border-radius:16px;overflow:hidden}
-.mhead{display:flex;align-items:center;justify-content:space-between;padding:12px 17px;background:var(--s2);border-bottom:1px solid var(--b1);flex-wrap:wrap;gap:8px}
-.mbody{padding:16px;display:grid;grid-template-columns:1fr 300px;gap:14px}
-.mfoot{display:flex;justify-content:flex-end;gap:8px;padding:11px 17px;background:var(--s2);border-top:1px solid var(--b1)}
-.mlabel{font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
 .finput{font-family:var(--mono);font-size:12px;background:var(--s2);border:1px solid var(--b1);border-radius:7px;color:var(--text);padding:6px 9px;outline:none;width:88px}
 .finput:focus{border-color:var(--accent)}
 .finput::placeholder{color:var(--hint)}
-.rr-pill{font-family:var(--mono);font-size:13px;font-weight:600;padding:6px 12px;background:var(--s2);border:1px solid var(--b1);border-radius:7px;min-width:60px;text-align:center}
-
-/* RICH EDITOR */
-.editor-wrap{background:var(--s2);border:1px solid var(--b1);border-radius:10px;overflow:hidden}
-.editor-tb{display:flex;gap:3px;padding:6px 9px;background:var(--s3);border-bottom:1px solid var(--b1);flex-wrap:wrap}
-.tbtn{background:transparent;border:1px solid transparent;color:var(--sub);padding:3px 7px;border-radius:5px;cursor:pointer;font-size:11px;font-family:var(--mono)}
-.tbtn:hover{background:var(--b1);color:var(--text)}
-.ebody{min-height:130px;padding:12px;outline:none;font-size:13px;line-height:1.8;color:var(--text)}
-.ebody:empty::before{content:attr(data-ph);color:var(--hint)}
-.ebody img{max-width:100%;border-radius:8px;margin:6px 0;display:block}
-
-/* CONFLUENCES */
-.conf-list{display:flex;flex-direction:column;gap:4px}
-.cchip{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;border:1px solid var(--b1);background:var(--s2);cursor:pointer;user-select:none;transition:all .13s;gap:8px}
-.cchip:hover{border-color:var(--b2)}
-.cchip.on{border-color:var(--cc);background:color-mix(in srgb,var(--cc) 10%,var(--s2))}
-.cchip.on .clbl{color:var(--cc)}
-.clbl{font-size:11px;font-weight:500;color:var(--sub);display:flex;align-items:center;gap:7px;flex:1;min-width:0}
-.cdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.sr-row{display:none;gap:3px;flex-shrink:0}
-.cchip.on .sr-row{display:flex}
-.sr-btn{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid var(--b1);background:transparent;color:var(--hint);cursor:pointer;transition:all .1s}
-.sr-btn[data-sr="S"].act{background:#061a0e;border-color:var(--green);color:var(--green)}
-.sr-btn[data-sr="R"].act{background:#1f0707;border-color:var(--red);color:var(--red)}
-.conf-group-label{font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;padding:8px 0 4px;border-bottom:1px solid var(--b1);margin-bottom:4px}
-/* Collapsible confluence groups */
-.conf-group{margin-bottom:6px}
-.conf-group-head{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
-.conf-group-head:hover{color:var(--sub)}
-.conf-caret{transition:transform .15s;font-size:11px;opacity:.7}
-.conf-group.collapsed .conf-caret{transform:rotate(-90deg)}
-.conf-group-body{display:flex;flex-direction:column;gap:4px;padding-top:2px}
-.conf-group.collapsed .conf-group-body{display:none}
 
 /* CALENDAR */
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
@@ -188,69 +148,64 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .mc-val{font-family:var(--mono);font-size:14px;font-weight:600}
 .mc-lbl{font-size:10px;color:var(--hint);font-family:var(--mono);margin-top:2px}
 
-/* REVIEW SCREEN */
-#review{display:none;position:fixed;inset:0;background:var(--bg);z-index:500;flex-direction:column}
-#review.open{display:flex}
+/* TRADE PANEL */
+#review-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:499}
+#review-backdrop.open{display:block}
+#review{position:fixed;top:0;right:0;bottom:0;width:52%;min-width:520px;max-width:920px;background:var(--bg);z-index:500;display:flex;flex-direction:column;border-left:1px solid var(--b1);box-shadow:-12px 0 48px rgba(0,0,0,.55);transform:translateX(100%);visibility:hidden;transition:transform .25s ease,visibility 0s linear .25s}
+#review.open{transform:translateX(0);visibility:visible;transition:transform .25s ease}
 .rv-top{display:flex;align-items:center;gap:11px;padding:10px 18px;background:var(--s1);border-bottom:1px solid var(--b1);flex-shrink:0;flex-wrap:wrap}
-.rv-title{font-size:14px;font-weight:600}
-.rv-meta{font-size:11px;font-family:var(--mono);color:var(--sub)}
-.rv-nav{display:flex;background:var(--s2);border:1px solid var(--b1);border-radius:8px;overflow:hidden}
-.rv-nbtn{background:transparent;border:none;color:var(--sub);padding:6px 13px;cursor:pointer;font-family:var(--mono);font-size:12px}
-.rv-nbtn:hover{background:var(--s3);color:var(--text)}
-.rv-counter{padding:6px 11px;font-family:var(--mono);font-size:11px;color:var(--sub);background:var(--s1);border-left:1px solid var(--b1);border-right:1px solid var(--b1)}
-.rv-body{display:grid;grid-template-columns:270px 1fr;flex:1;min-height:0;overflow:hidden}
+.rv-counter{padding:6px 11px;font-family:var(--mono);font-size:11px;color:var(--sub);background:var(--s2);border-radius:7px}
+.rv-pnl-hero{padding:16px 18px;border-bottom:1px solid var(--b1);flex-shrink:0}
+.rv-pnl-hero-val{font-size:32px;font-weight:700;font-family:var(--mono);line-height:1}
+.rv-pnl-hero-meta{font-size:11px;font-family:var(--mono);color:var(--sub);margin-top:5px}
+.rv-body{display:grid;grid-template-columns:260px 1fr;flex:1;min-height:0;overflow:hidden}
 /* Left panel */
-.rv-left{background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;overflow-y:auto}
-.rv-pnl-block{padding:14px;border-bottom:1px solid var(--b1)}
-.rv-day-lbl{font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
-.rv-day-pnl{font-size:26px;font-weight:700;font-family:var(--mono);line-height:1;margin-bottom:8px}
-.rv-sep{height:1px;background:var(--b1);margin:8px 0}
-.rv-trade-lbl{font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
-.rv-trade-pnl{font-size:18px;font-weight:700;font-family:var(--mono);line-height:1;margin-bottom:2px}
-.rv-trade-meta{font-size:11px;font-family:var(--mono);color:var(--sub)}
+.rv-left{background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;overflow-y:auto;padding-bottom:16px}
 /* Fields */
 .rv-fields{padding:13px 14px;border-bottom:1px solid var(--b1)}
-.rv-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--b1)}
+.rv-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--b1);gap:10px}
 .rv-row:last-child{border-bottom:none}
-.rv-rlbl{font-size:11px;font-family:var(--mono);color:var(--text)}
+.rv-rlbl{font-size:11px;font-family:var(--mono);color:var(--hint)}
+.rv-rval{font-size:12px;font-family:var(--mono);font-weight:600;color:var(--text);text-align:right}
 .rv-inp{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text);background:var(--s2);border:1px solid var(--b1);border-radius:5px;padding:3px 7px;outline:none;width:90px;text-align:right}
 .rv-inp:focus{border-color:var(--accent)}
 .rv-inp::placeholder{color:var(--hint);font-weight:400}
-/* Stars */
-.rv-stars{padding:10px 14px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between}
-.rv-star{font-size:18px;cursor:pointer;line-height:1;transition:transform .1s}
-.rv-star:hover{transform:scale(1.2)}
-/* Process Score */
-.rv-process{padding:10px 14px;border-bottom:1px solid var(--b1)}
-.ps-check{display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 6px;border-radius:6px;transition:background .12s;user-select:none}
-.ps-check:hover{background:var(--s2)}
-.psc-box{width:15px;height:15px;border:1.5px solid var(--b2);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;transition:all .15s}
-.ps-check.on .psc-box{background:var(--green);border-color:var(--green);color:#041a0f}
-.ps-check.auto-ok .psc-box{background:var(--accent);border-color:var(--accent);color:#fff}
-.ps-check.auto-warn .psc-box{background:var(--amber);border-color:var(--amber);color:#000}
-.ps-lbl{font-family:var(--mono);font-size:10px;color:var(--sub);transition:color .12s;flex:1}
-.ps-check.on .ps-lbl{color:var(--text)}
-.ps-check.auto-ok .ps-lbl{color:var(--text)}
-.ps-check.auto-warn .ps-lbl{color:var(--amber)}
+/* Planned stop/target */
+.rv-plan-block{padding:13px 14px;border-bottom:1px solid var(--b1)}
+.rv-plan-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.rv-plan-lbl{font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em}
+.rv-unit-toggle{display:flex;background:var(--s2);border:1px solid var(--b1);border-radius:7px;overflow:hidden}
+.rv-unit-btn{font-family:var(--mono);font-size:10px;padding:4px 9px;border:none;background:transparent;color:var(--hint);cursor:pointer}
+.rv-unit-btn.on{background:var(--accent);color:#fff}
+.rv-plan-sub{font-size:10px;font-family:var(--mono);color:var(--hint);margin-top:5px}
 /* R bars */
-.rv-rbars{padding:11px 14px;border-bottom:1px solid var(--b1)}
-.rv-rbar-lbl{font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
-.rv-rbar-row{margin-bottom:7px}
-.rv-rbar-meta{display:flex;justify-content:space-between;font-size:10px;font-family:var(--mono);color:var(--hint);margin-bottom:3px}
-.rv-rbar-track{height:6px;background:var(--s3);border-radius:3px;overflow:hidden}
-.rv-rbar-fill{height:100%;border-radius:3px;transition:width .4s}
-/* Running PnL */
-.rv-running{padding:11px 14px;flex:1}
-.rv-run-lbl{font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
-.rv-run-item{display:flex;justify-content:space-between;padding:4px 7px;border-radius:5px;border:1px solid transparent;cursor:pointer;margin-bottom:2px}
-.rv-run-item:hover{background:var(--s2)}
-.rv-run-item.cur{background:var(--s2);border-color:var(--accent)}
+.rv-rbars{padding:13px 14px}
+.rv-rbar-row{padding:4px 0}
+.rv-rbar-meta{display:flex;justify-content:space-between;width:100%;font-size:11px;font-family:var(--mono)}
+.rv-rbar-meta span:first-child{color:var(--hint)}
+.rv-rbar-meta span:last-child{font-weight:600;color:var(--text)}
 /* Right panel */
 .rv-right{display:flex;flex-direction:column;overflow:hidden}
 .rv-right-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px}
 .rv-section{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:14px}
 .rv-sec-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}
 .rv-sec-title{font-size:11px;font-family:var(--mono);color:var(--text);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.rv-grade-desc{font-size:11px;color:var(--sub);line-height:1.5;margin-top:8px}
+/* Error codes */
+.rv-field-sub{font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.rv-err-chip-row{display:flex;flex-wrap:wrap;gap:6px}
+.rv-err-chip{font-family:var(--mono);font-size:10px;padding:4px 9px;border-radius:6px;border:1px solid var(--b1);background:var(--s2);color:var(--sub);cursor:pointer;transition:all .13s;user-select:none}
+.rv-err-chip:hover{border-color:var(--b2);color:var(--text)}
+.rv-err-chip.on{background:#1f0707;border-color:var(--red);color:var(--red)}
+.rv-ec-row{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.rv-ec-in{flex:1;font-family:var(--mono);font-size:11px;background:var(--s2);border:1px solid var(--b1);border-radius:6px;color:var(--text);padding:5px 8px;outline:none}
+.rv-ec-in:focus{border-color:var(--accent)}
+.rv-ec-toggle{font-family:var(--mono);font-size:10px;padding:4px 9px;border-radius:6px;border:1px solid var(--b1);background:transparent;color:var(--hint);cursor:pointer;white-space:nowrap}
+.rv-ec-toggle.on{background:#071f0f;border-color:var(--green);color:var(--green)}
+/* Recap */
+.rv-recap-ta{width:100%;font-family:var(--sans);font-size:13px;line-height:1.7;background:var(--s2);border:1px solid var(--b1);border-radius:8px;color:var(--text);padding:11px 13px;outline:none;resize:none;min-height:140px;overflow:hidden}
+.rv-recap-ta:focus{border-color:var(--accent)}
+.rv-recap-ta::placeholder{color:var(--hint)}
 /* Screenshots */
 .ss-zone{border:2px dashed var(--b2);border-radius:10px;padding:28px;text-align:center;cursor:pointer;transition:all .18s}
 .ss-zone:hover,.ss-zone.drag{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 5%,transparent)}
@@ -260,19 +215,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .ss-wrap img{width:80px;height:60px;object-fit:cover;display:block}
 .ss-del{position:absolute;top:2px;right:2px;background:#882200;border:none;color:#fff;border-radius:50%;width:16px;height:16px;cursor:pointer;font-size:8px;display:flex;align-items:center;justify-content:center;padding:0;line-height:1}
 .ss-num{position:absolute;bottom:2px;left:3px;background:rgba(0,0,0,.65);color:#fff;font-size:8px;font-family:var(--mono);border-radius:3px;padding:1px 3px;line-height:1.2;pointer-events:none}
-/* Review conf chips */
-.rconf-chip{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;border:1px solid var(--b1);background:var(--s2);cursor:pointer;user-select:none;transition:all .13s;gap:8px;margin-bottom:4px}
-.rconf-chip:hover{border-color:var(--b2)}
-.rconf-chip.on{border-color:var(--rc);background:color-mix(in srgb,var(--rc) 10%,var(--s2))}
-.rconf-chip.on .rclbl{color:var(--rc)}
-.rclbl{font-size:11px;font-weight:500;color:var(--sub);display:flex;align-items:center;gap:7px;flex:1}
-.rcdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.rsr-row{display:none;gap:3px;flex-shrink:0}
-.rconf-chip.on .rsr-row{display:flex}
-.rsr-btn{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid var(--b1);background:transparent;color:var(--hint);cursor:pointer}
-.rsr-btn[data-sr="S"].act{background:#061a0e;border-color:var(--green);color:var(--green)}
-.rsr-btn[data-sr="R"].act{background:#1f0707;border-color:var(--red);color:var(--red)}
-.rconf-group{font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;padding:8px 0 4px;border-bottom:1px solid var(--b1);margin-bottom:5px}
 
 /* PRE-SESSION */
 .ps-ta{width:100%;font-family:var(--mono);font-size:12px;background:var(--s2);border:1px solid var(--b1);border-radius:8px;color:var(--text);padding:9px 11px;outline:none;resize:vertical;min-height:64px;line-height:1.6}
@@ -507,17 +449,6 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .dash-rt-row:last-child{border-bottom:none}
 .dash-rt-row:hover{background:var(--s2)}
 
-/* NQ SCALE BAR */
-.nqscale-wrap{padding:4px 0 6px}
-.nqscale-bar{position:relative;height:8px;border-radius:4px;background:linear-gradient(to right,var(--red) 0%,var(--red) 33%,var(--amber) 33%,var(--amber) 66%,var(--green) 66%,var(--green) 100%);margin:4px 0 2px}
-.nqscale-marker{position:absolute;top:-3px;width:14px;height:14px;border-radius:50%;background:var(--text);border:2px solid var(--bg);transform:translateX(-50%);transition:left .3s}
-.nqscale-labels{display:flex;justify-content:space-between;font-size:9px;font-family:var(--mono);color:var(--hint)}
-
-/* MISTAKE CHIPS */
-.mistake-grid{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
-.mistake-chip{font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:5px;border:1px solid var(--b1);background:var(--s2);color:var(--hint);cursor:pointer;transition:all .12s}
-.mistake-chip.on{background:#1f0707;border-color:var(--red);color:var(--red)}
-
 /* JOURNAL v2 */
 .jfilter-bar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:14px;padding:9px 13px;background:var(--s1);border:1px solid var(--b1);border-radius:12px}
 .jfilter-sep{width:1px;height:14px;background:var(--b2);flex-shrink:0;margin:0 2px}
@@ -537,8 +468,8 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .jday-metric-lbl{font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase}
 .jday-body{display:none;border-top:1px solid var(--b1)}
 .jday-card.open .jday-body{display:block}
-.jtrade-hdr{display:grid;grid-template-columns:86px 48px 44px 120px 1fr 60px 100px 28px;gap:6px;padding:5px 16px;background:var(--s3);font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.04em}
-.jtrade-row{display:grid;grid-template-columns:86px 48px 44px 120px 1fr 60px 100px 28px;align-items:center;gap:6px;padding:8px 16px;border-bottom:1px solid var(--b1);font-family:var(--mono);font-size:11px;transition:background .1s;cursor:pointer}
+.jtrade-hdr{display:grid;grid-template-columns:86px 48px 44px 120px 1fr 60px 100px 90px 28px;gap:6px;padding:5px 16px;background:var(--s3);font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.04em}
+.jtrade-row{display:grid;grid-template-columns:86px 48px 44px 120px 1fr 60px 100px 90px 28px;align-items:center;gap:6px;padding:8px 16px;border-bottom:1px solid var(--b1);font-family:var(--mono);font-size:11px;transition:background .1s;cursor:pointer}
 .jtrade-row:hover{background:var(--s2)}
 .jtrade-row:last-child{border-bottom:none}
 /* Context modal */
@@ -546,31 +477,10 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .ctx-modal-bg.open{display:flex}
 .ctx-modal{background:var(--s1);border:1px solid var(--b1);border-radius:16px;width:min(520px,95vw);max-height:85vh;overflow-y:auto;padding:20px}
 .ctx-modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-/* Confirm delete modal */
-.confirm-modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:600;align-items:center;justify-content:center}
-.confirm-modal-bg.open{display:flex}
-.confirm-modal{background:var(--s1);border:1px solid var(--b1);border-radius:14px;width:min(380px,92vw);padding:24px}
-.confirm-modal-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:10px}
-.confirm-modal-body{font-size:13px;color:var(--sub);margin-bottom:22px;line-height:1.5}
-.confirm-modal-actions{display:flex;gap:8px;justify-content:flex-end}
-.rconf-del-btn{background:transparent;border:none;color:var(--hint);cursor:pointer;padding:2px 5px;border-radius:4px;font-size:12px;line-height:1;flex-shrink:0;transition:color .13s}
-.rconf-del-btn:hover{color:var(--red)}
 .ctx-sec{margin-bottom:11px}
 .ctx-lbl{font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
 .ctx-val{font-size:12px;font-family:var(--mono);color:var(--text)}
-@media(max-width:640px){.jday-hdr{gap:8px}.jday-metrics{gap:8px}.jtrade-hdr,.jtrade-row{grid-template-columns:74px 40px 36px 100px 1fr 50px 80px 24px;font-size:10px}}
-
-/* FASE 4 — Review enhancements */
-.rv-mistake-cat{font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;padding:8px 0 5px;border-bottom:1px solid var(--b1);margin-bottom:6px;margin-top:4px}
-.rv-mchips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
-.rv-mchip{font-family:var(--mono);font-size:10px;padding:4px 9px;border-radius:6px;border:1px solid var(--b1);background:var(--s2);color:var(--sub);cursor:pointer;transition:all .13s;user-select:none}
-.rv-mchip:hover{border-color:var(--b2);color:var(--text)}
-.rv-mchip.on{background:#1f0707;border-color:var(--red);color:var(--red)}
-.rv-ps4-dots{display:flex;gap:8px;margin-top:4px;align-items:center}
-.rv-ps4-dot{width:13px;height:13px;border-radius:50%;border:1.5px solid var(--b2);cursor:help;transition:all .15s;flex-shrink:0}
-.rv-ps4-dot.ok{background:var(--green);border-color:var(--green)}
-.rv-ps4-dot.fail{background:var(--s3);border-color:var(--red)}
-.rv-hold-row{padding:6px 14px;border-bottom:1px solid var(--b1);display:flex;justify-content:space-between;align-items:center}
+@media(max-width:640px){.jday-hdr{gap:8px}.jday-metrics{gap:8px}.jtrade-hdr,.jtrade-row{grid-template-columns:74px 40px 36px 100px 1fr 50px 80px 70px 24px;font-size:10px}}
 
 /* FASE 5 — Session badges */
 .sess-badge{display:inline-flex;align-items:center;font-family:var(--mono);font-size:9px;font-weight:600;padding:1px 6px;border-radius:4px;letter-spacing:.03em;border:1px solid;white-space:nowrap;vertical-align:middle}
@@ -729,16 +639,6 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .ddr-gallery-empty{flex:1;min-height:240px;border:2px dashed var(--b2);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .18s}
 .ddr-gallery-empty:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 5%,transparent)}
 
-/* CONFLUENCE — remove with inline confirmation */
-.conf-rm-wrap{display:none;align-items:center;gap:4px;flex-shrink:0}
-.cchip.on .conf-rm-wrap,.rconf-chip.on .conf-rm-wrap{display:flex}
-.conf-rm{font-family:var(--mono);font-size:12px;line-height:1;padding:2px 7px;border-radius:4px;border:1px solid var(--b1);background:transparent;color:var(--hint);cursor:pointer;transition:all .12s}
-.conf-rm:hover{border-color:var(--red);color:var(--red)}
-.conf-confirm{display:flex;align-items:center;gap:4px}
-.conf-confirm-q{font-family:var(--mono);font-size:10px;color:var(--amber)}
-.conf-confirm-yes{font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:4px;border:1px solid var(--red);background:#1f0707;color:var(--red);cursor:pointer}
-.conf-confirm-no{font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:4px;border:1px solid var(--b1);background:transparent;color:var(--sub);cursor:pointer}
-
 /* ═══════════════════════════════════════════════════════════════
    VISUAL POLISH — Aesthetic enhancements, layout/function intact
 ═══════════════════════════════════════════════════════════════ */
@@ -760,7 +660,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .tab.on{text-shadow:0 0 10px color-mix(in srgb,var(--accent) 50%,transparent)}
 
 /* Modal backdrop blur */
-.overlay,.ctx-modal-bg,.confirm-modal-bg,.doc-modal-overlay{backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.ctx-modal-bg,.doc-modal-overlay{backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 
 /* Login card — deep shadow */
 .login-card{box-shadow:0 24px 80px rgba(0,0,0,.55),0 4px 20px rgba(0,0,0,.3)}
@@ -793,7 +693,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 /* P&L number glows */
 .tpnl-pos{text-shadow:0 0 8px color-mix(in srgb,var(--green) 30%,transparent)}
 .tpnl-neg{text-shadow:0 0 8px color-mix(in srgb,var(--red) 25%,transparent)}
-.rv-day-pnl,.rv-trade-pnl{filter:drop-shadow(0 0 6px color-mix(in srgb,currentColor 25%,transparent))}
+.rv-pnl-hero-val{filter:drop-shadow(0 0 6px color-mix(in srgb,currentColor 25%,transparent))}
 
 /* Input focus ring */
 .finput:focus,.ps-num-input:focus,.login-input:focus,.ps-ta:focus,.date-in:focus,.rv-inp:focus{box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 22%,transparent)}
@@ -860,14 +760,8 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 /* Review top bar depth */
 .rv-top{box-shadow:0 1px 0 var(--b1),0 2px 14px rgba(0,0,0,.22)}
 
-/* Confluence chip — active glow */
-.cchip.on,.rconf-chip.on{box-shadow:0 0 6px color-mix(in srgb,var(--cc,var(--accent)) 18%,transparent)}
-
 /* Fullscreen modal — polished header */
 .fs-modal-hdr{background:color-mix(in srgb,var(--s2) 80%,var(--accent) 5%)}
-
-/* Modal box shadow */
-.mbox{box-shadow:0 24px 80px rgba(0,0,0,.5)}
 
 /* Overlay modal box */
 #lightbox-overlay{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
@@ -877,9 +771,6 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 
 /* Dropzone — enhanced drag state glow */
 .dropzone.drag{box-shadow:0 0 0 2px var(--accent),0 4px 24px color-mix(in srgb,var(--accent) 20%,transparent)}
-
-/* nqscale bar — add glow to marker */
-.nqscale-marker{box-shadow:0 0 6px rgba(255,255,255,.3),0 0 0 2px rgba(255,255,255,.15)}
 
 /* Calendar day — current day stronger ring */
 .cday.today,.dash-cal-day.today-d{box-shadow:0 0 0 1px var(--accent),0 0 8px color-mix(in srgb,var(--accent) 20%,transparent)}
@@ -909,14 +800,6 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .dash-rt-row{border-left:2px solid transparent;transition:background .1s,border-color .15s}
 .dash-rt-row:hover{background:var(--s2);border-left-color:var(--accent)}
 
-/* Review running PnL item — hover accent */
-.rv-run-item:hover{background:var(--s2);border-left:2px solid var(--accent)}
-.rv-run-item{border-left:2px solid transparent}
-.rv-run-item.cur{border-left-color:var(--accent)}
-
-/* Improved overlay animation */
-.overlay{animation:none}
-@keyframes overlayIn{from{opacity:0}to{opacity:1}}
 
 /* ═══════════════════════════════════════════════════════════════
    PREP TAB — accordion blocks (Semana + Dia)
@@ -1032,18 +915,6 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
           <button onclick="closeCtxModal()" style="background:transparent;border:none;color:var(--hint);font-size:18px;cursor:pointer;line-height:1">✕</button>
         </div>
         <div id="ctx-modal-body"></div>
-      </div>
-    </div>
-
-    <!-- CONFIRM DELETE CONFLUÊNCIA MODAL -->
-    <div class="confirm-modal-bg" id="conf-del-modal-bg" onclick="if(event.target===this)cancelDeleteCustomConf()">
-      <div class="confirm-modal">
-        <div class="confirm-modal-title">Apagar confluência?</div>
-        <div class="confirm-modal-body" id="conf-del-modal-body"></div>
-        <div class="confirm-modal-actions">
-          <button class="btn btn-sm" style="background:var(--s3);border:1px solid var(--b2);color:var(--sub)" onclick="cancelDeleteCustomConf()">Cancelar</button>
-          <button class="btn btn-sm" style="background:var(--red);border:1px solid var(--red);color:#fff" onclick="confirmDeleteCustomConf()">Apagar</button>
-        </div>
       </div>
     </div>
 
@@ -1316,205 +1187,91 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
   </div><!-- end .content -->
 </div><!-- end #app -->
 
-<!-- TRADE MODAL -->
-<div class="overlay" id="modal">
-  <div class="mbox">
-    <div class="mhead">
-      <div><div style="font-size:14px;font-weight:600" id="m-title">—</div><div style="font-size:11px;font-family:var(--mono);color:var(--sub)" id="m-meta">—</div></div>
-      <div style="display:flex;gap:7px;align-items:center">
-        <button class="cal-btn" onclick="navModal(-1)">‹ Ant</button>
-        <span id="m-prog" style="font-size:11px;font-family:var(--mono);color:var(--hint)">—</span>
-        <button class="cal-btn" onclick="navModal(1)">Próx ›</button>
-        <button class="btn btn-ghost btn-sm" onclick="closeModal()">✕</button>
-      </div>
-    </div>
-    <div class="mbody">
-      <div style="display:flex;flex-direction:column;gap:12px">
-        <div style="display:flex;gap:12px;flex-wrap:wrap;background:var(--s2);border-radius:10px;padding:11px 13px" id="m-info"></div>
-        <div>
-          <div class="mlabel" style="margin-bottom:8px">Níveis & risco</div>
-          <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:flex-end">
-            <div><div class="mlabel" style="margin-bottom:3px">Entry</div><input type="number" class="finput" id="m-entry" step="0.25" placeholder="21450" oninput="calcRR()"></div>
-            <div><div class="mlabel" style="margin-bottom:3px">Stop</div><input type="number" class="finput" id="m-stop" step="0.25" placeholder="21420" oninput="calcRR()"></div>
-            <div><div class="mlabel" style="margin-bottom:3px">Take Profit</div><input type="number" class="finput" id="m-tp" step="0.25" placeholder="21510" oninput="calcRR()"></div>
-            <div><div class="mlabel" style="margin-bottom:3px">Risco ($)</div><input type="number" class="finput" id="m-risk" step="1" placeholder="100" oninput="calcRR()"></div>
-            <div><div class="mlabel" style="margin-bottom:3px">RR</div><div class="rr-pill" id="m-rr" style="color:var(--hint)">—</div></div>
-          </div>
-        </div>
-        <div>
-          <div class="mlabel" style="margin-bottom:6px">Notas & raciocínio</div>
-          <div class="editor-wrap">
-            <div class="editor-tb">
-              <button class="tbtn" onclick="fmt('bold')"><b>B</b></button>
-              <button class="tbtn" onclick="fmt('italic')"><i>I</i></button>
-              <button class="tbtn" onclick="fmt('underline')"><u>U</u></button>
-              <div style="width:1px;background:var(--b1);margin:2px 4px"></div>
-              <button class="tbtn" onclick="fmt('insertUnorderedList')">•</button>
-              <button class="tbtn" style="color:var(--teal);margin-left:auto" onclick="document.getElementById('m-img-in').click()">📎</button>
-              <button class="tbtn" style="color:var(--red)" onclick="document.getElementById('m-editor').innerHTML=''">✕</button>
-            </div>
-            <div id="m-editor" class="ebody" contenteditable="true" data-ph="Descreve o raciocínio, orderflow, lições..."></div>
-          </div>
-          <input type="file" id="m-img-in" accept="image/*" multiple style="display:none" onchange="insertImgs(event)">
-        </div>
-      </div>
-      <div>
-        <div class="mlabel" style="margin-bottom:8px">Confluências</div>
-        <div id="m-confs"></div>
-      </div>
-    </div>
-    <div class="mfoot">
-      <button class="btn btn-ghost btn-sm" onclick="closeModal()">Cancelar</button>
-      <button class="btn btn-accent btn-sm" onclick="saveModal()">Guardar trade</button>
-    </div>
-  </div>
-</div>
-
-<!-- REVIEW SCREEN -->
+<!-- TRADE PANEL -->
+<div id="review-backdrop" onclick="closeReview()"></div>
 <div id="review">
   <div class="rv-top">
-    <button class="btn btn-ghost btn-sm" onclick="closeReview()">← Calendário</button>
-    <div><div class="rv-title" id="rv-title">—</div><div class="rv-meta" id="rv-meta">—</div></div>
-    <div style="margin-left:auto;display:flex;align-items:center;gap:9px;flex-wrap:wrap">
-      <div class="rv-nav">
-        <button class="rv-nbtn" onclick="rvNav(-1)">‹ Anterior</button>
-        <span class="rv-counter" id="rv-counter">0/0</span>
-        <button class="rv-nbtn" onclick="rvNav(1)">Próxima ›</button>
-      </div>
-      <button class="btn btn-accent btn-sm" onclick="saveReview()">Guardar</button>
+    <button class="btn btn-ghost btn-sm" id="rv-prev-btn" onclick="rvNav(-1)">‹ Anterior</button>
+    <span class="rv-counter" id="rv-counter">0/0</span>
+    <button class="btn btn-ghost btn-sm" id="rv-next-btn" onclick="rvNav(1)">Próxima ›</button>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+      <span id="rv-save-lbl" style="font-size:10px;font-family:var(--mono);color:var(--hint)"></span>
+      <button class="btn btn-ghost btn-sm" onclick="closeReview()" title="Fechar (Esc)">✕</button>
     </div>
+  </div>
+  <div class="rv-pnl-hero">
+    <div class="rv-pnl-hero-val" id="rv-pnl-hero-val">—</div>
+    <div class="rv-pnl-hero-meta" id="rv-pnl-hero-meta">—</div>
   </div>
   <div class="rv-body">
     <div class="rv-left">
-      <div class="rv-pnl-block">
-        <div class="rv-day-lbl">P&L do dia</div>
-        <div class="rv-day-pnl" id="rv-day-pnl">—</div>
-        <div class="rv-sep"></div>
-        <div class="rv-trade-lbl">Trade actual</div>
-        <div class="rv-trade-pnl" id="rv-trade-pnl">—</div>
-        <div class="rv-trade-meta" id="rv-trade-meta">—</div>
-      </div>
-      <div class="rv-fields">
-        <div class="rv-row"><span class="rv-rlbl">Entry</span><input type="number" class="rv-inp" id="rv-entry" step="0.25" placeholder="—" oninput="rvCalcRR()"></div>
-        <div class="rv-row" id="rv-entrytime-row"><span class="rv-rlbl">Hora de Entrada</span><span id="rv-entry-time" style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text)">—</span></div>
-        <div class="rv-row"><span class="rv-rlbl">Exit</span><input type="number" class="rv-inp" id="rv-exit-disp" step="0.25" placeholder="—"></div>
-        <div class="rv-row" id="rv-dur-row"><span class="rv-rlbl">Duração</span><span id="rv-duration" style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text)">—</span></div>
-        <div class="rv-row" style="flex-direction:column;align-items:stretch;gap:3px;padding:6px 0">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <span class="rv-rlbl">Stop Loss (ticks)</span>
-            <input type="number" class="rv-inp" id="rv-stop-ticks" step="1" min="0" placeholder="—" style="color:var(--red)" oninput="rvCalcFromTicks()">
+      <div class="rv-fields" id="rv-readonly-fields"></div>
+
+      <div class="rv-plan-block">
+        <div class="rv-plan-row">
+          <span class="rv-plan-lbl">Stop planeado</span>
+          <div class="rv-unit-toggle" id="rv-stop-unit-toggle">
+            <button class="rv-unit-btn on" data-u="ticks" onclick="rvSetUnit('stop','ticks')">TICKS</button>
+            <button class="rv-unit-btn" data-u="dollar" onclick="rvSetUnit('stop','dollar')">$</button>
           </div>
-          <div id="rv-stop-dollar" style="text-align:right;font-size:10px;font-family:var(--mono);color:var(--hint)"></div>
         </div>
-        <div class="rv-row" style="flex-direction:column;align-items:stretch;gap:3px;padding:6px 0">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <span class="rv-rlbl">Take Profit (ticks)</span>
-            <input type="number" class="rv-inp" id="rv-tp-ticks" step="1" min="0" placeholder="—" style="color:var(--green)" oninput="rvCalcFromTicks()">
+        <div id="rv-stop-input-wrap"></div>
+      </div>
+
+      <div class="rv-plan-block">
+        <div class="rv-plan-row">
+          <span class="rv-plan-lbl">Alvo planeado</span>
+          <div class="rv-unit-toggle" id="rv-tp-unit-toggle">
+            <button class="rv-unit-btn on" data-u="ticks" onclick="rvSetUnit('tp','ticks')">TICKS</button>
+            <button class="rv-unit-btn" data-u="dollar" onclick="rvSetUnit('tp','dollar')">$</button>
           </div>
-          <div id="rv-tp-dollar" style="text-align:right;font-size:10px;font-family:var(--mono);color:var(--hint)"></div>
         </div>
-        <div class="rv-row"><span class="rv-rlbl">Risco ($)</span><span id="rv-risk-display" style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text)">—</span><input type="hidden" id="rv-risk"></div>
+        <div id="rv-tp-input-wrap"></div>
       </div>
-      <div class="rv-stars">
-        <span style="font-size:11px;font-family:var(--mono);color:var(--sub)">Rating</span>
-        <div style="display:flex;gap:3px" id="rv-stars">
-          <span class="rv-star" onclick="rvSetRating(1)">☆</span>
-          <span class="rv-star" onclick="rvSetRating(2)">☆</span>
-          <span class="rv-star" onclick="rvSetRating(3)">☆</span>
-          <span class="rv-star" onclick="rvSetRating(4)">☆</span>
-          <span class="rv-star" onclick="rvSetRating(5)">☆</span>
-        </div>
-      </div>
-      <div class="rv-stars">
-        <span style="font-size:11px;font-family:var(--mono);color:var(--sub)">Setup Grade</span>
-        <select id="rv-setup-grade" onchange="rvSetGrade(this.value)" style="background:var(--s2);border:1px solid var(--b1);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;font-weight:700;padding:4px 10px;cursor:pointer">
-          <option value="">—</option>
-          <option value="A+">A+</option>
-          <option value="A">A</option>
-          <option value="B+">B+</option>
-          <option value="B">B</option>
-        </select>
-      </div>
+
       <div class="rv-rbars">
-        <div class="rv-rbar-lbl">R-Multiple</div>
-        <div class="rv-rbar-row">
-          <div class="rv-rbar-meta"><span>Planeado</span><span id="rv-rr-plan">—</span></div>
-          <div class="rv-rbar-track"><div id="rv-rr-plan-bar" class="rv-rbar-fill" style="width:0%;background:var(--accent)"></div></div>
-        </div>
-        <div class="rv-rbar-row">
-          <div class="rv-rbar-meta"><span>Realizado</span><span id="rv-rr-real">—</span></div>
-          <div class="rv-rbar-track"><div id="rv-rr-real-bar" class="rv-rbar-fill" style="width:0%;background:var(--green)"></div></div>
-        </div>
-      </div>
-      <!-- Confluências -->
-      <div style="padding:11px 14px;border-bottom:1px solid var(--b1)">
-        <div style="font-size:10px;font-family:var(--mono);color:var(--text);text-transform:uppercase;letter-spacing:.06em;margin-bottom:9px;display:flex;justify-content:space-between;align-items:center">
-          Confluências
-          <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 9px" onclick="rvToggleNewConf()">+ Nova</button>
-        </div>
-        <div id="rv-new-conf-form" style="display:none;background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:10px;margin-bottom:9px">
-          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:7px">
-            <input type="text" id="rv-nc-label" class="rv-inp" style="flex:1;width:auto;text-align:left" placeholder="Nome da confluência">
-            <input type="color" id="rv-nc-color" value="#5b8fff" style="width:32px;height:32px;border:1px solid var(--b1);border-radius:6px;background:transparent;cursor:pointer;padding:2px">
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-            <span style="font-size:11px;font-family:var(--mono);color:var(--sub)">Tem S/R?</span>
-            <label style="display:flex;align-items:center;gap:5px;cursor:pointer">
-              <input type="checkbox" id="rv-nc-sr" style="accent-color:var(--accent)">
-              <span style="font-size:11px;font-family:var(--mono);color:var(--sub)">Sim</span>
-            </label>
-          </div>
-          <button class="btn btn-accent btn-sm" style="width:100%" onclick="rvSaveNewConf()">Guardar confluência</button>
-        </div>
-        <div id="rv-conf-list"></div>
-      </div>
-      <div id="rv-ctx-banner" style="display:none;padding:11px 14px;border-bottom:1px solid var(--b1);font-size:11px"></div>
-      <div class="rv-running">
-        <div class="rv-run-lbl">Running P&L do dia</div>
-        <div id="rv-run-list"></div>
+        <div class="rv-rbar-row"><div class="rv-rbar-meta"><span>R planeado</span><span id="rv-rr-plan">—</span></div></div>
+        <div class="rv-rbar-row"><div class="rv-rbar-meta"><span>R realizado</span><span id="rv-rr-real">—</span></div></div>
       </div>
     </div>
     <div class="rv-right">
       <div class="rv-right-body">
-        <!-- Prints do setup -->
+        <div class="rv-section">
+          <div class="rv-sec-hdr"><span class="rv-sec-title">Grade</span></div>
+          <select id="rv-grade" onchange="rvSetGrade(this.value)" style="width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;font-weight:700;padding:6px 10px;cursor:pointer">
+            <option value="">—</option>
+            <option value="A+">A+</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="F">F</option>
+          </select>
+          <div id="rv-grade-desc" class="rv-grade-desc"></div>
+        </div>
+
         <div class="rv-section">
           <div class="rv-sec-hdr">
-            <span class="rv-sec-title">📸 Prints do setup</span>
-            <div style="display:flex;gap:6px">
-              <button class="btn btn-ghost btn-sm" onclick="toggleClaudeKey()" title="Configurar API Key Claude">🔑</button>
-              <button class="btn btn-accent btn-sm" onclick="document.getElementById('rv-img-in').click()">+ Adicionar</button>
-            </div>
+            <span class="rv-sec-title">Erros</span>
+            <button class="btn btn-ghost btn-sm" onclick="rvToggleErrorCatalogEditor()">⚙ Catálogo</button>
           </div>
-          <div id="claude-key-box" style="display:none;margin-bottom:10px;background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:10px">
-            <div style="font-size:10px;font-family:var(--mono);color:var(--sub);margin-bottom:6px">Claude API Key (guardada localmente)</div>
-            <div style="display:flex;gap:6px">
-              <input type="password" id="claude-key-in" class="finput" style="flex:1;font-size:11px" placeholder="sk-ant-..." value="">
-              <button class="btn btn-accent btn-sm" onclick="saveClaudeKey()">Guardar</button>
-            </div>
-            <div id="claude-key-status" style="font-size:10px;font-family:var(--mono);color:var(--hint);margin-top:5px"></div>
+          <div id="rv-error-catalog-editor" style="display:none;margin-bottom:12px"></div>
+          <div class="rv-field-sub">Principal</div>
+          <select id="rv-error-primary" onchange="rvSetPrimaryError(this.value)" style="width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:6px 10px;cursor:pointer"></select>
+          <div class="rv-field-sub" style="margin-top:12px">Secundários</div>
+          <div id="rv-error-secondary" class="rv-err-chip-row"></div>
+        </div>
+
+        <div class="rv-section">
+          <div class="rv-sec-hdr"><span class="rv-sec-title">📝 Trade Recap</span></div>
+          <textarea class="rv-recap-ta" id="rv-recap" placeholder="Descreve o que viste — orderflow, porque entraste, lições..." oninput="rvAutoGrow(this)" onblur="rvSaveTradeFields()"></textarea>
+        </div>
+
+        <div class="rv-section">
+          <div class="rv-sec-hdr">
+            <span class="rv-sec-title">📸 Prints do Setup</span>
+            <button class="btn btn-accent btn-sm" onclick="document.getElementById('rv-img-in').click()">+ Adicionar</button>
           </div>
           <input type="file" id="rv-img-in" accept="image/*" multiple style="display:none" onchange="rvAddPrints(event)">
           <div id="rv-gallery"></div>
-        </div>
-        <!-- Trade Recap -->
-        <div class="rv-section">
-          <div class="rv-sec-hdr">
-            <span class="rv-sec-title">📝 Trade Recap</span>
-          </div>
-          <div class="ta-fs-wrap">
-            <button class="ta-fs-btn" onclick="openFSModalRecap()" title="Expandir">⤢</button>
-            <textarea class="ps-ta" id="rv-recap" style="min-height:140px;font-size:13px;line-height:1.7" placeholder="Descreve o que viste — orderflow, porque entraste, lições..."></textarea>
-          </div>
-        </div>
-        <!-- Possíveis Setups (só visível em trades negativos) -->
-        <div class="rv-section" id="rv-setups-section" style="display:none">
-          <div class="rv-sec-hdr">
-            <span class="rv-sec-title">💡 Possíveis Setups</span>
-          </div>
-          <div class="ta-fs-wrap">
-            <button class="ta-fs-btn" onclick="openFSModal('Possíveis Setups','rv-possible-setups')" title="Expandir">⤢</button>
-            <textarea class="ps-ta" id="rv-possible-setups" style="min-height:72px" placeholder="Que setups podias ter feito? Que oportunidade perdeste?"></textarea>
-          </div>
         </div>
       </div>
     </div>
@@ -1526,7 +1283,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
   <div style="background:var(--s1);border:1px solid var(--red);border-radius:16px;padding:28px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.6)">
     <div style="font-size:18px;font-weight:700;color:var(--red);margin-bottom:10px">⚠ Apagar trades da conta actual</div>
     <div id="clear-all-step1">
-      <p style="font-size:13px;color:var(--sub);line-height:1.6;margin-bottom:20px">Esta acção apaga <strong style="color:var(--text)">todas as trades importadas via CSV</strong> da conta actual.<br><br>Não são apagados: pré-sessões, preparação semanal, confluências customizadas nem contas.</p>
+      <p style="font-size:13px;color:var(--sub);line-height:1.6;margin-bottom:20px">Esta acção apaga <strong style="color:var(--text)">todas as trades importadas via CSV</strong> da conta actual.<br><br>Não são apagados: pré-sessões, preparação semanal nem contas.</p>
       <div style="display:flex;gap:9px;justify-content:flex-end">
         <button class="btn btn-ghost" onclick="hideClearAllModal()">Cancelar</button>
         <button class="btn" style="background:var(--red);color:#fff" onclick="clearAllStep2()">Continuar →</button>
@@ -1649,13 +1406,13 @@ async function sbPullData() {
   const udData = udRes.data || [];
   let psImgs = null, wpImgs = null;
 
-  // Processar user_data (contas, confluências, weekly, e fallback legacy para trades/sessions)
+  // Processar user_data (contas, catálogo de erros, weekly, e fallback legacy para trades/sessions)
   udData.forEach(row => {
     if (row.key === "nq10_a")       { try { const v = row.value; if (Array.isArray(v)) accounts = v; } catch(e){} }
     if (row.key === "nq10_t")       { try { const v = row.value; if (v && typeof v === "object") allT = v; } catch(e){} }
     if (row.key === "nq10_ps")      { try { const v = row.value; if (v && typeof v === "object") psData = v; } catch(e){} }
     if (row.key === "nq10_ps_imgs") { try { const v = row.value; if (v && typeof v === "object") psImgs = v; } catch(e){} }
-    if (row.key === "nq10_cc")      { try { const v = row.value; if (Array.isArray(v)) { customConfs = v; localStorage.setItem("nq10_cc", JSON.stringify(customConfs)); } } catch(e){} }
+    if (row.key === "nq10_ec")      { try { const v = row.value; if (Array.isArray(v) && v.length) { errorCatalog = v; localStorage.setItem(SK_EC, JSON.stringify(errorCatalog)); } } catch(e){} }
     if (row.key === "nq10_wp")      { try { const v = row.value; if (v && typeof v === "object") weeklyPrep = v; } catch(e){} }
     if (row.key === "nq10_ram")     { try { const v = row.value; if (v && typeof v === "object") { rithmicAcctMap = v; localStorage.setItem("nq10_ram", JSON.stringify(rithmicAcctMap)); } } catch(e){} }
     if (row.key === "nq10_wp_imgs") { try { const v = row.value; if (v && typeof v === "object") wpImgs = v; } catch(e){} }
@@ -1757,8 +1514,6 @@ async function sbPullData() {
   cleanStaleRithmicMappings();
   setSyncStatus("ok", sbUser?.email || "autenticado");
   renderAccts();
-  // Canonicaliza confluências custom legacy (Gamma Wall / Iceberg) após dados da cloud
-  migrateConfluences();
 }
 
 async function sbPushKey(key, value) {
@@ -1967,7 +1722,6 @@ async function sbLogout() {
   // limpar estado local
   allT = {}; psData = {}; weeklyPrep = {};
   accounts = [{ id: "lucid", name: "Lucid", emoji: "🔵" }, { id: "mff", name: "My Funded Futures", emoji: "🟢" }];
-  customConfs = [];
   localStorage.clear();
   showLoginScreen();
   toast("Sessão terminada", "ok");
@@ -1975,19 +1729,36 @@ async function sbLogout() {
 // ═══════════════════════════════════════════
 // STORAGE
 // ═══════════════════════════════════════════
-const SK_A = "nq10_a", SK_T = "nq10_t", SK_PS = "nq10_ps", SK_WP = "nq10_wp", SK_RAM = "nq10_ram";
+const SK_A = "nq10_a", SK_T = "nq10_t", SK_PS = "nq10_ps", SK_WP = "nq10_wp", SK_RAM = "nq10_ram", SK_EC = "nq10_ec";
 let accounts = [], curAcct = null, allT = {}, psData = {}, weeklyPrep = {};
 let rithmicAcctMap = {}; // { "<Rithmic Account column value>": "<app account_id>" }
 const diaryState = {}; // { date: { bias, fed, sentiment, profileBias } }
-let customConfs = [];
 
-// ─── Setup Grade (stacking-zone grading — BRAIN_RiskManagement.md) ───
+// ─── Setup Grade — Pré-sessão zone grading (BRAIN_RiskManagement.md) ───
 const ZONE_GRADES     = ['A+','A','B+','B'];
 const GRADE_RISK      = { 'A+': 1.0, 'A': 0.75, 'B+': 0.5, 'B': 0.275 }; // B = midpoint de 0.25–0.3
 const GRADE_RISK_LBL  = { 'A+': '1.0', 'A': '0.75', 'B+': '0.5', 'B': '0.275' };
 const GRADE_COLOR     = { 'A+': 'var(--green)', 'A': 'var(--accent)', 'B+': 'var(--amber)', 'B': 'var(--sub)' };
+
+// ─── Trade Grade — execution-adherence grading (trade detail panel) ───
+const TRADE_GRADES = ['A+', 'A', 'B', 'F'];
+const TRADE_GRADE_COLOR = { 'A+': 'var(--green)', 'A': 'var(--accent)', 'B': 'var(--amber)', 'F': 'var(--red)' };
+const TRADE_GRADE_DESC = {
+  'A+': '2R ou mais, execução limpa, movimento inteiro.',
+  'A':  'Boa leitura, mas saiu em lucro antes do alvo.',
+  'B':  'Qualquer stop, ou vencedor curto demais para valer alguma coisa.',
+  'F':  'Sem processo, stop merecido, sem tese.'
+};
+
+// ─── Error catalogue — behaviour codes, editable from the trade panel ───
+const DEFAULT_ERROR_CATALOG = [
+  { id: 'BE_PREMATURO', label: 'BE_PREMATURO', desc: 'Stop movido para break-even por gatilho de dólares e não por falha estrutural de um pivot', active: true },
+  { id: 'FOMO',         label: 'FOMO',         desc: 'Entrou numa trade reconhecida no momento como sem confluência, por frustração de trades anteriores', active: true },
+  { id: 'REVENGE',      label: 'REVENGE',      desc: 'Entrou para recuperar uma perda, não porque a zona justificasse', active: true }
+];
+let errorCatalog = [];
+
 let curDate = "", scope = "all", calY = 0, calM = 0, dashPeriod = "month", dashMode = "summary";
-let modalId = null, modalDayIds = [];
 let rvDate = "", rvIdx = 0;
 let psBias = "", psFed = "", psFearGreed = null, psDate = "", psProfileBias = "";
 let psCapitalFlowTags = {};
@@ -2005,11 +1776,17 @@ function loadData() {
   try { psData = JSON.parse(localStorage.getItem(SK_PS) || "{}"); } catch(e) { psData = {}; }
   try { weeklyPrep = JSON.parse(localStorage.getItem(SK_WP) || "{}"); } catch(e) { weeklyPrep = {}; }
   try { rithmicAcctMap = JSON.parse(localStorage.getItem(SK_RAM) || "{}"); } catch(e) { rithmicAcctMap = {}; }
+  try { errorCatalog = JSON.parse(localStorage.getItem(SK_EC) || "null") || []; } catch(e) { errorCatalog = []; }
+  if (!Array.isArray(errorCatalog) || !errorCatalog.length) errorCatalog = DEFAULT_ERROR_CATALOG.map(c => ({ ...c }));
   if (!accounts.length) {
     accounts = [{ id: "lucid", name: "Lucid", emoji: "🔵" }, { id: "mff", name: "My Funded Futures", emoji: "🟢" }];
     persist();
   }
   cleanStaleRithmicMappings();
+}
+function saveErrorCatalog() {
+  localStorage.setItem(SK_EC, JSON.stringify(errorCatalog));
+  sbPushKey("nq10_ec", errorCatalog);
 }
 function cleanStaleRithmicMappings() {
   const validIds = new Set(accounts.map(a => a.id));
@@ -2126,71 +1903,8 @@ function todayISO() { return new Date().toISOString().split("T")[0]; }
 
 loadData();
 sbInit();
-// load custom confluences after CONFS/CMAP are defined (called after script init below)
-setTimeout(() => { loadCustomConfs(); migrateConfluences(); }, 0);
 
-// ═══════════════════════════════════════════
-// CONFLUENCES
-// ═══════════════════════════════════════════
-// Ordem canónica dos 6 grupos da taxonomia de confluências
-const CONF_GROUP_ORDER = [
-  "Option Flow",
-  "Profile — Zona",
-  "DeepDOM — Liquidity Heatmap",
-  "Effort vs Result — Execução",
-  "Patterns",
-  "Custom",
-];
-const CONFS = [
-  // 1 — OPTION FLOW
-  { id: "of-gamma", label: "Gamma Wall",                        color: "#9b72f5", sr: false, group: "Option Flow" },
-  { id: "of-hvl",   label: "HVL",                               color: "#a78bfa", sr: false, group: "Option Flow" },
-  { id: "of-put",   label: "Put Support",                       color: "#1fd17a", sr: false, group: "Option Flow" },
-  { id: "of-call",  label: "Call Resistance",                   color: "#f04f4f", sr: false, group: "Option Flow" },
-  { id: "of-range", label: "1D Range Extreme (Min/Max)",        color: "#f0a832", sr: false, group: "Option Flow" },
-
-  // 2 — PROFILE — ZONA
-  { id: "hvn",     label: "HVN",                                color: "#1fd17a", sr: true,  group: "Profile — Zona" },
-  { id: "lvn",     label: "LVN",                                color: "#34d399", sr: true,  group: "Profile — Zona" },
-  { id: "pz-vah",  label: "VAH",                                color: "#fb923c", sr: false, group: "Profile — Zona" },
-  { id: "pz-val",  label: "VAL",                                color: "#fdba74", sr: false, group: "Profile — Zona" },
-  { id: "poc",     label: "POC",                                color: "#818cf8", sr: true,  group: "Profile — Zona" },
-  { id: "vsi",     label: "Vol. Stacked Imbalance",            color: "#fbbf24", sr: true,  group: "Profile — Zona" },
-
-  // 3 — DEEPDOM — LIQUIDITY HEATMAP
-  { id: "dd-fresh",   label: "Fresh Liquidity",                          color: "#18c9b0", sr: false, group: "DeepDOM — Liquidity Heatmap" },
-  { id: "dd-persist", label: "Persistent/Reinforcement Liquidity Cluster", color: "#5b8fff", sr: false, group: "DeepDOM — Liquidity Heatmap" },
-  { id: "dd-spoof",   label: "Spoofing Detected",                        color: "#f04f4f", sr: false, group: "DeepDOM — Liquidity Heatmap" },
-  { id: "dd-iceberg", label: "Iceberg Order",                            color: "#60a5fa", sr: false, group: "DeepDOM — Liquidity Heatmap" },
-  { id: "dd-sweep",   label: "Book Sweeping",                            color: "#f0a832", sr: false, group: "DeepDOM — Liquidity Heatmap" },
-
-  // 4 — EFFORT VS RESULT — EXECUÇÃO
-  { id: "dt-abs",  label: "Absorption Confirmed",               color: "#5b8fff", sr: false, group: "Effort vs Result — Execução" },
-  { id: "ev-exh",  label: "Exhaustion Confirmed",               color: "#f0a832", sr: false, group: "Effort vs Result — Execução" },
-  { id: "dt-fol",  label: "Initiative Auction Confirmed",       color: "#18c9b0", sr: false, group: "Effort vs Result — Execução" },
-  { id: "dt-sr",   label: "Responsive Auction Confirmed",       color: "#60a5fa", sr: true,  group: "Effort vs Result — Execução" },
-  { id: "ev-cvd",  label: "CVD Divergence",                     color: "#a78bfa", sr: false, group: "Effort vs Result — Execução" },
-  { id: "ev-tape", label: "Speed of Tape Anomaly",              color: "#fbbf24", sr: false, group: "Effort vs Result — Execução" },
-  { id: "ev-imb",  label: "Orderflow Imbalance",                color: "#9b72f5", sr: false, group: "Effort vs Result — Execução" },
-  { id: "delta",   label: "Delta Anomaly",                      color: "#a78bfa", sr: false, group: "Effort vs Result — Execução" },
-
-  // 5 — PATTERNS
-  { id: "bvr-vah", label: "Break VAH & Retest",                 color: "#18c9b0", sr: false, group: "Patterns" },
-  { id: "bvr-val", label: "Break VAL & Retest",                 color: "#34d399", sr: false, group: "Patterns" },
-  { id: "fa-vah",  label: "Failed Auction VAH",                 color: "#fb923c", sr: false, group: "Patterns" },
-  { id: "fa-val",  label: "Failed Auction VAL",                 color: "#fdba74", sr: false, group: "Patterns" },
-  { id: "vwap",    label: "VWAP Bounce",                        color: "#9b72f5", sr: false, group: "Patterns" },
-  { id: "hvb",     label: "ORB/IVB Breakout",                   color: "#f0a832", sr: false, group: "Patterns" },
-  { id: "pat-buyreload",  label: "Buyer Reload",                color: "#1fd17a", sr: false, group: "Patterns" },
-  { id: "pat-sellreload", label: "Seller Reload",               color: "#f04f4f", sr: false, group: "Patterns" },
-
-  // LEGACY (não renderizados no painel — preservam trades históricas + agregação nos Reports)
-  { id: "fa",  label: "Failed Auction (VAL/VAH)", color: "#fb923c", sr: true, srLabels: ["VAL","VAH"], group: "Patterns", legacy: true },
-  { id: "bvr", label: "Break Value & Retest",     color: "#18c9b0", sr: true, srLabels: ["VAL","VAH"], group: "Patterns", legacy: true },
-];
-const CMAP = {}; CONFS.forEach(c => CMAP[c.id] = c);
-
-// FASE 5 — Time slot / session helpers
+// Time slot / session helpers
 const SLOT_ORDER = ['pre-orb','09:30','10:00','10:30','11:00','11:30','12:00+'];
 const SLOT_LABELS = {'pre-orb':'Pré-ORB','09:30':'09:30–10:00','10:00':'10:00–10:30','10:30':'10:30–11:00','11:00':'11:00–11:30','11:30':'11:30–12:00','12:00+':'12:00+'};
 const SESSION_ORDER = ['pre-orb','orb','post-orb','afternoon'];
@@ -2223,11 +1937,22 @@ function sessionBadge(session) {
   return '<span class="sess-badge ' + session + '">' + (labels[session] || session) + '</span>';
 }
 
-// FASE 4 — Mistakes categories
-const MISTAKE_CATS = [
-  { cat: "Execução / Timing", items: ["Entrei cedo demais","Entrei tarde demais","Saí cedo demais","Saí tarde demais","Stop muito apertado","Stop muito largo","Tamanho de posição errado"] },
-  { cat: "Setup / Plano", items: ["Sem confluência suficiente","Entrei contra o bias do dia","Ignorei a regra do ORB","Entrei em zona de baixo volume","Overtraded (demasiadas trades no dia)"] }
-];
+// Compact grade + error badges for trade list rows
+function tradeGradeErrorBadges(t) {
+  let html = '';
+  if (t.grade) {
+    const gc = TRADE_GRADE_COLOR[t.grade] || 'var(--sub)';
+    html += '<span class="cbadge" style="background:' + gc + '18;color:' + gc + ';border:1px solid ' + gc + '44">' + t.grade + '</span>';
+  }
+  const errIds = [t.error_primary, ...(t.error_secondary || [])].filter(Boolean);
+  if (errIds.length) {
+    const map = errCatMap();
+    const lbls = errIds.map(id => map[id]?.label || id);
+    html += '<span class="cbadge" style="background:#1f070718;color:var(--red);border:1px solid #f04f4f44" title="' + lbls.join(', ') + '">' + lbls[0] + (lbls.length > 1 ? ' +' + (lbls.length - 1) : '') + '</span>';
+  }
+  return html || '<span style="color:var(--hint);font-size:10px;font-family:var(--mono)">—</span>';
+}
+
 // Duração da trade (segundos) a partir de Entry DT / Exit DT, com fallbacks
 function tradeDurationSec(t) {
   if (t && t.entry_dt && t.exit_dt) {
@@ -2257,36 +1982,6 @@ function tradeTimeRange(t) {
   const a = tm(t.entry_dt), b = tm(t.exit_dt);
   return (a && b) ? a + "-" + b : "—";
 }
-function calcHoldTime(t) {
-  if (t.hold_time_seconds != null && t.hold_time_seconds > 0) {
-    const s = t.hold_time_seconds;
-    if (s < 60) return s + "s";
-    if (s < 3600) return Math.floor(s/60) + "min " + (s%60) + "s";
-    return Math.floor(s/3600) + "h " + Math.floor((s%3600)/60) + "min";
-  }
-  if (t.time && t.exit_time) {
-    const toS = str => { const p=str.split(":").map(Number); return (p[0]||0)*3600+(p[1]||0)*60+(p[2]||0); };
-    const diff = toS(t.exit_time) - toS(t.time);
-    if (diff > 0) {
-      if (diff < 60) return diff + "s";
-      if (diff < 3600) return Math.floor(diff/60) + "min " + (diff%60) + "s";
-      return Math.floor(diff/3600) + "h " + Math.floor((diff%3600)/60) + "min";
-    }
-  }
-  return null;
-}
-function calcProcessScore4(t) {
-  let score = 0;
-  const confs = parseConfs(t.confluences);
-  if (confs.length >= 2) score++;
-  const ctx = psData[t.date] || {};
-  const bias = ctx.bias;
-  if (bias && t.direction && ((bias==="Bullish"&&t.direction==="Long")||(bias==="Bearish"&&t.direction==="Short"))) score++;
-  if (!t.mistakes || t.mistakes.length === 0) score++;
-  if (t.rr != null && t.rr > 0) score++;
-  return score;
-}
-
 function getBiasColor(bias) {
   if (bias === 'Bullish') return 'var(--green)';
   if (bias === 'Bearish') return 'var(--red)';
@@ -2300,138 +1995,6 @@ function getBiasBg(bias) {
   return 'var(--s3)';
 }
 
-function parseConfs(raw) {
-  if (!raw) return [];
-  if (Array.isArray(raw)) return raw;
-  try { return JSON.parse(raw); } catch(e) { return []; }
-}
-function serConfs(arr) { return JSON.stringify(arr); }
-function confLabel(id, sr) {
-  const c = CMAP[id]; if (!c) return id;
-  return c.label + (sr ? " (" + (sr === "S" ? "Support" : "Resistance") + ")" : "");
-}
-function confBadges(raw) {
-  const confs = parseConfs(raw);
-  if (!confs.length) return '<span style="font-size:10px;color:var(--hint);font-family:var(--mono)">—</span>';
-  return confs.map(({ id, sr }) => {
-    const c = CMAP[id]; if (!c) return "";
-    const lbl = c.label.split(" ")[0] + (sr ? " " + sr : "");
-    return '<span class="cbadge" style="background:' + c.color + '18;color:' + c.color + ';border:1px solid ' + c.color + '44">' + lbl + '</span>';
-  }).join("");
-}
-
-function buildConfs(containerId, rawConfs, chipClass, srClass, srBtnClass, toggleFn, setSRFn) {
-  const el = document.getElementById(containerId); if (!el) return;
-  const sel = parseConfs(rawConfs);
-  const selMap = {}; sel.forEach(c => selMap[c.id] = c.sr || null);
-  const groups = {};
-  // Tags legacy só aparecem no painel se já estiverem seleccionadas nesta trade
-  // (assim não se oferecem para trades novas mas preservam-se em trades históricas ao re-gravar)
-  CONFS.forEach(c => { if (c.legacy && !selMap.hasOwnProperty(c.id)) return; if (!groups[c.group]) groups[c.group] = []; groups[c.group].push(c); });
-  // Ordem canónica + quaisquer grupos extra que apareçam (segurança)
-  const orderedGroups = CONF_GROUP_ORDER.filter(g => groups[g])
-    .concat(Object.keys(groups).filter(g => !CONF_GROUP_ORDER.includes(g)));
-  const headCls = chipClass === "cchip" ? "conf-group-label" : "rconf-group";
-  let html = "";
-  orderedGroups.forEach(g => {
-    // Default: expandido se o grupo tem alguma tag seleccionada na trade actual, senão colapsado
-    const hasSel = groups[g].some(c => selMap.hasOwnProperty(c.id));
-    const collapsed = hasSel ? "" : " collapsed";
-    html += '<div class="conf-group' + collapsed + '">';
-    html += '<div class="' + headCls + ' conf-group-head" onclick="confGroupToggle(this)"><span>' + g + '</span><span class="conf-caret">▾</span></div>';
-    html += '<div class="conf-group-body">';
-    groups[g].forEach(c => {
-      const isOn = selMap.hasOwnProperty(c.id);
-      const curSR = isOn ? selMap[c.id] : null;
-      const lblCls = chipClass === "cchip" ? "clbl" : "rclbl";
-      const dotCls = chipClass === "cchip" ? "cdot" : "rcdot";
-      const ccVar = chipClass === "cchip" ? "--cc" : "--rc";
-      const srRow = chipClass === "cchip" ? "sr-row" : "rsr-row";
-      const srBtnBase = chipClass === "cchip" ? "sr-btn" : "rsr-btn";
-      html += '<div class="' + chipClass + (isOn ? " on" : "") + '" data-id="' + c.id + '" style="' + ccVar + ':' + c.color + '" onclick="' + toggleFn + '(this,event)">';
-      html += '<div class="' + lblCls + '"><span class="' + dotCls + '" style="background:' + c.color + '"></span>' + c.label + '</div>';
-      if (c.sr) {
-        html += '<div class="' + srRow + '" onclick="event.stopPropagation()">';
-        const [srL0 = "S", srL1 = "R"] = c.srLabels || [];
-        html += '<button class="' + srBtnBase + (curSR === "S" ? " act" : "") + '" data-sr="S" onclick="' + setSRFn + '(this)">' + srL0 + '</button>';
-        html += '<button class="' + srBtnBase + (curSR === "R" ? " act" : "") + '" data-sr="R" onclick="' + setSRFn + '(this)">' + srL1 + '</button>';
-        html += '</div>';
-      }
-      html += '<div class="conf-rm-wrap" onclick="event.stopPropagation()">' +
-        '<button class="conf-rm" onclick="confAskRemove(this)" title="Remover">×</button>' +
-        '<span class="conf-confirm" style="display:none">' +
-          '<span class="conf-confirm-q">Remover?</span>' +
-          '<button class="conf-confirm-yes" onclick="confDoRemove(this)">Confirmar</button>' +
-          '<button class="conf-confirm-no" onclick="confCancelRemove(this)">Cancelar</button>' +
-        '</span>' +
-      '</div>';
-      html += '</div>';
-    });
-    html += '</div></div>'; // .conf-group-body + .conf-group
-  });
-  el.innerHTML = html;
-}
-function confGroupToggle(head) {
-  const grp = head.closest('.conf-group');
-  if (grp) grp.classList.toggle('collapsed');
-}
-// Confluence remove with inline confirmation
-function confAskRemove(btn) {
-  const wrap = btn.closest('.conf-rm-wrap'); if (!wrap) return;
-  btn.style.display = 'none';
-  const c = wrap.querySelector('.conf-confirm'); if (c) c.style.display = 'flex';
-}
-function confCancelRemove(btn) {
-  const wrap = btn.closest('.conf-rm-wrap'); if (!wrap) return;
-  const c = wrap.querySelector('.conf-confirm'); if (c) c.style.display = 'none';
-  const x = wrap.querySelector('.conf-rm'); if (x) x.style.display = '';
-}
-function confDoRemove(btn) {
-  const chip = btn.closest('.cchip,.rconf-chip'); if (!chip) return;
-  chip.classList.remove('on');
-  chip.querySelectorAll('.sr-btn,.rsr-btn').forEach(b => b.classList.remove('act'));
-  confCancelRemove(btn);
-}
-
-function getConfs(chipSel, srSel) {
-  const res = [];
-  document.querySelectorAll(chipSel + ".on").forEach(chip => {
-    const id = chip.dataset.id;
-    const sr = chip.querySelector(srSel + ".act");
-    res.push({ id, sr: sr ? sr.dataset.sr : null });
-  });
-  return res;
-}
-
-// Modal conf toggles
-function toggleConf(chip, e) {
-  if (e.target.classList.contains("sr-btn")) return;
-  if (e.target.closest(".conf-rm-wrap")) return;
-  if (chip.classList.contains("on")) return; // remoção só pelo × com confirmação
-  chip.classList.add("on");
-}
-function setSR(btn) {
-  const chip = btn.closest(".cchip"); chip.classList.add("on");
-  btn.closest(".sr-row").querySelectorAll(".sr-btn").forEach(b => b.classList.remove("act"));
-  btn.classList.add("act");
-}
-// Review conf toggles
-function rvToggleConf(chip, e) {
-  if (e.target.classList.contains("rsr-btn")) return;
-  if (e.target.closest(".conf-rm-wrap")) return;
-  if (chip.classList.contains("on")) {
-    // clicar no corpo do chip desmarca; o × mantém o fluxo de confirmação separado
-    chip.classList.remove("on");
-    chip.querySelectorAll(".rsr-btn").forEach(b => b.classList.remove("act"));
-  } else {
-    chip.classList.add("on");
-  }
-}
-function rvSetSR(btn) {
-  const chip = btn.closest(".rconf-chip"); chip.classList.add("on");
-  btn.closest(".rsr-row").querySelectorAll(".rsr-btn").forEach(b => b.classList.remove("act"));
-  btn.classList.add("act");
-}
 
 // ═══════════════════════════════════════════
 // ACCOUNTS
@@ -2466,8 +2029,6 @@ function selectAcct(id) {
   curDate = todayISO();
   const now = new Date(); calY = now.getFullYear(); calM = now.getMonth();
   const sessDateEl = document.getElementById("sess-date"); if (sessDateEl) sessDateEl.value = curDate;
-  buildConfs("m-confs", "[]", "cchip", "sr-btn", "sr-btn", "toggleConf", "setSR");
-  renderSessBar(); renderList();
   updateBackupLbl();
   const _savedTab = localStorage.getItem("nq_active_tab");
   const _tabBtns  = document.querySelectorAll(".tab");
@@ -2477,6 +2038,7 @@ function selectAcct(id) {
 function goAccts() {
   document.getElementById("app").style.display = "none";
   document.getElementById("review").classList.remove("open");
+  document.getElementById("review-backdrop").classList.remove("open");
   document.getElementById("acct-screen").style.display = "flex";
   renderAccts();
 }
@@ -2509,56 +2071,13 @@ function deleteAcct(id, e) {
   persist(); renderAccts();
 }
 
-// ═══════════════════════════════════════════
-// SESSION / LIST
-// ═══════════════════════════════════════════
-function onDateChange() { const el = document.getElementById("sess-date"); if (el) curDate = el.value; renderSessBar(); renderList(); }
-function renderSessBar() {
-  const dates = [...new Set(acctTrades().map(t => t.date))].sort().reverse();
-  const pillsEl = document.getElementById("sess-pills");
-  if (pillsEl) pillsEl.innerHTML = dates.slice(0, 6).map(d => {
-    const pnl = dayTrades(d).reduce((s, t) => s + t.pnl, 0);
-    const col = pnl > 0 ? "var(--green)" : pnl < 0 ? "var(--red)" : "var(--sub)";
-    return '<div class="spill' + (d === curDate ? " on" : "") + '" onclick="jumpDate(\'' + d + '\')">' +
-      d.slice(5) + '<span style="color:' + col + '">' + (pnl >= 0 ? "+" : "") + "$" + pnl.toFixed(0) + '</span></div>';
-  }).join("");
-  const statEl = document.getElementById("sess-stat");
-  if (statEl) statEl.textContent = acctTrades().length ? acctTrades().length + " trades" : "";
-}
-function jumpDate(d) { curDate = d; const el = document.getElementById("sess-date"); if (el) el.value = d; renderSessBar(); renderList(); }
-
-function renderList() {
-  const dt = dayTrades(curDate);
-  const pnl = dt.reduce((s, t) => s + t.pnl, 0);
-  const wr = dt.length ? Math.round(dt.filter(t => t.pnl > 0).length / dt.length * 100) : 0;
-  const lblEl = document.getElementById("list-lbl");
-  if (lblEl) lblEl.textContent = dt.length + " trades · " + (pnl >= 0 ? "+" : "") + "$" + pnl.toFixed(2) + " · " + wr + "% win";
-  const el = document.getElementById("trade-list");
-  if (!el) return;
-  if (!dt.length) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon">◈</div><div class="empty-text">Sem trades — importa o CSV do Deepcharts</div></div>';
-    return;
-  }
-  el.innerHTML = dt.map((t, i) => {
-    const pc = t.pnl > 0 ? "tpnl-pos" : t.pnl < 0 ? "tpnl-neg" : "tpnl-be";
-    const ann = (t.notes || t.notesHTML || parseConfs(t.confluences).length) ? " ann" : "";
-    return '<div class="trow' + ann + '" onclick="openReviewFromList(\'' + t.date + '\',' + i + ')">' +
-      '<span class="tidx">#' + (i + 1) + '</span>' +
-      '<span class="tsym">' + (t.symbol || "NQ") + '</span>' +
-      '<span class="tdir-' + (t.direction === "Long" ? "long" : "short") + '">' + (t.direction || "—") + '</span>' +
-      '<span class="tprice">@' + (t.entry || "—") + '→' + (t.exit || "—") + '</span>' +
-      '<div class="tconfs">' + confBadges(t.confluences) + '</div>' +
-      '<span class="' + pc + '">' + (t.pnl >= 0 ? "+" : "") + "$" + t.pnl.toFixed(2) + '</span>' +
-      '</div>';
-  }).join("");
-}
 function clearDay() {
   if (!dayTrades(curDate).length) return;
   if (!confirm("Apagar todas as trades de " + curDate + "?")) return;
   const toDelete = dayTrades(curDate).map(t => t.id);
   setAcctTrades(acctTrades().filter(t => t.date !== curDate));
   if (sbUser) toDelete.forEach(id => sbDeleteTrade(id));
-  renderSessBar(); renderList(); renderCalendar(); toast("Dia apagado", "ok");
+  renderCalendar(); toast("Dia apagado", "ok");
 }
 
 // ═══════════════════════════════════════════
@@ -2708,8 +2227,9 @@ function toTradeRecord(ft) {
     points: ft.points != null ? round2(ft.points) : null,
     pnl: ft.pnl != null ? round2(ft.pnl) : 0,
     unknownSymbol: ft.unknownSymbol,
-    risk: null, stop: null, tp: null, rr: null, r: 0,
-    confluences: "[]", score: 0, notes: "", notesHTML: "", screenshots: [], rating: 0
+    stop_ticks: null, tp_ticks: null, risk: null, rr: null, r: null,
+    grade: null, error_primary: null, error_secondary: [],
+    notes: "", screenshots: []
   };
 }
 
@@ -2821,80 +2341,8 @@ function confirmImport() {
   window._pending = null;
   curDate = p[p.length - 1].date; const sessDateEl2 = document.getElementById("sess-date"); if (sessDateEl2) sessDateEl2.value = curDate;
   document.getElementById("import-result").innerHTML = '<div style="text-align:center;padding:20px;color:var(--green);font-family:var(--mono);font-size:13px;border:1px solid #0a2e18;border-radius:12px;margin-top:14px;background:#071f0f">✓ ' + p.length + ' trades importadas</div>';
-  renderSessBar(); renderList();
   toast(p.length + " importadas!", "ok");
   setTimeout(() => showTab("journal", document.querySelectorAll(".tab")[1]), 1200);
-}
-
-// ═══════════════════════════════════════════
-// MODAL
-// ═══════════════════════════════════════════
-function openModal(id) {
-  const t = acctTrades().find(x => x.id === id); if (!t) return;
-  modalId = id;
-  modalDayIds = dayTrades(t.date).map(x => x.id);
-  fillModal(t);
-  document.getElementById("modal").style.display = "block";
-  document.body.style.overflow = "hidden";
-}
-function fillModal(t) {
-  document.getElementById("m-title").textContent = (t.symbol || "NQ") + " — " + (t.direction || "");
-  document.getElementById("m-meta").textContent = t.date + " · @" + (t.entry || "—") + "→" + (t.exit || "—");
-  const pc = t.pnl > 0 ? "var(--green)" : t.pnl < 0 ? "var(--red)" : "var(--sub)";
-  document.getElementById("m-info").innerHTML =
-    '<div><div style="font-size:9px;color:var(--hint);font-family:var(--mono);text-transform:uppercase;margin-bottom:2px">P&L</div><div style="font-size:15px;font-weight:700;font-family:var(--mono);color:' + pc + '">' + (t.pnl >= 0 ? "+" : "") + "$" + t.pnl.toFixed(2) + '</div></div>' +
-    '<div><div style="font-size:9px;color:var(--hint);font-family:var(--mono);text-transform:uppercase;margin-bottom:2px">Entry</div><div style="font-size:13px;font-weight:600;font-family:var(--mono)">' + (t.entry || "—") + '</div></div>' +
-    '<div><div style="font-size:9px;color:var(--hint);font-family:var(--mono);text-transform:uppercase;margin-bottom:2px">Exit</div><div style="font-size:13px;font-weight:600;font-family:var(--mono)">' + (t.exit || "—") + '</div></div>';
-  document.getElementById("m-entry").value = t.entry || "";
-  document.getElementById("m-stop").value = t.stop || "";
-  document.getElementById("m-tp").value = t.tp || "";
-  document.getElementById("m-risk").value = t.risk || "";
-  document.getElementById("m-editor").innerHTML = t.notesHTML || "";
-  buildConfs("m-confs", t.confluences || "[]", "cchip", "sr-btn", "sr-btn", "toggleConf", "setSR");
-  calcRR();
-  const idx = modalDayIds.indexOf(modalId) + 1;
-  document.getElementById("m-prog").textContent = idx + "/" + modalDayIds.length;
-}
-function navModal(dir) {
-  saveModal(true);
-  const idx = modalDayIds.indexOf(modalId);
-  const next = modalDayIds[idx + dir]; if (!next) return;
-  modalId = next;
-  const t = acctTrades().find(x => x.id === next); if (t) fillModal(t);
-}
-function closeModal() { document.getElementById("modal").style.display = "none"; document.body.style.overflow = ""; modalId = null; }
-function calcRR() {
-  const e = parseFloat(document.getElementById("m-entry").value) || 0;
-  const s = parseFloat(document.getElementById("m-stop").value) || 0;
-  const tp = parseFloat(document.getElementById("m-tp").value) || 0;
-  const rk = parseFloat(document.getElementById("m-risk").value) || 0;
-  const el = document.getElementById("m-rr");
-  let rr = null;
-  if (tp > 0 && rk > 0) rr = tp / rk;
-  else if (e > 0 && s > 0 && tp > 0) rr = Math.abs(tp - e) / Math.abs(e - s);
-  if (rr) { el.textContent = "1:" + rr.toFixed(1); el.style.color = rr >= 2 ? "var(--green)" : rr >= 1.5 ? "var(--amber)" : "var(--red)"; }
-  else { el.textContent = "—"; el.style.color = "var(--hint)"; }
-}
-function saveModal(silent = false) {
-  if (!modalId) return;
-  const all = acctTrades(); const idx = all.findIndex(t => t.id === modalId); if (idx === -1) return;
-  const entry = parseFloat(document.getElementById("m-entry").value) || all[idx].entry;
-  const stop = parseFloat(document.getElementById("m-stop").value) || null;
-  const tp = parseFloat(document.getElementById("m-tp").value) || null;
-  const risk = parseFloat(document.getElementById("m-risk").value) || null;
-  const confs = getConfs(".cchip", ".sr-btn");
-  let rr = null;
-  if (tp && risk && risk > 0) rr = parseFloat((tp / risk).toFixed(2));
-  else if (entry && stop && tp) rr = parseFloat((Math.abs(tp - entry) / Math.abs(entry - stop)).toFixed(2));
-  const r = risk && risk > 0 ? parseFloat((all[idx].pnl / risk).toFixed(3)) : 0;
-  all[idx] = { ...all[idx], entry, stop, tp, risk, rr, r, confluences: serConfs(confs), score: confs.length, notesHTML: document.getElementById("m-editor").innerHTML, notes: document.getElementById("m-editor").innerText };
-  setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]); renderList(); renderSessBar();
-  if (!silent) toast("Guardado ✓", "ok");
-}
-function fmt(cmd) { document.getElementById("m-editor").focus(); document.execCommand(cmd); }
-function insertImgs(e) {
-  [...e.target.files].forEach(f => { const r = new FileReader(); r.onload = ev => { document.getElementById("m-editor").focus(); document.execCommand("insertHTML", false, '<img src="' + ev.target.result + '"/>'); }; r.readAsDataURL(f); });
-  e.target.value = "";
 }
 
 // ═══════════════════════════════════════════
@@ -3009,18 +2457,15 @@ function _saveDiaryExpandedWeeks(set) {
 
 // ─── Exportar JSON para IA ────────────────────────────────────────
 
-function _buildAllConfsMap() {
+function _buildErrorCatalogMap() {
   const m = {};
-  CONFS.forEach(c => { m[c.id] = c; });
-  customConfs.forEach(c => { m[c.id] = c; });
+  errorCatalog.forEach(c => { m[c.id] = c; });
   return m;
 }
 
-function _buildTradeExport(t, allConfsMap) {
-  const confs = parseConfs(t.confluences);
-  const confluenceLabels = confs.map(c => (allConfsMap[c.id]?.label || c.id));
-  const confluencesSR = {};
-  confs.forEach(c => { if (c.sr) confluencesSR[c.id] = c.sr; });
+function _buildTradeExport(t, errCatalogMap) {
+  const primaryLabel = t.error_primary ? (errCatalogMap[t.error_primary]?.label || t.error_primary) : null;
+  const secondaryLabels = (t.error_secondary || []).map(id => errCatalogMap[id]?.label || id);
   const out = {
     id: t.id,
     direction: t.direction,
@@ -3033,16 +2478,15 @@ function _buildTradeExport(t, allConfsMap) {
     rr: t.rr ?? null,
     r: t.r ?? null,
     session: t.session || getSession(t.time) || null,
-    confluences: confluenceLabels,
-    rating: t.rating ?? null,
-    notes: t.notes || null,
-    mistakes_note: t.mistakes_note || null
+    grade: t.grade ?? null,
+    error_primary: primaryLabel,
+    error_secondary: secondaryLabels,
+    notes: t.notes || null
   };
-  if (Object.keys(confluencesSR).length) out.confluences_sr = confluencesSR;
   return out;
 }
 
-function _buildDayExport(date, allConfsMap) {
+function _buildDayExport(date, errCatalogMap) {
   const trades = acctTrades().filter(t => t.date === date);
   const ps = psData[date] || {};
   const D = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
@@ -3078,7 +2522,7 @@ function _buildDayExport(date, allConfsMap) {
     date,
     dia_semana: D[d.getDay()],
     pre_sessao,
-    trades: trades.map(t => _buildTradeExport(t, allConfsMap)),
+    trades: trades.map(t => _buildTradeExport(t, errCatalogMap)),
     resumo_dia: {
       total_trades: trades.length,
       pnl_dia: Math.round(pnlDia * 100) / 100,
@@ -3098,7 +2542,7 @@ function _downloadJSON(payload, filename) {
 
 function exportWeekJSON(weekStart) {
   if (!curAcct) return;
-  const allConfsMap = _buildAllConfsMap();
+  const errCatalogMap = _buildErrorCatalogMap();
   const days = getWeekDays(weekStart);
   const wp = weeklyPrep[weekStart] || {};
   const weekTrades = acctTrades().filter(t => days.includes(t.date));
@@ -3124,7 +2568,7 @@ function exportWeekJSON(weekStart) {
       weekly_composite_poc: wp.weekly_composite_poc ? parseFloat(wp.weekly_composite_poc) : null,
       weekly_events: wp.weekly_events || null
     },
-    dias: days.map(d => _buildDayExport(d, allConfsMap)),
+    dias: days.map(d => _buildDayExport(d, errCatalogMap)),
     resumo_semana: {
       total_trades: weekTrades.length,
       pnl_semana: Math.round(pnlSemana * 100) / 100,
@@ -3139,8 +2583,8 @@ function exportWeekJSON(weekStart) {
 
 function exportDayJSON(date) {
   if (!curAcct) return;
-  const allConfsMap = _buildAllConfsMap();
-  const payload = _buildDayExport(date, allConfsMap);
+  const errCatalogMap = _buildErrorCatalogMap();
+  const payload = _buildDayExport(date, errCatalogMap);
   payload.exportDate = new Date().toISOString().split('T')[0];
   payload.account = curAcct.name;
   _downloadJSON(payload, 'dia-' + date + '.json');
@@ -3456,16 +2900,12 @@ function buildDdrMacroEvents(date) {
 
 function buildDdrTrades(date, trades) {
   const sorted = [...trades].sort((a,b) => { const ar=a.csv_row??Infinity,br=b.csv_row??Infinity; if(ar!==br)return ar-br; return (a.time||'99:99').localeCompare(b.time||'99:99'); });
-  const hdr = '<div class="jtrade-hdr"><span>Hora</span><span>Símbolo</span><span>Dir</span><span>Entry→Exit</span><span>P&L</span><span>R</span><span>NQ Scale</span><span></span></div>';
+  const hdr = '<div class="jtrade-hdr"><span>Hora</span><span>Símbolo</span><span>Dir</span><span>Entry→Exit</span><span>P&L</span><span>R</span><span>NQ Scale</span><span>Grade/Erros</span><span></span></div>';
   return hdr + sorted.map((t, idx) => {
     const pc = t.pnl>0?'var(--green)':t.pnl<0?'var(--red)':'var(--sub)';
     const rc = t.risk&&t.risk>0 ? t.pnl/t.risk : (t.r&&t.r!==0?t.r:null);
     const rStr = rc!=null?rc.toFixed(2)+'R':'—';
     const rColor = rc==null?'var(--hint)':rc>=1?'var(--green)':rc>=0?'var(--amber)':'var(--red)';
-    const confs = parseConfs(t.confluences);
-    const confHtml = confs.length
-      ? confs.slice(0,3).map(({id}) => { const c=CMAP[id]; return c?'<span class="cbadge" style="background:'+c.color+'18;color:'+c.color+';border:1px solid '+c.color+'44">'+c.label.split(' ')[0]+'</span>':''; }).join('')+(confs.length>3?'<span class="cbadge" style="background:var(--s3);color:var(--hint)">+'+(confs.length-3)+'</span>':'')
-      : '<span style="color:var(--hint)">—</span>';
     const dirC = t.direction==='Long'?'var(--green)':'var(--red)';
     return '<div class="jtrade-row" onclick="openReviewFromList(\''+date+'\','+idx+')">' +
       '<span style="color:var(--sub)">'+tradeTimeRange(t)+'</span>' +
@@ -3475,6 +2915,7 @@ function buildDdrTrades(date, trades) {
       '<span style="color:'+pc+';font-weight:600">'+((t.pnl>=0?'+':'')+'$'+t.pnl.toFixed(2))+'</span>' +
       '<span style="color:'+rColor+'">'+rStr+'</span>' +
       '<span>'+nqScale(rc,true)+'</span>' +
+      '<span style="display:flex;gap:3px;flex-wrap:wrap">'+tradeGradeErrorBadges(t)+'</span>' +
       '<span style="cursor:pointer;color:var(--hint);text-align:center" onclick="event.stopPropagation();openReviewFromList(\''+date+'\','+idx+')">↗</span>' +
     '</div>';
   }).join('');
@@ -3651,18 +3092,13 @@ function renderJournal() {
     const pf = gL > 0 ? (gW/gL).toFixed(2) : (gW > 0 ? '∞' : '—');
     const rs = trades.filter(t => t.risk && t.risk > 0).map(t => t.pnl/t.risk);
     const avgR = rs.length ? rs.reduce((s,r)=>s+r,0)/rs.length : null;
-    // Process Score average + Mistakes count
-    const psScores = trades.map(t => t.process_score != null ? t.process_score : calcProcessScore4(t));
-    const avgPS = (psScores.reduce((a,v)=>a+v,0)/psScores.length).toFixed(1);
-    const totalMistakes = trades.reduce((s,t)=>s+(t.mistakes?.length||0),0);
-    const mistakeTrads = trades.filter(t=>t.mistakes?.length>0).length;
+    const errTrades = trades.filter(t => t.error_primary || (t.error_secondary && t.error_secondary.length));
 
     let badges = '';
     if (ctx.bias) { const c=BIAS_C[ctx.bias]||'#8892aa'; badges+='<span class="jbadge" style="background:'+c+'18;color:'+c+';border:1px solid '+c+'44">'+ctx.bias+'</span>'; }
     if (ctx.fed)  { const c=FED_C[ctx.fed]||'#8892aa';   badges+='<span class="jbadge" style="background:'+c+'18;color:'+c+';border:1px solid '+c+'44">'+ctx.fed+'</span>'; }
-    if (totalMistakes > 0) {
-      const allErrs = trades.flatMap(t=>t.mistakes||[]).join("\n");
-      badges+='<span class="jbadge" style="background:#1f070718;color:var(--red);border:1px solid #f04f4f44;cursor:help" title="'+allErrs+'">⚠ '+totalMistakes+' erro'+(totalMistakes>1?'s':'')+'</span>';
+    if (errTrades.length > 0) {
+      badges+='<span class="jbadge" style="background:#1f070718;color:var(--red);border:1px solid #f04f4f44">⚠ '+errTrades.length+' trade'+(errTrades.length>1?'s':'')+' com erro</span>';
     }
 
     return '<div class="jday-card" id="jdc-'+date+'">' +
@@ -3675,7 +3111,7 @@ function renderJournal() {
           '<div class="jday-metric"><div class="jday-metric-val">'+trades.length+'</div><div class="jday-metric-lbl">Trades</div></div>' +
           '<div class="jday-metric"><div class="jday-metric-val">'+pf+'</div><div class="jday-metric-lbl">Prof Factor</div></div>' +
           '<div class="jday-metric"><div class="jday-metric-val">'+(avgR!=null?avgR.toFixed(2)+'R':'—')+'</div><div class="jday-metric-lbl">Avg R</div></div>' +
-          '<div class="jday-metric"><div class="jday-metric-val" style="color:'+(parseFloat(avgPS)>=3?'var(--green)':parseFloat(avgPS)>=2?'var(--amber)':'var(--hint)')+'">'+avgPS+'/4</div><div class="jday-metric-lbl">Process</div></div>' +
+          '<div class="jday-metric"><div class="jday-metric-val" style="color:'+(errTrades.length?'var(--red)':'var(--hint)')+'">'+errTrades.length+'</div><div class="jday-metric-lbl">Erros</div></div>' +
         '</div>' +
       '</div>' +
       '<div style="padding:6px 16px 10px;background:var(--s2);border-top:1px solid var(--b1)">' +
@@ -3694,20 +3130,14 @@ function renderJournal() {
 function renderJDayBody(date, trades) {
   if (!trades.length) return '';
   const sorted = [...trades].sort((a,b) => { const ar=a.csv_row??Infinity,br=b.csv_row??Infinity; if(ar!==br)return ar-br; return (a.time||'99:99').localeCompare(b.time||'99:99'); });
-  const hdr = '<div class="jtrade-hdr"><span>Hora</span><span>Símbolo</span><span>Dir</span><span>Entry→Exit</span><span>P&L</span><span>R</span><span>NQ Scale</span><span></span></div>';
+  const hdr = '<div class="jtrade-hdr"><span>Hora</span><span>Símbolo</span><span>Dir</span><span>Entry→Exit</span><span>P&L</span><span>R</span><span>NQ Scale</span><span>Grade/Erros</span><span></span></div>';
   return hdr + sorted.map((t, idx) => {
     const pc = t.pnl > 0 ? 'var(--green)' : t.pnl < 0 ? 'var(--red)' : 'var(--sub)';
     const rc = t.risk && t.risk > 0 ? t.pnl/t.risk : (t.r && t.r !== 0 ? t.r : null);
     const rStr = rc != null ? rc.toFixed(2)+'R' : '—';
     const rc2 = rc != null ? rc : null;
     const rColor = rc2 == null ? 'var(--hint)' : rc2 >= 1 ? 'var(--green)' : rc2 >= 0 ? 'var(--amber)' : 'var(--red)';
-    const confs = parseConfs(t.confluences);
-    let confHtml = confs.length
-      ? confs.slice(0,3).map(({id}) => { const c=CMAP[id]; return c ? '<span class="cbadge" style="background:'+c.color+'18;color:'+c.color+';border:1px solid '+c.color+'44">'+c.label.split(' ')[0]+'</span>' : ''; }).join('')+(confs.length>3?'<span class="cbadge" style="background:var(--s3);color:var(--hint)">+'+( confs.length-3)+'</span>':'')
-      : '<span style="color:var(--hint)">—</span>';
     const dirC = t.direction === 'Long' ? 'var(--green)' : 'var(--red)';
-    const mCount = t.mistakes?.length || 0;
-    const mBadge = mCount > 0 ? '<span style="font-family:var(--mono);font-size:9px;font-weight:600;background:#1f0707;color:var(--red);border:1px solid #f04f4f44;border-radius:4px;padding:1px 5px;cursor:help" title="'+t.mistakes.join(', ')+'">⚠'+mCount+'</span>' : '';
     const jSess = getSession(t.time);
     const jSessBadge = jSess ? sessionBadge(jSess) : '';
     return '<div class="jtrade-row" onclick="openReviewFromList(\''+date+'\','+idx+')">' +
@@ -3717,7 +3147,8 @@ function renderJDayBody(date, trades) {
       '<span style="color:var(--sub)">@'+(t.entry||'—')+'→'+(t.exit||'—')+'</span>' +
       '<span style="color:'+pc+';font-weight:600">'+((t.pnl>=0?'+':'')+'$'+t.pnl.toFixed(2))+'</span>' +
       '<span style="color:'+rColor+'">'+rStr+'</span>' +
-      '<span>'+nqScale(rc2,true)+mBadge+'</span>' +
+      '<span>'+nqScale(rc2,true)+'</span>' +
+      '<span style="display:flex;gap:3px;flex-wrap:wrap">'+tradeGradeErrorBadges(t)+'</span>' +
       '<span style="cursor:pointer;color:var(--hint);text-align:center" onclick="event.stopPropagation();openReviewFromList(\''+date+'\','+idx+')">↗</span>' +
     '</div>';
   }).join('');
@@ -4823,167 +4254,101 @@ function updateRvSessCtxDot() {
 }
 
 // ═══════════════════════════════════════════
-// REVIEW
+// TRADE PANEL
 // ═══════════════════════════════════════════
-function openReviewAtTrade(iso, idx) {
+function openReviewAtTrade(iso, idx) { rvOpenPanel(iso, idx); }
+function openReviewFromList(iso, idx) { rvOpenPanel(iso, idx); }
+function openReview(iso) { rvOpenPanel(iso, 0); }
+function rvOpenPanel(iso, idx) {
   rvDate = iso; rvIdx = idx;
   document.getElementById("review").classList.add("open");
+  document.getElementById("review-backdrop").classList.add("open");
   document.body.style.overflow = "hidden";
   renderReview();
+}
+function closeReview() {
+  const panel = document.getElementById("review");
+  if (panel.contains(document.activeElement)) document.activeElement.blur();
+  panel.classList.remove("open");
+  document.getElementById("review-backdrop").classList.remove("open");
+  document.body.style.overflow = "";
+}
+function rvNav(dir) {
+  const n = rvIdx + dir; if (n < 0 || n >= dayTrades(rvDate).length) return;
+  rvIdx = n; renderReview();
 }
 
-function openReviewFromList(iso, idx) {
-  rvDate = iso; rvIdx = idx;
-  document.getElementById("review").classList.add("open");
-  document.body.style.overflow = "hidden";
-  renderReview();
-}
-
-function openReview(iso) {
-  rvDate = iso; rvIdx = 0;
-  document.getElementById("review").classList.add("open");
-  document.body.style.overflow = "hidden";
-  renderReview();
-}
-function closeReview() { document.getElementById("review").classList.remove("open"); document.body.style.overflow = ""; }
-function rvNav(dir) { saveReview(true); const n = rvIdx + dir; if (n < 0 || n >= dayTrades(rvDate).length) return; rvIdx = n; renderReview(); }
-function rvJump(i) { saveReview(true); rvIdx = i; renderReview(); }
+let rvUnit = { stop: "ticks", tp: "ticks" };
 
 function renderReview() {
   const trds = dayTrades(rvDate);
-  const dayPnl = trds.reduce((s, t) => s + t.pnl, 0);
-  const ctx = psData[rvDate];
-  document.getElementById("rv-title").textContent = rvDate;
-  const fedLabel = ctx?.fed ? " · Fed: " + ctx.fed : "";
-  document.getElementById("rv-meta").textContent = trds.length + " trades · " + (dayPnl >= 0 ? "+" : "") + "$" + dayPnl.toFixed(2) + (ctx ? " · " + ctx.bias : "") + fedLabel;
-  const dayCol = dayPnl > 0 ? "var(--green)" : dayPnl < 0 ? "var(--red)" : "var(--sub)";
-  document.getElementById("rv-day-pnl").textContent = (dayPnl >= 0 ? "+" : "") + "$" + dayPnl.toFixed(2);
-  document.getElementById("rv-day-pnl").style.color = dayCol;
-  if (!trds.length) { document.getElementById("rv-counter").textContent = "0/0"; document.getElementById("rv-trade-pnl").textContent = "—"; document.getElementById("rv-trade-meta").textContent = "Sem trades"; document.getElementById("rv-run-list").innerHTML = ""; return; }
+  if (!trds.length) {
+    document.getElementById("rv-counter").textContent = "0/0";
+    document.getElementById("rv-pnl-hero-val").textContent = "—";
+    document.getElementById("rv-pnl-hero-meta").textContent = "Sem trades";
+    return;
+  }
   if (rvIdx >= trds.length) rvIdx = trds.length - 1;
   if (rvIdx < 0) rvIdx = 0;
   const t = trds[rvIdx];
+
   document.getElementById("rv-counter").textContent = (rvIdx + 1) + "/" + trds.length;
-  const tc = t.pnl > 0 ? "var(--green)" : t.pnl < 0 ? "var(--red)" : "var(--sub)";
-  document.getElementById("rv-trade-pnl").textContent = (t.pnl >= 0 ? "+" : "") + "$" + t.pnl.toFixed(2);
-  document.getElementById("rv-trade-pnl").style.color = tc;
-  const rvSess = getSession(t.time);
-  document.getElementById("rv-trade-meta").innerHTML = (t.symbol || "NQ") + " · " + (t.direction || "—") + (t.time ? " · " + t.time.slice(0,5) : "") + (rvSess ? " " + sessionBadge(rvSess) : "") + " · #" + (rvIdx + 1);
-  document.getElementById("rv-entry").value = t.entry || "";
-  const exitDisp = document.getElementById("rv-exit-disp");
-  if (exitDisp) { exitDisp.value = t.exit || ""; exitDisp.readOnly = true; exitDisp.style.opacity = ".6"; }
-  // Hora de Entrada (HH:MM:SS) — do Entry DT ou time. Linha sempre visível ("—" para dados antigos)
-  const entryTimeRow = document.getElementById("rv-entrytime-row");
-  const entryTimeEl = document.getElementById("rv-entry-time");
-  let entryTimeStr = "";
-  if (t.entry_dt && String(t.entry_dt).replace("T"," ").includes(" ")) entryTimeStr = String(t.entry_dt).replace("T"," ").split(" ")[1].slice(0,8);
-  else if (t.time) entryTimeStr = t.time.length <= 5 ? t.time : t.time.slice(0,8);
-  if (entryTimeRow) entryTimeRow.style.display = "";
-  if (entryTimeEl) entryTimeEl.textContent = entryTimeStr || "—";
-  // Duração — Exit DT − Entry DT. Linha sempre visível ("—" para dados antigos)
-  const durRow = document.getElementById("rv-dur-row");
-  const durEl = document.getElementById("rv-duration");
-  const durStr = fmtDuration(tradeDurationSec(t));
-  if (durRow) durRow.style.display = "";
-  if (durEl) durEl.textContent = durStr || "—";
-  const stopTicksEl = document.getElementById("rv-stop-ticks");
-  const tpTicksEl   = document.getElementById("rv-tp-ticks");
-  if (stopTicksEl) stopTicksEl.value = t.stop_ticks || "";
-  if (tpTicksEl)   tpTicksEl.value   = t.tp_ticks   || "";
-  document.getElementById("rv-risk").value = t.risk || "";
-  rvCalcFromTicks();
-  rvCalcRR();
-  rvRenderStars(t.rating || 0);
-  const gradeSel = document.getElementById("rv-setup-grade");
-  if (gradeSel) { gradeSel.value = t.setup_grade || ""; gradeSel.style.color = GRADE_COLOR[t.setup_grade] || "var(--text)"; }
-  // Day context banner
-  const ctxBanner = document.getElementById("rv-ctx-banner");
-  if (ctxBanner && ctx) {
-    const biasC = getBiasColor(ctx.bias);
-    const biasBg = getBiasBg(ctx.bias);
-    const fedC = ctx.fed?.includes("Hawkish") ? "var(--red)" : ctx.fed?.includes("Dovish") ? "var(--green)" : "var(--sub)";
-    const sentC = ctx.sentiment==="Risk-On"?"var(--green)":ctx.sentiment==="Risk-Off"?"var(--red)":"var(--sub)";
-    ctxBanner.innerHTML =
-      '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:' + (ctx.narrative?'6':'0') + 'px">' +
-      (ctx.bias ? '<span style="font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 8px;border-radius:5px;color:'+biasC+';background:'+biasBg+';border:1px solid '+biasC+'">'+ctx.bias+'</span>' : '') +
-      (ctx.fed  ? '<span style="font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 8px;border-radius:5px;color:'+fedC+';border:1px solid '+fedC+'44">'+ctx.fed+'</span>' : '') +
-      (ctx.sentiment ? '<span style="font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 8px;border-radius:5px;color:'+sentC+';border:1px solid '+sentC+'44">'+ctx.sentiment+'</span>' : '') +
-      '</div>' +
-      (ctx.narrative ? '<div style="font-size:10px;color:var(--sub);line-height:1.4">' + ctx.narrative.slice(0,100) + (ctx.narrative.length>100?'…':'') + '</div>' : '');
-    ctxBanner.style.display = "block";
-  } else if (ctxBanner) {
-    ctxBanner.style.display = "none";
-  }
+  document.getElementById("rv-prev-btn").disabled = rvIdx === 0;
+  document.getElementById("rv-next-btn").disabled = rvIdx === trds.length - 1;
 
-  let running = 0, runHTML = "";
-  trds.forEach((tr, i) => {
-    running += tr.pnl;
-    const cur = i === rvIdx;
-    const col = running > 0 ? "var(--green)" : running < 0 ? "var(--red)" : "var(--sub)";
-    const tc2 = tr.pnl > 0 ? "var(--green)" : tr.pnl < 0 ? "var(--red)" : "var(--sub)";
-    runHTML += '<div class="rv-run-item' + (cur ? " cur" : "") + '" onclick="rvJump(' + i + ')">' +
-      '<span style="color:var(--hint);font-family:var(--mono);font-size:11px">#' + (i + 1) + '</span>' +
-      '<span style="color:' + tc2 + ';font-family:var(--mono);font-size:11px">' + (tr.pnl >= 0 ? "+" : "") + "$" + tr.pnl.toFixed(0) + '</span>' +
-      '<span style="color:' + col + ';font-family:var(--mono);font-size:11px">$' + running.toFixed(0) + '</span>' +
-      '</div>';
-  });
-  document.getElementById("rv-run-list").innerHTML = runHTML;
+  const pc = t.pnl > 0 ? "var(--green)" : t.pnl < 0 ? "var(--red)" : "var(--sub)";
+  const heroVal = document.getElementById("rv-pnl-hero-val");
+  heroVal.textContent = (t.pnl >= 0 ? "+" : "") + "$" + t.pnl.toFixed(2);
+  heroVal.style.color = pc;
+  document.getElementById("rv-pnl-hero-meta").textContent = (t.symbol || "—") + " · " + (t.direction || "—") + " · " + (t.date || "—");
+
+  rvUnit = { stop: "ticks", tp: "ticks" };
+  document.querySelectorAll("#rv-stop-unit-toggle .rv-unit-btn").forEach(b => b.classList.toggle("on", b.dataset.u === "ticks"));
+  document.querySelectorAll("#rv-tp-unit-toggle .rv-unit-btn").forEach(b => b.classList.toggle("on", b.dataset.u === "ticks"));
+
+  document.getElementById("rv-readonly-fields").innerHTML = rvBuildReadonlyFields(t);
+  rvRenderPlanInput("stop");
+  rvRenderPlanInput("tp");
+  rvUpdateRCalc();
+
+  const gradeSel = document.getElementById("rv-grade");
+  gradeSel.value = t.grade || "";
+  gradeSel.style.color = TRADE_GRADE_COLOR[t.grade] || "var(--text)";
+  rvRenderGradeDesc(t.grade || "");
+
+  rvRenderErrorPickers(t);
+  document.getElementById("rv-error-catalog-editor").style.display = "none";
+
   const recapEl = document.getElementById("rv-recap");
-  if (recapEl) recapEl.value = t.notes || t.notesHTML?.replace(/<[^>]+>/g,'') || "";
-  const mistakesNoteEl = document.getElementById("rv-mistakes-note");
-  if (mistakesNoteEl) mistakesNoteEl.value = t.mistakes_note || "";
-  const setupsSection = document.getElementById("rv-setups-section");
-  const setupsEl = document.getElementById("rv-possible-setups");
-  if (setupsSection) setupsSection.style.display = t.pnl < 0 ? "" : "none";
-  if (setupsEl) setupsEl.value = t.possible_setups || "";
-  buildConfs("rv-conf-list", t.confluences || "[]", "rconf-chip", "rsr-btn", "rsr-btn", "rvToggleConf", "rvSetSR");
+  recapEl.value = t.notes || "";
+  rvAutoGrow(recapEl);
+
   rvRenderGallery(t.screenshots || []);
-}
-function rvRenderNQScale(t) {
-  const marker = document.getElementById("rv-nqscale-marker");
-  const lbl    = document.getElementById("rv-nqscale-lbl");
-  if (!marker || !lbl) return;
-  const risk = parseFloat(document.getElementById("rv-risk").value) || (t && t.risk) || 0;
-  if (!risk || risk <= 0) {
-    marker.style.left = "0%"; marker.style.opacity = "0.3";
-    lbl.textContent = "Define o risco para calcular"; lbl.style.color = "var(--hint)"; return;
-  }
-  marker.style.opacity = "1";
-  const r = t.pnl / risk;
-  const pct = Math.max(0, Math.min(100, r < 0 ? Math.max(0, 25+r*25) : r < 1 ? 25+r*25 : r < 2 ? 50+(r-1)*25 : Math.min(100, 75+(r-2)*12.5)));
-  marker.style.left = pct + "%";
-  lbl.textContent = r < 0 ? "Fraca" : r < 1 ? "OK" : r < 2 ? "Boa" : "Perfeita";
-  lbl.style.color  = r < 0 ? "var(--red)" : r < 1 ? "var(--amber)" : "var(--green)";
+  document.getElementById("rv-save-lbl").textContent = "";
 }
 
-function rvRenderMistakes() {
-  const el = document.getElementById("rv-mistakes"); if (!el) return;
-  const t = dayTrades(rvDate)[rvIdx];
-  const selected = t?.mistakes || [];
-  el.innerHTML = MISTAKE_CATS.map(cat =>
-    '<div class="rv-mistake-cat">'+cat.cat+'</div>' +
-    '<div class="rv-mchips">' +
-    cat.items.map(item => '<div class="rv-mchip'+(selected.includes(item)?" on":"")+'" onclick="rvToggleMistake(this,\''+item.replace(/'/g,"\\'")+'\')">'+item+'</div>').join("") +
-    '</div>'
-  ).join("");
-  const goodEl = document.getElementById("rv-mistakes-good");
-  if (goodEl) goodEl.style.display = selected.length === 0 ? "block" : "none";
-  const ta = document.getElementById("rv-mistakes-note");
-  if (ta) { ta.value = t?.mistakes_note || ""; ta.nextElementSibling.textContent = ta.value.length+"/200"; }
-}
-
-function rvToggleMistake(btn, label) {
-  const trds = dayTrades(rvDate); const t = trds[rvIdx]; if (!t) return;
-  const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id); if (idx === -1) return;
-  if (!all[idx].mistakes) all[idx].mistakes = [];
-  const i = all[idx].mistakes.indexOf(label);
-  if (i >= 0) all[idx].mistakes.splice(i, 1); else all[idx].mistakes.push(label);
-  all[idx].process_score = calcProcessScore4(all[idx]);
-  setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]);
-  btn.classList.toggle("on", all[idx].mistakes.includes(label));
-  const goodEl = document.getElementById("rv-mistakes-good");
-  if (goodEl) goodEl.style.display = all[idx].mistakes.length === 0 ? "block" : "none";
-  rvRenderProcessScore(all[idx]);
+function rvBuildReadonlyFields(t) {
+  const dirC = t.direction === "Long" ? "var(--green)" : "var(--red)";
+  let entryTime = "—", exitTime = "—";
+  if (t.entry_utc) entryTime = fmtInTZ(new Date(t.entry_utc), "Europe/Lisbon").time;
+  else if (t.time) entryTime = t.time.slice(0, 8);
+  if (t.exit_utc) exitTime = fmtInTZ(new Date(t.exit_utc), "Europe/Lisbon").time;
+  else if (t.exit_time) exitTime = t.exit_time.slice(0, 8);
+  const dur = fmtDuration(tradeDurationSec(t));
+  const points = t.points != null ? t.points : (t.entry != null && t.exit != null ? (t.exit - t.entry) * (t.direction === "Long" ? 1 : -1) : null);
+  const rows = [
+    ["Direcção", '<span style="color:' + dirC + ';font-weight:600">' + (t.direction || "—") + "</span>"],
+    ["Data", t.date || "—"],
+    ["Hora de entrada", entryTime + ' <span style="color:var(--hint);font-size:9px">(Lisboa)</span>'],
+    ["Hora de saída", exitTime + ' <span style="color:var(--hint);font-size:9px">(Lisboa)</span>'],
+    ["Duração", dur || "—"],
+    ["Símbolo", t.symbol || "—"],
+    ["Quantidade", t.qty != null ? t.qty : "—"],
+    ["Preço de entrada", t.entry != null ? t.entry : "—"],
+    ["Preço de saída", t.exit != null ? t.exit : "—"],
+    ["Pontos", points != null ? (points >= 0 ? "+" : "") + points.toFixed(2) : "—"]
+  ];
+  return rows.map(([lbl, val]) => '<div class="rv-row"><span class="rv-rlbl">' + lbl + '</span><span class="rv-rval">' + val + "</span></div>").join("");
 }
 
 function rvTickValue(sym, qty) {
@@ -4997,115 +4362,203 @@ function rvTickValue(sym, qty) {
   return 0.50 * q; // default MNQ
 }
 
-function rvCalcFromTicks() {
-  const t = dayTrades(rvDate)[rvIdx];
-  const sym = t?.symbol || "MNQ";
-  const qty = t?.qty || 1;
-  const tickVal = rvTickValue(sym, qty);
-  const stopTicks = parseInt(document.getElementById("rv-stop-ticks")?.value) || 0;
-  const tpTicks   = parseInt(document.getElementById("rv-tp-ticks")?.value)   || 0;
-  const stopDol = stopTicks > 0 ? stopTicks * tickVal : 0;
-  const tpDol   = tpTicks   > 0 ? tpTicks   * tickVal : 0;
-  const stopDolEl = document.getElementById("rv-stop-dollar");
-  const tpDolEl   = document.getElementById("rv-tp-dollar");
-  const riskDisp  = document.getElementById("rv-risk-display");
-  const riskEl    = document.getElementById("rv-risk");
-  if (stopDolEl) stopDolEl.textContent = stopTicks > 0 ? "= $" + stopDol.toFixed(2) : "";
-  if (tpDolEl)   tpDolEl.textContent   = tpTicks   > 0 ? "= $" + tpDol.toFixed(2)  : "";
-  if (stopDol > 0) {
-    if (riskEl) riskEl.value = stopDol.toFixed(2);
-    if (riskDisp) { riskDisp.textContent = "$" + stopDol.toFixed(2); riskDisp.style.color = "var(--text)"; }
-  } else {
-    if (riskDisp) { riskDisp.textContent = "—"; riskDisp.style.color = "var(--hint)"; }
-  }
-  rvCalcRR();
+function rvSetUnit(kind, unit) {
+  rvUnit[kind] = unit;
+  document.querySelectorAll("#rv-" + kind + "-unit-toggle .rv-unit-btn").forEach(b => b.classList.toggle("on", b.dataset.u === unit));
+  rvRenderPlanInput(kind);
+  rvUpdateRCalc();
 }
 
-function rvCalcRR() {
-  const rk = parseFloat(document.getElementById("rv-risk")?.value) || 0;
-  const stopTicks = parseInt(document.getElementById("rv-stop-ticks")?.value) || 0;
-  const tpTicks   = parseInt(document.getElementById("rv-tp-ticks")?.value)   || 0;
-  const t = dayTrades(rvDate)[rvIdx];
-  let plan = null;
-  if (stopTicks > 0 && tpTicks > 0) plan = tpTicks / stopTicks;
-  else if (rk > 0 && tpTicks > 0) {
-    const tv = rvTickValue(t?.symbol, t?.qty);
-    plan = (tpTicks * tv) / rk;
+function rvRenderPlanInput(kind) {
+  const t = dayTrades(rvDate)[rvIdx]; if (!t) return;
+  const wrap = document.getElementById("rv-" + kind + "-input-wrap"); if (!wrap) return;
+  const ticksField = kind === "stop" ? "stop_ticks" : "tp_ticks";
+  const ticks = t[ticksField] || null;
+  const tv = rvTickValue(t.symbol, t.qty);
+  if (rvUnit[kind] === "ticks") {
+    wrap.innerHTML =
+      '<input type="number" class="rv-inp" style="width:100%;text-align:left" id="rv-' + kind + '-ticks-in" min="0" step="1" placeholder="ticks" value="' + (ticks || "") + '" oninput="rvUpdateRCalc()" onblur="rvSaveTradeFields()">' +
+      '<div class="rv-plan-sub" id="rv-' + kind + '-sub">' + (ticks > 0 ? "= $" + (ticks * tv).toFixed(2) : "") + "</div>";
+  } else {
+    const dollarVal = ticks > 0 ? Math.round(ticks * tv * 100) / 100 : null;
+    const presets = [30, 35, 40, 45, 50];
+    const isPreset = presets.includes(dollarVal);
+    wrap.innerHTML =
+      '<select id="rv-' + kind + '-dsel" onchange="rvPlanDollarSelect(\'' + kind + '\')" style="width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:5px;color:var(--text);font-family:var(--mono);font-size:12px;padding:4px 7px;cursor:pointer">' +
+        '<option value="">—</option>' +
+        presets.map(p => '<option value="' + p + '"' + (dollarVal === p ? " selected" : "") + '>$' + p + "</option>").join("") +
+        '<option value="custom"' + (dollarVal != null && !isPreset ? " selected" : "") + ">Valor livre…</option>" +
+      "</select>" +
+      '<input type="number" class="rv-inp" style="width:100%;text-align:left;margin-top:6px;' + (dollarVal != null && !isPreset ? "" : "display:none") + '" id="rv-' + kind + '-dfree" min="0" step="1" placeholder="$" value="' + (dollarVal != null && !isPreset ? dollarVal : "") + '" oninput="rvUpdateRCalc()" onblur="rvSaveTradeFields()">' +
+      '<div class="rv-plan-sub" id="rv-' + kind + '-sub">' + (ticks > 0 ? ticks + " ticks" : "") + "</div>";
   }
-  const real = rk > 0 && t ? t.pnl / rk : null;
-  const mx = Math.max(plan || 0, Math.abs(real || 0), 3);
-  document.getElementById("rv-rr-plan").textContent = plan ? "1:" + plan.toFixed(1) : "—";
-  document.getElementById("rv-rr-plan-bar").style.width = plan ? Math.min(100, plan / mx * 100) + "%" : "0%";
-  const rc = real > 0 ? "var(--green)" : real < 0 ? "var(--red)" : "var(--sub)";
-  document.getElementById("rv-rr-real").textContent = real !== null ? (real >= 0 ? "+" : "") + real.toFixed(2) + "R" : "—";
-  document.getElementById("rv-rr-real").style.color = rc;
-  document.getElementById("rv-rr-real-bar").style.background = rc;
-  document.getElementById("rv-rr-real-bar").style.width = real !== null ? Math.min(100, Math.abs(real) / mx * 100) + "%" : "0%";
 }
-// ═══════════════════════════════════════════
-// PROCESS SCORE v2 (Fase 4 — 4 critérios automáticos)
-// ═══════════════════════════════════════════
-function rvRenderProcessScore(t) {
-  const el = document.getElementById("rv-ps-checks"); if (!el) return;
-  const totEl = document.getElementById("rv-ps-total");
-  const ctx = psData[t.date] || {};
-  const confs = parseConfs(t.confluences);
-  const confOk = confs.length >= 2;
-  const bias = ctx.bias;
-  let biasOk = false, biasTip = "Sem bias definido na pré-sessão";
-  if (bias && t.direction) {
-    biasOk = (bias==="Bullish"&&t.direction==="Long")||(bias==="Bearish"&&t.direction==="Short");
-    biasTip = biasOk ? "✓ Seguiu o bias "+bias : "✗ "+t.direction+" em dia "+bias;
+function rvPlanDollarSelect(kind) {
+  const sel = document.getElementById("rv-" + kind + "-dsel");
+  const free = document.getElementById("rv-" + kind + "-dfree");
+  if (sel.value === "custom") { free.style.display = ""; free.focus(); return; }
+  free.style.display = "none"; free.value = "";
+  rvUpdateRCalc();
+  rvSaveTradeFields();
+}
+function rvReadPlanTicks(kind) {
+  const t = dayTrades(rvDate)[rvIdx]; if (!t) return null;
+  const tv = rvTickValue(t.symbol, t.qty);
+  if (rvUnit[kind] === "ticks") {
+    const el = document.getElementById("rv-" + kind + "-ticks-in");
+    const v = parseInt(el?.value) || null;
+    return v > 0 ? v : null;
   }
-  const noMistakes = !t.mistakes || t.mistakes.length === 0;
-  const rrOk = t.rr != null && t.rr > 0;
-  const checks = [
-    { ok: confOk,      tip: confOk ? "✓ "+confs.length+" confluências" : "✗ Menos de 2 confluências" },
-    { ok: biasOk,      tip: biasTip },
-    { ok: noMistakes,  tip: noMistakes ? "✓ Sem erros registados" : "✗ "+(t.mistakes?.length||0)+" erros de execução" },
-    { ok: rrOk,        tip: rrOk ? "✓ RR planeado definido" : "✗ Sem RR definido antes da trade" }
-  ];
-  const total = checks.filter(c=>c.ok).length;
-  el.innerHTML =
-    '<div class="rv-ps4-dots">'+checks.map(c=>'<div class="rv-ps4-dot'+(c.ok?" ok":" fail")+'" title="'+c.tip+'"></div>').join("")+'</div>'+
-    '<div style="margin-top:5px">'+checks.map(c=>'<div style="font-size:9px;font-family:var(--mono);color:'+(c.ok?"var(--green)":"var(--hint)")+';padding:1px 0">'+c.tip+'</div>').join("")+'</div>';
-  if (totEl) { totEl.textContent=total+"/4"; totEl.style.color=total===4?"var(--green)":total>=3?"var(--amber)":total>=2?"var(--sub)":"var(--hint)"; }
+  const sel = document.getElementById("rv-" + kind + "-dsel");
+  const free = document.getElementById("rv-" + kind + "-dfree");
+  let dollarVal = null;
+  if (sel?.value === "custom") dollarVal = parseFloat(free?.value) || null;
+  else if (sel?.value) dollarVal = parseFloat(sel.value);
+  if (dollarVal == null || !tv) return null;
+  return Math.round(dollarVal / tv) || null;
 }
-function calcKellyCheck(t) {
-  if (!t.risk || t.risk <= 0) return null;
-  const all = acctTrades().filter(x => x.risk && x.risk > 0 && x.id !== t.id);
-  if (all.length < 10) return null;
-  const s = calcStats(all);
-  if (!s || s.kelly <= 0) return null;
-  // We compare risk in R-multiples — if risk respects Kelly fraction
-  // Use median risk $ as baseline, Kelly says don't exceed 2× median in bad runs
-  const risks = all.map(x => x.risk).sort((a,b) => a-b);
-  const median = risks[Math.floor(risks.length / 2)];
-  const kellyFactor = Math.max(0.5, s.kelly * 2); // ½ Kelly as multiplier
-  return t.risk <= median * (1 + kellyFactor);
+function rvUpdateRCalc() {
+  const t = dayTrades(rvDate)[rvIdx]; if (!t) return;
+  const stopTicks = rvReadPlanTicks("stop");
+  const tpTicks = rvReadPlanTicks("tp");
+  const tv = rvTickValue(t.symbol, t.qty);
+  const risk = stopTicks > 0 ? stopTicks * tv : null;
+  const rr = (stopTicks > 0 && tpTicks > 0) ? tpTicks / stopTicks : null;
+  const r = (risk > 0) ? t.pnl / risk : null;
+  const rrEl = document.getElementById("rv-rr-plan");
+  const rEl = document.getElementById("rv-rr-real");
+  rrEl.textContent = rr != null ? "1:" + rr.toFixed(2) : "—";
+  if (r != null) { rEl.textContent = (r >= 0 ? "+" : "") + r.toFixed(2) + "R"; rEl.style.color = r >= 0 ? "var(--green)" : "var(--red)"; }
+  else { rEl.textContent = "—"; rEl.style.color = "var(--hint)"; }
+  ["stop", "tp"].forEach(kind => {
+    const sub = document.getElementById("rv-" + kind + "-sub"); if (!sub) return;
+    const ticks = kind === "stop" ? stopTicks : tpTicks;
+    sub.textContent = rvUnit[kind] === "ticks"
+      ? (ticks > 0 ? "= $" + (ticks * tv).toFixed(2) : "")
+      : (ticks > 0 ? ticks + " ticks" : "");
+  });
 }
-function rvToggleProcess(key) {
+function rvSaveTradeFields() {
   const trds = dayTrades(rvDate); const t = trds[rvIdx]; if (!t) return;
   const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id); if (idx === -1) return;
-  if (!all[idx].ps) all[idx].ps = {};
-  all[idx].ps[key] = !all[idx].ps[key];
+  const stopTicks = rvReadPlanTicks("stop");
+  const tpTicks = rvReadPlanTicks("tp");
+  const tv = rvTickValue(t.symbol, t.qty);
+  const risk = stopTicks > 0 ? Math.round(stopTicks * tv * 100) / 100 : null;
+  const rr = (stopTicks > 0 && tpTicks > 0) ? Math.round((tpTicks / stopTicks) * 100) / 100 : null;
+  const r = (risk > 0) ? Math.round((all[idx].pnl / risk) * 1000) / 1000 : null;
+  const notes = document.getElementById("rv-recap")?.value ?? all[idx].notes ?? "";
+  all[idx] = { ...all[idx], stop_ticks: stopTicks, tp_ticks: tpTicks, risk, rr, r, notes };
   setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]);
-  rvRenderProcessScore(all[idx]);
+  rvUpdateRCalc();
+  rvMarkSaved();
 }
+function rvMarkSaved() {
+  const el = document.getElementById("rv-save-lbl");
+  if (el) el.textContent = "guardado " + new Date().toLocaleTimeString("pt", { hour: "2-digit", minute: "2-digit" });
+}
+function rvAutoGrow(el) { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; }
 
-function rvSetRating(v) {
-  const trds = dayTrades(rvDate); const t = trds[rvIdx]; if (!t) return;
-  const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id); if (idx !== -1) { all[idx].rating = v; setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]); }
-  rvRenderStars(v);
-}
-function rvRenderStars(v) { document.querySelectorAll(".rv-star").forEach((s, i) => { s.textContent = i < v ? "★" : "☆"; s.style.color = i < v ? "var(--amber)" : "var(--hint)"; }); }
+// ─── Grade ───────────────────────────────────────────────────────
 function rvSetGrade(v) {
   const trds = dayTrades(rvDate); const t = trds[rvIdx]; if (!t) return;
-  const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id); if (idx !== -1) { all[idx].setup_grade = v || null; setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]); }
-  const sel = document.getElementById("rv-setup-grade"); if (sel) sel.style.color = GRADE_COLOR[v] || "var(--text)";
+  const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id); if (idx === -1) return;
+  all[idx].grade = v || null;
+  setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]);
+  const sel = document.getElementById("rv-grade"); if (sel) sel.style.color = TRADE_GRADE_COLOR[v] || "var(--text)";
+  rvRenderGradeDesc(v);
+  rvMarkSaved();
 }
-function rvTab(id, btn) { ["notes","prints","confs","mistakes"].forEach(t => { document.getElementById("rvt-" + t).style.display = t === id ? "block" : "none"; }); document.querySelectorAll(".rv-tab").forEach(b => b.classList.remove("on")); btn.classList.add("on"); }
-function rvfmt(cmd) { document.getElementById("rv-editor").focus(); document.execCommand(cmd); }
+function rvRenderGradeDesc(v) {
+  const el = document.getElementById("rv-grade-desc"); if (!el) return;
+  el.textContent = TRADE_GRADE_DESC[v] || "";
+  el.style.color = TRADE_GRADE_COLOR[v] || "var(--sub)";
+}
+
+// ─── Erros ───────────────────────────────────────────────────────
+function errCatMap() { const m = {}; errorCatalog.forEach(c => m[c.id] = c); return m; }
+function rvRenderErrorPickers(t) {
+  const map = errCatMap();
+  const activeCodes = errorCatalog.filter(c => c.active);
+  const primSel = document.getElementById("rv-error-primary");
+  let opts = '<option value="">— nenhum —</option>';
+  activeCodes.forEach(c => opts += '<option value="' + c.id + '"' + (t.error_primary === c.id ? " selected" : "") + '>' + escHtml(c.label) + "</option>");
+  if (t.error_primary && !map[t.error_primary]?.active) {
+    const lbl = map[t.error_primary]?.label || t.error_primary;
+    opts += '<option value="' + t.error_primary + '" selected>' + escHtml(lbl) + " (desactivado)</option>";
+  }
+  primSel.innerHTML = opts;
+  primSel.value = t.error_primary || "";
+
+  const secWrap = document.getElementById("rv-error-secondary");
+  const secSel = new Set(t.error_secondary || []);
+  const secCandidates = errorCatalog.filter(c => c.active || secSel.has(c.id));
+  secWrap.innerHTML = secCandidates.length
+    ? secCandidates.map(c => '<div class="rv-err-chip' + (secSel.has(c.id) ? " on" : "") + '" title="' + escHtml(c.desc || "") + '" onclick="rvToggleSecondaryError(\'' + c.id + '\')">' + escHtml(c.label) + (!c.active ? " (desactivado)" : "") + "</div>").join("")
+    : '<span style="color:var(--hint);font-size:11px;font-family:var(--mono)">Sem códigos no catálogo</span>';
+}
+function rvSetPrimaryError(v) {
+  const trds = dayTrades(rvDate); const t = trds[rvIdx]; if (!t) return;
+  const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id); if (idx === -1) return;
+  all[idx].error_primary = v || null;
+  setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]);
+  rvMarkSaved();
+}
+function rvToggleSecondaryError(id) {
+  const trds = dayTrades(rvDate); const t = trds[rvIdx]; if (!t) return;
+  const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id); if (idx === -1) return;
+  const cur = new Set(all[idx].error_secondary || []);
+  if (cur.has(id)) cur.delete(id); else cur.add(id);
+  all[idx].error_secondary = [...cur];
+  setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]);
+  rvRenderErrorPickers(all[idx]);
+  rvMarkSaved();
+}
+function rvToggleErrorCatalogEditor() {
+  const el = document.getElementById("rv-error-catalog-editor");
+  const showing = el.style.display !== "none";
+  el.style.display = showing ? "none" : "block";
+  if (!showing) rvRenderErrorCatalogEditor();
+}
+function rvRenderErrorCatalogEditor() {
+  const el = document.getElementById("rv-error-catalog-editor"); if (!el) return;
+  el.innerHTML =
+    errorCatalog.map(c =>
+      '<div class="rv-ec-row">' +
+        '<input type="text" class="rv-ec-in" value="' + escHtml(c.label) + '" onblur="rvRenameErrorCode(\'' + c.id + '\',this.value)">' +
+        '<button class="rv-ec-toggle' + (c.active ? " on" : "") + '" onclick="rvToggleErrorActive(\'' + c.id + '\')">' + (c.active ? "Activo" : "Desactivado") + "</button>" +
+      "</div>"
+    ).join("") +
+    '<div style="display:flex;gap:6px;margin-top:8px">' +
+      '<input type="text" id="rv-ec-new-label" class="rv-ec-in" placeholder="Novo código (ex: SIZE_ERRADO)">' +
+      '<button class="btn btn-accent btn-sm" onclick="rvAddErrorCode()">+ Adicionar</button>' +
+    "</div>";
+}
+function rvRenameErrorCode(id, val) {
+  const c = errorCatalog.find(x => x.id === id); if (!c || !val.trim()) return;
+  c.label = val.trim();
+  saveErrorCatalog();
+  const t = dayTrades(rvDate)[rvIdx]; if (t) rvRenderErrorPickers(t);
+}
+function rvToggleErrorActive(id) {
+  const c = errorCatalog.find(x => x.id === id); if (!c) return;
+  c.active = !c.active;
+  saveErrorCatalog();
+  rvRenderErrorCatalogEditor();
+  const t = dayTrades(rvDate)[rvIdx]; if (t) rvRenderErrorPickers(t);
+}
+function rvAddErrorCode() {
+  const inp = document.getElementById("rv-ec-new-label");
+  const label = inp.value.trim(); if (!label) return;
+  let id = label.toUpperCase().replace(/[^A-Z0-9]+/g, "_").replace(/^_+|_+$/g, "") || ("ERR_" + Date.now());
+  if (errorCatalog.some(c => c.id === id)) { toast("Código já existe", "err"); return; }
+  errorCatalog.push({ id, label, desc: "", active: true });
+  saveErrorCatalog();
+  inp.value = "";
+  rvRenderErrorCatalogEditor();
+  const t = dayTrades(rvDate)[rvIdx]; if (t) rvRenderErrorPickers(t);
+}
+
 function rvAddPrints(e) {
   const files = [...e.target.files]; if (!files.length) return;
   const trds = dayTrades(rvDate); const t = trds[rvIdx]; if (!t) return;
@@ -5178,28 +4631,6 @@ function saveClaudeKey() {
   document.getElementById("claude-key-status").textContent = "✓ Guardada (" + key.slice(0,12) + "...)";
   document.getElementById("claude-key-box").style.display = "none";
   toast("API Key guardada ✓", "ok");
-  const trds = dayTrades(rvDate); const t = trds[rvIdx];
-  if (t) rvRenderGallery(t.screenshots || []);
-}
-function saveReview(silent = false) {
-  const trds = dayTrades(rvDate); const t = trds[rvIdx]; if (!t) return;
-  const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id); if (idx === -1) return;
-  const entry = parseFloat(document.getElementById("rv-entry").value) || all[idx].entry;
-  const stopTicks = parseInt(document.getElementById("rv-stop-ticks")?.value) || null;
-  const tpTicks   = parseInt(document.getElementById("rv-tp-ticks")?.value)   || null;
-  const risk = parseFloat(document.getElementById("rv-risk")?.value) || null;
-  const confs = getConfs(".rconf-chip", ".rsr-btn");
-  let rr = null;
-  if (stopTicks > 0 && tpTicks > 0) rr = parseFloat((tpTicks / stopTicks).toFixed(2));
-  const r = risk && risk > 0 ? parseFloat((all[idx].pnl / risk).toFixed(3)) : 0;
-  const notes = document.getElementById("rv-recap")?.value || "";
-  const mistakesNote = document.getElementById("rv-mistakes-note")?.value ?? (all[idx].mistakes_note || "");
-  const possibleSetups = document.getElementById("rv-possible-setups")?.value ?? (all[idx].possible_setups || "");
-  const updated = { ...all[idx], entry, stop_ticks: stopTicks, tp_ticks: tpTicks, risk, rr, r, confluences: serConfs(confs), score: confs.length, notes, notesHTML: "", mistakes_note: mistakesNote, possible_setups: possibleSetups };
-  updated.process_score = calcProcessScore4(updated);
-  all[idx] = updated;
-  setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]);
-  if (!silent) toast("Trade guardada ✓", "ok");
 }
 
 // ═══════════════════════════════════════════
@@ -5483,9 +4914,10 @@ function renderDashboard() {
     const quantScope_old = scope;
     scope = (dashPeriod === 'all' ? 'all' : dashPeriod === 'week' ? 'week' : dashPeriod === '7d' ? 'week' : dashPeriod === 'month' || dashPeriod === '30d' ? 'month' : 'all');
     const quantBody = '<div id="quant-body"></div>';
+    const claudeKeyBox = '<div id="claude-key-box" style="display:none;margin-bottom:12px;background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:10px"><div style="font-size:10px;font-family:var(--mono);color:var(--sub);margin-bottom:6px">Claude API Key (guardada localmente)</div><div style="display:flex;gap:6px"><input type="password" id="claude-key-in" class="finput" style="flex:1;font-size:11px" placeholder="sk-ant-..." value=""><button class="btn btn-accent btn-sm" onclick="saveClaudeKey()">Guardar</button></div><div id="claude-key-status" style="font-size:10px;font-family:var(--mono);color:var(--hint);margin-top:5px"></div></div>';
     const claudeWeekPanel = '<div id="claude-week-panel" style="display:none;margin-bottom:12px;background:var(--s1);border:1px solid var(--purple);border-radius:14px;overflow:hidden"><div style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--b1)"><span style="font-size:10px;font-family:var(--mono);color:var(--purple);text-transform:uppercase;letter-spacing:.08em">✦ Claude — Análise semanal</span><button onclick="document.getElementById(\'claude-week-panel\').style.display=\'none\'" style="background:transparent;border:none;color:var(--hint);cursor:pointer;font-size:14px">✕</button></div><div id="claude-week-body" style="padding:16px;font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap;font-family:var(--sans)"></div></div>';
-    const scopeRow = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div class="scope-row" id="scope-row" style="margin-bottom:0"></div><button class="btn btn-ghost btn-sm" style="color:var(--purple);flex-shrink:0;margin-left:10px" onclick="analyzeWeekWithClaude()">✦ Análise semanal</button></div>';
-    body.innerHTML = modeToggle + scopeRow + claudeWeekPanel + quantBody;
+    const scopeRow = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div class="scope-row" id="scope-row" style="margin-bottom:0"></div><div style="display:flex;gap:6px;flex-shrink:0;margin-left:10px"><button class="btn btn-ghost btn-sm" onclick="toggleClaudeKey()" title="Configurar API Key Claude">🔑</button><button class="btn btn-ghost btn-sm" style="color:var(--purple)" onclick="analyzeWeekWithClaude()">✦ Análise semanal</button></div></div>';
+    body.innerHTML = modeToggle + scopeRow + claudeKeyBox + claudeWeekPanel + quantBody;
     buildScope(); renderQuant();
     return;
   }
@@ -5621,14 +5053,11 @@ function renderDashboard() {
     const pnlCol = t.pnl>0?"var(--green)":t.pnl<0?"var(--red)":"var(--sub)";
     const dirBg = t.direction==="Long"?"#071f0f":"#1f0707";
     const dirCol = t.direction==="Long"?"var(--green)":"var(--red)";
-    const confs = parseConfs(t.confluences);
-    const badges = confs.slice(0,2).map(c=>{ const cm=CMAP[c.id]; return cm?`<span style="background:${cm.color}22;color:${cm.color};border:1px solid ${cm.color}44;padding:1px 5px;border-radius:4px;font-size:9px;font-family:var(--mono)">${cm.label.split(" ")[0]}</span>`:""; }).join("");
-    const more = confs.length>2?`<span style="font-size:9px;color:var(--hint);font-family:var(--mono)">+${confs.length-2}</span>`:"";
     return `<div class="dash-rt-row" onclick="openReviewFromList('${t.date}',${dayIdx})">
       <div style="font-family:var(--mono);font-size:10px;color:var(--sub)">${t.time?t.time.slice(0,5):"—"} ${t.date.slice(5)}</div>
       <div style="font-family:var(--mono);font-size:10px;background:var(--s3);border:1px solid var(--b1);border-radius:4px;padding:1px 5px;text-align:center">${t.symbol||"NQ"}</div>
       <div style="font-family:var(--mono);font-size:10px;font-weight:600;background:${dirBg};color:${dirCol};border-radius:4px;padding:1px 5px;text-align:center">${t.direction||"—"}</div>
-      <div style="display:flex;gap:3px;flex-wrap:wrap;align-items:center;min-width:0">${badges}${more}</div>
+      <div style="display:flex;gap:3px;flex-wrap:wrap;align-items:center;min-width:0">${tradeGradeErrorBadges(t)}</div>
       <div style="font-family:var(--mono);font-size:11px;font-weight:600;color:${pnlCol};text-align:right">${t.pnl>=0?"+":""}$${t.pnl.toFixed(2)}</div>
     </div>`;
   }).join("");
@@ -5722,9 +5151,9 @@ function renderQuant() {
   const t = scopedT(), el = document.getElementById("quant-body");
   if (!t.length) { el.innerHTML = '<div style="text-align:center;padding:60px;color:var(--hint);font-family:var(--mono);font-size:12px">Sem trades neste período</div>'; return; }
   const s = calcStats(t), mcr = s.rs.length >= 3 ? mcSim(s.rs) : null;
-  // EV by confluence
-  const byConf = {}; t.forEach(x => parseConfs(x.confluences).forEach(({id,sr}) => { const lbl=confLabel(id,sr); const c=CMAP[id]; if(!byConf[lbl])byConf[lbl]={n:0,w:0,tW:0,tL:0,color:c?.color||"#5b8fff"}; byConf[lbl].n++; if(x.pnl>0){byConf[lbl].w++;byConf[lbl].tW+=x.pnl;}else byConf[lbl].tL+=Math.abs(x.pnl); }));
-  const evBars = Object.entries(byConf).sort((a,b)=>b[1].n-a[1].n).map(([name,d]) => { const wr=d.n?d.w/d.n:0,aW=d.w?d.tW/d.w:0,aL=(d.n-d.w)?d.tL/(d.n-d.w):0; const ev=wr*aW-(1-wr)*aL; const pct=Math.min(100,Math.max(0,(ev+100)/2)); return '<div class="bar-row"><div class="barlbl">'+name+'</div><div class="bartrack"><div class="barfill" style="width:'+pct+'%;background:'+d.color+'"></div></div><div class="barval" style="color:'+(ev>0?"var(--green)":"var(--red)")+'">'+(ev>0?"+":"")+"$"+ev.toFixed(1)+'</div><div class="barn">'+d.n+'T</div></div>'; }).join("") || '<div style="color:var(--hint);font-size:12px;font-family:var(--mono)">Adiciona confluências para ver EV</div>';
+  // EV by grade
+  const byGradeEV = {}; t.forEach(x => { if(!x.grade) return; const c=TRADE_GRADE_COLOR[x.grade]||"#5b8fff"; if(!byGradeEV[x.grade])byGradeEV[x.grade]={n:0,w:0,tW:0,tL:0,color:c}; byGradeEV[x.grade].n++; if(x.pnl>0){byGradeEV[x.grade].w++;byGradeEV[x.grade].tW+=x.pnl;}else byGradeEV[x.grade].tL+=Math.abs(x.pnl); });
+  const evBars = TRADE_GRADES.filter(g=>byGradeEV[g]).map(name => { const d=byGradeEV[name]; const wr=d.n?d.w/d.n:0,aW=d.w?d.tW/d.w:0,aL=(d.n-d.w)?d.tL/(d.n-d.w):0; const ev=wr*aW-(1-wr)*aL; const pct=Math.min(100,Math.max(0,(ev+100)/2)); return '<div class="bar-row"><div class="barlbl">'+name+'</div><div class="bartrack"><div class="barfill" style="width:'+pct+'%;background:'+d.color+'"></div></div><div class="barval" style="color:'+(ev>0?"var(--green)":"var(--red)")+'">'+(ev>0?"+":"")+"$"+ev.toFixed(1)+'</div><div class="barn">'+d.n+'T</div></div>'; }).join("") || '<div style="color:var(--hint);font-size:12px;font-family:var(--mono)">Atribui grades às trades para ver EV</div>';
   // Bias correlation
   const bG = {}; t.forEach(x => { const b=psData[x.date]?.bias||null; if(!b)return; if(!bG[b])bG[b]={n:0,w:0,tW:0,tL:0}; bG[b].n++; if(x.pnl>0){bG[b].w++;bG[b].tW+=x.pnl;}else bG[b].tL+=Math.abs(x.pnl); });
   const biasHTML = Object.entries(bG).map(([b,d]) => { const wr=d.n?Math.round(d.w/d.n*100):0; const ev=(d.n?d.w/d.n:0)*(d.w?d.tW/d.w:0)-((d.n?1-d.w/d.n:0))*(d.n-d.w?d.tL/(d.n-d.w):0); const bc=getBiasColor(b); const bg=getBiasBg(b); return '<div style="display:grid;grid-template-columns:90px 35px 1fr 60px 60px;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--b1);font-family:var(--mono);font-size:11px"><span style="color:'+bc+';background:'+bg+';padding:2px 8px;border-radius:5px;font-weight:600;font-size:10px">'+b+'</span><span style="color:var(--hint)">'+d.n+'T</span><div style="background:var(--s3);border-radius:3px;height:5px;overflow:hidden"><div style="width:'+wr+'%;height:100%;background:'+bc+';border-radius:3px"></div></div><span style="color:var(--accent);text-align:right">'+wr+'%</span><span style="color:'+(ev>0?"var(--green)":"var(--red)")+';text-align:right">'+(ev>0?"+":"")+"$"+ev.toFixed(1)+'</span></div>'; }).join("");
@@ -5744,76 +5173,9 @@ function renderQuant() {
       '<div class="sec"><div class="sec-title">R-Multiple distribution</div>' + (s.rs.length > 1 ? svgLine(s.rs.slice().sort((a,b)=>a-b).map((_,i,arr)=>arr.slice(0,i+1).reduce((a,b)=>a+b,0)), 520, 140, "#5b8fff") : '<div style="color:var(--hint);font-size:12px;font-family:var(--mono)">Define risco nas trades</div>') + '</div>' +
       (mcr ? '<div class="sec"><div class="sec-title">Monte Carlo · 2000 sim</div>' + svgMC(mcr.paths) + '<div class="mc-row"><div class="mc-cell"><div class="mc-val" style="color:var(--red)">'+mcr.p5.toFixed(1)+'R</div><div class="mc-lbl">P5</div></div><div class="mc-cell"><div class="mc-val">'+mcr.p50.toFixed(1)+'R</div><div class="mc-lbl">P50</div></div><div class="mc-cell"><div class="mc-val" style="color:var(--green)">'+mcr.p95.toFixed(1)+'R</div><div class="mc-lbl">P95</div></div><div class="mc-cell"><div class="mc-val" style="color:'+(mcr.ruin<5?"var(--green)":mcr.ruin<15?"var(--amber)":"var(--red)")+'">'+mcr.ruin.toFixed(1)+'%</div><div class="mc-lbl">Ruína</div></div></div></div>' : '<div class="sec"><div class="sec-title">Monte Carlo</div><div style="text-align:center;padding:20px;color:var(--hint);font-family:var(--mono);font-size:12px">Define risco em ≥3 trades</div></div>') +
     '</div>' +
-    '<div class="sec"><div class="sec-title">EV por confluência</div>' + evBars + '</div>' +
+    '<div class="sec"><div class="sec-title">EV por grade</div>' + evBars + '</div>' +
     (biasHTML ? '<div class="sec"><div class="sec-title">Performance por bias do dia</div>' + biasHTML + '</div>' : '') +
-    buildProcessScoreHTML(t) +
-    buildConfCountHTML(t) +
     buildRegimeHTML(t);
-}
-
-function buildProcessScoreHTML(t) {
-  // Group trades by process score (0-4)
-  const withPS = t.filter(x => x.ps);
-  if (withPS.length < 3) return '<div class="sec"><div class="sec-title">Process Score — Processo vs Resultado</div><div style="color:var(--hint);font-size:12px;font-family:var(--mono);padding:6px 0">Preenche o Process Score em ≥3 trades para ver a correlação</div></div>';
-  const groups = {0:[],1:[],2:[],3:[],4:[]};
-  withPS.forEach(x => {
-    const kellyOk = calcKellyCheck(x);
-    const score = PS_CHECKS.filter(c => c.auto ? (kellyOk === true) : !!(x.ps?.[c.key])).length;
-    groups[score].push(x);
-  });
-  const rowFn = (label, arr, color) => {
-    if (!arr.length) return "";
-    const wins = arr.filter(x=>x.pnl>0), wr = Math.round(wins.length/arr.length*100);
-    const net = arr.reduce((s,x)=>s+x.pnl,0);
-    const avgW = wins.length?wins.reduce((s,x)=>s+x.pnl,0)/wins.length:0;
-    const losses = arr.filter(x=>x.pnl<0), avgL = losses.length?Math.abs(losses.reduce((s,x)=>s+x.pnl,0))/losses.length:0;
-    const ev = (wins.length/arr.length)*avgW-(losses.length/arr.length)*avgL;
-    return '<div style="display:grid;grid-template-columns:80px 35px 1fr 55px 60px 65px;align-items:center;gap:7px;padding:7px 0;border-bottom:1px solid var(--b1);font-family:var(--mono);font-size:11px">' +
-      '<span style="color:' + color + ';font-weight:600">' + label + '</span>' +
-      '<span style="color:var(--hint)">' + arr.length + 'T</span>' +
-      '<div style="background:var(--s3);border-radius:3px;height:5px;overflow:hidden"><div style="width:' + wr + '%;height:100%;background:' + color + ';border-radius:3px"></div></div>' +
-      '<span style="color:var(--accent);text-align:right">' + wr + '%</span>' +
-      '<span style="color:' + (ev>0?"var(--green)":"var(--red)") + ';text-align:right">' + (ev>0?"+":"") + "$" + ev.toFixed(1) + '</span>' +
-      '<span style="color:' + (net>0?"var(--green)":"var(--red)") + ';text-align:right">' + (net>0?"+":"") + "$" + net.toFixed(0) + '</span>' +
-      '</div>';
-  };
-  const colors = ["#ff4444","var(--red)","var(--amber)","var(--sub)","var(--green)"];
-  const labels = ["0/4 — Mau","1/4","2/4","3/4","4/4 — A+"];
-  const rows = [4,3,2,1,0].map(i => rowFn(labels[i], groups[i], colors[i])).join("");
-  const noPS = t.length - withPS.length;
-  return '<div class="sec"><div class="sec-title">Process Score — Processo vs Resultado <span style="color:var(--hint);font-weight:400">' + withPS.length + ' trades avaliadas' + (noPS?` · ${noPS} sem score`:"") + '</span></div>' +
-    '<div style="font-size:10px;font-family:var(--mono);color:var(--hint);margin-bottom:8px">WR% · EV · Net P&L por qualidade de processo</div>' +
-    rows + '</div>';
-}
-
-function buildConfCountHTML(t) {
-  const groups = {1:[],2:[],3:[],4:[]};
-  t.forEach(x => {
-    const n = Math.min(4, parseConfs(x.confluences).length);
-    if (n > 0) groups[n].push(x);
-  });
-  const active = Object.entries(groups).filter(([,arr]) => arr.length > 0);
-  if (active.length < 2) return "";
-  const rowFn = (label, arr, color) => {
-    const wins = arr.filter(x=>x.pnl>0), wr = Math.round(wins.length/arr.length*100);
-    const net = arr.reduce((s,x)=>s+x.pnl,0);
-    const avgW = wins.length?wins.reduce((s,x)=>s+x.pnl,0)/wins.length:0;
-    const losses = arr.filter(x=>x.pnl<0), avgL = losses.length?Math.abs(losses.reduce((s,x)=>s+x.pnl,0))/losses.length:0;
-    const ev = (wins.length/arr.length)*avgW-(losses.length/arr.length)*avgL;
-    return '<div style="display:grid;grid-template-columns:80px 35px 1fr 55px 60px 65px;align-items:center;gap:7px;padding:7px 0;border-bottom:1px solid var(--b1);font-family:var(--mono);font-size:11px">' +
-      '<span style="color:' + color + ';font-weight:600">' + label + '</span>' +
-      '<span style="color:var(--hint)">' + arr.length + 'T</span>' +
-      '<div style="background:var(--s3);border-radius:3px;height:5px;overflow:hidden"><div style="width:' + wr + '%;height:100%;background:' + color + ';border-radius:3px"></div></div>' +
-      '<span style="color:var(--accent);text-align:right">' + wr + '%</span>' +
-      '<span style="color:' + (ev>0?"var(--green)":"var(--red)") + ';text-align:right">' + (ev>0?"+":"") + "$" + ev.toFixed(1) + '</span>' +
-      '<span style="color:' + (net>0?"var(--green)":"var(--red)") + ';text-align:right">' + (net>0?"+":"") + "$" + net.toFixed(0) + '</span>' +
-      '</div>';
-  };
-  const confColors = ["var(--red)","var(--amber)","var(--sub)","var(--green)"];
-  const rows = [4,3,2,1].map(i => groups[i].length ? rowFn(i === 4 ? "4+ conf" : i + " conf", groups[i], confColors[i-1]) : "").join("");
-  return '<div class="sec"><div class="sec-title">EV por número de confluências — o verdadeiro A+</div>' +
-    '<div style="font-size:10px;font-family:var(--mono);color:var(--hint);margin-bottom:8px">Quantifica quando vale a pena entrar com 1 vs 3+ confluências</div>' +
-    rows + '</div>';
 }
 
 function buildRegimeHTML(t) {
@@ -5993,14 +5355,12 @@ function buildClaudePromptDay(date) {
   const allT = acctTrades();
   const s = allT.length >= 5 ? calcStats(allT) : null;
 
+  const errCatalogMap = _buildErrorCatalogMap();
   const tradeLines = trades.map((t, i) => {
-    const confs = parseConfs(t.confluences).map(c => confLabel(c.id, c.sr)).join(", ") || "nenhuma";
-    const ps = t.ps || {};
-    const kellyOk = calcKellyCheck(t);
-    const psScore = PS_CHECKS.filter(c => c.auto ? (kellyOk===true) : !!ps[c.key]).length;
     const rVal = t.risk && t.risk > 0 ? (t.pnl / t.risk).toFixed(2) : (t.r ? t.r.toFixed(2) : null);
-    const mistakes = (t.mistakes || []).join(", ");
-    return `  Trade #${i+1}: ${t.direction} ${t.time||""} @${t.entry||"?"}→${t.exit||"?"} | P&L: $${t.pnl.toFixed(2)}${rVal?" | R: "+rVal:""} | Process: ${psScore}/4 | Confluências: ${confs}${mistakes?" | Erros: "+mistakes:""}${t.notes?" | Notas: "+t.notes.slice(0,80):""}`;
+    const errIds = [t.error_primary, ...(t.error_secondary || [])].filter(Boolean);
+    const errs = errIds.map(id => errCatalogMap[id]?.label || id).join(", ");
+    return `  Trade #${i+1}: ${t.direction} ${t.time||""} @${t.entry||"?"}→${t.exit||"?"} | P&L: $${t.pnl.toFixed(2)}${rVal?" | R: "+rVal:""}${t.grade?" | Grade: "+t.grade:""}${errs?" | Erros: "+errs:""}${t.notes?" | Notas: "+t.notes.slice(0,80):""}`;
   }).join("\n");
 
   const macroLines = (ctx.macroEvents||[]).map(e => `  ${e.time||""} ${e.name}: ${e.impact||"pendente"}`).join("\n");
@@ -6023,7 +5383,7 @@ ${histCtx}
 
 Fornece:
 1. RESUMO (2-3 linhas do que aconteceu)
-2. O QUE CORREU BEM (máx 3 pontos, específico às confluências/dados)
+2. O QUE CORREU BEM (máx 3 pontos, específico aos dados)
 3. O QUE MELHORAR (máx 3 pontos, baseado nos erros registados)
 4. PADRÃO IDENTIFICADO (algum edge ou fraqueza visível nos dados?)
 5. FOCO PARA AMANHÃ (1 coisa concreta)
@@ -6044,30 +5404,30 @@ function buildClaudePromptWeek() {
     const pnl = dt.reduce((s,t)=>s+t.pnl,0);
     const wr = dt.length ? Math.round(dt.filter(t=>t.pnl>0).length/dt.length*100) : 0;
     const ctx = psData[d] || {};
-    const confsAll = dt.flatMap(t => parseConfs(t.confluences).map(c=>c.id));
-    const topConf = confsAll.length ? [...confsAll.reduce((m,c)=>{m.set(c,(m.get(c)||0)+1);return m;},new Map())].sort((a,b)=>b[1]-a[1])[0]?.[0] : null;
-    return `  ${d}: ${dt.length}T | P&L: $${pnl.toFixed(2)} | WR: ${wr}% | VIX: ${ctx.vix!=null?ctx.vix+` (${ctx.vixRegime||"—"})`:"—"} | Bias: ${ctx.bias||"—"}${topConf?" | Top conf: "+CMAP[topConf]?.label:""}`;
+    return `  ${d}: ${dt.length}T | P&L: $${pnl.toFixed(2)} | WR: ${wr}% | VIX: ${ctx.vix!=null?ctx.vix+` (${ctx.vixRegime||"—"})`:"—"} | Bias: ${ctx.bias||"—"}`;
   }).join("\n");
 
   const s = calcStats(weekTrades);
-  const byConf = {}; weekTrades.forEach(t => parseConfs(t.confluences).forEach(({id}) => { if(!byConf[id])byConf[id]={n:0,w:0,pnl:0}; byConf[id].n++; if(t.pnl>0)byConf[id].w++; byConf[id].pnl+=t.pnl; }));
-  const confLines = Object.entries(byConf).sort((a,b)=>b[1].pnl-a[1].pnl).slice(0,5).map(([id,d])=>`  ${CMAP[id]?.label||id}: ${d.n}T | WR ${Math.round(d.w/d.n*100)}% | P&L $${d.pnl.toFixed(2)}`).join("\n");
-
-  const withPS = weekTrades.filter(t=>t.ps);
-  const psAvg = withPS.length ? (withPS.reduce((s,t)=>{const k=calcKellyCheck(t);return s+PS_CHECKS.filter(c=>c.auto?(k===true):!!t.ps?.[c.key]).length;},0)/withPS.length).toFixed(1) : "—";
+  const errCatalogMap = _buildErrorCatalogMap();
+  const byGrade = {}; weekTrades.forEach(t => { if(!t.grade) return; if(!byGrade[t.grade]) byGrade[t.grade]={n:0,pnl:0}; byGrade[t.grade].n++; byGrade[t.grade].pnl+=t.pnl; });
+  const gradeLines = TRADE_GRADES.filter(g=>byGrade[g]).map(g=>`  ${g}: ${byGrade[g].n}T | P&L $${byGrade[g].pnl.toFixed(2)}`).join("\n");
+  const byErr = {}; weekTrades.forEach(t => [t.error_primary, ...(t.error_secondary||[])].filter(Boolean).forEach(id => { if(!byErr[id]) byErr[id]={n:0}; byErr[id].n++; }));
+  const errLines = Object.entries(byErr).sort((a,b)=>b[1].n-a[1].n).slice(0,5).map(([id,d])=>`  ${errCatalogMap[id]?.label||id}: ${d.n}x`).join("\n");
 
   return `És um analista de trading de futuros NQ/MNQ. Faz uma análise semanal baseada nos dados reais.
 
 SEMANA: ${dates[0]} a ${dates[dates.length-1]}
 CONTA: ${curAcct?.name || "—"}
 RESUMO: ${weekTrades.length} trades | Net P&L: $${s.net.toFixed(2)} | WR: ${Math.round(s.wr*100)}% | EV: $${s.ev.toFixed(2)} | PF: ${s.pf.toFixed(2)}
-Process Score médio: ${psAvg}/4
 
 DIAS DA SEMANA:
 ${dayLines}
 
-CONFLUÊNCIAS MAIS USADAS (por P&L):
-${confLines || "  Sem dados de confluências."}
+GRADES DA SEMANA:
+${gradeLines || "  Sem grades atribuídas."}
+
+ERROS MAIS FREQUENTES:
+${errLines || "  Sem erros registados."}
 
 Analisa esta semana de trading. Sê directo e usa os dados. Responde em português.
 Estrutura assim:
@@ -6123,7 +5483,7 @@ function exportAllData() {
     trades: allT,
     presessao: psData,
     weekly_prep: weeklyPrep,
-    custom_confluences: customConfs
+    error_catalog: errorCatalog
   };
   const json = JSON.stringify(backup, null, 2);
   const a = document.createElement("a");
@@ -6146,17 +5506,15 @@ function updateBackupLbl() {
 function exportAllCSV() {
   const all = acctTrades();
   if (!all.length) return toast("Sem trades", "err");
-  const header = "Date;Time;Symbol;Direction;Entry;Exit;PnL;Stop_Ticks;TP_Ticks;Risk_USD;RR_Planned;R_Realized;Confluences;Rating;Trade_Recap;Errors;Day_Bias;Fed_Narrative;Sentiment";
+  const header = "Date;Time;Symbol;Direction;Entry;Exit;PnL;Stop_Ticks;TP_Ticks;Risk_USD;RR_Planned;R_Realized;Grade;Errors;Trade_Recap;Day_Bias;Fed_Narrative;Sentiment";
+  const errCatalogMap = _buildErrorCatalogMap();
   const rows = all.map(x => {
     const ctx = psData[x.date] || {};
-    const confsStr = parseConfs(x.confluences).map(c => {
-      const conf = CMAP[c.id]; if (!conf) return c.id;
-      return conf.label + (c.sr ? (c.sr === 'S' ? ' Support' : ' Resistance') : '');
-    }).join(" | ");
     const riskUSD = (x.stop_ticks && x.qty) ? (x.stop_ticks * 0.50 * x.qty).toFixed(2) : (x.risk || "");
     const recap = stripHTML(x.notes || "").replace(/\n/g, " ");
-    const errors = stripHTML(x.mistakes_note || "").replace(/\n/g, " ");
-    return [x.date, x.time||"", x.symbol||"", x.direction||"", x.entry||"", x.exit||"", x.pnl, x.stop_ticks||"", x.tp_ticks||"", riskUSD, x.rr||"", x.r||"", confsStr, x.rating||"", recap, errors, ctx.bias||"", ctx.fed||"", ctx.sentiment||""].join(";");
+    const errIds = [x.error_primary, ...(x.error_secondary || [])].filter(Boolean);
+    const errors = errIds.map(id => errCatalogMap[id]?.label || id).join(" | ");
+    return [x.date, x.time||"", x.symbol||"", x.direction||"", x.entry||"", x.exit||"", x.pnl, x.stop_ticks||"", x.tp_ticks||"", riskUSD, x.rr||"", x.r||"", x.grade||"", errors, recap, ctx.bias||"", ctx.fed||"", ctx.sentiment||""].join(";");
   });
   const csv = [header, ...rows].join("\r\n");
   const a = document.createElement("a");
@@ -6189,9 +5547,9 @@ function importAllData(e) {
       allT = data.trades;
       psData = data.presessao || {};
       weeklyPrep = data.weekly_prep || {};
-      if (Array.isArray(data.custom_confluences) && data.custom_confluences.length) {
-        customConfs = data.custom_confluences;
-        localStorage.setItem("nq10_cc", JSON.stringify(customConfs));
+      if (Array.isArray(data.error_catalog) && data.error_catalog.length) {
+        errorCatalog = data.error_catalog;
+        localStorage.setItem(SK_EC, JSON.stringify(errorCatalog));
       }
 
       // Persist to localStorage
@@ -6208,13 +5566,13 @@ function importAllData(e) {
         }
         await savePSData(); // sem data = guarda todas as sessões
         await saveWPData();
-        if (customConfs.length) await sbPushKey("nq10_cc", customConfs);
+        if (errorCatalog.length) await sbPushKey("nq10_ec", errorCatalog);
       }
 
       renderAccts();
       if (curAcct) {
         curAcct = accounts.find(a => a.id === curAcct.id) || accounts[0];
-        renderSessBar(); renderList(); renderCalendar(); renderDiary(); renderDashboard(); renderReports();
+        renderCalendar(); renderDiary(); renderDashboard(); renderReports();
       }
       toast("Backup restaurado ✓ — " + totalTrades + " trades · " + totalSess + " pré-sessões · " + totalWP + " preps semanais", "ok");
     } catch(err) { toast("Erro ao importar: " + err.message, "err"); }
@@ -6257,133 +5615,12 @@ async function executeClearAll() {
   localStorage.setItem(SK_T, JSON.stringify(allT));
   try {
     if (sbUser) await sbDeleteAccountTrades(curAcct.id);
-    renderSessBar(); renderList(); renderCalendar(); renderDiary(); renderDashboard(); renderReports();
+    renderCalendar(); renderDiary(); renderDashboard(); renderReports();
     toast("Trades apagadas ✓", "ok");
   } catch(err) {
     console.error("Erro ao apagar do Supabase:", err);
-    renderSessBar(); renderList(); renderCalendar(); renderDiary(); renderDashboard(); renderReports();
+    renderCalendar(); renderDiary(); renderDashboard(); renderReports();
     toast("Apagado localmente (erro na cloud — verifica ligação)", "err");
-  }
-}
-
-// ═══════════════════════════════════════════
-// CONFLUÊNCIAS CUSTOM NO REVIEW
-// ═══════════════════════════════════════════
-function rvToggleNewConf() {
-  const f = document.getElementById("rv-new-conf-form");
-  if (f) f.style.display = f.style.display === "none" ? "block" : "none";
-}
-
-function rvSaveNewConf() {
-  const label = document.getElementById("rv-nc-label")?.value?.trim();
-  if (!label) { toast("Escreve o nome da confluência", "err"); return; }
-  const color = document.getElementById("rv-nc-color")?.value || "#5b8fff";
-  const hasSr = document.getElementById("rv-nc-sr")?.checked || false;
-  const id = "cc_" + Date.now();
-  const conf = { id, label, color, sr: hasSr, group: "Custom" };
-  customConfs.push(conf);
-  CONFS.push(conf);
-  CMAP[id] = conf;
-  localStorage.setItem("nq10_cc", JSON.stringify(customConfs));
-  sbPushKey("nq10_cc", customConfs);
-  // clear form
-  if (document.getElementById("rv-nc-label")) document.getElementById("rv-nc-label").value = "";
-  document.getElementById("rv-new-conf-form").style.display = "none";
-  // re-render conf list in review
-  const t = dayTrades(rvDate)[rvIdx];
-  if (t) buildConfs("rv-conf-list", t.confluences || "[]", "rconf-chip", "rsr-btn", "rsr-btn", "rvToggleConf", "rvSetSR");
-  toast("Confluência guardada ✓", "ok");
-}
-
-let _delConfId = null;
-function rvDeleteCustomConf(id) {
-  const c = CMAP[id]; if (!c) return;
-  _delConfId = id;
-  document.getElementById("conf-del-modal-body").textContent =
-    "Tens a certeza que queres apagar '" + c.label + "'? Esta acção não pode ser desfeita.";
-  document.getElementById("conf-del-modal-bg").classList.add("open");
-}
-function cancelDeleteCustomConf() {
-  _delConfId = null;
-  document.getElementById("conf-del-modal-bg").classList.remove("open");
-}
-function confirmDeleteCustomConf() {
-  const id = _delConfId; if (!id) return;
-  cancelDeleteCustomConf();
-  customConfs = customConfs.filter(c => c.id !== id);
-  const confIdx = CONFS.findIndex(c => c.id === id);
-  if (confIdx !== -1) CONFS.splice(confIdx, 1);
-  delete CMAP[id];
-  localStorage.setItem("nq10_cc", JSON.stringify(customConfs));
-  sbPushKey("nq10_cc", customConfs);
-  const t = dayTrades(rvDate)[rvIdx];
-  if (t) buildConfs("rv-conf-list", t.confluences || "[]", "rconf-chip", "rsr-btn", "rsr-btn", "rvToggleConf", "rvSetSR");
-  toast("Confluência apagada", "ok");
-}
-
-function loadCustomConfs() {
-  try { customConfs = JSON.parse(localStorage.getItem("nq10_cc") || "[]"); } catch(e) { customConfs = []; }
-  if (!Array.isArray(customConfs)) customConfs = [];
-  customConfs.forEach(c => {
-    if (!CMAP[c.id]) {
-      if (!c.group) c.group = "Custom";
-      CONFS.push(c);
-      CMAP[c.id] = c;
-    }
-  });
-}
-
-// ── Migração da taxonomia de confluências (07/07/2026) ──────────────
-// Canonicaliza tags que existiam como CUSTOM ("Gamma Wall", "ICEBERG order")
-// para as novas tags base (of-gamma, dd-iceberg), remapeando os ids nas trades
-// históricas sem perda de dados. Idempotente: uma vez migradas as custom confs
-// desaparecem e a função passa a ser no-op. Renames com id igual (dt-abs, hvb,
-// bvr→…, dt-sr, delta, etc.) não precisam de transform — o label actualiza via CMAP.
-let _confMigRunning = false;
-async function migrateConfluences() {
-  if (_confMigRunning) return;
-  const LABEL_TO_BASE = {
-    "gamma wall": "of-gamma",
-    "iceberg order": "dd-iceberg",
-    "iceberg": "dd-iceberg",
-  };
-  const idRemap = {};
-  (customConfs || []).forEach(c => {
-    const key = String(c.label || "").trim().toLowerCase();
-    if (LABEL_TO_BASE[key] && CMAP[LABEL_TO_BASE[key]]) idRemap[c.id] = LABEL_TO_BASE[key];
-  });
-  if (!Object.keys(idRemap).length) return; // nada a migrar
-  _confMigRunning = true;
-  try {
-    const changed = [];
-    Object.keys(allT).forEach(accId => {
-      const arr = allT[accId]; if (!Array.isArray(arr)) return;
-      arr.forEach(t => {
-        const confs = parseConfs(t.confluences);
-        if (!confs.length) return;
-        let mod = false;
-        confs.forEach(c => { if (idRemap[c.id]) { c.id = idRemap[c.id]; mod = true; } });
-        if (mod) { t.confluences = serConfs(confs); changed.push([accId, t]); }
-      });
-    });
-    // Remove as custom confs canonicalizadas (evita botões/rows duplicados)
-    customConfs = (customConfs || []).filter(c => !idRemap[c.id]);
-    Object.keys(idRemap).forEach(oldId => {
-      const i = CONFS.findIndex(x => x.id === oldId); if (i !== -1) CONFS.splice(i, 1);
-      delete CMAP[oldId];
-    });
-    localStorage.setItem("nq10_cc", JSON.stringify(customConfs));
-    localStorage.setItem(SK_T, JSON.stringify(allT));
-    sbPushKey("nq10_cc", customConfs);
-    for (const [accId, t] of changed) { try { await sbSaveTrade(accId, t); } catch(e){} }
-    console.log("[NQ] migrateConfluences: " + changed.length + " trades migradas | " + Object.keys(idRemap).length + " custom confs canonicalizadas");
-    if (changed.length) {
-      if (typeof renderList === "function") renderList();
-      if (typeof renderDiary === "function") renderDiary();
-      if (typeof renderReports === "function") renderReports();
-    }
-  } finally {
-    _confMigRunning = false;
   }
 }
 
@@ -6553,16 +5790,14 @@ function showWeekFullPrep(weekStart) {
 function exportCSV() {
   const t = dayTrades(curDate); if (!t.length) return toast("Sem trades", "err");
   const ctx = psData[curDate] || {};
-  const header = "Date;Time;Symbol;Direction;Entry;Exit;PnL;Stop_Ticks;TP_Ticks;Risk_USD;RR_Planned;R_Realized;Confluences;Rating;Trade_Recap;Errors;Day_Bias;Fed_Narrative;Sentiment";
+  const header = "Date;Time;Symbol;Direction;Entry;Exit;PnL;Stop_Ticks;TP_Ticks;Risk_USD;RR_Planned;R_Realized;Grade;Errors;Trade_Recap;Day_Bias;Fed_Narrative;Sentiment";
+  const errCatalogMap = _buildErrorCatalogMap();
   const rows = t.map(x => {
-    const confsStr = parseConfs(x.confluences).map(c => {
-      const conf = CMAP[c.id]; if (!conf) return c.id;
-      return conf.label + (c.sr ? (c.sr === 'S' ? ' Support' : ' Resistance') : '');
-    }).join(" | ");
     const riskUSD = (x.stop_ticks && x.qty) ? (x.stop_ticks * 0.50 * x.qty).toFixed(2) : (x.risk || "");
     const recap = stripHTML(x.notes || "").replace(/\n/g, " ");
-    const errors = stripHTML(x.mistakes_note || "").replace(/\n/g, " ");
-    return [x.date, x.time||"", x.symbol||"", x.direction||"", x.entry||"", x.exit||"", x.pnl, x.stop_ticks||"", x.tp_ticks||"", riskUSD, x.rr||"", x.r||"", confsStr, x.rating||"", recap, errors, ctx.bias||"", ctx.fed||"", ctx.sentiment||""].join(";");
+    const errIds = [x.error_primary, ...(x.error_secondary || [])].filter(Boolean);
+    const errors = errIds.map(id => errCatalogMap[id]?.label || id).join(" | ");
+    return [x.date, x.time||"", x.symbol||"", x.direction||"", x.entry||"", x.exit||"", x.pnl, x.stop_ticks||"", x.tp_ticks||"", riskUSD, x.rr||"", x.r||"", x.grade||"", errors, recap, ctx.bias||"", ctx.fed||"", ctx.sentiment||""].join(";");
   });
   const csv = [header, ...rows].join("\r\n");
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download = (curAcct?.name||"trades")+"_"+curDate.replace(/-/g,"")+".csv"; a.click();
@@ -6826,33 +6061,14 @@ function rptDetailed(t) {
   let dirRows = Object.entries(dirs).sort((a,b)=>b[1].length-a[1].length).map(([k,v])=>rptStatRow(k,v)).join('');
   html += '<div class="sec"><div class="sec-title">Por direção</div><table style="'+TS+'">'+rptTableHeader()+'<tbody>'+dirRows+'</tbody></table></div>';
 
-  // Por confluência — agrupado pelas 6 categorias da taxonomia
-  const confByGroup = {}; // grupo -> { label -> trades[] }
-  t.forEach(x => parseConfs(x.confluences).forEach(({id,sr}) => {
-    const lbl = confLabel(id, sr);
-    const c = CMAP[id];
-    const grp = (c && c.group && CONF_GROUP_ORDER.includes(c.group)) ? c.group : "Custom";
-    if (!confByGroup[grp]) confByGroup[grp] = {};
-    if (!confByGroup[grp][lbl]) confByGroup[grp][lbl] = [];
-    confByGroup[grp][lbl].push(x);
-  }));
-  let confBody = '';
-  CONF_GROUP_ORDER.forEach(grp => {
-    const g = confByGroup[grp]; if (!g) return;
-    const rows = Object.entries(g).sort((a,b)=>b[1].length-a[1].length).map(([k,v])=>rptStatRow(k,v)).join('');
-    if (!rows) return;
-    confBody += '<tr><td colspan="7" style="padding:11px 8px 4px;font-family:var(--mono);font-size:10px;color:var(--hint);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--b1)">'+grp+'</td></tr>' + rows;
-  });
-  html += '<div class="sec"><div class="sec-title">Por confluência</div>'+(confBody?'<table style="'+TS+'">'+rptTableHeader()+'<tbody>'+confBody+'</tbody></table>':'<div style="color:var(--hint);font-size:12px;font-family:var(--mono)">Adiciona confluências às trades para ver este breakdown</div>')+'</div>';
-
   const byBias = {}; t.forEach(x => { const b=psData[x.date]?.bias||null; if(!b)return; if(!byBias[b])byBias[b]=[]; byBias[b].push(x); });
   let biasRows = Object.entries(byBias).sort((a,b)=>b[1].length-a[1].length).map(([k,v])=>rptStatRow(k,v)).join('');
   html += '<div class="sec"><div class="sec-title">Por bias de mercado</div>'+(biasRows?'<table style="'+TS+'">'+rptTableHeader()+'<tbody>'+biasRows+'</tbody></table>':'<div style="color:var(--hint);font-size:12px;font-family:var(--mono)">Define o bias na Pré-Sessão para ver este breakdown</div>')+'</div>';
 
-  // ── POR SETUP GRADE ──
-  const byGrade = {}; t.forEach(x => { const g=x.setup_grade; if(!g)return; if(!byGrade[g])byGrade[g]=[]; byGrade[g].push(x); });
-  let gradeRows = ZONE_GRADES.filter(g=>byGrade[g]?.length).map(g=>rptStatRow(g, byGrade[g])).join('');
-  html += '<div class="sec"><div class="sec-title">Por Setup Grade</div>'+(gradeRows?'<table style="'+TS+'">'+rptTableHeader()+'<tbody>'+gradeRows+'</tbody></table>':'<div style="color:var(--hint);font-size:12px;font-family:var(--mono)">Define o Setup Grade nas trades (no review) para ver este breakdown</div>')+'</div>';
+  // ── POR GRADE ──
+  const byGrade = {}; t.forEach(x => { const g=x.grade; if(!g)return; if(!byGrade[g])byGrade[g]=[]; byGrade[g].push(x); });
+  let gradeRows = TRADE_GRADES.filter(g=>byGrade[g]?.length).map(g=>rptStatRow(g, byGrade[g])).join('');
+  html += '<div class="sec"><div class="sec-title">Por Grade</div>'+(gradeRows?'<table style="'+TS+'">'+rptTableHeader()+'<tbody>'+gradeRows+'</tbody></table>':'<div style="color:var(--hint);font-size:12px;font-family:var(--mono)">Define a Grade nas trades (no painel) para ver este breakdown</div>')+'</div>';
 
   // ── POR BIAS × DIREÇÃO ──
   const normBias = b => { if(!b) return null; if(/bull/i.test(b)) return 'Bullish'; if(/bear/i.test(b)) return 'Bearish'; return 'Neutral'; };
@@ -7054,7 +6270,9 @@ document.addEventListener("keydown", e => {
   }
   if (e.key === "Escape") {
     const m = document.getElementById("fs-modal");
-    if (m && m.style.display === "flex") { e.preventDefault(); closeFSModal(); }
+    if (m && m.style.display === "flex") { e.preventDefault(); closeFSModal(); return; }
+    const rv = document.getElementById("review");
+    if (rv && rv.classList.contains("open")) { e.preventDefault(); closeReview(); }
   }
 });
 </script>
