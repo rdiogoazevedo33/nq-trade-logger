@@ -151,8 +151,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 /* TRADE PANEL */
 #review-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:499}
 #review-backdrop.open{display:block}
-#review{position:fixed;top:0;right:0;bottom:0;width:52%;min-width:520px;max-width:920px;background:var(--bg);z-index:500;display:flex;flex-direction:column;border-left:1px solid var(--b1);box-shadow:-12px 0 48px rgba(0,0,0,.55);transform:translateX(100%);visibility:hidden;transition:transform .25s ease,visibility 0s linear .25s}
-#review.open{transform:translateX(0);visibility:visible;transition:transform .25s ease}
+#review{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;flex-direction:column;opacity:0;visibility:hidden;transition:opacity .18s ease,visibility 0s linear .18s}
+#review.open{opacity:1;visibility:visible;transition:opacity .18s ease}
 .rv-top{display:flex;align-items:center;gap:11px;padding:10px 18px;background:var(--s1);border-bottom:1px solid var(--b1);flex-shrink:0;flex-wrap:wrap}
 .rv-counter{padding:6px 11px;font-family:var(--mono);font-size:11px;color:var(--sub);background:var(--s2);border-radius:7px}
 .rv-pnl-hero{padding:16px 18px;border-bottom:1px solid var(--b1);flex-shrink:0}
@@ -203,11 +203,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .rv-ec-toggle{font-family:var(--mono);font-size:10px;padding:4px 9px;border-radius:6px;border:1px solid var(--b1);background:transparent;color:var(--hint);cursor:pointer;white-space:nowrap}
 .rv-ec-toggle.on{background:#071f0f;border-color:var(--green);color:var(--green)}
 /* Recap */
-.rv-recap-ta{width:100%;font-family:var(--sans);font-size:13px;line-height:1.7;background:var(--s2);border:1px solid var(--b1);border-radius:8px;color:var(--text);padding:11px 13px;outline:none;resize:none;min-height:140px;overflow:hidden}
+.rv-recap-ta{width:100%;font-family:var(--sans);font-size:13px;line-height:1.7;background:var(--s2);border:1px solid var(--b1);border-radius:8px;color:var(--text);padding:11px 13px;outline:none;resize:none;min-height:320px;overflow:hidden}
 .rv-recap-ta:focus{border-color:var(--accent)}
 .rv-recap-ta::placeholder{color:var(--hint)}
 /* Screenshots */
-.ss-zone{border:2px dashed var(--b2);border-radius:10px;padding:28px;text-align:center;cursor:pointer;transition:all .18s}
+.ss-zone{border:2px dashed var(--b2);border-radius:10px;padding:64px 28px;text-align:center;cursor:pointer;transition:all .18s}
 .ss-zone:hover,.ss-zone.drag{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 5%,transparent)}
 .ss-gallery-row{display:flex;flex-direction:row;gap:6px;overflow-x:auto;align-items:center;flex-wrap:nowrap;padding-bottom:4px;margin-bottom:6px}
 .ss-wrap{position:relative;border-radius:7px;overflow:hidden;border:1px solid var(--b1);flex-shrink:0;cursor:pointer;transition:border-color .15s}
@@ -1188,7 +1188,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 </div><!-- end #app -->
 
 <!-- TRADE PANEL -->
-<div id="review-backdrop" onclick="closeReview()"></div>
+<div id="review-backdrop"></div>
 <div id="review">
   <div class="rv-top">
     <button class="btn btn-ghost btn-sm" id="rv-prev-btn" onclick="rvNav(-1)">‹ Anterior</button>
@@ -1384,7 +1384,7 @@ async function sbPullData() {
       Promise.all([
         sb.from("user_data").select("key,value").eq("user_id", sbUser.id),
         sb.from("trades").select("id,account_id,data,screenshots").eq("user_id", sbUser.id),
-        sb.from("sessions").select("date,data,screenshots").eq("user_id", sbUser.id)
+        sb.from("sessions").select("date,account_id,data,screenshots").eq("user_id", sbUser.id)
       ]),
       pullTimeout
     ]);
@@ -1410,27 +1410,42 @@ async function sbPullData() {
   udData.forEach(row => {
     if (row.key === "nq10_a")       { try { const v = row.value; if (Array.isArray(v)) accounts = v; } catch(e){} }
     if (row.key === "nq10_t")       { try { const v = row.value; if (v && typeof v === "object") allT = v; } catch(e){} }
-    if (row.key === "nq10_ps")      { try { const v = row.value; if (v && typeof v === "object") psData = v; } catch(e){} }
+    if (row.key === "nq10_ps")      { try { const v = row.value; if (v && typeof v === "object") allPS = isLegacyFlatByDate(v) ? { lucid: v } : v; } catch(e){} }
     if (row.key === "nq10_ps_imgs") { try { const v = row.value; if (v && typeof v === "object") psImgs = v; } catch(e){} }
     if (row.key === "nq10_ec")      { try { const v = row.value; if (Array.isArray(v) && v.length) { errorCatalog = v; localStorage.setItem(SK_EC, JSON.stringify(errorCatalog)); } } catch(e){} }
-    if (row.key === "nq10_wp")      { try { const v = row.value; if (v && typeof v === "object") weeklyPrep = v; } catch(e){} }
+    if (row.key === "nq10_wp")      { try { const v = row.value; if (v && typeof v === "object") allWP = isLegacyFlatByDate(v) ? { lucid: v } : v; } catch(e){} }
     if (row.key === "nq10_ram")     { try { const v = row.value; if (v && typeof v === "object") { rithmicAcctMap = v; localStorage.setItem("nq10_ram", JSON.stringify(rithmicAcctMap)); } } catch(e){} }
     if (row.key === "nq10_wp_imgs") { try { const v = row.value; if (v && typeof v === "object") wpImgs = v; } catch(e){} }
     if (typeof row.key === "string" && row.key.startsWith("postWeek")) { try { localStorage.setItem(row.key, typeof row.value === "string" ? row.value : JSON.stringify(row.value)); } catch(e){} }
   });
 
-  // Aplicar imagens legacy das sessões
+  // Aplicar imagens legacy das sessões — datam de antes da partição por conta, atribuídas à conta principal
   if (psImgs) {
+    if (!allPS.lucid) allPS.lucid = {};
     Object.keys(psImgs).forEach(d => {
-      if (!psData[d]) psData[d] = {};
-      psData[d].profile_screenshots = psImgs[d];
+      if (!allPS.lucid[d]) allPS.lucid[d] = {};
+      allPS.lucid[d].profile_screenshots = psImgs[d];
     });
   }
   if (wpImgs) {
-    Object.keys(wpImgs).forEach(w => {
-      if (!weeklyPrep[w]) weeklyPrep[w] = {};
-      Object.keys(wpImgs[w]).forEach(k => { weeklyPrep[w][k + '_screenshots'] = wpImgs[w][k]; });
-    });
+    // nq10_wp_imgs continua activo (saveWPData ainda o usa) — já vem particionado
+    // por conta desde esta correcção; formato antigo (plano por semana) só existe
+    // em contas que nunca voltaram a gravar a preparação semanal.
+    if (isLegacyFlatByDate(wpImgs)) {
+      if (!allWP.lucid) allWP.lucid = {};
+      Object.keys(wpImgs).forEach(w => {
+        if (!allWP.lucid[w]) allWP.lucid[w] = {};
+        Object.keys(wpImgs[w]).forEach(k => { allWP.lucid[w][k + '_screenshots'] = wpImgs[w][k]; });
+      });
+    } else {
+      Object.keys(wpImgs).forEach(accId => {
+        if (!allWP[accId]) allWP[accId] = {};
+        Object.keys(wpImgs[accId] || {}).forEach(w => {
+          if (!allWP[accId][w]) allWP[accId][w] = {};
+          Object.keys(wpImgs[accId][w]).forEach(k => { allWP[accId][w][k + '_screenshots'] = wpImgs[accId][w][k]; });
+        });
+      });
+    }
   }
 
   // Tabela trades (tem prioridade sobre nq10_t legacy)
@@ -1468,17 +1483,21 @@ async function sbPullData() {
   const hasSessions = !seRes.error && seRes.data?.length > 0;
   if (hasSessions) {
     console.log("[NQ] sbPullData: " + seRes.data.length + " sessões (tabela sessions)");
-    psData = {};
+    allPS = {};
     seRes.data.forEach(row => {
-      psData[row.date] = { ...row.data, profile_screenshots: row.screenshots || [] };
+      const accId = row.account_id || "lucid";
+      if (!allPS[accId]) allPS[accId] = {};
+      allPS[accId][row.date] = { ...row.data, profile_screenshots: row.screenshots || [] };
     });
   } else if (!seRes.error && seRes.data?.length === 0) {
-    // Tabela vazia — migrar sessões legacy
-    const legacyHasSess = Object.keys(psData).length > 0;
+    // Tabela vazia — migrar sessões legacy (já particionadas por conta em allPS)
+    const legacyHasSess = Object.values(allPS).some(m => Object.keys(m || {}).length > 0);
     if (legacyHasSess) {
       console.log("[NQ] sbPullData: a migrar sessões legacy para tabela nova (em background)...");
       (async () => {
-        for (const [date, sess] of Object.entries(psData)) await sbSaveSession(date, sess);
+        for (const [accId, sessByDate] of Object.entries(allPS)) {
+          for (const [date, sess] of Object.entries(sessByDate || {})) await sbSaveSession(date, sess, accId);
+        }
         console.log("[NQ] Migração de sessões concluída");
       })();
     }
@@ -1487,15 +1506,17 @@ async function sbPullData() {
   // Se tudo vazio — upload dos dados locais
   if (udData.length === 0 && !hasTrades && !hasSessions) {
     const localHasTrades = Object.values(allT).some(arr => Array.isArray(arr) && arr.length > 0);
-    const localHasSess   = Object.keys(psData).length > 0;
-    const localHasWP     = Object.keys(weeklyPrep).length > 0;
+    const localHasSess   = Object.values(allPS).some(m => Object.keys(m || {}).length > 0);
+    const localHasWP     = Object.values(allWP).some(m => Object.keys(m || {}).length > 0);
     if (localHasTrades || localHasSess || localHasWP) {
       await sbPushKey("nq10_a", accounts);
       for (const [accId, trades] of Object.entries(allT)) {
         for (const trade of (trades || [])) await sbSaveTrade(accId, trade);
       }
-      for (const [date, sess] of Object.entries(psData)) await sbSaveSession(date, sess);
-      await sbPushKey("nq10_wp", weeklyPrep);
+      for (const [accId, sessByDate] of Object.entries(allPS)) {
+        for (const [date, sess] of Object.entries(sessByDate || {})) await sbSaveSession(date, sess, accId);
+      }
+      await sbPushKey("nq10_wp", allWP);
       toast("Dados locais enviados para a cloud ✓", "ok");
     } else {
       setSyncStatus("ok", sbUser?.email || "autenticado");
@@ -1509,8 +1530,8 @@ async function sbPullData() {
   }
   localStorage.setItem("nq10_a",  JSON.stringify(accounts));
   localStorage.setItem("nq10_t",  JSON.stringify(allT));
-  localStorage.setItem("nq10_ps", JSON.stringify(psData));
-  localStorage.setItem("nq10_wp", JSON.stringify(weeklyPrep));
+  localStorage.setItem("nq10_ps", JSON.stringify(allPS));
+  localStorage.setItem("nq10_wp", JSON.stringify(allWP));
   cleanStaleRithmicMappings();
   setSyncStatus("ok", sbUser?.email || "autenticado");
   renderAccts();
@@ -1594,8 +1615,9 @@ async function sbDeleteAccountTrades(accountId) {
   if (error) { console.error("[NQ] sbDeleteAccountTrades ERRO:", accountId, error.message); return false; }
   return true;
 }
-async function sbSaveSession(date, sessionData) {
+async function sbSaveSession(date, sessionData, accountId) {
   if (!sbUser) return true;
+  if (!accountId) { console.error("[NQ] sbSaveSession: accountId em falta — não guardado para evitar dados sem conta", date); return false; }
   const { profile_screenshots, ...data } = sessionData || {};
   setSyncStatus("busy", "a guardar...");
   const timeout = new Promise((_, reject) =>
@@ -1605,8 +1627,8 @@ async function sbSaveSession(date, sessionData) {
   try {
     result = await Promise.race([
       sb.from("sessions").upsert(
-        { date, user_id: sbUser.id, data, screenshots: profile_screenshots || [], updated_at: new Date().toISOString() },
-        { onConflict: "user_id,date" }
+        { date, user_id: sbUser.id, account_id: accountId, data, screenshots: profile_screenshots || [], updated_at: new Date().toISOString() },
+        { onConflict: "user_id,date,account_id" }
       ),
       timeout
     ]);
@@ -1720,7 +1742,7 @@ async function sbSignUp() {
 async function sbLogout() {
   await sb.auth.signOut();
   // limpar estado local
-  allT = {}; psData = {}; weeklyPrep = {};
+  allT = {}; allPS = {}; allWP = {}; psData = {}; weeklyPrep = {};
   accounts = [{ id: "lucid", name: "Lucid", emoji: "🔵" }, { id: "mff", name: "My Funded Futures", emoji: "🟢" }];
   localStorage.clear();
   showLoginScreen();
@@ -1731,6 +1753,7 @@ async function sbLogout() {
 // ═══════════════════════════════════════════
 const SK_A = "nq10_a", SK_T = "nq10_t", SK_PS = "nq10_ps", SK_WP = "nq10_wp", SK_RAM = "nq10_ram", SK_EC = "nq10_ec";
 let accounts = [], curAcct = null, allT = {}, psData = {}, weeklyPrep = {};
+let allPS = {}, allWP = {}; // { accountId: { date/weekStart: {...} } } — root, particionado por conta; psData/weeklyPrep são a "vista" da conta actual
 let rithmicAcctMap = {}; // { "<Rithmic Account column value>": "<app account_id>" }
 const diaryState = {}; // { date: { bias, fed, sentiment, profileBias } }
 
@@ -1770,11 +1793,19 @@ const CAPITAL_FLOW_ASSETS = [
   { id: 'gold', label: 'Ouro' }, { id: 'spx_on', label: 'SPX overnight' }, { id: 'nq_on', label: 'NQ overnight' }
 ];
 
+// Estado antigo de psData/weeklyPrep era plano por data/semana (sem conta).
+// Detecta esse formato pelas chaves de topo pareceram-se com datas ISO e
+// atribui-o à conta principal — nunca perde dados, só os agrupa correctamente.
+function isLegacyFlatByDate(obj) {
+  return Object.keys(obj || {}).some(k => /^\d{4}-\d{2}-\d{2}$/.test(k));
+}
 function loadData() {
   try { accounts = JSON.parse(localStorage.getItem(SK_A) || "[]"); } catch(e) { accounts = []; }
   try { allT = JSON.parse(localStorage.getItem(SK_T) || "{}"); } catch(e) { allT = {}; }
-  try { psData = JSON.parse(localStorage.getItem(SK_PS) || "{}"); } catch(e) { psData = {}; }
-  try { weeklyPrep = JSON.parse(localStorage.getItem(SK_WP) || "{}"); } catch(e) { weeklyPrep = {}; }
+  try { allPS = JSON.parse(localStorage.getItem(SK_PS) || "{}"); } catch(e) { allPS = {}; }
+  if (isLegacyFlatByDate(allPS)) allPS = { lucid: allPS };
+  try { allWP = JSON.parse(localStorage.getItem(SK_WP) || "{}"); } catch(e) { allWP = {}; }
+  if (isLegacyFlatByDate(allWP)) allWP = { lucid: allWP };
   try { rithmicAcctMap = JSON.parse(localStorage.getItem(SK_RAM) || "{}"); } catch(e) { rithmicAcctMap = {}; }
   try { errorCatalog = JSON.parse(localStorage.getItem(SK_EC) || "null") || []; } catch(e) { errorCatalog = []; }
   if (!Array.isArray(errorCatalog) || !errorCatalog.length) errorCatalog = DEFAULT_ERROR_CATALOG.map(c => ({ ...c }));
@@ -1834,18 +1865,19 @@ function compressImage(base64, maxWidth, quality, format) {
 
 let _psSaving = false;
 async function savePSData(date) {
-  localStorage.setItem(SK_PS, JSON.stringify(psData));
+  localStorage.setItem(SK_PS, JSON.stringify(allPS));
   if (!sbUser) { console.log("[NQ] savePSData: sem utilizador, guardado só localmente"); return true; }
+  if (!curAcct) { console.error("[NQ] savePSData: sem conta seleccionada"); return false; }
   if (_psSaving) { console.log("[NQ] savePSData: save já em curso, a ignorar"); return true; }
   _psSaving = true;
   try {
     if (date) {
       // Guardar apenas esta sessão (caso normal)
-      return await sbSaveSession(date, psData[date] || {});
+      return await sbSaveSession(date, psData[date] || {}, curAcct.id);
     } else {
       // Guardar todas as sessões (usado no restore de backup)
       for (const [d, sess] of Object.entries(psData)) {
-        const ok = await sbSaveSession(d, sess);
+        const ok = await sbSaveSession(d, sess, curAcct.id);
         if (!ok) return false;
       }
       return true;
@@ -1857,26 +1889,32 @@ async function savePSData(date) {
 
 let _wpSaving = false;
 async function saveWPData() {
-  localStorage.setItem(SK_WP, JSON.stringify(weeklyPrep));
+  localStorage.setItem(SK_WP, JSON.stringify(allWP));
   if (!sbUser) { console.log("[NQ] saveWPData: sem utilizador, guardado só localmente"); return true; }
   if (_wpSaving) { console.log("[NQ] saveWPData: save já em curso, a ignorar"); return true; }
   _wpSaving = true;
-  console.log("[NQ] saveWPData: a iniciar split texto/imagens...");
+  console.log("[NQ] saveWPData: a iniciar split texto/imagens (todas as contas)...");
   try {
     const textOnly = {}, imgs = {};
-    Object.keys(weeklyPrep).forEach(w => {
-      const wp = weeklyPrep[w];
-      if (!wp || typeof wp !== 'object') { textOnly[w] = wp; return; }
-      const rest = Object.assign({}, wp);
-      const wi = {};
-      ['cot', 'profile', 'geo'].forEach(k => {
-        const key = k + '_screenshots';
-        if (rest[key] && rest[key].length) { wi[k] = rest[key]; rest[key] = []; }
+    Object.keys(allWP).forEach(accId => {
+      const accWP = allWP[accId] || {};
+      const accText = {}, accImgs = {};
+      Object.keys(accWP).forEach(w => {
+        const wp = accWP[w];
+        if (!wp || typeof wp !== 'object') { accText[w] = wp; return; }
+        const rest = Object.assign({}, wp);
+        const wi = {};
+        ['cot', 'profile', 'geo'].forEach(k => {
+          const key = k + '_screenshots';
+          if (rest[key] && rest[key].length) { wi[k] = rest[key]; rest[key] = []; }
+        });
+        accText[w] = rest;
+        if (Object.keys(wi).length) accImgs[w] = wi;
       });
-      textOnly[w] = rest;
-      if (Object.keys(wi).length) imgs[w] = wi;
+      textOnly[accId] = accText;
+      if (Object.keys(accImgs).length) imgs[accId] = accImgs;
     });
-    console.log("[NQ] saveWPData: texto=" + JSON.stringify(textOnly).length + " bytes | semanas com imagens=" + Object.keys(imgs).length);
+    console.log("[NQ] saveWPData: texto=" + JSON.stringify(textOnly).length + " bytes | contas com imagens=" + Object.keys(imgs).length);
     const ok = await sbPushKey("nq10_wp", textOnly);
     if (ok && Object.keys(imgs).length) await sbPushKey("nq10_wp_imgs", imgs);
     return ok;
@@ -2022,6 +2060,10 @@ renderAccts();
 
 function selectAcct(id) {
   curAcct = accounts.find(a => a.id === id); if (!curAcct) return;
+  if (!allPS[curAcct.id]) allPS[curAcct.id] = {};
+  if (!allWP[curAcct.id]) allWP[curAcct.id] = {};
+  psData = allPS[curAcct.id];
+  weeklyPrep = allWP[curAcct.id];
   localStorage.setItem("nq10_last_account", id);
   document.getElementById("acct-screen").style.display = "none";
   document.getElementById("app").style.display = "flex";
@@ -2064,10 +2106,12 @@ function deleteAcct(id, e) {
   const a = accounts.find(x => x.id === id); if (!a) return;
   const n = (Array.isArray(allT[id]) ? allT[id] : []).length;
   if (!confirm("Eliminar \"" + a.name + "\"?" + (n > 0 ? " Apaga " + n + " trades." : ""))) return;
-  accounts = accounts.filter(x => x.id !== id); delete allT[id];
+  accounts = accounts.filter(x => x.id !== id); delete allT[id]; delete allPS[id]; delete allWP[id];
   Object.keys(rithmicAcctMap).forEach(k => { if (rithmicAcctMap[k] === id) delete rithmicAcctMap[k]; });
   localStorage.setItem(SK_RAM, JSON.stringify(rithmicAcctMap));
   sbPushKey("nq10_ram", rithmicAcctMap);
+  localStorage.setItem(SK_PS, JSON.stringify(allPS));
+  localStorage.setItem(SK_WP, JSON.stringify(allWP));
   persist(); renderAccts();
 }
 
@@ -4604,7 +4648,7 @@ function rvRenderGallery(ss) {
   const dropAttrs = ' ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="rvDrop(event)"';
   if (!ss?.length) { el.innerHTML = '<div class="ss-zone"' + dropAttrs + ' onclick="document.getElementById(\'rv-img-in\').click()"><div style="font-size:20px;opacity:.2;margin-bottom:7px">📷</div><div style="font-size:12px;color:var(--hint);font-family:var(--mono)">Arrasta prints aqui ou clica para adicionar</div></div>'; return; }
   el.innerHTML = imgGalleryHTML(
-    'rvgal', ss, 280,
+    'rvgal', ss, 480,
     'rvOpenLightbox(parseInt(this.dataset.idx)||0)',
     i => 'rvRemovePrint(' + i + ')',
     "document.getElementById('rv-img-in').click()",
@@ -5481,8 +5525,8 @@ function exportAllData() {
     exported: new Date().toISOString(),
     accounts: accounts,
     trades: allT,
-    presessao: psData,
-    weekly_prep: weeklyPrep,
+    presessao: allPS,
+    weekly_prep: allWP,
     error_catalog: errorCatalog
   };
   const json = JSON.stringify(backup, null, 2);
@@ -5532,8 +5576,10 @@ function importAllData(e) {
       const data = JSON.parse(ev.target.result);
       if (!data.accounts || !data.trades) { toast("Ficheiro inválido", "err"); return; }
       const totalTrades = Object.values(data.trades).flat().length;
-      const totalSess = Object.keys(data.presessao || {}).length;
-      const totalWP = Object.keys(data.weekly_prep || {}).length;
+      const presessaoByAcct = data.presessao || {};
+      const weeklyPrepByAcct = data.weekly_prep || {};
+      const totalSess = Object.values(presessaoByAcct).reduce((s, m) => s + Object.keys(m || {}).length, 0);
+      const totalWP = Object.values(weeklyPrepByAcct).reduce((s, m) => s + Object.keys(m || {}).length, 0);
       const dataDate = new Date(data.exported).toLocaleDateString("pt");
       if (!confirm(
         "Importar backup de " + dataDate + "?\n" +
@@ -5545,8 +5591,14 @@ function importAllData(e) {
       // Restore in-memory
       accounts = data.accounts;
       allT = data.trades;
-      psData = data.presessao || {};
-      weeklyPrep = data.weekly_prep || {};
+      allPS = presessaoByAcct;
+      allWP = weeklyPrepByAcct;
+      if (curAcct) {
+        if (!allPS[curAcct.id]) allPS[curAcct.id] = {};
+        if (!allWP[curAcct.id]) allWP[curAcct.id] = {};
+        psData = allPS[curAcct.id];
+        weeklyPrep = allWP[curAcct.id];
+      }
       if (Array.isArray(data.error_catalog) && data.error_catalog.length) {
         errorCatalog = data.error_catalog;
         localStorage.setItem(SK_EC, JSON.stringify(errorCatalog));
@@ -5554,17 +5606,19 @@ function importAllData(e) {
 
       // Persist to localStorage
       persist();
-      localStorage.setItem(SK_PS, JSON.stringify(psData));
-      localStorage.setItem(SK_WP, JSON.stringify(weeklyPrep));
+      localStorage.setItem(SK_PS, JSON.stringify(allPS));
+      localStorage.setItem(SK_WP, JSON.stringify(allWP));
 
-      // Sync all to Supabase (trades e sessions por linha individual)
+      // Sync all to Supabase (trades e sessões por linha individual, todas as contas)
       if (sbUser) {
         toast("A sincronizar com Supabase…", "ok");
         await sbPushKey("nq10_a", accounts);
         for (const [accId, trades] of Object.entries(allT)) {
           for (const trade of (trades || [])) await sbSaveTrade(accId, trade);
         }
-        await savePSData(); // sem data = guarda todas as sessões
+        for (const [accId, sessByDate] of Object.entries(allPS)) {
+          for (const [d, sess] of Object.entries(sessByDate || {})) await sbSaveSession(d, sess, accId);
+        }
         await saveWPData();
         if (errorCatalog.length) await sbPushKey("nq10_ec", errorCatalog);
       }
