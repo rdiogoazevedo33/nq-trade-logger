@@ -454,15 +454,24 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .dash-cal-title{font-size:12px;font-weight:600}
 .dash-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
 .dash-cal-dh{font-size:9px;font-family:var(--mono);color:var(--hint);text-align:center;padding:4px 0}
-.dash-cal-day{border-radius:6px;padding:4px 2px;min-height:40px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;font-family:var(--mono);font-size:9px;border:1px solid transparent;transition:all .12s;cursor:default;position:relative}
+.dash-cal-day{border-radius:6px;padding:5px 3px;min-height:60px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;font-family:var(--mono);font-size:9px;border:1px solid transparent;transition:all .12s;cursor:default;position:relative}
 .dash-cal-day.has-trades{cursor:pointer}
 .dash-cal-day.has-trades:hover{transform:scale(1.06);z-index:1}
-.dash-cal-day.win-d{background:#071f0f;border-color:#0a2e18}
-.dash-cal-day.loss-d{background:#1f0707;border-color:#2e0a0a}
+.dash-cal-day.win-d{border-color:#0a2e18}
+.dash-cal-day.loss-d{border-color:#2e0a0a}
 .dash-cal-day.be-d{background:var(--s2)}
 .dash-cal-day.today-d{border-color:var(--accent)!important}
 .dash-cal-dn{font-size:9px;color:var(--hint);margin-bottom:2px;line-height:1}
-.dash-cal-pnl{font-size:9px;font-weight:600;line-height:1.2;text-align:center;word-break:break-all}
+.dash-cal-pnl{font-size:12px;font-weight:700;line-height:1.2;text-align:center;word-break:break-all;margin-top:2px}
+.dash-cal-meta{font-size:8px;color:var(--sub);line-height:1.2;margin-top:3px}
+/* Calendário + resumo semanal lado a lado */
+.dash-cal-wrap{display:grid;grid-template-columns:1fr 150px;gap:var(--sp-3)}
+@media(max-width:640px){.dash-cal-wrap{grid-template-columns:1fr}}
+.dash-week-summary{display:flex;flex-direction:column;gap:6px}
+.dash-week-row{background:var(--s1);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:2px}
+.dash-week-row-label{font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.05em}
+.dash-week-row-pnl{font-family:var(--mono);font-size:13px;font-weight:700}
+.dash-week-row-days{font-size:9px;font-family:var(--mono);color:var(--sub)}
 .dash-recent-card{background:var(--s1);border-radius:14px;padding:var(--sp-3)}
 .dash-recent-title{font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
 .dash-rt-row{display:grid;grid-template-columns:80px 44px 48px 1fr 68px;gap:6px;align-items:center;padding:8px 6px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .1s;border-radius:6px}
@@ -488,9 +497,9 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .jday-metric-lbl{font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase}
 .jday-body{display:none;border-top:1px solid var(--b1)}
 .jday-card.open .jday-body{display:block}
-.jtrade-hdr{display:grid;grid-template-columns:86px 48px 44px 120px 1fr 90px 85px 85px 28px;gap:6px;padding:5px 16px;background:var(--s3);font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.04em}
-.jtrade-hdr span:nth-child(5),.jtrade-hdr span:nth-child(7),.jtrade-hdr span:nth-child(8){text-align:right}
-.jtrade-row{display:grid;grid-template-columns:86px 48px 44px 120px 1fr 90px 85px 85px 28px;align-items:center;gap:6px;padding:8px 16px;border-bottom:1px solid var(--b1);font-family:var(--mono);font-size:11px;transition:background .1s;cursor:pointer}
+.jtrade-hdr{display:grid;grid-template-columns:86px 48px 44px 120px 1fr 70px 90px;gap:6px;padding:5px 16px;background:var(--s3);font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.04em}
+.jtrade-hdr span:nth-child(5),.jtrade-hdr span:nth-child(7){text-align:right}
+.jtrade-row{display:grid;grid-template-columns:86px 48px 44px 120px 1fr 70px 90px;align-items:center;gap:6px;padding:8px 16px;border-bottom:1px solid var(--b1);font-family:var(--mono);font-size:11px;transition:background .1s;cursor:pointer}
 .jtrade-row:hover{background:var(--s2)}
 .jtrade-row:last-child{border-bottom:none}
 /* Context modal */
@@ -501,7 +510,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .ctx-sec{margin-bottom:11px}
 .ctx-lbl{font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
 .ctx-val{font-size:12px;font-family:var(--mono);color:var(--text)}
-@media(max-width:640px){.jday-hdr{gap:8px}.jday-metrics{gap:8px}.jtrade-hdr,.jtrade-row{grid-template-columns:74px 40px 36px 100px 1fr 70px 68px 68px 24px;font-size:10px}}
+@media(max-width:640px){.jday-hdr{gap:8px}.jday-metrics{gap:8px}.jtrade-hdr,.jtrade-row{grid-template-columns:74px 40px 36px 100px 1fr 60px 78px;font-size:10px}}
 
 /* FASE 5 — Session badges */
 .sess-badge{display:inline-flex;align-items:center;font-family:var(--mono);font-size:9px;font-weight:600;padding:1px 6px;border-radius:4px;letter-spacing:.03em;border:1px solid;white-space:nowrap;vertical-align:middle}
@@ -524,21 +533,15 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .stat-two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px}
 @media(max-width:700px){.stat-two-col{grid-template-columns:1fr}}
 
-/* ─── DIÁRIO HIERÁRQUICO — Week / Day ───────────────────────── */
-.diary-week-card{background:var(--s1);border-radius:16px;margin-bottom:var(--sp-3);overflow:hidden}
-.diary-week-card.current{background:var(--s2)}
-.week-hdr{display:flex;align-items:center;gap:10px;padding:12px 17px;cursor:pointer;user-select:none;flex-wrap:wrap;transition:background .12s}
-.week-hdr:hover{background:var(--s2)}
+/* ─── DIÁRIO — semana (separador leve) / dia (bloco expansível) ─ */
+.week-section{margin-bottom:var(--sp-4)}
+.week-sep-hdr{display:flex;align-items:center;gap:10px;padding:6px 4px;margin-bottom:var(--sp-2);flex-wrap:wrap}
 .week-dates{font-size:13px;font-weight:600;flex:1;min-width:120px}
 .week-badge-pill{font-family:var(--mono);font-size:9px;font-weight:600;padding:2px 8px;border-radius:5px;border:1px solid}
 .week-badge-pill.current{color:var(--text);font-weight:700;background:var(--s3);border-color:var(--b2)}
 .week-badge-pill.done{color:var(--hint);background:var(--s3);border-color:var(--b1)}
 .week-pnl-lbl{font-family:var(--mono);font-size:13px;font-weight:700}
 .week-meta-lbl{font-family:var(--mono);font-size:10px;color:var(--hint)}
-.week-chevron{font-size:10px;color:var(--hint);transition:transform .2s;flex-shrink:0;width:14px;text-align:center}
-.week-body{display:none;border-top:1px solid var(--b1)}
-.diary-week-card.open>.week-body{display:block}
-.diary-week-card.open>.week-hdr .week-chevron{transform:rotate(90deg)}
 
 /* Weekly prep */
 .wp-section{padding:14px 17px;border-bottom:1px solid var(--b1);background:var(--s2)}
@@ -556,20 +559,22 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .wp-bias-btn.bear.on{background:#1f0707;border-color:var(--red);color:var(--red)}
 .wp-bias-btn.range.on{background:#150d1f;border-color:var(--purple);color:var(--purple)}
 
-/* Day rows inside week */
-.diary-day-row{border-bottom:1px solid var(--b1)}
-.diary-day-row:last-child{border-bottom:none}
-.ddr-hdr{display:flex;align-items:center;gap:8px;padding:10px 17px;cursor:pointer;transition:background .12s;flex-wrap:wrap}
-.ddr-hdr:hover{background:color-mix(in srgb,var(--s3) 60%,transparent)}
-.ddr-day-lbl{font-size:12px;font-weight:600;color:var(--sub);min-width:130px;flex-shrink:0}
-.ddr-badges{display:flex;gap:4px;flex-wrap:wrap;flex:1;min-width:0}
-.ddr-plan-snip{font-size:10px;font-family:var(--mono);color:var(--hint);flex:2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px}
-.ddr-pnl-lbl{font-family:var(--mono);font-size:15px;font-weight:700;text-align:right;flex-shrink:0}
-.ddr-cnt{font-family:var(--mono);font-size:10px;color:var(--hint);flex-shrink:0}
+/* Day — bloco expansível autónomo */
+.diary-day-row{background:var(--s1);border-radius:14px;margin-bottom:var(--sp-2);overflow:hidden}
+.ddr-hdr{display:flex;align-items:center;gap:10px;padding:12px 17px;cursor:pointer;transition:background .12s;flex-wrap:wrap}
+.ddr-day-lbl{font-size:12px;font-weight:600;color:var(--sub);min-width:120px;flex-shrink:0}
+.ddr-pnl-lbl{font-family:var(--mono);font-size:18px;font-weight:700;flex:1;min-width:80px}
 .ddr-chev{font-size:10px;color:var(--hint);transition:transform .2s;flex-shrink:0}
 .diary-day-row.open .ddr-chev{transform:rotate(90deg)}
 .ddr-detail{display:none;border-top:1px solid var(--b1)}
 .diary-day-row.open .ddr-detail{display:block}
+
+/* Day body — métricas, tabela de trades, equity intradiária */
+.ddr-day-metrics{display:flex;gap:var(--sp-4);flex-wrap:wrap;padding:var(--sp-3) 17px;background:var(--s2)}
+.ddr-day-metric{display:flex;flex-direction:column;gap:2px}
+.ddr-day-metric-val{font-family:var(--mono);font-size:15px;font-weight:700}
+.ddr-day-metric-lbl{font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em}
+.ddr-day-chart{padding:var(--sp-2) 17px var(--sp-3)}
 
 /* Day detail — 2-col pre-session layout */
 .ddr-ps-cols{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--b1)}
@@ -642,6 +647,11 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 #fs-modal-ta{flex:1;background:var(--s2);color:var(--text);border:none;padding:20px 24px;font-family:var(--sans);font-size:15px;line-height:1.75;resize:none;outline:none;min-width:0;overflow-y:auto}
 @media(max-width:680px){.fs-modal-body{flex-direction:column}#fs-modal-photos.has-photos{width:100%;height:45%;border-right:none;border-bottom:1px solid var(--b1)}}
 
+/* DIÁRIO — painel dedicado (Pré-sessão / Session Recap) */
+#ddr-panel{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9000;display:none;align-items:center;justify-content:center}
+.ddr-panel-box{width:90vw;height:90vh;display:flex;flex-direction:column;background:var(--s1);border:1px solid var(--b1);border-radius:14px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.7)}
+.ddr-panel-body{flex:1;overflow-y:auto}
+
 /* REUSABLE IMAGE GALLERY (main + thumbnails) */
 .img-gallery{display:flex;flex-direction:column;gap:8px;width:100%;flex:1 1 100%;min-width:0}
 .img-gallery-main{background:#000;border:1px solid var(--b1);border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;min-height:80px}
@@ -702,7 +712,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .btn-green{box-shadow:0 2px 10px color-mix(in srgb,var(--green) 22%,transparent)}
 
 /* General card depth */
-.sec,.mcard,.diary-week-card,.jday-card{box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.sec,.mcard,.diary-day-row,.jday-card{box-shadow:0 2px 8px rgba(0,0,0,.18)}
 
 /* Dashboard cards — depth on the surface, wash reserved for the hero */
 .dash-mcard{box-shadow:0 2px 8px rgba(0,0,0,.18)}
@@ -726,9 +736,6 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .acard{will-change:transform}
 .acard-body:hover{transform:none}
 .acard:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.28);border-color:var(--b2)}
-
-/* Week header hover */
-.week-hdr:hover{background:var(--s3)}
 
 /* Day row header hover */
 .ddr-hdr:hover{background:var(--s3)}
@@ -2331,12 +2338,20 @@ function fmtWeekRange(weekStart) {
   return s.getDate()+' '+M[s.getMonth()]+' – '+e.getDate()+' '+M[e.getMonth()]+' '+s.getFullYear();
 }
 
-function _getDiaryExpandedWeeks() {
-  try { return new Set(JSON.parse(localStorage.getItem('nq_expanded_weeks') || '[]')); }
+function _getDiaryExpandedDays() {
+  try { return new Set(JSON.parse(localStorage.getItem('nq_expanded_days') || '[]')); }
   catch(e) { return new Set(); }
 }
-function _saveDiaryExpandedWeeks(set) {
-  localStorage.setItem('nq_expanded_weeks', JSON.stringify([...set]));
+function _saveDiaryExpandedDays(set) {
+  localStorage.setItem('nq_expanded_days', JSON.stringify([...set]));
+}
+// Um dia "tem dados" se houve trades, ou algo preenchido na pré-sessão/recap
+function _dayHasData(date) {
+  if (acctTrades().some(t => t.date === date)) return true;
+  const ctx = psData[date];
+  if (!ctx) return false;
+  return !!(ctx.narrative || ctx.bias || ctx.recap_text || ctx.recap_bias_correct ||
+    (ctx.profile_screenshots||[]).length || (ctx.recap_screenshots||[]).length);
 }
 
 function _buildErrorCatalogMap() {
@@ -2356,46 +2371,48 @@ function renderDiary() {
   Object.keys(psData).forEach(d => weekSet.add(getMonday(d)));
   Object.keys(weeklyPrep).forEach(ws => weekSet.add(ws));
   const weeks = [...weekSet].sort((a,b) => b.localeCompare(a));
-  const totalTrades = acctTrades().length;
-  document.getElementById('journal-lbl').textContent = weeks.length + ' semanas · ' + totalTrades + ' trades';
-  const expanded = _getDiaryExpandedWeeks();
-  // Se não há estado guardado, abrir a semana mais recente por defeito
-  const useDefault = expanded.size === 0;
-  body.innerHTML = weeks.map((ws, i) => {
+
+  // Semana actual: mostra sempre Seg-Sex (para preparar dias futuros). Semanas passadas: só dias com dados.
+  const weekGroups = weeks.map(ws => {
     const isCurrent = ws === todayWeek;
-    const isOpen = useDefault ? i === 0 : expanded.has(ws);
-    return renderWeekCard(ws, isCurrent, isOpen);
-  }).join('');
+    const days = getWeekDays(ws).filter(d => isCurrent || _dayHasData(d));
+    return { weekStart: ws, isCurrent, days };
+  }).filter(g => g.days.length);
+
+  const totalTrades = acctTrades().length;
+  document.getElementById('journal-lbl').textContent = weekGroups.length + ' semanas · ' + totalTrades + ' trades';
+
+  const allDates = weekGroups.flatMap(g => g.days);
+  // "Mais recente" = o dia de hoje-ou-antes mais recente (a semana actual inclui sempre Seg-Sex,
+  // incluindo dias futuros vazios — esses nunca devem abrir por omissão).
+  const upToToday = allDates.filter(d => d <= today);
+  const mostRecentDate = upToToday.length ? upToToday.reduce((mx,d) => d>mx?d:mx)
+    : (allDates.length ? allDates.reduce((mx,d) => d>mx?d:mx) : null);
+  const expanded = _getDiaryExpandedDays();
+  const useDefault = expanded.size === 0;
+  const isOpenFn = d => useDefault ? d === mostRecentDate : expanded.has(d);
+
+  body.innerHTML = weekGroups.map(g => renderWeekSection(g.weekStart, g.isCurrent, g.days, isOpenFn)).join('');
 }
 
-function renderWeekCard(weekStart, isCurrent, isOpen) {
+// Semana — separador leve (não colapsável); o Dashboard já mostra o resumo semanal
+function renderWeekSection(weekStart, isCurrent, days, isOpenFn) {
   const trades = acctTrades();
-  const days = getWeekDays(weekStart);
   const weekTrades = trades.filter(t => days.includes(t.date));
   const weekPnl = weekTrades.reduce((s,t) => s+t.pnl, 0);
   const tradeDays = new Set(weekTrades.map(t => t.date)).size;
   const pnlColor = weekPnl > 0 ? 'var(--green)' : weekPnl < 0 ? 'var(--red)' : 'var(--hint)';
   const pnlStr = weekTrades.length ? ((weekPnl>=0?'+':'')+'$'+weekPnl.toFixed(2)) : '—';
-  return '<div class="diary-week-card'+(isCurrent?' current':'')+(isOpen?' open':'') +'" id="wk-'+weekStart+'">' +
-    '<div class="week-hdr" onclick="toggleWeekCard(\''+weekStart+'\')">' +
+  return '<div class="week-section">' +
+    '<div class="week-sep-hdr">' +
       '<span class="week-dates">'+fmtWeekRange(weekStart)+'</span>' +
       '<span class="week-badge-pill '+(isCurrent?'current':'done')+'">'+( isCurrent?'Em curso':'Concluída')+'</span>' +
       (weekTrades.length ? '<span class="week-pnl-lbl" style="color:'+pnlColor+'">'+pnlStr+'</span>' : '') +
       '<span class="week-meta-lbl">'+tradeDays+'d · '+weekTrades.length+'T</span>' +
-      '<button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 10px;margin-left:auto" onclick="event.stopPropagation();showWeekFullPrep(\''+weekStart+'\')" title="Ver preparação completa da semana">📋 Preparação</button>' +
-      '<span class="week-chevron">▶</span>' +
+      '<button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 10px;margin-left:auto" onclick="showWeekFullPrep(\''+weekStart+'\')" title="Ver preparação completa da semana">📋 Preparação</button>' +
     '</div>' +
-    '<div class="week-body" id="wkb-'+weekStart+'">' +
-      '<div class="week-days">' + days.map(d => buildDiaryDayRow(d)).join('') + '</div>' +
-    '</div>' +
+    days.map(d => buildDiaryDayRow(d, isOpenFn(d))).join('') +
   '</div>';
-}
-function toggleWeekCard(ws) {
-  const el = document.getElementById('wk-'+ws); if (!el) return;
-  el.classList.toggle('open');
-  const expanded = _getDiaryExpandedWeeks();
-  if (el.classList.contains('open')) { expanded.add(ws); } else { expanded.delete(ws); }
-  _saveDiaryExpandedWeeks(expanded);
 }
 
 // ─── Weekly Prep ──────────────────────────────────────────────────
@@ -2500,9 +2517,8 @@ function renderWPThumbs(weekStart) {
 
 // ─── Day Row ─────────────────────────────────────────────────────
 
-function buildDiaryDayRow(date) {
+function buildDiaryDayRow(date, isOpen) {
   const trades = acctTrades().filter(t => t.date === date);
-  const ctx = psData[date] || {};
   const pnl = trades.reduce((s,t) => s+t.pnl, 0);
   const pnlColor = pnl > 0 ? 'var(--green)' : pnl < 0 ? 'var(--red)' : 'var(--sub)';
   const pnlStr = trades.length ? ((pnl>=0?'+':'')+'$'+pnl.toFixed(2)) : '—';
@@ -2512,44 +2528,58 @@ function buildDiaryDayRow(date) {
   const dayLbl = D[d.getDay()]+', '+d.getDate()+' '+M[d.getMonth()];
   const isToday = date === todayISO();
 
-  let badges = '';
-  if (ctx.bias) { const bc=getBiasColor(ctx.bias),bg=getBiasBg(ctx.bias); badges+='<span class="jbadge" style="background:'+bg+';color:'+bc+';border:1px solid '+bc+'44">'+ctx.bias+'</span>'; }
-  if (ctx.recap_bias_correct) {
-    const rc = ctx.recap_bias_correct;
-    const rcC = rc==='Sim'?'var(--green)':rc==='Não'?'var(--red)':'var(--amber)';
-    badges+='<span class="jbadge" style="color:'+rcC+';border:1px solid '+rcC+'44">Bias '+rc+'</span>';
-  }
-
-  const planSnip = ctx.narrative ? escHtml(ctx.narrative.slice(0,60)+(ctx.narrative.length>60?'…':'')) : '';
-
-  return '<div class="diary-day-row" id="ddr-'+date+'">' +
+  return '<div class="diary-day-row'+(isOpen?' open':'')+'" id="ddr-'+date+'">' +
     '<div class="ddr-hdr" onclick="toggleDiaryDay(\''+date+'\')">' +
       '<span class="ddr-day-lbl">'+(isToday?'<span style="color:var(--accent)">● </span>':'')+dayLbl+'</span>' +
-      '<div class="ddr-badges">'+badges+'</div>' +
-      (planSnip ? '<span class="ddr-plan-snip">'+planSnip+'</span>' : '') +
       '<span class="ddr-pnl-lbl" style="color:'+pnlColor+'">'+pnlStr+'</span>' +
-      '<span class="ddr-cnt">'+(trades.length?trades.length+'T':'')+'</span>' +
+      '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openDiaryPrepPanel(\''+date+'\')" title="Abrir pré-sessão">📋 Pré-sessão</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openDiaryRecapPanel(\''+date+'\')" title="Abrir session recap">📝 Recap</button>' +
       '<span class="ddr-chev">▶</span>' +
     '</div>' +
-    '<div class="ddr-detail" id="ddd-'+date+'">' + buildDiaryDayDetail(date) + '</div>' +
+    '<div class="ddr-detail" id="ddd-'+date+'">' + buildDiaryDayBody(date) + '</div>' +
   '</div>';
 }
 function toggleDiaryDay(date) {
   const row = document.getElementById('ddr-'+date); if (!row) return;
   row.classList.toggle('open');
+  const expanded = _getDiaryExpandedDays();
+  if (row.classList.contains('open')) expanded.add(date); else expanded.delete(date);
+  _saveDiaryExpandedDays(expanded);
 }
 
-// ─── Day Detail — inline Pre-Sessão + Trades ─────────────────────
+// ─── Day Body — métricas do dia, tabela de trades, equity intradiária ──
 
-function buildDiaryDayDetail(date) {
+function buildDiaryDayBody(date) {
+  const trades = dayTrades(date);
+  const pnl = trades.reduce((s,t) => s+t.pnl, 0);
+  const pnlColor = pnl > 0 ? 'var(--green)' : pnl < 0 ? 'var(--red)' : 'var(--sub)';
+  const wins = trades.filter(t => t.pnl > 0).length, losses = trades.filter(t => t.pnl < 0).length;
+  const wr = trades.length ? Math.round(wins/trades.length*100) : null;
+
+  const metricsStrip = '<div class="ddr-day-metrics">' +
+    '<div class="ddr-day-metric"><span class="ddr-day-metric-val">'+trades.length+'</span><span class="ddr-day-metric-lbl">Trades</span></div>' +
+    '<div class="ddr-day-metric"><span class="ddr-day-metric-val" style="color:'+pnlColor+'">'+(trades.length?(pnl>=0?'+':'')+'$'+pnl.toFixed(2):'—')+'</span><span class="ddr-day-metric-lbl">P&amp;L</span></div>' +
+    '<div class="ddr-day-metric"><span class="ddr-day-metric-val">'+wins+'W · '+losses+'L</span><span class="ddr-day-metric-lbl">Vencedores / Perdedores</span></div>' +
+    '<div class="ddr-day-metric"><span class="ddr-day-metric-val">'+(wr!=null?wr+'%':'—')+'</span><span class="ddr-day-metric-lbl">Taxa de acerto</span></div>' +
+  '</div>';
+
+  const tradesHtml = trades.length ? buildDdrTrades(date, trades)
+    : '<div class="ddr-empty">Sem trades neste dia · <button class="btn btn-ghost btn-sm" onclick="showTab(\'import\',document.querySelectorAll(\'.tab\')[3])">Importar CSV →</button></div>';
+
+  const chartHtml = trades.length ? '<div class="ddr-day-chart">' + svgCumLine(trades, 700, 64) + '</div>' : '';
+
+  return metricsStrip + '<div class="ddr-trades-wrap">' + tradesHtml + '</div>' + chartHtml;
+}
+
+// ─── Pré-sessão do dia — painel dedicado (fora do bloco do dia) ────
+
+function buildDiaryPrepPanelContent(date) {
   const ctx = psData[date] || {};
   if (!diaryState[date]) diaryState[date] = { bias: ctx.bias||'' };
   const ds = diaryState[date];
 
-  // Prints — left col (galeria principal + thumbnails, preenche o card)
   const profGalleryHtml = buildDdrGallery(date);
 
-  // Bias do dia — right col
   const biasOpts = ['Bullish','Bearish','Neutral'];
   const _neutralVals2 = ['Consolidation/Ranging','ranging','Ranging'];
   const biasBtns = biasOpts.map(v => {
@@ -2558,38 +2588,48 @@ function buildDiaryDayDetail(date) {
     return '<button class="ps-bias-btn '+cls+(isOn?' on':'')+'" onclick="setDiaryBias(\''+date+'\',\''+v+'\',this)">'+v+'</button>';
   }).join('');
 
-  // Trades
-  const trades = dayTrades(date);
-  const tradesHtml = trades.length ? buildDdrTrades(date, trades)
-    : '<div class="ddr-empty">Sem trades neste dia · <button class="btn btn-ghost btn-sm" onclick="showTab(\'import\',document.querySelectorAll(\'.tab\')[3])">Importar CSV →</button></div>';
-
-  return '<div class="ddr-ps-cols">' +
-    // LEFT
-    '<div class="ddr-ps-col">' +
-      '<div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:10px">Prints</div>' +
-      '<input type="file" accept="image/*" multiple id="ddr-ss-in-'+date+'" style="display:none" onchange="ddrFilesSelected(\''+date+'\',this.files)">' +
-      '<div class="ddr-gallery-fill" id="ddr-ss-grid-'+date+'" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="ddrDrop(event,\''+date+'\')">'+profGalleryHtml+'</div>' +
-    '</div>' +
-    // RIGHT
-    '<div class="ddr-ps-col">' +
-      '<div style="font-size:11px;font-weight:700;color:var(--purple);margin-bottom:10px">Bias do dia</div>' +
-      '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px">'+biasBtns+'</div>' +
-      '<div class="ddr-field-lbl">Plano pré-mercado</div>' +
-      '<div class="ta-fs-wrap">' +
-      '<button class="ta-fs-btn" onclick="openFSModalPSByDate(\'Plano pré-mercado\',\'ddr-narrative-'+date+'\',\''+date+'\')" title="Expandir">⤢</button>' +
-      '<textarea class="ps-ta" id="ddr-narrative-'+date+'" style="min-height:150px" placeholder="Cola aqui o plano pré-mercado...">'+escHtml(ctx.narrative||'')+'</textarea>' +
+  return '<div id="ddr-prep-'+date+'">' +
+    '<div class="ddr-ps-cols">' +
+      '<div class="ddr-ps-col">' +
+        '<div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:10px">Prints</div>' +
+        '<input type="file" accept="image/*" multiple id="ddr-ss-in-'+date+'" style="display:none" onchange="ddrFilesSelected(\''+date+'\',this.files)">' +
+        '<div class="ddr-gallery-fill" id="ddr-ss-grid-'+date+'" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="ddrDrop(event,\''+date+'\')">'+profGalleryHtml+'</div>' +
+      '</div>' +
+      '<div class="ddr-ps-col">' +
+        '<div style="font-size:11px;font-weight:700;color:var(--purple);margin-bottom:10px">Bias do dia</div>' +
+        '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px">'+biasBtns+'</div>' +
+        '<div class="ddr-field-lbl">Plano pré-mercado</div>' +
+        '<div class="ta-fs-wrap">' +
+        '<button class="ta-fs-btn" onclick="openFSModalPSByDate(\'Plano pré-mercado\',\'ddr-narrative-'+date+'\',\''+date+'\')" title="Expandir">⤢</button>' +
+        '<textarea class="ps-ta" id="ddr-narrative-'+date+'" style="min-height:280px" placeholder="Cola aqui o plano pré-mercado...">'+escHtml(ctx.narrative||'')+'</textarea>' +
+        '</div>' +
       '</div>' +
     '</div>' +
-  '</div>' +
-  // Save bar
-  '<div class="ddr-save-bar">' +
-    '<button class="btn btn-ghost btn-sm" onclick="goToPSDate(\''+date+'\')">Ver pré-sessão completa →</button>' +
-    '<button class="btn btn-accent btn-sm" onclick="saveDiaryDayPS(\''+date+'\')">Guardar pré-sessão</button>' +
-  '</div>' +
-  // Trades
-  '<div class="ddr-trades-wrap">' + tradesHtml + '</div>' +
-  // Session Recap
-  buildSessionRecap(date);
+    '<div class="ddr-save-bar">' +
+      '<button class="btn btn-ghost btn-sm" onclick="closeDiaryPanel();goToPSDate(\''+date+'\')">Ver na Prep completa →</button>' +
+      '<button class="btn btn-accent btn-sm" onclick="saveDiaryDayPS(\''+date+'\')">Guardar pré-sessão</button>' +
+    '</div>' +
+  '</div>';
+}
+
+function fmtDiaryPanelDate(date) {
+  const D = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const M = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const d = new Date(date+'T12:00:00');
+  return D[d.getDay()]+', '+d.getDate()+' '+M[d.getMonth()];
+}
+function openDiaryPrepPanel(date) {
+  document.getElementById('ddr-panel-title').textContent = 'Pré-sessão · ' + fmtDiaryPanelDate(date);
+  document.getElementById('ddr-panel-body').innerHTML = buildDiaryPrepPanelContent(date);
+  document.getElementById('ddr-panel').style.display = 'flex';
+}
+function openDiaryRecapPanel(date) {
+  document.getElementById('ddr-panel-title').textContent = 'Session Recap · ' + fmtDiaryPanelDate(date);
+  document.getElementById('ddr-panel-body').innerHTML = buildSessionRecap(date);
+  document.getElementById('ddr-panel').style.display = 'flex';
+}
+function closeDiaryPanel() {
+  const modal = document.getElementById('ddr-panel'); if (modal) modal.style.display = 'none';
 }
 
 // ─── Session Recap ───────────────────────────────────────────────
@@ -2739,13 +2779,12 @@ function recapOpenLightbox(date, idx) {
 
 function buildDdrTrades(date, trades) {
   const sorted = [...trades].sort((a,b) => { const ar=a.csv_row??Infinity,br=b.csv_row??Infinity; if(ar!==br)return ar-br; return (a.time||'99:99').localeCompare(b.time||'99:99'); });
-  const hdr = '<div class="jtrade-hdr"><span>Hora</span><span>Símbolo</span><span>Dir</span><span>Entry→Exit</span><span>P&L</span><span>Grade/Erros</span><span>R Planeado</span><span>R Realizado</span><span></span></div>';
+  const hdr = '<div class="jtrade-hdr"><span>Hora</span><span>Símbolo</span><span>Dir</span><span>Entry→Exit</span><span>P&L</span><span>Grade</span><span>R Realizado</span></div>';
   return hdr + sorted.map((t, idx) => {
     const pc = t.pnl>0?'var(--green)':t.pnl<0?'var(--red)':'var(--sub)';
     const rc = t.risk&&t.risk>0 ? t.pnl/t.risk : (t.r&&t.r!==0?t.r:null);
     const rStr = rc!=null?(rc>=0?'+':'')+rc.toFixed(2)+'R':'—';
     const rColor = rc==null?'var(--hint)':rc>=1?'var(--green)':rc>=0?'var(--amber)':'var(--red)';
-    const rrStr = t.rr!=null?'1:'+t.rr.toFixed(2):'—';
     const dirC = t.direction==='Long'?'var(--green)':'var(--red)';
     return '<div class="jtrade-row" onclick="openReviewFromList(\''+date+'\','+idx+')">' +
       '<span style="color:var(--sub)">'+(t.time?t.time.slice(0,5):'—')+'</span>' +
@@ -2753,10 +2792,8 @@ function buildDdrTrades(date, trades) {
       '<span style="color:'+dirC+';font-weight:600">'+(t.direction||'—')+'</span>' +
       '<span style="color:var(--sub)">@'+(t.entry||'—')+'→'+(t.exit||'—')+'</span>' +
       '<span style="color:'+pc+';font-weight:700;font-size:12px;text-align:right">'+((t.pnl>=0?'+':'')+'$'+t.pnl.toFixed(2))+'</span>' +
-      '<span style="display:flex;gap:3px;flex-wrap:wrap">'+tradeGradeErrorBadges(t)+'</span>' +
-      '<span style="color:var(--hint);text-align:right">'+rrStr+'</span>' +
+      '<span>'+gradePillHTML(t.grade)+'</span>' +
       '<span style="color:'+rColor+';text-align:right;font-weight:600">'+rStr+'</span>' +
-      '<span style="cursor:pointer;color:var(--hint);text-align:center" onclick="event.stopPropagation();openReviewFromList(\''+date+'\','+idx+')">↗</span>' +
     '</div>';
   }).join('');
 }
@@ -2765,7 +2802,7 @@ function buildDdrTrades(date, trades) {
 function setDiaryBias(date, val, btn) {
   if (!diaryState[date]) diaryState[date] = {};
   diaryState[date].bias = diaryState[date].bias===val ? '' : val;
-  document.querySelectorAll('#ddr-'+date+' .ddr-ps-cols .ddr-ps-col:last-child .ps-bias-btn').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('#ddr-prep-'+date+' .ps-bias-btn').forEach(b=>b.classList.remove('on'));
   if (diaryState[date].bias) btn.classList.add('on');
 }
 // ─── Diary Day Screenshot upload ──────────────────────────────────
@@ -2830,14 +2867,6 @@ function saveDiaryDayPS(date) {
   };
   savePSData(date);
   toast('Pré-sessão guardada ✓','ok');
-  // Update header badges without full re-render
-  const hdr = document.querySelector('#ddr-'+date+' .ddr-hdr');
-  if (hdr) {
-    const tmp = document.createElement('div');
-    tmp.innerHTML = buildDiaryDayRow(date);
-    const newHdr = tmp.querySelector('.ddr-hdr');
-    if (newHdr) hdr.innerHTML = newHdr.innerHTML;
-  }
 }
 
 function goToPSDate(date) {
@@ -3968,22 +3997,38 @@ function renderDashboard() {
   const firstOff = (firstDow + 6) % 7;
   const dmAll = {};
   acctTrades().forEach(t=>{ if(!dmAll[t.date]) dmAll[t.date]=0; dmAll[t.date]+=t.pnl; });
+  // Células do mês (com folgas antes do dia 1) — usadas tanto para os dias como para agrupar em semanas
+  const monthCells = Array(firstOff).fill(null);
+  for (let d=1; d<=calDays; d++) monthCells.push(`${calY}-${String(calM+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`);
+  const monthPnls = monthCells.filter(Boolean).filter(iso => dmAll[iso] !== undefined).map(iso => dmAll[iso]);
+  const maxAbsPnl = Math.max(1, ...monthPnls.map(v => Math.abs(v)));
+
   let calHTML = ["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"].map(d=>`<div class="dash-cal-dh">${d}</div>`).join("");
-  calHTML += Array(firstOff).fill("<div></div>").join("");
-  for (let d=1; d<=calDays; d++) {
-    const iso = `${calY}-${String(calM+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+  monthCells.forEach(iso => {
+    if (!iso) { calHTML += "<div></div>"; return; }
+    const d = parseInt(iso.slice(8), 10);
     const pnl = dmAll[iso];
     const hasTrades = pnl !== undefined;
     const dayTrds = acctTrades().filter(t=>t.date===iso);
-    const opacity = hasTrades && dayTrds.length <= 2 ? 0.65 : 1;
+    const wins = dayTrds.filter(t=>t.pnl>0).length;
+    const wr = dayTrds.length ? Math.round(wins/dayTrds.length*100) : null;
     let cls = "dash-cal-day";
-    if (hasTrades) cls += pnl>0?" win-d has-trades":pnl<0?" loss-d has-trades":" be-d has-trades";
+    let bg = "";
+    if (hasTrades) {
+      cls += pnl>0?" win-d has-trades":pnl<0?" loss-d has-trades":" be-d has-trades";
+      if (pnl !== 0) {
+        const intensity = Math.min(1, Math.abs(pnl)/maxAbsPnl);
+        const mixPct = Math.round(18 + intensity*52);
+        bg = `background:color-mix(in srgb,${pnl>0?"var(--green)":"var(--red)"} ${mixPct}%,var(--s2));`;
+      }
+    }
     if (iso === todayStr) cls += " today-d";
     const pnlDisp = hasTrades ? `<div class="dash-cal-pnl" style="color:${pnl>0?"var(--green)":pnl<0?"var(--red)":"var(--sub)"}">${pnl>=0?"+":""}$${Math.abs(pnl)<1000?pnl.toFixed(0):Math.round(pnl/1000)+"k"}</div>` : "";
+    const metaDisp = hasTrades ? `<div class="dash-cal-meta">${dayTrds.length}T${wr!=null?" · "+wr+"%":""}</div>` : "";
     const click = hasTrades ? `onclick="showTab('journal',document.querySelectorAll('.tab')[1])"` : "";
-    const tip = hasTrades ? `title="${iso}: ${pnl>=0?"+":""}$${pnl.toFixed(2)} · ${dayTrds.length} trade${dayTrds.length>1?"s":""}"` : "";
-    calHTML += `<div class="${cls}" style="opacity:${opacity}" ${click} ${tip}><div class="dash-cal-dn">${d}</div>${pnlDisp}</div>`;
-  }
+    const tip = hasTrades ? `title="${iso}: ${pnl>=0?"+":""}$${pnl.toFixed(2)} · ${dayTrds.length} trade${dayTrds.length>1?"s":""} · ${wr}% acerto"` : "";
+    calHTML += `<div class="${cls}" style="${bg}" ${click} ${tip}><div class="dash-cal-dn">${d}</div>${pnlDisp}${metaDisp}</div>`;
+  });
   const calMonthLabel = calRef.toLocaleDateString("pt-PT",{month:"long",year:"numeric"});
   const calCard = `<div class="dash-cal-card">
     <div class="dash-cal-hdr">
@@ -3993,6 +4038,23 @@ function renderDashboard() {
     </div>
     <div class="dash-cal-grid">${calHTML}</div>
   </div>`;
+
+  // ─── RESUMO SEMANAL (ao lado do calendário) ──
+  const weekSummaryRows = [];
+  for (let i = 0; i < monthCells.length; i += 7) {
+    const chunk = monthCells.slice(i, i+7).filter(Boolean);
+    if (!chunk.length) continue;
+    const tradedDays = chunk.filter(iso => dmAll[iso] !== undefined);
+    const wPnl = tradedDays.reduce((s,iso) => s + dmAll[iso], 0);
+    const label = chunk[0].slice(8) + "–" + chunk[chunk.length-1].slice(8);
+    weekSummaryRows.push({ label, pnl: wPnl, days: tradedDays.length });
+  }
+  const weekSummaryHTML = weekSummaryRows.map(w => `<div class="dash-week-row">
+    <div class="dash-week-row-label">${w.label}</div>
+    <div class="dash-week-row-pnl" style="color:${w.days?(w.pnl>=0?"var(--green)":"var(--red)"):"var(--hint)"}">${w.days?(w.pnl>=0?"+":"")+"$"+w.pnl.toFixed(0):"—"}</div>
+    <div class="dash-week-row-days">${w.days?w.days+" dia"+(w.days>1?"s":"")+" operados":"sem trades"}</div>
+  </div>`).join("");
+  const calWrapHTML = `<div class="dash-cal-wrap">${calCard}<div class="dash-week-summary">${weekSummaryHTML}</div></div>`;
 
   // ─── TRADES RECENTES ─────────────────────
   const recent5 = [...acctTrades()].sort((a,b)=>{
@@ -4018,7 +4080,7 @@ function renderDashboard() {
   </div>`;
 
   body.innerHTML = periodBar + metricsHTML + chartsHTML +
-    `<div class="dash-bottom">${calCard}${recentCard}</div>`;
+    `<div class="dash-bottom">${calWrapHTML}${recentCard}</div>`;
   initEquityCanvas(trades);
 }
 
@@ -5170,6 +5232,8 @@ document.addEventListener("keydown", e => {
   if (e.key === "Escape") {
     const m = document.getElementById("fs-modal");
     if (m && m.style.display === "flex") { e.preventDefault(); closeFSModal(); return; }
+    const dp = document.getElementById("ddr-panel");
+    if (dp && dp.style.display === "flex") { e.preventDefault(); closeDiaryPanel(); return; }
     const rv = document.getElementById("review");
     if (rv && rv.classList.contains("open")) {
       e.preventDefault();
@@ -5190,6 +5254,17 @@ document.addEventListener("keydown", e => {
       <div id="fs-modal-photos"></div>
       <textarea id="fs-modal-ta"></textarea>
     </div>
+  </div>
+</div>
+
+<!-- DIÁRIO — painel dedicado (Pré-sessão / Session Recap) -->
+<div id="ddr-panel" onclick="if(event.target===this)closeDiaryPanel()">
+  <div class="ddr-panel-box">
+    <div class="fs-modal-hdr">
+      <span class="fs-modal-title" id="ddr-panel-title"></span>
+      <button class="fs-modal-close" onclick="closeDiaryPanel()">✕ Fechar</button>
+    </div>
+    <div class="ddr-panel-body" id="ddr-panel-body"></div>
   </div>
 </div>
 
