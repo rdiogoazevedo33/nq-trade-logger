@@ -487,9 +487,9 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .jday-metric-lbl{font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase}
 .jday-body{display:none;border-top:1px solid var(--b1)}
 .jday-card.open .jday-body{display:block}
-.jtrade-hdr{display:grid;grid-template-columns:86px 48px 44px 120px 1fr 90px 60px 100px 28px;gap:6px;padding:5px 16px;background:var(--s3);font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.04em}
-.jtrade-hdr span:nth-child(5),.jtrade-hdr span:nth-child(7){text-align:right}
-.jtrade-row{display:grid;grid-template-columns:86px 48px 44px 120px 1fr 90px 60px 100px 28px;align-items:center;gap:6px;padding:8px 16px;border-bottom:1px solid var(--b1);font-family:var(--mono);font-size:11px;transition:background .1s;cursor:pointer}
+.jtrade-hdr{display:grid;grid-template-columns:86px 48px 44px 120px 1fr 90px 85px 85px 28px;gap:6px;padding:5px 16px;background:var(--s3);font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.04em}
+.jtrade-hdr span:nth-child(5),.jtrade-hdr span:nth-child(7),.jtrade-hdr span:nth-child(8){text-align:right}
+.jtrade-row{display:grid;grid-template-columns:86px 48px 44px 120px 1fr 90px 85px 85px 28px;align-items:center;gap:6px;padding:8px 16px;border-bottom:1px solid var(--b1);font-family:var(--mono);font-size:11px;transition:background .1s;cursor:pointer}
 .jtrade-row:hover{background:var(--s2)}
 .jtrade-row:last-child{border-bottom:none}
 /* Context modal */
@@ -500,7 +500,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .ctx-sec{margin-bottom:11px}
 .ctx-lbl{font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
 .ctx-val{font-size:12px;font-family:var(--mono);color:var(--text)}
-@media(max-width:640px){.jday-hdr{gap:8px}.jday-metrics{gap:8px}.jtrade-hdr,.jtrade-row{grid-template-columns:74px 40px 36px 100px 1fr 70px 50px 80px 24px;font-size:10px}}
+@media(max-width:640px){.jday-hdr{gap:8px}.jday-metrics{gap:8px}.jtrade-hdr,.jtrade-row{grid-template-columns:74px 40px 36px 100px 1fr 70px 68px 68px 24px;font-size:10px}}
 
 /* FASE 5 — Session badges */
 .sess-badge{display:inline-flex;align-items:center;font-family:var(--mono);font-size:9px;font-weight:600;padding:1px 6px;border-radius:4px;letter-spacing:.03em;border:1px solid;white-space:nowrap;vertical-align:middle}
@@ -1867,12 +1867,6 @@ function fmtDuration(s) {
   const h = Math.floor(s/3600), min = Math.floor((s%3600)/60);
   return h + "h" + (min ? " " + min + " min" : "");
 }
-// Intervalo de horas entry-exit "HH:MM-HH:MM" a partir de entry_dt/exit_dt; "—" se faltar
-function tradeTimeRange(t) {
-  const tm = dt => { if (!dt) return null; const p = String(dt).replace("T", " ").split(" "); return (p[1] && /^\d{2}:\d{2}/.test(p[1])) ? p[1].slice(0,5) : null; };
-  const a = tm(t.entry_dt), b = tm(t.exit_dt);
-  return (a && b) ? a + "-" + b : "—";
-}
 function getBiasColor(bias) {
   if (bias === 'Bullish') return 'var(--green)';
   if (bias === 'Bearish') return 'var(--red)';
@@ -2298,23 +2292,6 @@ function miniCurve(trades, w, h, pos) {
   const sc = pos ? '#1fd17a' : '#f04f4f';
   const gid = 'g'+Math.random().toString(36).slice(2,6);
   return '<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" style="display:block;flex-shrink:0"><defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+sc+'" stop-opacity=".3"/><stop offset="100%" stop-color="'+sc+'" stop-opacity="0"/></linearGradient></defs><polygon points="'+fill+'" fill="url(#'+gid+')" /><polyline points="'+pts+'" fill="none" stroke="'+sc+'" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/></svg>';
-}
-
-function nqScale(r, compact) {
-  if (r == null || isNaN(r)) return '<span style="font-size:9px;font-family:var(--mono);color:var(--hint)">—</span>';
-  const pct = Math.max(0, Math.min(100,
-    r < 0 ? Math.max(0, 25 + r * 25) :
-    r < 1 ? 25 + r * 25 :
-    r < 2 ? 50 + (r-1) * 25 :
-    Math.min(100, 75 + (r-2) * 12.5)
-  ));
-  const label = r < 0 ? 'Fraca' : r < 1 ? 'OK' : r < 2 ? 'Boa' : 'Perfeita';
-  const lc = r < 0 ? 'var(--red)' : r < 1 ? 'var(--amber)' : 'var(--green)';
-  const bh = compact ? '5px' : '7px', ms = compact ? '10px' : '12px', mw = compact ? '70px' : '100px';
-  return '<div style="min-width:'+mw+'">'+
-    '<div style="position:relative;height:'+bh+';border-radius:3px;background:linear-gradient(to right,var(--red) 0 25%,var(--amber) 25% 50%,#4fd878 50% 75%,var(--green) 75%);margin-bottom:2px">'+
-    '<div style="position:absolute;top:50%;left:'+pct+'%;transform:translate(-50%,-50%);width:'+ms+';height:'+ms+';border-radius:50%;background:var(--text);border:2px solid var(--bg)"></div>'+
-    '</div><div style="font-size:8px;font-family:var(--mono);color:'+lc+';text-align:center">'+label+'</div></div>';
 }
 
 const JMONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
@@ -2764,22 +2741,23 @@ function recapOpenLightbox(date, idx) {
 
 function buildDdrTrades(date, trades) {
   const sorted = [...trades].sort((a,b) => { const ar=a.csv_row??Infinity,br=b.csv_row??Infinity; if(ar!==br)return ar-br; return (a.time||'99:99').localeCompare(b.time||'99:99'); });
-  const hdr = '<div class="jtrade-hdr"><span>Hora</span><span>Símbolo</span><span>Dir</span><span>Entry→Exit</span><span>P&L</span><span>Grade/Erros</span><span>R</span><span>NQ Scale</span><span></span></div>';
+  const hdr = '<div class="jtrade-hdr"><span>Hora</span><span>Símbolo</span><span>Dir</span><span>Entry→Exit</span><span>P&L</span><span>Grade/Erros</span><span>R Planeado</span><span>R Realizado</span><span></span></div>';
   return hdr + sorted.map((t, idx) => {
     const pc = t.pnl>0?'var(--green)':t.pnl<0?'var(--red)':'var(--sub)';
     const rc = t.risk&&t.risk>0 ? t.pnl/t.risk : (t.r&&t.r!==0?t.r:null);
-    const rStr = rc!=null?rc.toFixed(2)+'R':'—';
+    const rStr = rc!=null?(rc>=0?'+':'')+rc.toFixed(2)+'R':'—';
     const rColor = rc==null?'var(--hint)':rc>=1?'var(--green)':rc>=0?'var(--amber)':'var(--red)';
+    const rrStr = t.rr!=null?'1:'+t.rr.toFixed(2):'—';
     const dirC = t.direction==='Long'?'var(--green)':'var(--red)';
     return '<div class="jtrade-row" onclick="openReviewFromList(\''+date+'\','+idx+')">' +
-      '<span style="color:var(--sub)">'+tradeTimeRange(t)+'</span>' +
+      '<span style="color:var(--sub)">'+(t.time?t.time.slice(0,5):'—')+'</span>' +
       '<span style="background:var(--s3);padding:1px 5px;border-radius:4px;border:1px solid var(--b1)">'+(t.symbol||'NQ')+'</span>' +
       '<span style="color:'+dirC+';font-weight:600">'+(t.direction||'—')+'</span>' +
       '<span style="color:var(--sub)">@'+(t.entry||'—')+'→'+(t.exit||'—')+'</span>' +
       '<span style="color:'+pc+';font-weight:700;font-size:12px;text-align:right">'+((t.pnl>=0?'+':'')+'$'+t.pnl.toFixed(2))+'</span>' +
       '<span style="display:flex;gap:3px;flex-wrap:wrap">'+tradeGradeErrorBadges(t)+'</span>' +
-      '<span style="color:'+rColor+';text-align:right">'+rStr+'</span>' +
-      '<span>'+nqScale(rc,true)+'</span>' +
+      '<span style="color:var(--hint);text-align:right">'+rrStr+'</span>' +
+      '<span style="color:'+rColor+';text-align:right;font-weight:600">'+rStr+'</span>' +
       '<span style="cursor:pointer;color:var(--hint);text-align:center" onclick="event.stopPropagation();openReviewFromList(\''+date+'\','+idx+')">↗</span>' +
     '</div>';
   }).join('');
