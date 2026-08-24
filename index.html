@@ -424,8 +424,9 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .toast.info{background:var(--accent);color:#fff}
 
 /* DASHBOARD v3 */
-.dash-metrics{display:grid;grid-template-columns:1.7fr 1fr;gap:var(--sp-3);margin-bottom:var(--sp-4)}
-@media(max-width:640px){.dash-metrics{grid-template-columns:1fr}}
+.dash-metrics{display:flex;flex-direction:column;gap:var(--sp-3);margin-bottom:var(--sp-4)}
+.dash-metrics-secondary{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-3)}
+@media(max-width:700px){.dash-metrics-secondary{grid-template-columns:1fr}}
 .dash-mcard{background:var(--s1);border-radius:14px;padding:var(--sp-4);display:flex;flex-direction:column;justify-content:center;gap:var(--sp-1)}
 .dash-mval{font-size:22px;font-weight:700;font-family:var(--mono);line-height:1}
 .dash-mlbl{font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em}
@@ -1117,14 +1118,14 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 
         <div class="rv-section" id="rv-erros-card">
           <div class="rv-sec-hdr">
-            <span class="rv-sec-title">Erros</span>
+            <span class="rv-sec-title">Erro</span>
             <button class="btn btn-ghost btn-sm" onclick="rvToggleErrorCatalogEditor()">⚙ Catálogo</button>
           </div>
           <div id="rv-error-catalog-editor" style="display:none;margin-bottom:12px"></div>
-          <div class="rv-field-sub">Principal</div>
-          <select id="rv-error-primary" onchange="rvSetPrimaryError(this.value)" style="width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:6px 10px;cursor:pointer"></select>
-          <div class="rv-field-sub" style="margin-top:12px">Secundários</div>
-          <div id="rv-error-secondary" class="rv-err-chip-row"></div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <select id="rv-error-primary" onchange="rvSetPrimaryError(this.value)" style="flex:1;min-width:0;background:var(--s2);border:1px solid var(--b1);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:6px 10px;cursor:pointer"></select>
+            <button class="btn btn-ghost btn-sm" onclick="rvCreateAndSelectError()" title="Criar novo código de erro">+ Novo</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1835,11 +1836,10 @@ function sessionBadge(session) {
 // Compact grade + error badges for trade list rows
 function tradeGradeErrorBadges(t) {
   let html = gradePillHTML(t.grade);
-  const errIds = [t.error_primary, ...(t.error_secondary || [])].filter(Boolean);
-  if (errIds.length) {
+  if (t.error_primary) {
     const map = errCatMap();
-    const lbls = errIds.map(id => map[id]?.label || id);
-    html += '<span class="cbadge" style="background:#1f070718;color:var(--red);border:1px solid #f04f4f44" title="' + lbls.join(', ') + '">' + lbls[0] + (lbls.length > 1 ? ' +' + (lbls.length - 1) : '') + '</span>';
+    const lbl = map[t.error_primary]?.label || t.error_primary;
+    html += '<span class="cbadge" style="background:#1f070718;color:var(--red);border:1px solid #f04f4f44" title="' + lbl + '">' + lbl + '</span>';
   }
   return html || '<span style="color:var(--hint);font-size:10px;font-family:var(--mono)">—</span>';
 }
@@ -2129,7 +2129,7 @@ function toTradeRecord(ft) {
     pnl: ft.pnl != null ? round2(ft.pnl) : 0,
     unknownSymbol: ft.unknownSymbol,
     stop_ticks: null, tp_ticks: null, risk: null, rr: null, r: null,
-    grade: null, error_primary: null, error_secondary: [],
+    grade: null, error_primary: null,
     notes: "", screenshots: []
   };
 }
@@ -2640,9 +2640,7 @@ function computeDayStats(date) {
   trades.forEach(t => { if (t.grade) grades[t.grade] = (grades[t.grade]||0)+1; });
   const errMap = errCatMap();
   const errCounts = {};
-  trades.forEach(t => {
-    [t.error_primary, ...(t.error_secondary||[])].filter(Boolean).forEach(id => { errCounts[id] = (errCounts[id]||0)+1; });
-  });
+  trades.forEach(t => { if (t.error_primary) errCounts[t.error_primary] = (errCounts[t.error_primary]||0)+1; });
   const errors = Object.entries(errCounts).map(([id,count]) => ({ label: errMap[id]?.label || id, count }));
   const limit = curAcct?.daily_loss_limit || null;
   const lossLimitHit = (limit && limit > 0) ? (pnl <= -limit) : null;
@@ -3396,34 +3394,30 @@ function rvRenderPlanInput(kind) {
   const unit = rvUnit[kind];
   const presets = stopTpPresets[kind][unit];
   const curVal = unit === "ticks" ? ticks : (ticks > 0 ? Math.round(ticks * tv * 100) / 100 : null);
-  const isPreset = curVal != null && presets.includes(curVal);
   wrap.innerHTML =
     '<select id="rv-' + kind + '-sel" onchange="rvPlanSelectChange(\'' + kind + '\')" style="width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:5px;color:var(--text);font-family:var(--mono);font-size:12px;padding:4px 7px;cursor:pointer">' +
-      '<option value="">—</option>' +
-      presets.map(p => '<option value="' + p + '"' + (curVal === p ? " selected" : "") + '>' + p + (unit === "dollar" ? "$" : " ticks") + "</option>").join("") +
-      '<option value="custom"' + (curVal != null && !isPreset ? " selected" : "") + ">Valor livre…</option>" +
+      '<option value="">Preencher rápido…</option>' +
+      presets.map(p => '<option value="' + p + '">' + p + (unit === "dollar" ? "$" : " ticks") + "</option>").join("") +
     "</select>" +
-    '<input type="number" class="rv-inp" style="width:100%;text-align:left;margin-top:6px;' + (curVal != null && !isPreset ? "" : "display:none") + '" id="rv-' + kind + '-free" min="0" step="1" placeholder="' + (unit === "dollar" ? "$" : "ticks") + '" value="' + (curVal != null && !isPreset ? curVal : "") + '" oninput="rvUpdateRCalc()" onblur="rvSaveTradeFields()">' +
+    '<input type="number" class="rv-inp" style="width:100%;text-align:left;margin-top:6px" id="rv-' + kind + '-free" min="0" step="1" placeholder="' + (unit === "dollar" ? "$" : "ticks") + '" value="' + (curVal != null ? curVal : "") + '" oninput="rvUpdateRCalc()" onblur="rvSaveTradeFields()">' +
     '<div class="rv-plan-sub" id="rv-' + kind + '-sub">' + (unit === "ticks" ? (ticks > 0 ? "= $" + (ticks * tv).toFixed(2) : "") : (ticks > 0 ? ticks + " ticks" : "")) + "</div>" +
     (kind === "tp" ? rvBuildRRButtons() : "");
 }
 function rvPlanSelectChange(kind) {
   const sel = document.getElementById("rv-" + kind + "-sel");
   const free = document.getElementById("rv-" + kind + "-free");
-  if (sel.value === "custom") { free.style.display = ""; free.focus(); return; }
-  free.style.display = "none"; free.value = "";
+  if (!sel.value) return;
+  free.value = sel.value;
+  sel.value = "";
   rvUpdateRCalc();
   rvSaveTradeFields();
 }
 function rvReadPlanTicks(kind) {
   const t = dayTrades(rvDate)[rvIdx]; if (!t) return null;
   const tv = rvTickValue(t.symbol, t.qty);
-  const sel = document.getElementById("rv-" + kind + "-sel");
   const free = document.getElementById("rv-" + kind + "-free");
-  let val = null;
-  if (sel?.value === "custom") val = parseFloat(free?.value) || null;
-  else if (sel?.value) val = parseFloat(sel.value);
-  if (val == null) return null;
+  const val = parseFloat(free?.value);
+  if (isNaN(val) || val <= 0) return null;
   if (rvUnit[kind] === "ticks") return Math.round(val) || null;
   if (!tv) return null;
   return Math.round(val / tv) || null;
@@ -3569,13 +3563,6 @@ function rvRenderErrorPickers(t) {
   }
   primSel.innerHTML = opts;
   primSel.value = t.error_primary || "";
-
-  const secWrap = document.getElementById("rv-error-secondary");
-  const secSel = new Set(t.error_secondary || []);
-  const secCandidates = errorCatalog.filter(c => c.active || secSel.has(c.id));
-  secWrap.innerHTML = secCandidates.length
-    ? secCandidates.map(c => '<div class="rv-err-chip' + (secSel.has(c.id) ? " on" : "") + '" title="' + escHtml(c.desc || "") + '" onclick="rvToggleSecondaryError(\'' + c.id + '\')">' + escHtml(c.label) + (!c.active ? " (desactivado)" : "") + "</div>").join("")
-    : '<span style="color:var(--hint);font-size:11px;font-family:var(--mono)">Sem códigos no catálogo</span>';
 }
 function rvSetPrimaryError(v) {
   const trds = dayTrades(rvDate); const t = trds[rvIdx]; if (!t) return;
@@ -3584,15 +3571,17 @@ function rvSetPrimaryError(v) {
   setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]);
   rvMarkSaved();
 }
-function rvToggleSecondaryError(id) {
-  const trds = dayTrades(rvDate); const t = trds[rvIdx]; if (!t) return;
-  const all = acctTrades(); const idx = all.findIndex(x => x.id === t.id); if (idx === -1) return;
-  const cur = new Set(all[idx].error_secondary || []);
-  if (cur.has(id)) cur.delete(id); else cur.add(id);
-  all[idx].error_secondary = [...cur];
-  setAcctTrades(all); sbSaveTrade(curAcct.id, all[idx]);
-  rvRenderErrorPickers(all[idx]);
-  rvMarkSaved();
+function rvCreateAndSelectError() {
+  const label = (prompt("Nome do novo código de erro:") || "").trim();
+  if (!label) return;
+  const desc = (prompt("Descrição curta:") || "").trim();
+  let id = label.toUpperCase().replace(/[^A-Z0-9]+/g, "_").replace(/^_+|_+$/g, "") || ("ERR_" + Date.now());
+  if (errorCatalog.some(c => c.id === id)) { toast("Código já existe", "err"); return; }
+  errorCatalog.push({ id, label, desc, active: true });
+  saveErrorCatalog();
+  rvSetPrimaryError(id);
+  const t = dayTrades(rvDate)[rvIdx];
+  if (t) rvRenderErrorPickers(t);
 }
 function rvToggleErrorCatalogEditor() {
   const el = document.getElementById("rv-error-catalog-editor");
@@ -3933,7 +3922,26 @@ function renderDashboard() {
     </div>
   </div>`;
 
-  const metricsHTML = `<div class="dash-metrics">${pnlCard}${wrCard}</div>`;
+  const avgWLCard = `<div class="dash-mcard dash-mcard-quiet">
+    <div class="dash-card-lbl">Avg Win / Avg Loss</div>
+    <div style="display:flex;align-items:baseline;gap:8px">
+      <span class="dash-card-val" style="font-size:var(--fs-value);color:var(--green)">+$${s.avgW.toFixed(2)}</span>
+      <span style="color:var(--hint);font-family:var(--mono);font-size:12px">/</span>
+      <span class="dash-card-val" style="font-size:var(--fs-value);color:var(--red)">-$${s.avgL.toFixed(2)}</span>
+    </div>
+    <div class="dash-card-sub">${s.wins}W · ${s.losses}L</div>
+  </div>`;
+
+  const pfEligible = n >= 20;
+  const pfDisp = pfEligible ? (s.pf > 99 ? "∞" : s.pf.toFixed(2)) : "—";
+  const pfColor = !pfEligible ? "var(--hint)" : (s.pf >= 1.5 ? "var(--green)" : s.pf >= 1 ? "var(--amber)" : "var(--red)");
+  const pfCard = `<div class="dash-mcard dash-mcard-quiet">
+    <div class="dash-card-lbl">Profit Factor</div>
+    <div class="dash-card-val" style="color:${pfColor}">${pfDisp}</div>
+    <div class="dash-card-sub">${pfEligible ? n + " trades" : "amostra insuficiente"}</div>
+  </div>`;
+
+  const metricsHTML = `<div class="dash-metrics">${pnlCard}<div class="dash-metrics-secondary">${wrCard}${avgWLCard}${pfCard}</div></div>`;
 
   // ─── GRÁFICOS ────────────────────────────
   const dm = {};
@@ -4122,9 +4130,8 @@ function buildClaudePromptDay(date) {
   const errCatalogMap = _buildErrorCatalogMap();
   const tradeLines = trades.map((t, i) => {
     const rVal = t.risk && t.risk > 0 ? (t.pnl / t.risk).toFixed(2) : (t.r ? t.r.toFixed(2) : null);
-    const errIds = [t.error_primary, ...(t.error_secondary || [])].filter(Boolean);
-    const errs = errIds.map(id => errCatalogMap[id]?.label || id).join(", ");
-    return `  Trade #${i+1}: ${t.direction} ${t.time||""} @${t.entry||"?"}→${t.exit||"?"} | P&L: $${t.pnl.toFixed(2)}${rVal?" | R: "+rVal:""}${t.grade?" | Grade: "+t.grade:""}${errs?" | Erros: "+errs:""}${t.notes?" | Notas: "+t.notes.slice(0,80):""}`;
+    const err = t.error_primary ? (errCatalogMap[t.error_primary]?.label || t.error_primary) : "";
+    return `  Trade #${i+1}: ${t.direction} ${t.time||""} @${t.entry||"?"}→${t.exit||"?"} | P&L: $${t.pnl.toFixed(2)}${rVal?" | R: "+rVal:""}${t.grade?" | Grade: "+t.grade:""}${err?" | Erro: "+err:""}${t.notes?" | Notas: "+t.notes.slice(0,80):""}`;
   }).join("\n");
 
   const macroLines = (ctx.macroEvents||[]).map(e => `  ${e.time||""} ${e.name}: ${e.impact||"pendente"}`).join("\n");
@@ -4585,8 +4592,7 @@ function _fmtExportTradeLine(t, errMap) {
   if (t.points != null) parts.push((t.points >= 0 ? '+' : '') + t.points.toFixed(2) + 'pts');
   parts.push('P&L ' + fmtMoney(t.pnl));
   if (t.grade) parts.push('Grade ' + t.grade);
-  const errIds = [t.error_primary, ...(t.error_secondary || [])].filter(Boolean);
-  if (errIds.length) parts.push('Erros: ' + errIds.map(id => errMap[id]?.label || id).join(', '));
+  if (t.error_primary) parts.push('Erro: ' + (errMap[t.error_primary]?.label || t.error_primary));
   if (t.rr != null) parts.push('R planeado 1:' + t.rr.toFixed(2));
   if (t.r != null) parts.push('R realizado ' + fmtR(t.r));
   return parts.join(' · ');
@@ -4612,7 +4618,7 @@ function buildAIExportText(accountId, dateFrom, dateTo) {
   const gradeCounts = {};
   trades.forEach(t => { if (t.grade) gradeCounts[t.grade] = (gradeCounts[t.grade] || 0) + 1; });
   const errCounts = {};
-  trades.forEach(t => { [t.error_primary, ...(t.error_secondary || [])].filter(Boolean).forEach(id => { errCounts[id] = (errCounts[id] || 0) + 1; }); });
+  trades.forEach(t => { if (t.error_primary) errCounts[t.error_primary] = (errCounts[t.error_primary] || 0) + 1; });
 
   const lines = [];
 
