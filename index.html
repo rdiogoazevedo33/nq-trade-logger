@@ -452,7 +452,8 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .dash-cal-card{background:var(--s1);border-radius:14px;padding:var(--sp-3)}
 .dash-cal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .dash-cal-title{font-size:12px;font-weight:600}
-.dash-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.dash-cal-grid{display:grid;grid-template-columns:repeat(7,1fr) 78px;gap:3px}
+@media(max-width:640px){.dash-cal-grid{grid-template-columns:repeat(7,1fr) 52px;gap:2px}}
 .dash-cal-dh{font-size:9px;font-family:var(--mono);color:var(--hint);text-align:center;padding:4px 0}
 .dash-cal-day{border-radius:6px;padding:5px 3px;min-height:60px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;font-family:var(--mono);font-size:9px;border:1px solid transparent;transition:all .12s;cursor:default;position:relative}
 .dash-cal-day.has-trades{cursor:pointer}
@@ -464,14 +465,13 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .dash-cal-dn{font-size:9px;color:var(--hint);margin-bottom:2px;line-height:1}
 .dash-cal-pnl{font-size:12px;font-weight:700;line-height:1.2;text-align:center;word-break:break-all;margin-top:2px}
 .dash-cal-meta{font-size:8px;color:var(--sub);line-height:1.2;margin-top:3px}
-/* Calendário + resumo semanal lado a lado */
-.dash-cal-wrap{display:grid;grid-template-columns:1fr 150px;gap:var(--sp-3)}
-@media(max-width:640px){.dash-cal-wrap{grid-template-columns:1fr}}
-.dash-week-summary{display:flex;flex-direction:column;gap:6px}
-.dash-week-row{background:var(--s1);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:2px}
-.dash-week-row-label{font-size:9px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.05em}
-.dash-week-row-pnl{font-family:var(--mono);font-size:13px;font-weight:700}
-.dash-week-row-days{font-size:9px;font-family:var(--mono);color:var(--sub)}
+/* Resumo semanal — embutido como coluna extra do próprio grid do calendário, para ficar sempre alinhado linha a linha */
+.dash-cal-wk-dh{color:var(--sub);font-weight:600}
+.dash-cal-wk-cell{border-radius:6px;background:var(--s2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;text-align:center;min-height:60px;padding:3px 2px}
+.dash-week-row-label{font-size:8px;font-family:var(--mono);color:var(--hint);letter-spacing:.02em;line-height:1.25}
+.dash-week-row-pnl{font-family:var(--mono);font-size:11px;font-weight:700}
+.dash-week-row-days{font-size:8px;font-family:var(--mono);color:var(--sub)}
+@media(max-width:640px){.dash-week-row-label{font-size:7px}.dash-week-row-pnl{font-size:9px}.dash-week-row-days{display:none}}
 .dash-recent-card{background:var(--s1);border-radius:14px;padding:var(--sp-3)}
 .dash-recent-title{font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
 .dash-rt-row{display:grid;grid-template-columns:80px 44px 48px 1fr 68px;gap:6px;align-items:center;padding:8px 6px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .1s;border-radius:6px}
@@ -646,6 +646,36 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 .fsp-thumb.active{border-color:var(--accent);opacity:1}
 #fs-modal-ta{flex:1;background:var(--s2);color:var(--text);border:none;padding:20px 24px;font-family:var(--sans);font-size:15px;line-height:1.75;resize:none;outline:none;min-width:0;overflow-y:auto}
 @media(max-width:680px){.fs-modal-body{flex-direction:column}#fs-modal-photos.has-photos{width:100%;height:45%;border-right:none;border-bottom:1px solid var(--b1)}}
+
+/* MARKDOWN EDITOR TOOLBAR */
+.md-editor{width:100%}
+.md-toolbar{display:flex;align-items:center;gap:2px;flex-wrap:wrap;background:var(--s3);border:1px solid var(--b1);border-bottom:none;border-radius:8px 8px 0 0;padding:4px 6px}
+.md-tb-btn{background:none;border:none;color:var(--sub);font-family:var(--mono);font-size:11px;font-weight:700;min-width:22px;height:22px;padding:0 6px;border-radius:5px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:background .12s,color .12s}
+.md-tb-btn:hover{background:var(--s2);color:var(--text)}
+.md-tb-btn.on{background:var(--accent);color:#fff}
+.md-tb-sep{width:1px;align-self:stretch;background:var(--b1);margin:2px 3px}
+.md-tb-spacer{flex:1}
+.md-editor .ps-ta,.md-editor .rv-recap-ta{border-top-left-radius:0;border-top-right-radius:0}
+.md-editor.preview-mode textarea{display:none}
+.md-editor.preview-mode .ta-fs-btn{display:none}
+.md-preview{display:none;width:100%;background:var(--s2);border:1px solid var(--b1);border-top:none;border-radius:0 0 8px 8px;padding:11px 13px;font-family:var(--sans);font-size:14px;line-height:1.65;color:var(--text);overflow:auto}
+.md-editor.preview-mode .md-preview{display:block}
+.md-preview h1,.md-preview h2,.md-preview h3{margin:.6em 0 .3em;font-weight:700;line-height:1.3}
+.md-preview h1:first-child,.md-preview h2:first-child,.md-preview h3:first-child{margin-top:0}
+.md-preview p{margin:0 0 .6em}
+.md-preview p:last-child{margin-bottom:0}
+.md-preview ul,.md-preview ol{margin:0 0 .6em;padding-left:1.4em}
+.md-preview li{margin-bottom:.15em}
+.md-preview strong{font-weight:700}
+.md-preview em{font-style:italic}
+.md-preview code{font-family:var(--mono);background:var(--s3);padding:1px 5px;border-radius:4px;font-size:.9em}
+.md-preview table{border-collapse:collapse;margin:0 0 .6em;font-size:.92em;width:100%}
+.md-preview td,.md-preview th{border:1px solid var(--b1);padding:4px 8px;text-align:left}
+.md-preview th{background:var(--s3);font-weight:700}
+.fs-modal-editor-col{flex:1;display:flex;flex-direction:column;min-width:0}
+.fs-modal-editor-col .md-toolbar{border-radius:0;flex-shrink:0}
+.fs-modal-editor-col textarea,.fs-modal-editor-col .md-preview{flex:1;border:none;border-radius:0}
+.fs-modal-editor-col .md-preview{padding:20px 24px;font-size:15px;line-height:1.75}
 
 /* DIÁRIO — painel dedicado (Pré-sessão / Session Recap) */
 #ddr-panel{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9000;display:none;align-items:center;justify-content:center}
@@ -903,7 +933,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
   <div class="tabs">
     <button class="tab on"  onclick="showTab('dashboard',this)">Dashboard</button>
     <button class="tab"     onclick="showTab('journal',this)">Diário</button>
-    <button class="tab"     onclick="showTab('prep',this)">Prep</button>
+    <button class="tab"     onclick="showTab('prep',this)">Prep &amp; Recap</button>
     <button class="tab"     onclick="showTab('import',this)">+ CSV</button>
     <button class="tab"     onclick="showTab('reports',this)">Reports</button>
   </div>
@@ -962,6 +992,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
       <div class="prep-block open" id="prep-block-semana">
         <div class="prep-block-hdr" onclick="togglePrepBlock('semana')">
           <div class="prep-block-title">📅 Preparação Semanal</div>
+          <span class="ps-status-badge empty" id="prep-wk-status-badge">○ Não preenchida</span>
           <div class="prep-week-nav" onclick="event.stopPropagation()">
             <button class="cal-btn" onclick="prepNavWeek(-1)">‹</button>
             <span class="prep-week-range" id="prep-week-range"></span>
@@ -980,6 +1011,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
       <div class="prep-block" id="prep-block-dia">
         <div class="prep-block-hdr" onclick="togglePrepBlock('dia')">
           <div class="prep-block-title">📊 Pré-Sessão</div>
+          <span class="ps-status-badge empty" id="prep-dia-status-badge">○ Não preenchida</span>
           <div class="prep-day-nav" onclick="event.stopPropagation()">
             <button class="cal-btn" onclick="psNavDate(-1)">‹</button>
             <input type="date" id="ps-date-picker" onchange="loadPSDate(this.value)">
@@ -1000,9 +1032,25 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
       <div class="ps-gameplan-wrap ps-gameplan-hero">
         <div class="ps-gameplan-title">📋 Plano pré-mercado</div>
         <div class="ps-gameplan-sub">Cola aqui o output do briefing pré-mercado</div>
-        <div class="ta-fs-wrap">
-          <button class="ta-fs-btn" onclick="openFSModalPS('Plano pré-mercado','ps-narrative')" title="Expandir">⤢</button>
-          <textarea class="ps-ta" id="ps-narrative" style="min-height:240px" placeholder="Cola aqui o plano pré-mercado..."></textarea>
+        <div class="md-editor" data-ta="ps-narrative" id="ps-narrative-md-editor">
+          <div class="md-toolbar">
+            <button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd('ps-narrative','bold')" title="Negrito"><b>B</b></button>
+            <button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd('ps-narrative','italic')" title="Itálico"><i>I</i></button>
+            <button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd('ps-narrative','heading')" title="Título">H</button>
+            <span class="md-tb-sep"></span>
+            <button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd('ps-narrative','ul')" title="Lista com pontos">≡•</button>
+            <button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd('ps-narrative','ol')" title="Lista numerada">≡1</button>
+            <button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd('ps-narrative','table')" title="Inserir tabela">⊞</button>
+            <span class="md-tb-sep"></span>
+            <button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd('ps-narrative','clear')" title="Limpar formatação">⌫</button>
+            <span class="md-tb-spacer"></span>
+            <button type="button" class="md-tb-btn" id="ps-narrative-md-toggle" onclick="mdTogglePreview('ps-narrative')" title="Alternar pré-visualização">👁</button>
+          </div>
+          <div class="ta-fs-wrap">
+            <button class="ta-fs-btn" onclick="openFSModalPS('Plano pré-mercado','ps-narrative')" title="Expandir">⤢</button>
+            <textarea class="ps-ta" id="ps-narrative" style="min-height:240px" placeholder="Cola aqui o plano pré-mercado..."></textarea>
+          </div>
+          <div class="md-preview" id="ps-narrative-md-preview" style="min-height:240px"></div>
         </div>
       </div>
 
@@ -1034,6 +1082,21 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
       <div class="sec"><div class="sec-title">Sessões anteriores</div><div id="ps-hist"></div></div>
         </div><!-- end prep-block-body dia -->
       </div><!-- end prep-block dia -->
+
+      <!-- BLOCK C: SESSION RECAP -->
+      <div class="prep-block" id="prep-block-recap">
+        <div class="prep-block-hdr" onclick="togglePrepBlock('recap')">
+          <div class="prep-block-title">📝 Session Recap</div>
+          <span class="ps-status-badge empty" id="prep-recap-status-badge">○ Não preenchido</span>
+          <div class="prep-week-nav" onclick="event.stopPropagation()">
+            <span class="prep-week-range" id="prep-recap-date-lbl"></span>
+          </div>
+          <span class="prep-block-chev" id="prep-chev-recap">▾</span>
+        </div>
+        <div class="prep-block-body" id="prep-body-recap">
+          <div id="prep-recap-host"></div>
+        </div>
+      </div><!-- end prep-block recap -->
     </div><!-- end view-prep -->
   </div><!-- end .content -->
 </div><!-- end #app -->
@@ -1121,7 +1184,23 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
             <span class="rv-sec-title">📝 Trade Recap</span>
             <button class="btn btn-ghost btn-sm" onclick="openFSModalRecap()" title="Expandir">⤢</button>
           </div>
-          <textarea class="rv-recap-ta" id="rv-recap" placeholder="Descreve o que viste — orderflow, porque entraste, lições..." oninput="rvAutoGrow(this)" onblur="rvSaveTradeFields()"></textarea>
+          <div class="md-editor" data-ta="rv-recap" id="rv-recap-md-editor">
+            <div class="md-toolbar">
+              <button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd('rv-recap','bold')" title="Negrito"><b>B</b></button>
+              <button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd('rv-recap','italic')" title="Itálico"><i>I</i></button>
+              <button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd('rv-recap','heading')" title="Título">H</button>
+              <span class="md-tb-sep"></span>
+              <button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd('rv-recap','ul')" title="Lista com pontos">≡•</button>
+              <button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd('rv-recap','ol')" title="Lista numerada">≡1</button>
+              <button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd('rv-recap','table')" title="Inserir tabela">⊞</button>
+              <span class="md-tb-sep"></span>
+              <button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd('rv-recap','clear')" title="Limpar formatação">⌫</button>
+              <span class="md-tb-spacer"></span>
+              <button type="button" class="md-tb-btn" id="rv-recap-md-toggle" onclick="mdTogglePreview('rv-recap')" title="Alternar pré-visualização">👁</button>
+            </div>
+            <textarea class="rv-recap-ta" id="rv-recap" placeholder="Descreve o que viste — orderflow, porque entraste, lições..." oninput="rvAutoGrow(this)" onblur="rvSaveTradeFields()"></textarea>
+            <div class="md-preview" id="rv-recap-md-preview" style="min-height:320px"></div>
+          </div>
         </div>
 
         <div class="rv-section" id="rv-erros-card">
@@ -1820,6 +1899,175 @@ function escHtml(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
+// ═══════════════════════════════════════════
+// EDITOR DE TEXTO FORMATADO (markdown simples)
+// Guarda sempre markdown puro — nunca HTML. As caixas de texto grandes
+// (plano pré-mercado, session recap, trade recap, briefing semanal,
+// revisão da semana) usam mdEditorHTML() para a barra de ferramentas.
+// ═══════════════════════════════════════════
+function mdToolbarHTML(taId) {
+  return '<div class="md-toolbar">' +
+    '<button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd(\''+taId+'\',\'bold\')" title="Negrito"><b>B</b></button>' +
+    '<button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd(\''+taId+'\',\'italic\')" title="Itálico"><i>I</i></button>' +
+    '<button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd(\''+taId+'\',\'heading\')" title="Título">H</button>' +
+    '<span class="md-tb-sep"></span>' +
+    '<button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd(\''+taId+'\',\'ul\')" title="Lista com pontos">≡•</button>' +
+    '<button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd(\''+taId+'\',\'ol\')" title="Lista numerada">≡1</button>' +
+    '<button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd(\''+taId+'\',\'table\')" title="Inserir tabela">⊞</button>' +
+    '<span class="md-tb-sep"></span>' +
+    '<button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd(\''+taId+'\',\'clear\')" title="Limpar formatação">⌫</button>' +
+    '<span class="md-tb-spacer"></span>' +
+    '<button type="button" class="md-tb-btn" id="'+taId+'-md-toggle" onclick="mdTogglePreview(\''+taId+'\')" title="Alternar pré-visualização">👁</button>' +
+  '</div>';
+}
+// Envolve o markup ta-fs-wrap (ou textarea simples) já existente com a barra
+// de ferramentas + painel de pré-visualização. Não altera o id/valor da textarea.
+function mdEditorHTML(taId, taBlockHtml, minHeight) {
+  return '<div class="md-editor" data-ta="'+taId+'">' +
+    mdToolbarHTML(taId) +
+    taBlockHtml +
+    '<div class="md-preview" id="'+taId+'-md-preview" style="min-height:'+(minHeight||64)+'px"></div>' +
+  '</div>';
+}
+function mdCmd(taId, action) {
+  const ta = document.getElementById(taId); if (!ta) return;
+  const start = ta.selectionStart, end = ta.selectionEnd;
+  const val = ta.value;
+  const sel = val.slice(start, end);
+  let newVal, newStart, newEnd;
+
+  const wrapInline = (marker, placeholder) => {
+    if (sel) {
+      newVal = val.slice(0, start) + marker + sel + marker + val.slice(end);
+      newStart = start + marker.length; newEnd = newStart + sel.length;
+    } else {
+      newVal = val.slice(0, start) + marker + placeholder + marker + val.slice(end);
+      newStart = start + marker.length; newEnd = newStart + placeholder.length;
+    }
+  };
+  const linePrefix = (prefixFn) => {
+    let lineStart = val.lastIndexOf('\n', start - 1) + 1;
+    let lineEnd = val.indexOf('\n', end); if (lineEnd === -1) lineEnd = val.length;
+    const block = val.slice(lineStart, lineEnd);
+    const lines = block.split('\n');
+    let n = 1;
+    const newLines = lines.map(line => prefixFn(line, n++));
+    const newBlock = newLines.join('\n');
+    newVal = val.slice(0, lineStart) + newBlock + val.slice(lineEnd);
+    newStart = lineStart; newEnd = lineStart + newBlock.length;
+  };
+
+  if (action === 'bold') wrapInline('**', 'negrito');
+  else if (action === 'italic') wrapInline('*', 'itálico');
+  else if (action === 'heading') {
+    linePrefix(line => /^#{1,6}\s/.test(line) ? line.replace(/^#{1,6}\s/, '') : (line.trim() ? '## ' + line : line));
+  } else if (action === 'ul') {
+    linePrefix(line => { if (!line.trim()) return line; return /^-\s/.test(line) ? line.replace(/^-\s/, '') : '- ' + line.replace(/^\d+\.\s/, ''); });
+  } else if (action === 'ol') {
+    linePrefix((line, n) => { if (!line.trim()) return line; return n + '. ' + line.replace(/^\d+\.\s|^-\s/, ''); });
+  } else if (action === 'table') {
+    const rows = parseInt(prompt('Número de linhas (excluindo cabeçalho):', '2'), 10);
+    const cols = parseInt(prompt('Número de colunas:', '3'), 10);
+    if (!rows || !cols || rows < 1 || cols < 1) return;
+    const headerRow = '| ' + Array.from({length: cols}, (_, i) => 'Coluna ' + (i+1)).join(' | ') + ' |';
+    const sepRow = '| ' + Array.from({length: cols}, () => '---').join(' | ') + ' |';
+    const bodyRows = Array.from({length: rows}, () => '| ' + Array.from({length: cols}, () => ' ').join(' | ') + ' |').join('\n');
+    const table = headerRow + '\n' + sepRow + '\n' + bodyRows;
+    const needsNlBefore = start > 0 && val[start-1] !== '\n';
+    const insertion = (needsNlBefore ? '\n' : '') + table + '\n';
+    newVal = val.slice(0, start) + insertion + val.slice(end);
+    newStart = newEnd = start + insertion.length;
+  } else if (action === 'clear') {
+    const target = sel || val;
+    const cleaned = target
+      .replace(/^#{1,6}\s+/gm, '')
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+      .replace(/\*(.*?)\*/g, '$1')
+      .replace(/^[-*]\s+/gm, '')
+      .replace(/^\d+\.\s+/gm, '')
+      .replace(/^\|(.*)\|$/gm, (m, inner) => inner.split('|').map(c=>c.trim()).join('  '))
+      .replace(/^-{3,}\s*$/gm, '');
+    if (sel) {
+      newVal = val.slice(0, start) + cleaned + val.slice(end);
+      newStart = start; newEnd = start + cleaned.length;
+    } else {
+      newVal = cleaned; newStart = 0; newEnd = cleaned.length;
+    }
+  } else return;
+
+  ta.value = newVal;
+  ta.focus();
+  ta.setSelectionRange(newStart, newEnd);
+  ta.dispatchEvent(new Event('input', { bubbles: true }));
+}
+function mdTogglePreview(taId) {
+  const ta = document.getElementById(taId); if (!ta) return;
+  const editor = ta.closest('.md-editor'); if (!editor) return;
+  const preview = document.getElementById(taId+'-md-preview');
+  const btn = document.getElementById(taId+'-md-toggle');
+  const isPreview = editor.classList.toggle('preview-mode');
+  if (isPreview) {
+    if (preview) preview.innerHTML = mdToHtml(ta.value);
+    if (btn) { btn.classList.add('on'); btn.title = 'Voltar a editar'; }
+  } else {
+    if (btn) { btn.classList.remove('on'); btn.title = 'Alternar pré-visualização'; }
+    ta.focus();
+  }
+}
+// Conversor markdown → HTML minimalista (títulos, negrito, itálico, código,
+// listas com pontos/numeradas, tabelas). Suficiente para as caixas de texto
+// desta app — não é um parser markdown completo.
+function mdToHtml(src) {
+  const text = String(src || '');
+  if (!text.trim()) return '<span style="color:var(--hint)">Sem conteúdo</span>';
+  const lines = text.replace(/\r\n/g,'\n').split('\n');
+  let html = '';
+  let i = 0;
+  let listType = null;
+  const closeList = () => { if (listType) { html += listType === 'ul' ? '</ul>' : '</ol>'; listType = null; } };
+  const inline = s => {
+    let out = escHtml(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`(.+?)`/g, '<code>$1</code>');
+    out = out.replace(/(^|[^*])\*([^*]+?)\*(?!\*)/g, '$1<em>$2</em>');
+    return out;
+  };
+  const isTableSep = l => /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/.test(l);
+  while (i < lines.length) {
+    const line = lines[i];
+    if (/^\s*\|.*\|\s*$/.test(line) && lines[i+1] && isTableSep(lines[i+1])) {
+      closeList();
+      const headerCells = line.trim().replace(/^\||\|$/g,'').split('|').map(c=>c.trim());
+      let tbl = '<table><thead><tr>' + headerCells.map(c=>'<th>'+inline(c)+'</th>').join('') + '</tr></thead><tbody>';
+      i += 2;
+      while (i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])) {
+        const cells = lines[i].trim().replace(/^\||\|$/g,'').split('|').map(c=>c.trim());
+        tbl += '<tr>' + cells.map(c=>'<td>'+inline(c)+'</td>').join('') + '</tr>';
+        i++;
+      }
+      tbl += '</tbody></table>';
+      html += tbl;
+      continue;
+    }
+    const h = line.match(/^(#{1,6})\s+(.*)$/);
+    if (h) { closeList(); const lvl = Math.min(h[1].length,3); html += '<h'+lvl+'>'+inline(h[2])+'</h'+lvl+'>'; i++; continue; }
+    const ulm = line.match(/^\s*[-*]\s+(.*)$/);
+    if (ulm) {
+      if (listType !== 'ul') { closeList(); html += '<ul>'; listType = 'ul'; }
+      html += '<li>'+inline(ulm[1])+'</li>'; i++; continue;
+    }
+    const olm = line.match(/^\s*\d+\.\s+(.*)$/);
+    if (olm) {
+      if (listType !== 'ol') { closeList(); html += '<ol>'; listType = 'ol'; }
+      html += '<li>'+inline(olm[1])+'</li>'; i++; continue;
+    }
+    closeList();
+    if (!line.trim()) { i++; continue; }
+    html += '<p>'+inline(line)+'</p>';
+    i++;
+  }
+  closeList();
+  return html;
+}
+
 function dayTrades(iso) {
   const arr = (Array.isArray(allT[curAcct.id]) ? allT[curAcct.id] : []).filter(t => t.date === iso);
   return arr.sort((a, b) => {
@@ -2479,10 +2727,11 @@ function buildWeeklyPrepSection(weekStart) {
     '<div class="ps-gameplan-wrap">' +
       '<div class="ps-gameplan-title">📋 Briefing semanal</div>' +
       '<div class="ps-gameplan-sub">Cola aqui o briefing semanal completo</div>' +
-      '<div class="ta-fs-wrap">' +
-      '<button class="ta-fs-btn" onclick="openFSModalWP(\''+weekStart+'\',\'Briefing semanal\',\'wp-briefing-'+weekStart+'\')" title="Expandir">⤢</button>' +
-      '<textarea class="ps-ta" style="min-height:200px" id="wp-briefing-'+weekStart+'" placeholder="Cola aqui o briefing semanal...">'+escHtml(wp.briefing||'')+'</textarea>' +
-      '</div>' +
+      mdEditorHTML('wp-briefing-'+weekStart,
+        '<div class="ta-fs-wrap">' +
+        '<button class="ta-fs-btn" onclick="openFSModalWP(\''+weekStart+'\',\'Briefing semanal\',\'wp-briefing-'+weekStart+'\')" title="Expandir">⤢</button>' +
+        '<textarea class="ps-ta" style="min-height:200px" id="wp-briefing-'+weekStart+'" placeholder="Cola aqui o briefing semanal...">'+escHtml(wp.briefing||'')+'</textarea>' +
+        '</div>', 200) +
     '</div>' +
     '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
       '<span style="font-size:10px;font-family:var(--mono);color:var(--hint);text-transform:uppercase;letter-spacing:.06em">Bias semanal:</span>' +
@@ -2508,6 +2757,7 @@ async function saveWP(weekStart) {
     weekly_bias: ex.weekly_bias || ''
   };
   const ok = await saveWPData();
+  if (weekStart === prepWeek) updatePrepWeekStatusBadge();
   if (ok !== false) toast('Preparação semanal guardada ✓','ok');
 }
 function wpFilesSelected(weekStart, files) {
@@ -2638,10 +2888,11 @@ function buildDiaryPrepPanelContent(date) {
         '<div style="font-size:11px;font-weight:700;color:var(--purple);margin-bottom:10px">Bias do dia</div>' +
         '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px">'+biasBtns+'</div>' +
         '<div class="ddr-field-lbl">Plano pré-mercado</div>' +
-        '<div class="ta-fs-wrap">' +
-        '<button class="ta-fs-btn" onclick="openFSModalPSByDate(\'Plano pré-mercado\',\'ddr-narrative-'+date+'\',\''+date+'\')" title="Expandir">⤢</button>' +
-        '<textarea class="ps-ta" id="ddr-narrative-'+date+'" style="min-height:280px" placeholder="Cola aqui o plano pré-mercado...">'+escHtml(ctx.narrative||'')+'</textarea>' +
-        '</div>' +
+        mdEditorHTML('ddr-narrative-'+date,
+          '<div class="ta-fs-wrap">' +
+          '<button class="ta-fs-btn" onclick="openFSModalPSByDate(\'Plano pré-mercado\',\'ddr-narrative-'+date+'\',\''+date+'\')" title="Expandir">⤢</button>' +
+          '<textarea class="ps-ta" id="ddr-narrative-'+date+'" style="min-height:280px" placeholder="Cola aqui o plano pré-mercado...">'+escHtml(ctx.narrative||'')+'</textarea>' +
+          '</div>', 280) +
       '</div>' +
     '</div>' +
     '<div class="ddr-save-bar">' +
@@ -2672,7 +2923,12 @@ function closeDiaryPanel() {
 }
 
 // ─── Session Recap ───────────────────────────────────────────────
-function buildSessionRecap(date) {
+// `inst` identifica onde o componente está montado (ex: 'ddr' no painel do
+// Diário, 'prep' no separador Prep & Recap) para evitar ids duplicados
+// quando a mesma data está visível nos dois sítios ao mesmo tempo. Os dados
+// (psData[date]) são sempre os mesmos — só os ids do DOM mudam.
+function buildSessionRecap(date, inst) {
+  inst = inst || 'ddr';
   const ctx = psData[date] || {};
   const planPrints = ctx.profile_screenshots || [];
   const planThumbs = planPrints.length ? '<div class="ddr-recap-plan-thumbs">' + planPrints.map((src,i) =>
@@ -2682,12 +2938,13 @@ function buildSessionRecap(date) {
   const planText = ctx.narrative ? escHtml(ctx.narrative) : '<span style="color:var(--hint)">Sem plano pré-mercado registado</span>';
 
   const biasCorrectBtns = [['Sim','bull'],['Não','bear'],['Parcial','caut']].map(([v,cls]) =>
-    '<button class="ps-bias-btn '+cls+(ctx.recap_bias_correct===v?' on':'')+'" onclick="setRecapBiasCorrect(\''+date+'\',\''+v+'\',this)">'+v+'</button>'
+    '<button class="ps-bias-btn '+cls+(ctx.recap_bias_correct===v?' on':'')+'" onclick="setRecapBiasCorrect(\''+date+'\',\''+v+'\',this,\''+inst+'\')">'+v+'</button>'
   ).join('');
 
-  const recapGallery = buildDdrRecapGallery(date);
+  const recapGallery = buildDdrRecapGallery(date, inst);
+  const recapTaId = inst+'-recap-text-'+date;
 
-  return '<div class="ddr-recap-wrap" id="ddr-recap-'+date+'">' +
+  return '<div class="ddr-recap-wrap" id="'+inst+'-recap-'+date+'">' +
     '<div style="font-size:11px;font-weight:700;color:var(--teal);margin-bottom:10px">📝 Session Recap</div>' +
     renderDaySessionStats(date) +
     '<div class="ddr-ps-cols" style="border:1px solid var(--b1);border-radius:10px;overflow:hidden;margin-bottom:12px">' +
@@ -2700,15 +2957,16 @@ function buildSessionRecap(date) {
         '<div class="ddr-field-lbl">Bias Acertou</div>' +
         '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">' + biasCorrectBtns + '</div>' +
         '<div class="ddr-field-lbl">Recap</div>' +
-        '<div class="ta-fs-wrap">' +
-        '<button class="ta-fs-btn" onclick="openFSModalRecapText(\'Session Recap\',\'ddr-recap-text-'+date+'\',\''+date+'\')" title="Expandir">⤢</button>' +
-        '<textarea class="ps-ta" id="ddr-recap-text-'+date+'" style="min-height:150px" placeholder="Sessão / Erros / Setups Perdidos / Plano vs Sessão..." onblur="saveRecapText(\''+date+'\')">'+escHtml(ctx.recap_text||'')+'</textarea>' +
-        '</div>' +
+        mdEditorHTML(recapTaId,
+          '<div class="ta-fs-wrap">' +
+          '<button class="ta-fs-btn" onclick="openFSModalRecapText(\'Session Recap\',\''+recapTaId+'\',\''+date+'\')" title="Expandir">⤢</button>' +
+          '<textarea class="ps-ta" id="'+recapTaId+'" style="min-height:150px" placeholder="Sessão / Erros / Setups Perdidos / Plano vs Sessão..." onblur="saveRecapText(\''+date+'\',\''+inst+'\')">'+escHtml(ctx.recap_text||'')+'</textarea>' +
+          '</div>', 150) +
       '</div>' +
     '</div>' +
     '<div class="ddr-field-lbl">Prints da sessão (opcional)</div>' +
-    '<input type="file" accept="image/*" multiple id="ddr-recap-ss-in-'+date+'" style="display:none" onchange="ddrRecapFilesSelected(\''+date+'\',this.files)">' +
-    '<div id="ddr-recap-ss-grid-'+date+'" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="ddrRecapDrop(event,\''+date+'\')">' + recapGallery + '</div>' +
+    '<input type="file" accept="image/*" multiple id="'+inst+'-recap-ss-in-'+date+'" style="display:none" onchange="ddrRecapFilesSelected(\''+date+'\',this.files,\''+inst+'\')">' +
+    '<div id="'+inst+'-recap-ss-grid-'+date+'" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="ddrRecapDrop(event,\''+date+'\',\''+inst+'\')">' + recapGallery + '</div>' +
   '</div>';
 }
 
@@ -2745,22 +3003,27 @@ function renderDaySessionStats(date) {
   return html;
 }
 
-function setRecapBiasCorrect(date, val, btn) {
+function setRecapBiasCorrect(date, val, btn, inst) {
+  inst = inst || 'ddr';
   ensurePSDate(date);
   psData[date].recap_bias_correct = psData[date].recap_bias_correct === val ? '' : val;
-  document.querySelectorAll('#ddr-recap-'+date+' .ps-bias-btn').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('#'+inst+'-recap-'+date+' .ps-bias-btn').forEach(b=>b.classList.remove('on'));
   if (psData[date].recap_bias_correct) btn.classList.add('on');
   savePSData(date);
+  if (inst === 'prep') updatePrepRecapStatusBadge(date);
 }
-function saveRecapText(date) {
+function saveRecapText(date, inst) {
+  inst = inst || 'ddr';
   ensurePSDate(date);
-  const el = document.getElementById('ddr-recap-text-'+date); if (!el) return;
+  const el = document.getElementById(inst+'-recap-text-'+date); if (!el) return;
   psData[date].recap_text = el.value;
   savePSData(date);
+  if (inst === 'prep') updatePrepRecapStatusBadge(date);
 }
 
 // ─── Session Recap prints ──────────────────────────────────────────
-function ddrRecapFilesSelected(date, files) {
+function ddrRecapFilesSelected(date, files, inst) {
+  inst = inst || 'ddr';
   if (!files?.length) return;
   ensurePSDate(date);
   if (!psData[date].recap_screenshots) psData[date].recap_screenshots = [];
@@ -2774,42 +3037,44 @@ function ddrRecapFilesSelected(date, files) {
       loaded++;
       if (loaded === files.length) {
         savePSData(date);
-        renderDdrRecapThumbs(date);
+        renderDdrRecapThumbs(date, inst);
       }
     };
     reader.readAsDataURL(f);
   });
 }
-async function ddrRecapDrop(e, date) {
+async function ddrRecapDrop(e, date, inst) {
   e.preventDefault();
   e.stopPropagation();
   const zone = e.currentTarget; if (zone) zone.classList.remove('drag');
   const imgs = await getDropImages(e);
-  if (imgs.length) ddrRecapFilesSelected(date, imgs);
+  if (imgs.length) ddrRecapFilesSelected(date, imgs, inst);
 }
-function ddrRemoveRecapShot(date, idx) {
+function ddrRemoveRecapShot(date, idx, inst) {
   if (!psData[date]?.recap_screenshots) return;
   sbDeletePrint(psData[date].recap_screenshots[idx]);
   psData[date].recap_screenshots.splice(idx, 1);
   savePSData(date);
-  renderDdrRecapThumbs(date);
+  renderDdrRecapThumbs(date, inst);
 }
-function buildDdrRecapGallery(date) {
+function buildDdrRecapGallery(date, inst) {
+  inst = inst || 'ddr';
   const shots = psData[date]?.recap_screenshots || [];
-  const addAttr = "document.getElementById('ddr-recap-ss-in-"+date+"').click()";
+  const addAttr = "document.getElementById('"+inst+"-recap-ss-in-"+date+"').click()";
   if (!shots.length) {
     return '<div class="ddr-gallery-empty" style="min-height:120px" onclick="'+addAttr+'"><div style="font-size:20px;opacity:.2;margin-bottom:7px">📷</div><div style="font-size:12px;color:var(--hint);font-family:var(--mono)">Arrasta prints aqui ou clica para adicionar</div></div>';
   }
   return imgGalleryHTML(
-    'ddrrecapgal-'+date, shots, 220,
+    inst+'recapgal-'+date, shots, 220,
     "recapOpenLightbox('"+date+"',parseInt(this.dataset.idx)||0)",
-    i => "ddrRemoveRecapShot('"+date+"',"+i+")",
+    i => "ddrRemoveRecapShot('"+date+"',"+i+",'"+inst+"')",
     addAttr
   );
 }
-function renderDdrRecapThumbs(date) {
-  const grid = document.getElementById('ddr-recap-ss-grid-'+date); if (!grid) return;
-  grid.innerHTML = buildDdrRecapGallery(date);
+function renderDdrRecapThumbs(date, inst) {
+  inst = inst || 'ddr';
+  const grid = document.getElementById(inst+'-recap-ss-grid-'+date); if (!grid) return;
+  grid.innerHTML = buildDdrRecapGallery(date, inst);
 }
 function recapOpenLightbox(date, idx) {
   const shots = (psData[date] || {}).recap_screenshots || [];
@@ -2949,6 +3214,7 @@ function renderPrep() {
   if (!_prepInit) {
     setPrepBlock('semana', true);
     setPrepBlock('dia', false);
+    setPrepBlock('recap', false);
     _prepInit = true;
   }
 }
@@ -2989,6 +3255,14 @@ function prepRenderWeekly() {
   if (!host) return;
   // wrapper com id wk-<weekStart> para os selectores existentes (setWPBias) funcionarem
   host.innerHTML = '<div id="wk-' + prepWeek + '">' + buildWeeklyPrepSection(prepWeek) + '</div>';
+  updatePrepWeekStatusBadge();
+}
+function updatePrepWeekStatusBadge() {
+  const el = document.getElementById('prep-wk-status-badge'); if (!el) return;
+  const wp = weeklyPrep[prepWeek] || {};
+  const filled = !!(wp.briefing && wp.briefing.trim());
+  el.className = 'ps-status-badge ' + (filled ? 'ready' : 'empty');
+  el.textContent = filled ? '● Preenchida' : '○ Não preenchida';
 }
 
 // Block A — Revisão da Semana (pós-semana). Chaves: postWeek*_{weekKey} (ex: 2026-W26)
@@ -3020,15 +3294,17 @@ function prepRenderPostWeek() {
     '<div class="ps-field-lbl">Bias foi correcto?</div>' +
     '<div class="wp-bias-row" style="margin-top:0;margin-bottom:14px">' + btns + '</div>' +
     '<div class="ps-field-lbl">Review</div>' +
-    '<div class="ta-fs-wrap" style="margin-bottom:12px">' +
-      '<button class="ta-fs-btn" onclick="openFSModalWP(\'' + prepWeek + '\',\'Review da semana\',\'pw-review\')" title="Expandir">⤢</button>' +
-      '<textarea class="ps-ta" id="pw-review" style="min-height:70px" placeholder="O que correu bem, o que falhou, lições da semana...">' + escHtml(review) + '</textarea>' +
-    '</div>' +
-    '<div class="ps-field-lbl">Lições aprendidas</div>' +
-    '<div class="ta-fs-wrap">' +
-      '<button class="ta-fs-btn" onclick="openFSModalWP(\'' + prepWeek + '\',\'Lições aprendidas\',\'pw-lessons\')" title="Expandir">⤢</button>' +
-      '<textarea class="ps-ta" id="pw-lessons" style="min-height:70px" placeholder="O que farei diferente na próxima semana...">' + escHtml(lessons) + '</textarea>' +
-    '</div>';
+    mdEditorHTML('pw-review',
+      '<div class="ta-fs-wrap">' +
+        '<button class="ta-fs-btn" onclick="openFSModalWP(\'' + prepWeek + '\',\'Review da semana\',\'pw-review\')" title="Expandir">⤢</button>' +
+        '<textarea class="ps-ta" id="pw-review" style="min-height:70px" placeholder="O que correu bem, o que falhou, lições da semana...">' + escHtml(review) + '</textarea>' +
+      '</div>', 70) +
+    '<div class="ps-field-lbl" style="margin-top:12px">Lições aprendidas</div>' +
+    mdEditorHTML('pw-lessons',
+      '<div class="ta-fs-wrap">' +
+        '<button class="ta-fs-btn" onclick="openFSModalWP(\'' + prepWeek + '\',\'Lições aprendidas\',\'pw-lessons\')" title="Expandir">⤢</button>' +
+        '<textarea class="ps-ta" id="pw-lessons" style="min-height:70px" placeholder="O que farei diferente na próxima semana...">' + escHtml(lessons) + '</textarea>' +
+      '</div>', 70) ;
 }
 function setPostWeekBias(v, btn) {
   pwBias = (pwBias === v) ? '' : v;
@@ -3073,9 +3349,12 @@ function updatePSStatusBadge() {
   const d = psDate || todayISO();
   const ctx = psData[d];
   const st = psStatus(ctx);
-  const el = document.getElementById('ps-status-badge'); if (!el) return;
-  el.className = 'ps-status-badge ' + (st === 'ready' ? 'ready' : st === 'incomplete' ? 'incomplete' : 'empty');
-  el.textContent = psStatusLabel(st);
+  const cls = st === 'ready' ? 'ready' : st === 'incomplete' ? 'incomplete' : 'empty';
+  const lbl = psStatusLabel(st);
+  const el = document.getElementById('ps-status-badge');
+  if (el) { el.className = 'ps-status-badge ' + cls; el.textContent = lbl; }
+  const hdrEl = document.getElementById('prep-dia-status-badge');
+  if (hdrEl) { hdrEl.className = 'ps-status-badge ' + cls; hdrEl.textContent = lbl; }
 }
 
 function initPS() {
@@ -3099,6 +3378,26 @@ function loadPSDate(d) {
   renderPSScreenshots(d);
   updatePSStatusBadge();
   renderPSHist();
+  prepRenderRecap();
+}
+
+// Block C — Session Recap (mesma sessão do dia, mesmo componente do painel do Diário)
+function prepRenderRecap() {
+  const host = document.getElementById('prep-recap-host');
+  if (!host) return;
+  const d = psDate || todayISO();
+  host.innerHTML = buildSessionRecap(d, 'prep');
+  const lbl = document.getElementById('prep-recap-date-lbl');
+  if (lbl) lbl.textContent = fmtDiaryPanelDate(d);
+  updatePrepRecapStatusBadge(d);
+}
+function updatePrepRecapStatusBadge(d) {
+  d = d || psDate || todayISO();
+  const el = document.getElementById('prep-recap-status-badge'); if (!el) return;
+  const ctx = psData[d] || {};
+  const filled = !!(ctx.recap_text && ctx.recap_text.trim());
+  el.className = 'ps-status-badge ' + (filled ? 'ready' : 'empty');
+  el.textContent = filled ? '● Preenchido' : '○ Não preenchido';
 }
 
 function setPSBias(v, btn) {
@@ -3404,6 +3703,8 @@ function renderReview() {
   recapEl.value = t.notes || "";
   recapEl.style.height = "";
   rvAutoGrow(recapEl);
+  document.getElementById("rv-recap-md-editor")?.classList.remove("preview-mode");
+  document.getElementById("rv-recap-md-toggle")?.classList.remove("on");
 
   rvRenderGallery(t.screenshots || []);
   document.getElementById("rv-save-lbl").textContent = "";
@@ -4042,34 +4343,65 @@ function renderDashboard() {
   const monthPnls = monthCells.filter(Boolean).filter(iso => dmAll[iso] !== undefined).map(iso => dmAll[iso]);
   const maxAbsPnl = Math.max(1, ...monthPnls.map(v => Math.abs(v)));
 
-  let calHTML = ["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"].map(d=>`<div class="dash-cal-dh">${d}</div>`).join("");
-  monthCells.forEach(iso => {
-    if (!iso) { calHTML += "<div></div>"; return; }
-    const d = parseInt(iso.slice(8), 10);
-    const pnl = dmAll[iso];
-    const hasTrades = pnl !== undefined;
-    const dayTrds = acctTrades().filter(t=>t.date===iso);
-    const wins = dayTrds.filter(t=>t.pnl>0).length;
-    const wr = dayTrds.length ? Math.round(wins/dayTrds.length*100) : null;
-    let cls = "dash-cal-day";
-    let bg = "";
-    if (hasTrades) {
-      cls += pnl>0?" win-d has-trades":pnl<0?" loss-d has-trades":" be-d has-trades";
-      if (pnl !== 0) {
-        const intensity = Math.min(1, Math.abs(pnl)/maxAbsPnl);
-        const mixPct = Math.round(18 + intensity*52);
-        bg = `background:color-mix(in srgb,${pnl>0?"var(--green)":"var(--red)"} ${mixPct}%,var(--s2));`;
+  // Cabeçalho: dias da semana + coluna extra "Semana" (resumo), para o grid
+  // ficar com 8 colunas — assim cada cartão de semana nasce exactamente na
+  // mesma linha do grid que a sua semana de calendário, sem poder desalinhar.
+  let calHTML = ["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"].map(d=>`<div class="dash-cal-dh">${d}</div>`).join("") +
+    `<div class="dash-cal-dh dash-cal-wk-dh">Semana</div>`;
+  const MS = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+  const numRows = Math.ceil(monthCells.length / 7);
+  for (let r = 0; r < numRows; r++) {
+    const rowCells = monthCells.slice(r*7, r*7+7);
+    rowCells.forEach(iso => {
+      if (!iso) { calHTML += "<div></div>"; return; }
+      const d = parseInt(iso.slice(8), 10);
+      const pnl = dmAll[iso];
+      const hasTrades = pnl !== undefined;
+      const dayTrds = acctTrades().filter(t=>t.date===iso);
+      const wins = dayTrds.filter(t=>t.pnl>0).length;
+      const wr = dayTrds.length ? Math.round(wins/dayTrds.length*100) : null;
+      let cls = "dash-cal-day";
+      let bg = "";
+      if (hasTrades) {
+        cls += pnl>0?" win-d has-trades":pnl<0?" loss-d has-trades":" be-d has-trades";
+        if (pnl !== 0) {
+          const intensity = Math.min(1, Math.abs(pnl)/maxAbsPnl);
+          const mixPct = Math.round(18 + intensity*52);
+          bg = `background:color-mix(in srgb,${pnl>0?"var(--green)":"var(--red)"} ${mixPct}%,var(--s2));`;
+        }
       }
+      if (iso === todayStr) cls += " today-d";
+      const pnlDisp = hasTrades ? `<div class="dash-cal-pnl" style="color:${pnl>0?"var(--green)":pnl<0?"var(--red)":"var(--sub)"}">${pnl>=0?"+":""}$${Math.abs(pnl)<1000?pnl.toFixed(0):Math.round(pnl/1000)+"k"}</div>` : "";
+      const metaDisp = hasTrades ? `<div class="dash-cal-meta">${dayTrds.length}T${wr!=null?" · "+wr+"%":""}</div>` : "";
+      const click = hasTrades ? `onclick="showTab('journal',document.querySelectorAll('.tab')[1])"` : "";
+      const tip = hasTrades ? `title="${iso}: ${pnl>=0?"+":""}$${pnl.toFixed(2)} · ${dayTrds.length} trade${dayTrds.length>1?"s":""} · ${wr}% acerto"` : "";
+      calHTML += `<div class="${cls}" style="${bg}" ${click} ${tip}><div class="dash-cal-dn">${d}</div>${pnlDisp}${metaDisp}</div>`;
+    });
+
+    // Resumo da semana desta linha — intervalo real Segunda–Domingo da linha
+    // do calendário (pode atravessar o mês anterior/seguinte), não só os
+    // dias visíveis do mês em exibição.
+    const rowMonday = new Date(calY, calM, 1 - firstOff + r*7);
+    const rowSunday = new Date(rowMonday); rowSunday.setDate(rowSunday.getDate() + 6);
+    const rowDates = [];
+    for (let k = 0; k < 7; k++) {
+      const dd = new Date(rowMonday); dd.setDate(dd.getDate() + k);
+      rowDates.push(`${dd.getFullYear()}-${String(dd.getMonth()+1).padStart(2,"0")}-${String(dd.getDate()).padStart(2,"0")}`);
     }
-    if (iso === todayStr) cls += " today-d";
-    const pnlDisp = hasTrades ? `<div class="dash-cal-pnl" style="color:${pnl>0?"var(--green)":pnl<0?"var(--red)":"var(--sub)"}">${pnl>=0?"+":""}$${Math.abs(pnl)<1000?pnl.toFixed(0):Math.round(pnl/1000)+"k"}</div>` : "";
-    const metaDisp = hasTrades ? `<div class="dash-cal-meta">${dayTrds.length}T${wr!=null?" · "+wr+"%":""}</div>` : "";
-    const click = hasTrades ? `onclick="showTab('journal',document.querySelectorAll('.tab')[1])"` : "";
-    const tip = hasTrades ? `title="${iso}: ${pnl>=0?"+":""}$${pnl.toFixed(2)} · ${dayTrds.length} trade${dayTrds.length>1?"s":""} · ${wr}% acerto"` : "";
-    calHTML += `<div class="${cls}" style="${bg}" ${click} ${tip}><div class="dash-cal-dn">${d}</div>${pnlDisp}${metaDisp}</div>`;
-  });
+    const tradedDays = rowDates.filter(iso => dmAll[iso] !== undefined);
+    const wPnl = tradedDays.reduce((s,iso) => s + dmAll[iso], 0);
+    const crossesMonth = rowMonday.getMonth() !== rowSunday.getMonth();
+    const wLabel = crossesMonth
+      ? `${rowMonday.getDate()} ${MS[rowMonday.getMonth()]}–${rowSunday.getDate()} ${MS[rowSunday.getMonth()]}`
+      : `${String(rowMonday.getDate()).padStart(2,"0")}–${String(rowSunday.getDate()).padStart(2,"0")}`;
+    calHTML += `<div class="dash-cal-wk-cell">
+      <div class="dash-week-row-label">${wLabel}</div>
+      <div class="dash-week-row-pnl" style="color:${tradedDays.length?(wPnl>=0?"var(--green)":"var(--red)"):"var(--hint)"}">${tradedDays.length?(wPnl>=0?"+":"")+"$"+wPnl.toFixed(0):"—"}</div>
+      <div class="dash-week-row-days">${tradedDays.length?tradedDays.length+"d":"—"}</div>
+    </div>`;
+  }
   const calMonthLabel = calRef.toLocaleDateString("pt-PT",{month:"long",year:"numeric"});
-  const calCard = `<div class="dash-cal-card">
+  const calWrapHTML = `<div class="dash-cal-card">
     <div class="dash-cal-hdr">
       <button onclick="calNav(-1)" style="background:none;border:none;color:var(--sub);font-size:16px;cursor:pointer;padding:0 6px;line-height:1" title="Mês anterior">‹</button>
       <div class="dash-cal-title">${calMonthLabel}</div>
@@ -4077,23 +4409,6 @@ function renderDashboard() {
     </div>
     <div class="dash-cal-grid">${calHTML}</div>
   </div>`;
-
-  // ─── RESUMO SEMANAL (ao lado do calendário) ──
-  const weekSummaryRows = [];
-  for (let i = 0; i < monthCells.length; i += 7) {
-    const chunk = monthCells.slice(i, i+7).filter(Boolean);
-    if (!chunk.length) continue;
-    const tradedDays = chunk.filter(iso => dmAll[iso] !== undefined);
-    const wPnl = tradedDays.reduce((s,iso) => s + dmAll[iso], 0);
-    const label = chunk[0].slice(8) + "–" + chunk[chunk.length-1].slice(8);
-    weekSummaryRows.push({ label, pnl: wPnl, days: tradedDays.length });
-  }
-  const weekSummaryHTML = weekSummaryRows.map(w => `<div class="dash-week-row">
-    <div class="dash-week-row-label">${w.label}</div>
-    <div class="dash-week-row-pnl" style="color:${w.days?(w.pnl>=0?"var(--green)":"var(--red)"):"var(--hint)"}">${w.days?(w.pnl>=0?"+":"")+"$"+w.pnl.toFixed(0):"—"}</div>
-    <div class="dash-week-row-days">${w.days?w.days+" dia"+(w.days>1?"s":"")+" operados":"sem trades"}</div>
-  </div>`).join("");
-  const calWrapHTML = `<div class="dash-cal-wrap">${calCard}<div class="dash-week-summary">${weekSummaryHTML}</div></div>`;
 
   // ─── TRADES RECENTES ─────────────────────
   const recent5 = [...acctTrades()].sort((a,b)=>{
@@ -5255,6 +5570,10 @@ function openFSModal(title, taId, photos) {
       photosEl.classList.remove("has-photos");
     }
   }
+  const editorCol = document.getElementById("fs-modal-editor-col");
+  if (editorCol) editorCol.classList.remove("preview-mode");
+  const toggleBtn = document.getElementById("fs-modal-ta-md-toggle");
+  if (toggleBtn) toggleBtn.classList.remove("on");
   document.getElementById("fs-modal").style.display = "flex";
   setTimeout(() => document.getElementById("fs-modal-ta").focus(), 60);
 }
@@ -5348,7 +5667,23 @@ document.addEventListener("keydown", e => {
     </div>
     <div class="fs-modal-body">
       <div id="fs-modal-photos"></div>
-      <textarea id="fs-modal-ta"></textarea>
+      <div class="md-editor fs-modal-editor-col" data-ta="fs-modal-ta" id="fs-modal-editor-col">
+        <div class="md-toolbar">
+          <button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd('fs-modal-ta','bold')" title="Negrito"><b>B</b></button>
+          <button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd('fs-modal-ta','italic')" title="Itálico"><i>I</i></button>
+          <button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd('fs-modal-ta','heading')" title="Título">H</button>
+          <span class="md-tb-sep"></span>
+          <button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd('fs-modal-ta','ul')" title="Lista com pontos">≡•</button>
+          <button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd('fs-modal-ta','ol')" title="Lista numerada">≡1</button>
+          <button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd('fs-modal-ta','table')" title="Inserir tabela">⊞</button>
+          <span class="md-tb-sep"></span>
+          <button type="button" class="md-tb-btn" onmousedown="event.preventDefault()" onclick="mdCmd('fs-modal-ta','clear')" title="Limpar formatação">⌫</button>
+          <span class="md-tb-spacer"></span>
+          <button type="button" class="md-tb-btn" id="fs-modal-ta-md-toggle" onclick="mdTogglePreview('fs-modal-ta')" title="Alternar pré-visualização">👁</button>
+        </div>
+        <textarea id="fs-modal-ta"></textarea>
+        <div class="md-preview" id="fs-modal-ta-md-preview"></div>
+      </div>
     </div>
   </div>
 </div>
