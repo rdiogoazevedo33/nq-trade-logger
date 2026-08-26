@@ -894,6 +894,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
         <div id="settings-menu" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:6px;z-index:500;min-width:180px;box-shadow:0 8px 24px #0006">
           <button class="settings-menu-item" onclick="exportAllData();toggleSettingsMenu()">↓ Backup (JSON)</button>
           <label class="settings-menu-item" style="cursor:pointer">↑ Restaurar (JSON)<input type="file" accept=".json" style="display:none" onchange="importAllData(event);toggleSettingsMenu()"></label>
+          <button class="settings-menu-item" style="color:var(--red)" onclick="showWipeAccountModal();toggleSettingsMenu()">🗑 Limpar dados da conta</button>
         </div>
       </div>
       <button class="btn btn-ghost btn-sm" style="color:var(--red);border-color:var(--red)22" onclick="showClearAllModal()" title="Apagar trades importadas via CSV">🗑 Limpar</button>
@@ -1156,6 +1157,28 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
       <div style="display:flex;gap:9px;justify-content:flex-end">
         <button class="btn btn-ghost" onclick="hideClearAllModal()">Cancelar</button>
         <button class="btn" id="clear-all-btn" style="background:var(--red);color:#fff;opacity:.4;pointer-events:none" onclick="executeClearAll()">🗑 Apagar trades</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WIPE ACCOUNT DATA MODAL -->
+<div id="wipe-account-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:900;align-items:center;justify-content:center">
+  <div style="background:var(--s1);border:1px solid var(--red);border-radius:16px;padding:28px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.6)">
+    <div style="font-size:18px;font-weight:700;color:var(--red);margin-bottom:10px">⚠ Limpar todos os dados da conta</div>
+    <div id="wipe-account-step1">
+      <p style="font-size:13px;color:var(--sub);line-height:1.6;margin-bottom:20px">Esta acção apaga permanentemente <strong style="color:var(--text)">todas as trades, pré-sessões, recaps e preparação semanal</strong> da conta <strong style="color:var(--text)" id="wipe-account-name1"></strong>, local e na cloud.<br><br>A conta em si não é apagada. Não pode ser desfeito.</p>
+      <div style="display:flex;gap:9px;justify-content:flex-end">
+        <button class="btn btn-ghost" onclick="hideWipeAccountModal()">Cancelar</button>
+        <button class="btn" style="background:var(--red);color:#fff" onclick="wipeAccountStep2()">Continuar →</button>
+      </div>
+    </div>
+    <div id="wipe-account-step2" style="display:none">
+      <p style="font-size:13px;color:var(--sub);line-height:1.6;margin-bottom:14px">Para confirmar, escreve o nome da conta <strong style="color:var(--text);font-family:var(--mono)" id="wipe-account-name2"></strong> no campo abaixo:</p>
+      <input type="text" id="wipe-account-confirm-in" class="rv-inp" style="width:100%;text-align:left;margin-bottom:14px;font-size:13px" placeholder="Nome da conta" oninput="checkWipeAccountConfirm()">
+      <div style="display:flex;gap:9px;justify-content:flex-end">
+        <button class="btn btn-ghost" onclick="hideWipeAccountModal()">Cancelar</button>
+        <button class="btn" id="wipe-account-btn" style="background:var(--red);color:#fff;opacity:.4;pointer-events:none" onclick="executeWipeAccount()">🗑 Apagar tudo</button>
       </div>
     </div>
   </div>
@@ -1475,6 +1498,12 @@ async function sbDeleteAccountTrades(accountId) {
   if (!sbUser) return true;
   const { error } = await sb.from("trades").delete().eq("user_id", sbUser.id).eq("account_id", accountId);
   if (error) { console.error("[NQ] sbDeleteAccountTrades ERRO:", accountId, error.message); return false; }
+  return true;
+}
+async function sbDeleteAccountSessions(accountId) {
+  if (!sbUser) return true;
+  const { error } = await sb.from("sessions").delete().eq("user_id", sbUser.id).eq("account_id", accountId);
+  if (error) { console.error("[NQ] sbDeleteAccountSessions ERRO:", accountId, error.message); return false; }
   return true;
 }
 async function sbSaveSession(date, sessionData, accountId) {
@@ -1965,7 +1994,7 @@ function setDailyLossLimit(id, e) {
   a.daily_loss_limit = (v.trim() && !isNaN(n) && n > 0) ? n : null;
   persist(); renderAccts();
 }
-function deleteAcct(id, e) {
+async function deleteAcct(id, e) {
   e.stopPropagation();
   const a = accounts.find(x => x.id === id); if (!a) return;
   const n = (Array.isArray(allT[id]) ? allT[id] : []).length;
@@ -1977,6 +2006,16 @@ function deleteAcct(id, e) {
   localStorage.setItem(SK_PS, JSON.stringify(allPS));
   localStorage.setItem(SK_WP, JSON.stringify(allWP));
   persist(); renderAccts();
+  if (sbUser) {
+    try {
+      await sbDeleteAccountTrades(id);
+      await sbDeleteAccountSessions(id);
+      await saveWPData(); // reenvia nq10_wp/nq10_wp_imgs sem a conta apagada
+    } catch(err) {
+      console.error("[NQ] deleteAcct: erro ao apagar dados remotos:", err);
+      toast("Conta apagada localmente — erro ao limpar a cloud", "err");
+    }
+  }
 }
 
 function clearDay() {
@@ -4386,6 +4425,63 @@ async function executeClearAll() {
   } catch(err) {
     console.error("Erro ao apagar do Supabase:", err);
     renderCalendar(); renderDiary(); renderDashboard(); renderReports();
+    toast("Apagado localmente (erro na cloud — verifica ligação)", "err");
+  }
+}
+
+// ═══════════════════════════════════════════
+// LIMPAR DADOS DA CONTA (trades + sessões + prep)
+// ═══════════════════════════════════════════
+function showWipeAccountModal() {
+  if (!curAcct) return;
+  const m = document.getElementById("wipe-account-modal"); if (!m) return;
+  m.style.display = "flex";
+  document.getElementById("wipe-account-step1").style.display = "block";
+  document.getElementById("wipe-account-step2").style.display = "none";
+  document.getElementById("wipe-account-name1").textContent = curAcct.name;
+  document.getElementById("wipe-account-name2").textContent = curAcct.name;
+  const inp = document.getElementById("wipe-account-confirm-in"); if (inp) inp.value = "";
+  const btn = document.getElementById("wipe-account-btn");
+  if (btn) { btn.style.opacity = ".4"; btn.style.pointerEvents = "none"; }
+}
+function hideWipeAccountModal() {
+  const m = document.getElementById("wipe-account-modal"); if (m) m.style.display = "none";
+}
+function wipeAccountStep2() {
+  document.getElementById("wipe-account-step1").style.display = "none";
+  document.getElementById("wipe-account-step2").style.display = "block";
+}
+function checkWipeAccountConfirm() {
+  if (!curAcct) return;
+  const val = document.getElementById("wipe-account-confirm-in")?.value || "";
+  const btn = document.getElementById("wipe-account-btn");
+  const ok = val === curAcct.name;
+  if (btn) { btn.style.opacity = ok ? "1" : ".4"; btn.style.pointerEvents = ok ? "auto" : "none"; }
+}
+async function executeWipeAccount() {
+  if (!curAcct) return;
+  const id = curAcct.id;
+  hideWipeAccountModal();
+  // Limpar em memória
+  allT[id] = [];
+  allPS[id] = {};
+  allWP[id] = {};
+  psData = allPS[id];
+  weeklyPrep = allWP[id];
+  // Guardar localmente de imediato
+  localStorage.setItem(SK_T, JSON.stringify(allT));
+  localStorage.setItem(SK_PS, JSON.stringify(allPS));
+  localStorage.setItem(SK_WP, JSON.stringify(allWP));
+  renderCalendar(); renderDiary(); renderDashboard(); renderReports(); renderPrep();
+  try {
+    if (sbUser) {
+      await sbDeleteAccountTrades(id);
+      await sbDeleteAccountSessions(id);
+      await saveWPData(); // reenvia nq10_wp/nq10_wp_imgs sem os dados desta conta
+    }
+    toast("Dados da conta apagados ✓", "ok");
+  } catch(err) {
+    console.error("Erro ao apagar dados da conta na cloud:", err);
     toast("Apagado localmente (erro na cloud — verifica ligação)", "err");
   }
 }
